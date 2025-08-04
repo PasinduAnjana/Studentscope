@@ -1,0 +1,6 @@
+[
+  { "id": 1, "name": "Pasindu", "grade": "A", "email":"pasindu@gmail.com" },
+  { "id": 2, "name": "Nimasha", "grade": "B+" ,"email":"nimasha@gmail.com"},
+  { "id": 3, "name": "Tharaka", "grade": "A-" ,"email":"tharaka@gmail.com"},
+  { "id": 4, "name": "Kasun", "grade": "B" ,"email":"kasun@gmail.com"}
+]

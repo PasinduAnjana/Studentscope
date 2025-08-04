@@ -1,0 +1,90 @@
+// topbar.js
+
+function loadTopbar() {
+  fetch("components/topbar.html")
+    .then((res) => res.text())
+    .then((html) => {
+      document.getElementById("topbar").innerHTML = html;
+      setupProfileDropdown();
+      setupLanguageDropdown();
+      setupSidebarToggle();
+      setupLogoutButton();
+      applyTranslations();
+    });
+}
+
+function setupProfileDropdown() {
+  const profileBtn = document.getElementById("profile-btn");
+  const dropdown = document.getElementById("profile-dropdown");
+
+  if (profileBtn && dropdown) {
+    profileBtn.addEventListener("click", () => {
+      dropdown.style.display =
+        dropdown.style.display === "block" ? "none" : "block";
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!profileBtn.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+  }
+}
+
+function setupLanguageDropdown() {
+  const languageBtn = document.getElementById("language-btn");
+  const dropdown = document.getElementById("language-dropdown");
+  const languageItems = document.querySelectorAll(".dropdown-item");
+
+  const savedLang = localStorage.getItem("lang") || "en";
+
+  // ✅ Set the dropdown label to the saved language name
+  const selectedItem = [...languageItems].find(
+    (item) => item.getAttribute("data-lang") === savedLang
+  );
+  if (selectedItem) {
+    languageBtn.querySelector("span").textContent = selectedItem.textContent;
+  }
+
+  if (languageBtn && dropdown) {
+    languageBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdown.style.display =
+        dropdown.style.display === "block" ? "none" : "block";
+    });
+
+    languageItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        const lang = item.getAttribute("data-lang");
+        languageBtn.querySelector("span").textContent = item.textContent;
+        dropdown.style.display = "none";
+        localStorage.setItem("lang", lang);
+        updateLanguage(lang);
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!languageBtn.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+  }
+}
+
+function setupSidebarToggle() {
+  const toggle = document.getElementById("sidebar-toggle");
+  const sidebar = document.getElementById("sidebar");
+
+  if (toggle && sidebar) {
+    toggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      sidebar.classList.toggle("open");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+        sidebar.classList.remove("open");
+      }
+    });
+  }
+}

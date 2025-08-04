@@ -1,0 +1,40 @@
+<div class="flex-between" style="width: 100%">
+  <div class="flex">
+    <span id="sidebar-toggle" class="mobile-toggle">☰</span>
+    <img
+      src="/assets/icons/logo.svg"
+      width="40"
+      alt=""
+      style="padding-right: 10px"
+    />
+    <h2 style="color: var(--color-primary)">StudentScope</h2>
+  </div>
+
+  <div class="flex" style="gap: 20px">
+    <!-- Language Dropdown -->
+    <div class="language-wrapper">
+      <div id="language-btn" class="flex" style="gap: 8px; cursor: pointer">
+        <span>English</span>
+        <i class="language-icon">▼</i>
+      </div>
+      <div id="language-dropdown" class="dropdown-menu">
+        <button class="dropdown-item" data-lang="en">English</button>
+        <button class="dropdown-item" data-lang="si">සිංහල</button>
+        <button class="dropdown-item" data-lang="ta">தமிழ்</button>
+      </div>
+    </div>
+
+    <!-- Profile Section -->
+    <div class="profile-wrapper">
+      <div id="profile-btn">
+        <img src="https://i.pravatar.cc/40" alt="User" class="avatar" />
+      </div>
+      <div id="profile-dropdown">
+        <p class="profile-name">Pasindu Anjana</p>
+        <hr />
+        <button class="btn-profile">Settings</button>
+        <button class="btn-profile" id="logout-btn">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>

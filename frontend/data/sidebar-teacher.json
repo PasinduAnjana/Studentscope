@@ -1,0 +1,7 @@
+[
+  { "label": "sidebar.dashboard", "page": "dashboard" },
+  { "label": "sidebar.attendance", "page": "attendance" },
+  { "label": "sidebar.marks", "page": "marks" },
+  { "label": "sidebar.timeTable", "page": "notices" },
+  { "label": "sidebar.students", "page": "students" }
+]

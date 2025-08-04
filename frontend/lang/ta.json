@@ -1,0 +1,41 @@
+{
+  "common": {
+    "welcome": "StudentScope-க்கு வரவேற்கிறோம்",
+    "dashboard": "டாஷ்போர்டு",
+    "profile": "சுயவிவரம்",
+    "settings": "அமைப்புகள்",
+    "logout": "வெளியேறு"
+  },
+  "navigation": {
+    "dashboard": "டாஷ்போர்டு",
+    "markAttendance": "வருகை குறி",
+    "enterMarks": "மதிப்பெண்களை உள்ளிடவும்",
+    "postNotices": "அறிவிப்புகளை வெளியிடவும்",
+    "viewAttendance": "வருகையைக் காண்க",
+    "viewGrades": "தரங்களைக் காண்க",
+    "notices": "அறிவிப்புகள்"
+  },
+  "sidebar": {
+    "dashboard": "டாஷ்போர்டு",
+    "attendance": "வருகை குறி",
+    "timeTable": "நேர அட்டவணை",
+    "marks": "மதிப்பெண்களை உள்ளிடவும்",
+    "students": "மாணவர்கள்"
+  },
+  "buttons": {
+    "save": "சேமி",
+    "cancel": "ரத்து",
+    "submit": "சமர்ப்பி",
+    "edit": "திருத்து",
+    "delete": "நீக்கு"
+  },
+  "errors": {
+    "pageNotFound": "பக்கம் கிடைக்கவில்லை",
+    "pageNotFoundDescription": "கோரப்பட்ட பக்கத்தை ஏற்ற முடியவில்லை"
+  },
+  "languages": {
+    "en": "ஆங்கிலம்",
+    "si": "சிங்களம்",
+    "ta": "தமிழ்"
+  }
+}

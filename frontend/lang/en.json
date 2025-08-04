@@ -1,0 +1,45 @@
+{
+  "common": {
+    "welcome": "Welcome to StudentScope",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+
+  "navigation": {
+    "dashboard": "Dashboard",
+    "markAttendance": "Mark Attendance",
+    "enterMarks": "Enter Marks",
+    "postNotices": "Post Notices",
+    "viewAttendance": "View Attendance",
+    "viewGrades": "View Grades",
+    "notices": "Notices"
+  },
+  
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "attendance": "Mark Attendance",
+    "timeTable": "Time Table",
+    "marks": "Enter Marks",
+    "students": "Students"
+  },
+
+
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "errors": {
+    "pageNotFound": "Page Not Found",
+    "pageNotFoundDescription": "The requested page could not be loaded."
+  },
+  "languages": {
+    "en": "English",
+    "si": "සිංහල",
+    "ta": "தமிழ்"
+  }
+}

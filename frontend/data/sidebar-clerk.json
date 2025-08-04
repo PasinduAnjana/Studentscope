@@ -1,0 +1,8 @@
+[
+  { "label": "Dashboard", "page": "dashboard" },
+  { "label": "Mark Attendance", "page": "attendance" },
+  { "label": "Enter Marks", "page": "marks" },
+  { "label": "Post Notices", "page": "notices" },
+  { "label": "sidebar.students", "page": "students" }
+
+]

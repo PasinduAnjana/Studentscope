@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Redirecting...</title>
+    <script>
+      // 🍪 Check if user is logged in
+      function getCookie(name) {
+        const cookies = document.cookie.split(";");
+        for (let cookie of cookies) {
+          const [key, value] = cookie.trim().split("=");
+          if (key === name) return value;
+        }
+        return null;
+      }
+
+      //const role = getCookie("role");
+
+      const role = localStorage.getItem("role");
+
+      if (role) {
+        // ✅ If logged in, go to dashboard
+        window.location.href = `/layout.html?role=${role}`;
+      } else {
+        // 🔐 Otherwise, go to login
+        window.location.href = "/login.html";
+      }
+    </script>
+  </head>
+  <body>
+    <p>Redirecting...</p>
+  </body>
+</html>
