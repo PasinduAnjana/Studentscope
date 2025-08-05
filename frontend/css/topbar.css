@@ -1,0 +1,159 @@
+/* ========================
+🎯 TOPBAR STYLES
+======================== */
+
+#topbar {
+  background-color: var(--color-white);
+  color: var(--color-text);
+  height: 60px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  justify-content: space-between;
+}
+
+/* 🌍 Language Dropdown */
+.language-wrapper {
+  position: relative;
+}
+
+#language-btn {
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+#language-btn:hover {
+  background-color: rgba(0, 134, 187, 0.1);
+}
+
+.language-icon {
+  font-size: 10px;
+  color: var(--color-subtext);
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 8px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  width: 120px;
+}
+
+.dropdown-item {
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-size: 14px;
+  padding: 8px 16px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dropdown-item:hover {
+  background-color: var(--color-bg);
+  color: var(--color-primary);
+}
+
+.dropdown-item[data-lang="si"] {
+  font-family: 'Iskoola Pota', 'Malithi Web', sans-serif;
+}
+
+.dropdown-item[data-lang="ta"] {
+  font-family: 'Latha', 'Nirmala UI', sans-serif;
+}
+
+/* 👤 Profile Dropdown */
+.profile-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+#profile-btn {
+  cursor: pointer;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--color-primary);
+}
+
+#profile-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 50px;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  width: 180px;
+}
+
+#profile-dropdown .profile-name {
+  margin-bottom: 4px;
+  font-size: 16px;
+  padding: 8px 4px;
+
+}
+
+#profile-dropdown hr {
+  margin-bottom: 8px;
+}
+
+.btn-profile {
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-size: 16px;
+  padding: 8px 4px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.btn-profile:hover {
+  color: var(--color-primary);
+  background-color: rgba(0, 134, 187, 0.1);
+}
+
+#logout-btn {
+  background: none;
+  border: none;
+  color: var(--color-error) ;
+  font-size: 16px;
+  padding: 8px 4px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+#logout-btn:hover {
+  color: var(--color-error);
+  background-color: rgba(239, 68, 68, 0.1);
+}
