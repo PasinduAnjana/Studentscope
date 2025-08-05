@@ -19,11 +19,10 @@
 </section>
 
 <script>
-  // Directly include the fetch function in the HTML
   function fetchStudents() {
-    fetch("/api/students")
+    fetch("/api/teacher/students")
       .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch students");
+        if (!res.ok) throw new Error(res.body || "Failed to fetch students");
         return res.json();
       })
       .then((data) => {
@@ -49,6 +48,5 @@
       });
   }
 
-  // Call the function when the content loads
   fetchStudents();
 </script>

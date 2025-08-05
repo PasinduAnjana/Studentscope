@@ -1,14 +1,18 @@
 <script>
-  // Directly include the fetch function in the HTML
   function fetchStudents() {
-    fetch("/api/students")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch students");
+    fetch("/api/teacher/students")
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(
+            errorData.error || res.statusText || "Failed to fetch students"
+          );
+        }
         return res.json();
       })
       .then((data) => {
         const tbody = document.querySelector("#student-table tbody");
-        tbody.innerHTML = ""; // Clear previous data
+        tbody.innerHTML = "";
 
         data.forEach((student) => {
           const row = document.createElement("tr");
@@ -25,11 +29,10 @@
       .catch((err) => {
         console.error(err);
         const tbody = document.querySelector("#student-table tbody");
-        tbody.innerHTML = `<tr><td colspan="3" class="text-error">Error loading students</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3" class="text-error">${err.message}</td></tr>`;
       });
   }
-
-  // Call the function when the content loads
+  fetchStudents();
 </script>
 
 <section class="section">
@@ -45,11 +48,7 @@
           <th data="table.grade">Grade</th>
         </tr>
       </thead>
-      <tbody>
-        <script>
-          fetchStudents();
-        </script>
-      </tbody>
+      <tbody></tbody>
     </table>
   </div>
 </section>

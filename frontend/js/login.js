@@ -5,7 +5,7 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
   const password = document.getElementById("password").value.trim();
   const errorEl = document.getElementById("loginError");
 
-  fetch("/api/login", {
+  fetch("/api/auth/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

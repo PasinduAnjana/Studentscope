@@ -4,11 +4,11 @@ const authController = require("../controllers/authController");
 module.exports = (req, res) => {
   const parsedUrl = url.parse(req.url, true);
 
-  if (parsedUrl.pathname === "/api/login" && req.method === "POST") {
+  if (parsedUrl.pathname === "/api/auth/login" && req.method === "POST") {
     return authController.login(req, res);
   }
 
-  if (parsedUrl.pathname === "/api/logout" && req.method === "POST") {
+  if (parsedUrl.pathname === "/api/auth/logout" && req.method === "POST") {
     return authController.logout(req, res);
   }
 
