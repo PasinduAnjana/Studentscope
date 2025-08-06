@@ -1,9 +1,69 @@
-<h1 class="heading" data="common.welcome"></h1>
-
 <div class="card-grid">
-  <div class="card w-2" ">
-    <h3 class="title" data="common.dashboard"></h3>
-    <p class="text-sm"data="common.dashboard"></p>
-    <input type="button" data="buttons.save" class="btn" />
+  <!-- Greeting Tile -->
+  <div class="card greeting-tile w-2">
+    <div class="greeting-content">
+      <h2 class="greeting-heading">Good Morning, Pasindu!</h2>
+      <p class="greeting-subtext">Let’s make today impactful!</p>
+    </div>
+    <img
+      src="/assets/images/teacher-clipart.svg"
+      alt="Illustration"
+      class="greeting-img"
+    />
+  </div>
+
+  <!-- Current Class -->
+  <div class="card dashboard-tile">
+    <i class="fas fa-chalkboard icon"></i>
+    <div>
+      <p class="tile-label">Currently Teaching</p>
+      <p class="title-primary">Grade 10-A</p>
+
+      <h3 class="tile-value">Math</h3>
+      <p class="tile-subtext">08:00 AM – 08:45 AM</p>
+    </div>
+  </div>
+
+  <!-- Attendance Status -->
+  <div class="card dashboard-tile">
+    <i class="fas fa-clipboard-check icon"></i>
+    <div>
+      <p class="tile-label">Attendance</p>
+      <h3 class="tile-value text-error">Not Marked</h3>
+      <!-- mark attendance button -->
+      <button class="btn btn-primary">
+        <i class="fas fa-user-check"></i> Mark Attendance
+      </button>
+    </div>
+  </div>
+
+  <!-- Today's Timetable -->
+  <div class="card dashboard-tile w-1 h-2">
+    <i class="fas fa-calendar-day icon"></i>
+    <div>
+      <p class="tile-label">Today’s Timetable</p>
+      <ul class="tile-list">
+        <li>08:00 – Math – Gr 10</li>
+        <li>10:00 – ICT – Gr 11</li>
+        <li>01:00 – Science – Gr 9</li>
+        <li class="active">08:00 – Math – Gr 10</li>
+        <li>10:00 – ICT – Gr 11</li>
+        <li>01:00 – Science – Gr 9</li>
+        <li>08:00 – Math – Gr 10</li>
+        <li>10:00 – ICT – Gr 11</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Tasks -->
+  <div class="card dashboard-tile">
+    <i class="fas fa-tasks icon"></i>
+    <div>
+      <p class="tile-label">Pending Tasks</p>
+      <ul class="tile-list">
+        <li>Upload results</li>
+        <li>Mark attendance</li>
+      </ul>
+    </div>
   </div>
 </div>

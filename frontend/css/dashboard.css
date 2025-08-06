@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+/* ========================
+📌 DASHBOARD TILE
+======================== */
+.dashboard-tile {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start; /* 🔄 Align icon to top */
+  gap: 16px;
+  min-height: 100px;
+}
+
+
+.dashboard-tile .icon {
+  font-size: 28px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+  padding-top: 4px; /* Optional: fine-tune icon alignment */
+}
+
+.dashboard-tile > div {
+  flex-grow: 1;         /* 💪 Expand to fill remaining space */
+  width: 100%;          /* ⬅ Ensure full width */
+  display: flex;
+  flex-direction: column;
+}
+
+.tile-label {
+  font-size: 18px; /* 🔼 Slightly bigger */
+  color: var(--color-subtext); /* 🎨 Primary color */
+  font-weight: 600;
+  margin-bottom: 4px;
+  
+}
+
+
+.tile-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.title-primary {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.tile-subtext {
+  font-size: 13px;
+  color: var(--color-subtext);
+  margin-top: 4px;
+}
+.warning {
+  color: var(--color-error);
+}
+
+.tile-list {
+  margin-top: 6px;
+  /* padding-left: 16px; */
+  font-size: 14px;
+  color: var(--color-text);
+  list-style: none;
+}
+
+.tile-list li {
+    background-color: var(--color-bg);
+    padding: 6px 12px;
+    border-radius: 8px;
+    margin:8px 0px;
+    width: auto;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.04);
+    font-weight: 500;
+}
+/* active li */
+.tile-list li.active {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  font-weight: 600;
+}
+/* .tile-watermark-icon {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  font-size: 160px;
+  color: var(--color-primary);
+  opacity: 0.1;
+  z-index: 0;
+  pointer-events: none;
+} */
+
+
+/* ========================
+🌟 GREETING TILE (BIGGER)
+======================== */
+.greeting-tile {
+  position: relative; /* ✅ Needed for absolute positioning inside */
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 32px;
+  min-height: 200px;
+  border-radius: 20px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.greeting-tile .greeting-content {
+  position: relative;
+  z-index: 2; 
+}
+
+.greeting-heading {
+  font-size: 36px;
+  font-weight: 600;
+  font-family: "Libertinus Serif", serif;
+  margin-bottom: 8px;
+  color: var(--color-white);
+}
+
+.greeting-subtext {
+  font-size: 18px;
+  color: #d6ecf7;
+}
+
+/* 🖼️ SVG image styling */
+.greeting-img {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 240px; /* Scale up */
+  opacity: 0.6; /* ✅ Transparency */
+  pointer-events: none;
+  z-index: 1;
+  filter: drop-shadow(2px 2px 4px rgba(255, 255, 255, .2));
+}
+
+/* Responsive: scale image down */
+@media (max-width: 768px) {
+  .greeting-heading {
+    font-size: 22px;
+  }
+
+  .greeting-subtext {
+    font-size: 14px;
+  }
+
+  /* .greeting-img {
+    width: 120px;
+    bottom: -10px;
+    right: -10px;
+  } */
+}
+
