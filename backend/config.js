@@ -5,7 +5,7 @@ module.exports = {
     user: "postgres",
     host: "localhost",
     database: "studentscope",
-    password: "",
+    password: 123,
     port: 5432,
   },
 };
