@@ -15,15 +15,15 @@ npm install
 3. **Create the `.env` file**  
 cp .env.example .env  
 
-Edit `.env` with your PostgreSQL credentials:  
-PORT=3000  
-DB_ADMIN_USER=postgres  
-DB_ADMIN_PASSWORD=123  
-DB_USER=postgres  
-DB_PASSWORD=123  
-DB_HOST=localhost  
-DB_PORT=5432  
-DB_NAME=studentscope  
+  Edit `.env` with your PostgreSQL credentials:  
+  PORT=3000  
+  DB_ADMIN_USER=postgres  
+  DB_ADMIN_PASSWORD=123  
+  DB_USER=postgres  
+  DB_PASSWORD=123  
+  DB_HOST=localhost  
+  DB_PORT=5432  
+  DB_NAME=studentscope  
 
 4. **Initialize the database and create tables**  
 node db-init.js
