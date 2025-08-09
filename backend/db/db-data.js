@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-const pool = require("../db");
+const pool = require(".");
 
 const ITERATIONS = 100_000;
 const KEYLEN = 64;
