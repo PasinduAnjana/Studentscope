@@ -18,9 +18,9 @@ cp .env.example .env
   Edit `.env` with your PostgreSQL credentials:  
   PORT=3000  
   DB_ADMIN_USER=postgres  
-  DB_ADMIN_PASSWORD=123  
+  DB_ADMIN_PASSWORD=123  //your database password
   DB_USER=postgres  
-  DB_PASSWORD=123  
+  DB_PASSWORD=123  //your database password
   DB_HOST=localhost  
   DB_PORT=5432  
   DB_NAME=studentscope  
@@ -40,6 +40,8 @@ Backend will run on: http://localhost:3000
 ## 💻 Frontend Setup
 
 The backend server will serve the frontend
+
+---
 
 ## 📝 Notes
 - Backend serves API routes under `/api/...`.
