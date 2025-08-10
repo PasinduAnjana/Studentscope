@@ -26,10 +26,10 @@ cp .env.example .env
   DB_NAME=studentscope  
 
 4. **Initialize the database and create tables**  
-node db-init.js
+node db/db-init.js
 
 5. **Insert sample data**  
-node db-data.js
+node db/db-data.js
 
 6. **Start the backend server**  
 node server.js  
