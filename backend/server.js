@@ -3,7 +3,9 @@ const http = require("http");
 const url = require("url");
 const apiRouter = require("./routes");
 const serveStatic = require("./serveStatic");
-const { PORT } = require("./config");
+require("dotenv").config();
+
+const PORT = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
