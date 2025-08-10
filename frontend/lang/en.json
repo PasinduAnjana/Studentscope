@@ -7,16 +7,6 @@
     "logout": "Logout"
   },
 
-  "navigation": {
-    "dashboard": "Dashboard",
-    "markAttendance": "Mark Attendance",
-    "enterMarks": "Enter Marks",
-    "postNotices": "Post Notices",
-    "viewAttendance": "View Attendance",
-    "viewGrades": "View Grades",
-    "notices": "Notices"
-  },
-  
   "sidebar": {
     "dashboard": "Dashboard",
     "attendance": "Mark Attendance",
@@ -24,6 +14,17 @@
     "marks": "Enter Marks",
     "students": "Students"
   },
+"teacher": {
+  "greeting": "Welcome to StudentScope!",
+  "greeting_2": "You are logged in as a teacher",
+  "attendance": "Attendance",
+  "attendance_not_marked": "Not marked",
+  "mark_attendance": "Mark Attendance",
+  "timetable": "Today's Time Table",
+  "current_class": "Current Class",
+  "marks": "Enter Marks",
+  "students": "Students"
+},
 
 
   "buttons": {

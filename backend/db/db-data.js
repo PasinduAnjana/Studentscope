@@ -34,28 +34,21 @@ async function run() {
     // Insert teacher
     const teacherRes = await pool.query(
       "INSERT INTO teachers (user_id, name, email) VALUES ($1, $2, $3) RETURNING id",
-      [teacherId, "John Smith", "john.smith@school.com"]
+      [teacherId, "Pasindu Anjana", "pasindu@school.com"]
     );
     const teacherRowId = teacherRes.rows[0].id;
 
-    // Insert class
+    // Insert class (now includes grade column)
     const classRes = await pool.query(
-      "INSERT INTO classes (name, class_teacher_id) VALUES ($1, $2) RETURNING id",
-      ["Grade 10 - A", teacherRowId]
+      "INSERT INTO classes (name, grade, class_teacher_id) VALUES ($1, $2, $3) RETURNING id",
+      ["Grade 10 - A", "Grade 10", teacherRowId]
     );
     const classId = classRes.rows[0].id;
 
-    // Insert student
+    // Insert student (removed grade column)
     await pool.query(
-      "INSERT INTO students (user_id, name, email, age, grade, class_id) VALUES ($1, $2, $3, $4, $5, $6)",
-      [
-        studentId,
-        "Alice Brown",
-        "alice.brown@student.com",
-        15,
-        "Grade 10",
-        classId,
-      ]
+      "INSERT INTO students (user_id, name, email, age, class_id) VALUES ($1, $2, $3, $4, $5)",
+      [studentId, "Alice Brown", "alice.brown@student.com", 15, classId]
     );
 
     // Insert subjects
@@ -79,15 +72,14 @@ async function run() {
       subjectIds.push(subjRes.rows[0].id);
     }
 
-    // Insert timetable (8 periods per weekday)
-    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+    // Insert timetable (🔹 8 periods, weekdays as numbers 1–5)
     let subjIndex = 0;
-    for (const day of days) {
+    for (let dayNum = 1; dayNum <= 5; dayNum++) {
       for (let period = 1; period <= 8; period++) {
         const subjId = subjectIds[subjIndex % subjectIds.length];
         await pool.query(
           "INSERT INTO timetables (day_of_week, period_number, subject_id, teacher_id, class_id) VALUES ($1, $2, $3, $4, $5)",
-          [day, period, subjId, teacherRowId, classId]
+          [dayNum, period, subjId, teacherRowId, classId]
         );
         subjIndex++;
       }

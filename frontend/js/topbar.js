@@ -10,6 +10,7 @@ function loadTopbar() {
       setupSidebarToggle();
       setupLogoutButton();
       applyTranslations();
+      fetchUsername();
     });
 }
 
@@ -86,5 +87,18 @@ function setupSidebarToggle() {
         sidebar.classList.remove("open");
       }
     });
+  }
+}
+
+async function fetchUsername() {
+  try {
+    const res = await fetch("/api/auth/me", { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to fetch user");
+
+    const user = await res.json();
+    document.getElementById("profile-name").textContent = user.username;
+  } catch (err) {
+    console.error("❌ Error loading profile name:", err);
+    document.getElementById("profile-name").textContent = "Guest";
   }
 }

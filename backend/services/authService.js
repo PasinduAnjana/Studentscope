@@ -39,3 +39,17 @@ exports.createUser = async (username, rawPassword, role) => {
     [username, hashedPassword, salt, role]
   );
 };
+
+exports.getUsernameById = async (userId) => {
+  try {
+    const result = await pool.query(
+      "SELECT username FROM users WHERE id = $1",
+      [userId]
+    );
+
+    return result.rows.length > 0 ? result.rows[0].username : null;
+  } catch (err) {
+    console.error("Error getting username:", err);
+    return null;
+  }
+};

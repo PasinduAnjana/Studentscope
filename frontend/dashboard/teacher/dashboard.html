@@ -2,8 +2,12 @@
   <!-- Greeting Tile -->
   <div class="card greeting-tile w-2">
     <div class="greeting-content">
-      <h2 class="greeting-heading">Good Morning, Pasindu!</h2>
-      <p class="greeting-subtext">Let’s make today impactful!</p>
+      <h2 class="greeting-heading" data="teacher.greeting">
+        
+      </h2>
+      <p class="greeting-subtext" data="teacher.greeting_2">
+        
+      </p>
     </div>
     <img
       src="/assets/images/teacher-clipart.svg"
@@ -16,7 +20,7 @@
   <div class="card dashboard-tile w-1 h-2">
     <i class="fas fa-calendar-day icon"></i>
     <div>
-      <p class="tile-label">Today’s Timetable</p>
+      <p class="tile-label" data="teacher.timetable"></p></p>
       <ul class="tile-list">
         <li>08:00 – Math – Gr 10</li>
         <li>10:00 – ICT – Gr 11</li>
@@ -34,7 +38,7 @@
   <div class="card dashboard-tile">
     <i class="fas fa-chalkboard icon"></i>
     <div>
-      <p class="tile-label">Currently Teaching</p>
+      <p class="tile-label" data="teacher.current_class"></p>
       <p class="title-primary">Grade 10-A</p>
 
       <h3 class="tile-value">Math</h3>
@@ -46,11 +50,12 @@
   <div class="card dashboard-tile">
     <i class="fas fa-clipboard-check icon"></i>
     <div>
-      <p class="tile-label">Attendance</p>
-      <h3 class="tile-value text-error">Not Marked</h3>
+      <p class="tile-label" data="teacher.attendance"></p>
+      <h3 class="tile-value text-error" data="teacher.attendance_not_marked"></h3>
       <!-- mark attendance button -->
-      <button class="btn btn-primary">
-        <i class="fas fa-user-check"></i> Mark Attendance
+      <button class="btn " >
+        <i class="fas fa-user-check"></i>
+        <span data="teacher.mark_attendance"></span>
       </button>
     </div>
   </div>

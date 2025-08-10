@@ -23,17 +23,18 @@ async function initializeDatabase() {
     console.log("Connected as admin to PostgreSQL server");
 
     const dbName = appConfig.database;
-    const res = await adminClient.query(
-      `SELECT 1 FROM pg_database WHERE datname = $1`,
+
+    // 🔹 Drop existing DB if exists
+    await adminClient.query(
+      `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = $1`,
       [dbName]
     );
+    await adminClient.query(`DROP DATABASE IF EXISTS ${dbName}`);
+    console.log(`Database "${dbName}" dropped successfully`);
 
-    if (res.rowCount === 0) {
-      await adminClient.query(`CREATE DATABASE ${dbName}`);
-      console.log(`Database "${dbName}" created successfully`);
-    } else {
-      console.log(`Database "${dbName}" already exists`);
-    }
+    // 🔹 Create new DB
+    await adminClient.query(`CREATE DATABASE ${dbName}`);
+    console.log(`Database "${dbName}" created successfully`);
   } catch (err) {
     console.error("Error creating database:", err);
   } finally {
@@ -45,7 +46,7 @@ async function initializeDatabase() {
     await appClient.connect();
     console.log(`Connected to database "${appConfig.database}"`);
 
-    // Users table
+    // Users
     await appClient.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -56,7 +57,7 @@ async function initializeDatabase() {
       );
     `);
 
-    // Teachers table (linked to users)
+    // Teachers
     await appClient.query(`
       CREATE TABLE IF NOT EXISTS teachers (
         id SERIAL PRIMARY KEY,
@@ -66,29 +67,31 @@ async function initializeDatabase() {
       );
     `);
 
+    // Classes
     // Classes table (linked to class teacher)
     await appClient.query(`
-      CREATE TABLE IF NOT EXISTS classes (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(50) UNIQUE NOT NULL,
-        class_teacher_id INT REFERENCES teachers(id) ON DELETE SET NULL
-      );
-    `);
+  CREATE TABLE IF NOT EXISTS classes (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL,
+    grade VARCHAR(10) NOT NULL,
+    class_teacher_id INT REFERENCES teachers(id) ON DELETE SET NULL
+  );
+`);
 
-    // Students table (linked to class)
+    // Students
+    // Students table (db-init.js)
     await appClient.query(`
-      CREATE TABLE IF NOT EXISTS students (
-        id SERIAL PRIMARY KEY,
-        user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-        name VARCHAR(100) NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        age INT CHECK (age > 0),
-        grade VARCHAR(10),
-        class_id INT REFERENCES classes(id) ON DELETE SET NULL
-      );
-    `);
+  CREATE TABLE IF NOT EXISTS students (
+    id SERIAL PRIMARY KEY,
+    user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    age INT CHECK (age > 0),
+    class_id INT REFERENCES classes(id) ON DELETE SET NULL
+  );
+`);
 
-    // Subjects table
+    // Subjects
     await appClient.query(`
       CREATE TABLE IF NOT EXISTS subjects (
         id SERIAL PRIMARY KEY,
@@ -97,11 +100,11 @@ async function initializeDatabase() {
       );
     `);
 
-    // Timetable table (flexible for teacher or class)
+    // Timetables (🔹 now using numeric weekday)
     await appClient.query(`
       CREATE TABLE IF NOT EXISTS timetables (
         id SERIAL PRIMARY KEY,
-        day_of_week VARCHAR(10) NOT NULL CHECK (day_of_week IN ('Monday','Tuesday','Wednesday','Thursday','Friday')),
+        day_of_week SMALLINT NOT NULL CHECK (day_of_week BETWEEN 1 AND 5),
         period_number INT NOT NULL CHECK (period_number BETWEEN 1 AND 8),
         subject_id INT REFERENCES subjects(id) ON DELETE CASCADE,
         teacher_id INT REFERENCES teachers(id) ON DELETE SET NULL,
@@ -110,7 +113,7 @@ async function initializeDatabase() {
       );
     `);
 
-    console.log("✅ All tables created/verified successfully");
+    console.log("✅ All tables created successfully");
   } catch (err) {
     console.error("Error creating tables:", err);
   } finally {

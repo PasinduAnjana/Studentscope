@@ -72,11 +72,11 @@
 }
 
 .dropdown-item[data-lang="si"] {
-  font-family: 'Iskoola Pota', 'Malithi Web', sans-serif;
+  font-family: "Iskoola Pota", "Malithi Web", sans-serif;
 }
 
 .dropdown-item[data-lang="ta"] {
-  font-family: 'Latha', 'Nirmala UI', sans-serif;
+  font-family: "Latha", "Nirmala UI", sans-serif;
 }
 
 /* 👤 Profile Dropdown */
@@ -95,6 +95,11 @@
   height: 40px;
   border-radius: 50%;
   border: 2px solid var(--color-primary);
+  font-size: 20px;
+  color: var(--color-primary);
+  text-align: center;
+  line-height: 40px;
+  align-content: center;
 }
 
 #profile-dropdown {
@@ -115,7 +120,6 @@
   margin-bottom: 4px;
   font-size: 16px;
   padding: 8px 4px;
-
 }
 
 #profile-dropdown hr {
@@ -143,7 +147,7 @@
 #logout-btn {
   background: none;
   border: none;
-  color: var(--color-error) ;
+  color: var(--color-error);
   font-size: 16px;
   padding: 8px 4px;
   cursor: pointer;

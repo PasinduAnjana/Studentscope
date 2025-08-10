@@ -1,41 +1,43 @@
 {
   "common": {
-    "welcome": "StudentScope වෙත සාදරයෙන් පිළිගනිමු",
-    "dashboard": "උපකරණ පුවරුව",
-    "profile": "පැතිකඩ",
-    "settings": "සැකසුම්",
-    "logout": "පිටවීම"
-  },
-  "navigation": {
-    "dashboard": "උපකරණ පුවරුව",
-    "markAttendance": "පැමිණීම සටහන් කරන්න",
-    "enterMarks": "ලකුණු ඇතුළත් කරන්න",
-    "postNotices": "නිවේදන පළ කරන්න",
-    "viewAttendance": "පැමිණීම බලන්න",
-    "viewGrades": "ලකුණු බලන්න",
-    "notices": "නිවේදන"
-  },
-  "sidebar": {
-    "dashboard": "උපකරණ පුවරුව",
-    "attendance": "පැමිණීම",
-    "timeTable": "කාලසටහන",
-    "marks": "ලකුණු",
-    "students": "ශිෂ්‍යයින්"
-  },
-  "buttons": {
-    "save": "සුරකින්න",
-    "cancel": "අවලංගු කරන්න",
-    "submit": "ඉදිරිපත් කරන්න",
-    "edit": "සංස්කරණය කරන්න",
-    "delete": "මකන්න"
-  },
-  "errors": {
-    "pageNotFound": "පිටුව හමු නොවීය",
-    "pageNotFoundDescription": "ඉල්ලූ පිටුව පූරණය කළ නොහැකි විය"
-  },
-  "languages": {
-    "en": "ඉංග්‍රීසි",
-    "si": "සිංහල",
-    "ta": "දෙමළ"
+      "welcome": "StudentScope වෙත සාදරයෙන් පිළිගනිමු",
+      "dashboard": "පාලක මණ්ඩලය",
+      "profile": "පැතිකඩ",
+      "settings": "සැකසුම්",
+      "logout": "ඉවත් වන්න"
+    },
+    "sidebar": {
+      "dashboard": "පාලක මණ්ඩලය",
+      "attendance": "පැමිණීම",
+      "timeTable": "කාලසටහන",
+      "marks": "ලකුණු",
+      "students": "ශිෂ්‍යයන්"
+    },
+    "teacher": {
+      "greeting": "StudentScope වෙත සාදරයෙන් පිළිගනිමු!",
+      "greeting_2": "ඔබ ගුරුවරයා ලෙස පිවිසී ඇත",
+      "attendance": "පැමිණීම",
+      "attendance_not_marked": "සලකුණු කර නැත",
+      "mark_attendance": "පැමිණීම සලකුණු කරන්න",
+      "timetable": "අද කාලසටහන",
+      "current_class": "වර්තමාන පන්තිය",
+      "marks": "ලකුණු ඇතුල් කරන්න",
+      "students": "ශිෂ්‍යයන්"
+    },
+    "buttons": {
+      "save": "සුරකින්න",
+      "cancel": "අවලංගු කරන්න",
+      "submit": "යවන්න",
+      "edit": "සංස්කරණය",
+      "delete": "මකන්න"
+    },
+    "errors": {
+      "pageNotFound": "පිටුව හමු නොවිණි",
+      "pageNotFoundDescription": "ඉල්ලූ පිටුව ලොඩ් කළ නොහැක."
+    },
+    "languages": {
+      "en": "English",
+      "si": "සිංහල",
+      "ta": "தமிழ்"
+    }
   }
-}

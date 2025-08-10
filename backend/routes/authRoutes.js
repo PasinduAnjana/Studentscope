@@ -12,6 +12,10 @@ module.exports = (req, res) => {
     return authController.logout(req, res);
   }
 
+  if (parsedUrl.pathname === "/api/auth/me" && req.method === "GET") {
+    return authController.getCurrentUser(req, res);
+  }
+
   // Fallback
   res.writeHead(404, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Auth route not found" }));
