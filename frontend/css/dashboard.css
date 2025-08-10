@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
 /* ========================
 📌 DASHBOARD TILE
@@ -13,7 +12,6 @@
   min-height: 100px;
 }
 
-
 .dashboard-tile .icon {
   font-size: 28px;
   color: var(--color-primary);
@@ -22,8 +20,8 @@
 }
 
 .dashboard-tile > div {
-  flex-grow: 1;         /* 💪 Expand to fill remaining space */
-  width: 100%;          /* ⬅ Ensure full width */
+  flex-grow: 1; /* 💪 Expand to fill remaining space */
+  width: 100%; /* ⬅ Ensure full width */
   display: flex;
   flex-direction: column;
 }
@@ -33,9 +31,7 @@
   color: var(--color-subtext); /* 🎨 Primary color */
   font-weight: 600;
   margin-bottom: 4px;
-  
 }
-
 
 .tile-value {
   font-size: 20px;
@@ -67,15 +63,15 @@
 }
 
 .tile-list li {
-    background-color: var(--color-bg);
-    padding: 6px 12px;
-    border-radius: 8px;
-    margin:8px 0px;
-    width: auto;
-    transition: background-color 0.2s ease;
-    cursor: pointer;
-    box-shadow: 2px 2px 4px rgba(0,0,0,0.04);
-    font-weight: 500;
+  background-color: var(--color-bg);
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin: 8px 0px;
+  width: auto;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.04);
+  font-weight: 500;
 }
 /* active li */
 .tile-list li.active {
@@ -96,7 +92,6 @@
   pointer-events: none;
 } */
 
-
 /* ========================
 🌟 GREETING TILE (BIGGER)
 ======================== */
@@ -113,7 +108,7 @@
 
 .greeting-tile .greeting-content {
   position: relative;
-  z-index: 2; 
+  z-index: 2;
 }
 
 .greeting-heading {
@@ -138,23 +133,22 @@
   opacity: 0.6; /* ✅ Transparency */
   pointer-events: none;
   z-index: 1;
-  filter: drop-shadow(2px 2px 4px rgba(255, 255, 255, .2));
+  filter: drop-shadow(2px 2px 4px rgba(255, 255, 255, 0.2));
 }
 
 /* Responsive: scale image down */
 @media (max-width: 768px) {
   .greeting-heading {
-    font-size: 22px;
+    font-size: 24px;
   }
 
   .greeting-subtext {
     font-size: 14px;
   }
 
-  /* .greeting-img {
-    width: 120px;
-    bottom: -10px;
-    right: -10px;
-  } */
+  .greeting-img {
+    width: 180px;
+    bottom: -20px;
+    right: -20px;
+  }
 }
-

@@ -102,6 +102,10 @@
   align-content: center;
 }
 
+.avatar:hover {
+  background-color: rgba(0, 134, 187, 0.1);
+}
+
 #profile-dropdown {
   display: none;
   position: absolute;

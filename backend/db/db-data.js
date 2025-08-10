@@ -1,6 +1,6 @@
+// db-data.js
 const crypto = require("crypto");
 const pool = require(".");
-
 const ITERATIONS = 100_000;
 const KEYLEN = 64;
 const DIGEST = "sha512";
@@ -27,32 +27,32 @@ async function run() {
   try {
     // Create users
     const adminId = await createUser("admin", "123", "admin");
-    const teacherId = await createUser("teacher", "123", "teacher");
-    const studentId = await createUser("student", "123", "student");
+    const teacherUserId = await createUser("teacher", "123", "teacher");
+    const studentUserId = await createUser("student", "123", "student");
     const clerkId = await createUser("clerk", "123", "clerk");
 
     // Insert teacher
     const teacherRes = await pool.query(
       "INSERT INTO teachers (user_id, name, email) VALUES ($1, $2, $3) RETURNING id",
-      [teacherId, "Pasindu Anjana", "pasindu@school.com"]
+      [teacherUserId, "Pasindu Anjana", "pasindu@school.com"]
     );
-    const teacherRowId = teacherRes.rows[0].id;
+    const teacherId = teacherRes.rows[0].id;
 
-    // Insert class (now includes grade column)
+    // Insert class
     const classRes = await pool.query(
       "INSERT INTO classes (name, grade, class_teacher_id) VALUES ($1, $2, $3) RETURNING id",
-      ["Grade 10 - A", "Grade 10", teacherRowId]
+      ["Grade 10 - A", "Grade 10", teacherId]
     );
     const classId = classRes.rows[0].id;
 
-    // Insert student (removed grade column)
+    // Insert student
     await pool.query(
       "INSERT INTO students (user_id, name, email, age, class_id) VALUES ($1, $2, $3, $4, $5)",
-      [studentId, "Alice Brown", "alice.brown@student.com", 15, classId]
+      [studentUserId, "Alice Brown", "alice.brown@student.com", 15, classId]
     );
 
     // Insert subjects
-    const subjectNames = [
+    const subjects = [
       ["Mathematics", "MATH"],
       ["Science", "SCI"],
       ["ICT", "ICT"],
@@ -64,24 +64,40 @@ async function run() {
     ];
 
     const subjectIds = [];
-    for (const [name, code] of subjectNames) {
-      const subjRes = await pool.query(
+    for (const [name, code] of subjects) {
+      const res = await pool.query(
         "INSERT INTO subjects (name, code) VALUES ($1, $2) RETURNING id",
         [name, code]
       );
-      subjectIds.push(subjRes.rows[0].id);
+      subjectIds.push(res.rows[0].id);
     }
 
-    // Insert timetable (🔹 8 periods, weekdays as numbers 1–5)
-    let subjIndex = 0;
-    for (let dayNum = 1; dayNum <= 5; dayNum++) {
+    // Insert teacher_class_subject relationships
+    for (const subjectId of subjectIds) {
+      await pool.query(
+        "INSERT INTO teacher_class_subject (teacher_id, class_id, subject_id) VALUES ($1, $2, $3)",
+        [teacherId, classId, subjectId]
+      );
+    }
+
+    // Insert timetable (8 periods, weekdays 1-5)
+    // Fetch all teacher_class_subject IDs
+    const tcsRes = await pool.query(
+      "SELECT id FROM teacher_class_subject WHERE teacher_id = $1 AND class_id = $2",
+      [teacherId, classId]
+    );
+    const tcsIds = tcsRes.rows.map((row) => row.id);
+
+    let index = 0;
+    for (let day = 1; day <= 5; day++) {
       for (let period = 1; period <= 8; period++) {
-        const subjId = subjectIds[subjIndex % subjectIds.length];
+        const tcsId = tcsIds[index % tcsIds.length];
         await pool.query(
-          "INSERT INTO timetables (day_of_week, period_number, subject_id, teacher_id, class_id) VALUES ($1, $2, $3, $4, $5)",
-          [dayNum, period, subjId, teacherRowId, classId]
+          `INSERT INTO timetables (day_of_week, period_number, teacher_class_subject_id)
+           VALUES ($1, $2, $3)`,
+          [day, period, tcsId]
         );
-        subjIndex++;
+        index++;
       }
     }
 

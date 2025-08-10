@@ -196,7 +196,7 @@ table {
   width: 100%;
   border-spacing: 0;
   background-color: var(--color-white);
-  margin-bottom: 30px;
+  /* margin-bottom: 30px; */
   font-size: 14px;
   border-radius: 8px;
   overflow: hidden;
@@ -221,7 +221,7 @@ td {
   text-align: left;
 }
 
-tbody tr:nth-child(odd) {
+tbody tr:nth-child(even) {
   background-color: rgba(0, 134, 187, 0.05);
 }
 
@@ -229,12 +229,33 @@ tr:hover {
   background-color: #f1f5f9 !important;
 }
 
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  border-radius: 8px;
+  /* overflow: hidden; */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.table-responsive table {
+  min-width: 200px; /* or however wide your table needs to be */
+}
+
+@media (max-width: 768px) {
+  table {
+    font-size: 12px;
+  }
+}
+
 /* ========================
 📱 RESPONSIVE CONTENT AREA
 ======================== */
 @media (max-width: 1024px) {
   #content {
-    margin-left: 0;
+    margin-left: 20px;
+    margin-right: 20px;
     padding: 20px;
   }
 

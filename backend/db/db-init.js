@@ -60,16 +60,25 @@ async function initializeDatabase() {
       );
     `);
 
+    // Teacher_Class_Subject (join table)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS teacher_class_subject (
+        id SERIAL PRIMARY KEY,
+        teacher_id INT REFERENCES teachers(id) ON DELETE CASCADE,
+        class_id INT REFERENCES classes(id) ON DELETE CASCADE,
+        subject_id INT REFERENCES subjects(id) ON DELETE CASCADE,
+        UNIQUE (teacher_id, class_id, subject_id)
+      );
+    `);
+
     // Timetables
     await pool.query(`
       CREATE TABLE IF NOT EXISTS timetables (
         id SERIAL PRIMARY KEY,
         day_of_week SMALLINT NOT NULL CHECK (day_of_week BETWEEN 1 AND 5),
         period_number INT NOT NULL CHECK (period_number BETWEEN 1 AND 8),
-        subject_id INT REFERENCES subjects(id) ON DELETE CASCADE,
-        teacher_id INT REFERENCES teachers(id) ON DELETE SET NULL,
-        class_id INT REFERENCES classes(id) ON DELETE CASCADE,
-        UNIQUE(day_of_week, period_number, class_id)
+        teacher_class_subject_id INT REFERENCES teacher_class_subject(id) ON DELETE CASCADE,
+        UNIQUE(day_of_week, period_number, teacher_class_subject_id)
       );
     `);
 
