@@ -50,47 +50,81 @@
   color: var(--color-subtext);
   margin-top: 4px;
 }
+
 .warning {
   color: var(--color-error);
 }
 
+/* ========================
+📅 TIMETABLE LIST (New Style)
+======================== */
 .tile-list {
   margin-top: 6px;
-  /* padding-left: 16px; */
   font-size: 14px;
   color: var(--color-text);
   list-style: none;
+  padding: 0;
 }
 
 .tile-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   background-color: var(--color-bg);
-  padding: 6px 12px;
+  padding: 8px 12px;
   border-radius: 8px;
-  margin: 8px 0px;
-  width: auto;
-  transition: background-color 0.2s ease;
-  cursor: pointer;
+  margin: 8px 0;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.04);
   font-weight: 500;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
 }
-/* active li */
+
+.tile-list li .slot-time {
+  background: var(--color-bg);
+  /* color: var(--color-white); */
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 60px;
+  text-align: center;
+}
+
+.tile-list li .subject-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.tile-list li .class-name {
+  background: var(--color-bg);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-subtext);
+}
+
+/* Active slot styling */
 .tile-list li.active {
   background-color: var(--color-primary);
   color: var(--color-white);
-  transition: background-color 0.2s ease;
-  cursor: pointer;
-  font-weight: 600;
 }
-/* .tile-watermark-icon {
-  position: absolute;
-  bottom: -20px;
-  right: -20px;
-  font-size: 160px;
+
+.tile-list li.active .slot-time {
+  background: var(--color-white);
   color: var(--color-primary);
-  opacity: 0.1;
-  z-index: 0;
-  pointer-events: none;
-} */
+}
+
+.tile-list li.active .class-name {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--color-white);
+}
+
+.tile-list li.active .subject-name {
+  color: var(--color-white);
+}
 
 /* ========================
 🌟 GREETING TILE (BIGGER)

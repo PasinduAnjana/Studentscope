@@ -7,6 +7,19 @@ module.exports = (req, res) => {
     );
   }
 
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/teacher/timetable/today/")
+  ) {
+    const teacherId = req.url.split("/").pop(); // Get last part of URL
+    return protect("teacher")(req, res, () =>
+      studentController.getTeacherTodayTimetable(
+        { ...req, params: { teacherId } },
+        res
+      )
+    );
+  }
+
   res.writeHead(404);
   res.end("Not Found");
 };

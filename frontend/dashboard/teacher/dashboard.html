@@ -2,12 +2,8 @@
   <!-- Greeting Tile -->
   <div class="card greeting-tile w-2">
     <div class="greeting-content">
-      <h2 class="greeting-heading" data="teacher.greeting">
-        
-      </h2>
-      <p class="greeting-subtext" data="teacher.greeting_2">
-        
-      </p>
+      <h2 class="greeting-heading" data="teacher.greeting"></h2>
+      <p class="greeting-subtext" data="teacher.greeting_2"></p>
     </div>
     <img
       src="/assets/images/teacher-clipart.svg"
@@ -17,32 +13,29 @@
   </div>
 
   <!-- Today's Timetable -->
-  <div class="card dashboard-tile w-1 h-2">
+  <div class="card dashboard-tile w-1 h-2" id="todays-timetable">
     <i class="fas fa-calendar-day icon"></i>
     <div>
-      <p class="tile-label" data="teacher.timetable"></p></p>
+      <p class="tile-label" data="teacher.timetable"></p>
       <ul class="tile-list">
-        <li>08:00 – Math – Gr 10</li>
-        <li>10:00 – ICT – Gr 11</li>
-        <li>01:00 – Science – Gr 9</li>
-        <li class="active">08:00 – Math – Gr 10</li>
-        <li>10:00 – ICT – Gr 11</li>
-        <li>01:00 – Science – Gr 9</li>
-        <li>08:00 – Math – Gr 10</li>
-        <li>10:00 – ICT – Gr 11</li>
+        <!-- Dynamic timetable entries will appear here -->
       </ul>
     </div>
   </div>
 
   <!-- Current Class -->
-  <div class="card dashboard-tile">
+  <div class="card dashboard-tile" id="current-class">
     <i class="fas fa-chalkboard icon"></i>
     <div>
       <p class="tile-label" data="teacher.current_class"></p>
-      <p class="title-primary">Grade 10-A</p>
+      <p class="title-primary" style="font-size: 32px" id="current-class-name">
+        Grade 10-A
+      </p>
 
-      <h3 class="tile-value">Math</h3>
-      <p class="tile-subtext">08:00 AM – 08:45 AM</p>
+      <h1 class="tile-value" style="font-size: 24px" id="current-subject-name">
+        Math
+      </h1>
+      <p class="tile-subtext" id="current-time-range">08:00 AM – 08:45 AM</p>
     </div>
   </div>
 
@@ -51,9 +44,12 @@
     <i class="fas fa-clipboard-check icon"></i>
     <div>
       <p class="tile-label" data="teacher.attendance"></p>
-      <h3 class="tile-value text-error" data="teacher.attendance_not_marked"></h3>
+      <h3
+        class="tile-value text-error"
+        data="teacher.attendance_not_marked"
+      ></h3>
       <!-- mark attendance button -->
-      <button class="btn " >
+      <button class="btn">
         <i class="fas fa-user-check"></i>
         <span data="teacher.mark_attendance"></span>
       </button>
@@ -72,3 +68,86 @@
     </div>
   </div>
 </div>
+
+<script>
+  async function loadTodaysTimetable(teacherId) {
+    try {
+      // Hardcoded current time (24-hour format)
+      const currentTime = "09:15";
+
+      // Fetch timetable & time slots
+      const timetableRes = await fetch(
+        `/api/teacher/timetable/today/${teacherId}`
+      );
+      const timetable = await timetableRes.json();
+
+      const timeRes = await fetch("/data/time.json");
+      const timeSlots = await timeRes.json();
+
+      const timetableList = document.querySelector(
+        "#todays-timetable .tile-list"
+      );
+      timetableList.innerHTML = "";
+
+      // Helper to parse "HH:MM" to minutes since midnight for comparison
+      function timeToMinutes(t) {
+        const [h, m] = t.split(":").map(Number);
+        return h * 60 + m;
+      }
+      const currentMinutes = timeToMinutes(currentTime);
+
+      let activeEntry = null;
+
+      timetable.forEach((entry) => {
+        const slotInfo = timeSlots.find((s) => s.slot === entry.slot);
+        if (!slotInfo) return;
+
+        // Get start and end times in minutes for current slot
+        const startMinutes = timeToMinutes(slotInfo.start);
+        const endMinutes = timeToMinutes(slotInfo.end);
+
+        // Check if currentTime is inside this slot range
+        const isActive =
+          currentMinutes >= startMinutes && currentMinutes < endMinutes;
+
+        // Build li element
+        const li = document.createElement("li");
+        if (isActive) {
+          li.classList.add("active");
+          activeEntry = { entry, slotInfo };
+        }
+
+        li.innerHTML = `
+          <span class="slot-time">${slotInfo.start}</span>
+          <span class="subject-name">${entry.subject}</span>
+          <span class="class-name">${entry.grade} - ${entry.class_name}</span>
+        `;
+
+        timetableList.appendChild(li);
+      });
+
+      // Update current class tile with active slot info
+      if (activeEntry) {
+        document.getElementById(
+          "current-class-name"
+        ).textContent = `Grade ${activeEntry.entry.grade} - ${activeEntry.entry.class_name}`;
+        document.getElementById("current-subject-name").textContent =
+          activeEntry.entry.subject;
+        document.getElementById(
+          "current-time-range"
+        ).textContent = `${activeEntry.slotInfo.start} – ${activeEntry.slotInfo.end}`;
+      } else {
+        // If no active slot, clear or set default text
+        document.getElementById("current-class-name").textContent = "-";
+        document.getElementById("current-subject-name").textContent =
+          "No class now";
+        document.getElementById("current-time-range").textContent = "";
+      }
+    } catch (err) {
+      console.error("Error loading timetable:", err);
+    }
+  }
+
+  // Load for teacher with ID 1 (replace as needed)
+  loadTodaysTimetable(1);
+</script>
