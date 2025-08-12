@@ -1,4 +1,5 @@
 const studentController = require("../controllers/teacher/studentsController");
+const timetableController = require("../controllers/teacher/timetableController");
 const { protect } = require("../middleware/authMiddleware");
 module.exports = (req, res) => {
   if (req.method === "GET" && req.url === "/api/teacher/students") {
@@ -13,7 +14,7 @@ module.exports = (req, res) => {
   ) {
     const teacherId = req.url.split("/").pop(); // Get last part of URL
     return protect("teacher")(req, res, () =>
-      studentController.getTeacherTodayTimetable(
+      timetableController.getTeacherTodayTimetable(
         { ...req, params: { teacherId } },
         res
       )
