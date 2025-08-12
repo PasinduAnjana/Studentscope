@@ -8,6 +8,7 @@
         <thead>
           <tr>
             <th data="table.name">Name</th>
+            <th data="table.class">Index</th>
             <th data="table.email">Email</th>
             <th data="table.grade">Grade</th>
           </tr>
@@ -36,8 +37,9 @@
 
           row.innerHTML = `
             <td>${student.name}</td>
+            <td>${student.index_number}</td>
             <td>${student.email}</td>
-            <td>${student.class_name}</td>
+            <td>${student.grade} -  ${student.class_name}</td>
           `;
 
           tbody.appendChild(row);

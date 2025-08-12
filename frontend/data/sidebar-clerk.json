@@ -3,6 +3,6 @@
   { "label": "Mark Attendance", "page": "attendance" },
   { "label": "Enter Marks", "page": "marks" },
   { "label": "Post Notices", "page": "notices" },
+  { "label": "Add Students", "page": "addStudent" },
   { "label": "sidebar.students", "page": "students" }
-
 ]

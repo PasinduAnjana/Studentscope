@@ -1,4 +1,3 @@
-// db-data.js
 const crypto = require("crypto");
 const pool = require(".");
 const ITERATIONS = 100_000;
@@ -23,12 +22,24 @@ async function createUser(username, rawPassword, role) {
   return result.rows[0].id;
 }
 
+async function createStudent(indexNumber, name, email, age, classId) {
+  // Create linked user with default password
+  const userId = await createUser(indexNumber, "123", "student");
+
+  await pool.query(
+    `INSERT INTO students (user_id, index_number, name, email, age, class_id)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [userId, indexNumber, name, email, age, classId]
+  );
+
+  console.log(`🎓 Created student: ${name} (${indexNumber})`);
+}
+
 async function run() {
   try {
-    // Create users
+    // Create base users
     const adminId = await createUser("admin", "123", "admin");
     const teacherUserId = await createUser("teacher", "123", "teacher");
-    const studentUserId = await createUser("student", "123", "student");
     const clerkId = await createUser("clerk", "123", "clerk");
 
     // Insert teacher
@@ -45,10 +56,13 @@ async function run() {
     );
     const classId = classRes.rows[0].id;
 
-    // Insert student
-    await pool.query(
-      "INSERT INTO students (user_id, name, email, age, class_id) VALUES ($1, $2, $3, $4, $5)",
-      [studentUserId, "Alice Brown", "alice.brown@student.com", 15, classId]
+    // Insert student with index number
+    await createStudent(
+      "S1001",
+      "Alice Brown",
+      "alice.brown@student.com",
+      15,
+      classId
     );
 
     // Insert subjects
@@ -72,7 +86,7 @@ async function run() {
       subjectIds.push(res.rows[0].id);
     }
 
-    // Insert teacher_class_subject relationships
+    // Teacher-Class-Subject mappings
     for (const subjectId of subjectIds) {
       await pool.query(
         "INSERT INTO teacher_class_subject (teacher_id, class_id, subject_id) VALUES ($1, $2, $3)",
@@ -80,8 +94,7 @@ async function run() {
       );
     }
 
-    // Insert timetable (8 periods, weekdays 1-5)
-    // Fetch all teacher_class_subject IDs
+    // Timetable (8 periods × weekdays)
     const tcsRes = await pool.query(
       "SELECT id FROM teacher_class_subject WHERE teacher_id = $1 AND class_id = $2",
       [teacherId, classId]

@@ -1,6 +1,5 @@
-// db-init.js
 require("dotenv").config();
-const pool = require("./index"); // ✅ uses shared DB connection
+const pool = require("./index");
 
 async function initializeDatabase() {
   try {
@@ -39,11 +38,12 @@ async function initializeDatabase() {
       );
     `);
 
-    // Students
+    // Students (with index_number)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS students (
         id SERIAL PRIMARY KEY,
         user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+        index_number VARCHAR(50) UNIQUE NOT NULL,
         name VARCHAR(100) NOT NULL,
         email VARCHAR(100) UNIQUE NOT NULL,
         age INT CHECK (age > 0),
@@ -60,7 +60,7 @@ async function initializeDatabase() {
       );
     `);
 
-    // Teacher_Class_Subject (join table)
+    // Teacher_Class_Subject
     await pool.query(`
       CREATE TABLE IF NOT EXISTS teacher_class_subject (
         id SERIAL PRIMARY KEY,
