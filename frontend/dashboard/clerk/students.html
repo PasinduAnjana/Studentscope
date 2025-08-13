@@ -13,14 +13,16 @@
     <h1 class="title" data="sidebar.students"></h1>
     <div class="table-responsive">
       <table id="student-table">
-        <thead>
-          <tr>
-            <th data="table.name">Name</th>
-            <th data="table.class">Index</th>
-            <th data="table.email">Email</th>
-            <th data="table.grade">Grade</th>
-          </tr>
-        </thead>
+<thead>
+  <tr>
+    <th data="table.name">Name</th>
+    <th data="table.class">Index</th>
+    <th data="table.email">Email</th>
+    <th data="table.grade">Grade</th>
+    <th data="table.actions"></th>
+  </tr>
+</thead>
+
         <tbody>
           <!-- Students will be loaded here dynamically -->
         </tbody>
@@ -43,12 +45,21 @@
         data.forEach((student) => {
           const row = document.createElement("tr");
 
-          row.innerHTML = `
-            <td>${student.name}</td>
-            <td>${student.index_number}</td>
-            <td>${student.email}</td>
-            <td>${student.grade} -  ${student.class_name}</td>
-          `;
+row.innerHTML = `
+  <td>${student.name}</td>
+  <td>${student.index_number}</td>
+  <td>${student.email}</td>
+  <td>${student.grade} - ${student.class_name}</td>
+  <td class="action-buttons">
+    <button class="icon-btn text-primary" title="Edit" onclick="editStudent('${student.id}')">
+      <i class="fas fa-edit"></i>
+    </button>
+    <button class="icon-btn text-danger" title="Delete" onclick="deleteStudent('${student.id}')">
+      <i class="fas fa-trash-alt"></i>
+    </button>
+  </td>
+`;
+
 
           tbody.appendChild(row);
         });

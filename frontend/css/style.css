@@ -157,6 +157,28 @@ span {
 .btn i {
   margin-right: 8px;
 }
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 20px;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.icon-btn:hover {
+  /* color: var(--color-primary-hover); */
+  border: 1px dashed var(--color-primary-hover);
+}
 
 /* FORM ELEMENTS */
 input[type="text"],
@@ -244,7 +266,7 @@ td {
 }
 
 tbody tr:nth-child(even) {
-  background-color: rgba(0, 134, 187, 0.05);
+  background-color: rgba(0, 134, 187, 0.04);
 }
 
 tr:hover {
