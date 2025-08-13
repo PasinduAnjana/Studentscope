@@ -1,4 +1,5 @@
 const clerkService = require("../../services/clerkService");
+const teacherService = require("../../services/teacherService");
 
 exports.addStudent = async (req, res) => {
   try {
@@ -44,5 +45,17 @@ exports.addStudent = async (req, res) => {
     console.error("Error in addStudent handler:", err);
     res.writeHead(500, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Internal Server Error" }));
+  }
+};
+
+exports.getAllStudents = async (req, res) => {
+  try {
+    const students = await teacherService.getStudents();
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(students));
+  } catch (err) {
+    console.error("Database error:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch students" }));
   }
 };

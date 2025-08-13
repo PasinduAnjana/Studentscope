@@ -1,26 +1,53 @@
+<section class="section">
+  <div class="flex-between">
+    <h2 class="heading" data="sidebar.students"></h2>
+    <button
+      class="btn btn-primary"
+      onclick="window.location.href = 'layout.html?role=clerk&page=addStudent'""
+    >
+      <i class="fas fa-user-plus"></i> Add Student
+    </button>
+  </div>
+
+  <div class="card">
+    <h1 class="title" data="sidebar.students"></h1>
+    <div class="table-responsive">
+      <table id="student-table">
+        <thead>
+          <tr>
+            <th data="table.name">Name</th>
+            <th data="table.class">Index</th>
+            <th data="table.email">Email</th>
+            <th data="table.grade">Grade</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Students will be loaded here dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <script>
   function fetchStudents() {
-    fetch("/api/teacher/students")
-      .then(async (res) => {
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => ({}));
-          throw new Error(
-            errorData.error || res.statusText || "Failed to fetch students"
-          );
-        }
+    fetch("/api/clerk/students")
+      .then((res) => {
+        if (!res.ok) throw new Error(res.body || "Failed to fetch students");
         return res.json();
       })
       .then((data) => {
         const tbody = document.querySelector("#student-table tbody");
-        tbody.innerHTML = "";
+        tbody.innerHTML = ""; // Clear previous data
 
         data.forEach((student) => {
           const row = document.createElement("tr");
 
           row.innerHTML = `
             <td>${student.name}</td>
+            <td>${student.index_number}</td>
             <td>${student.email}</td>
-            <td>${student.grade}</td>
+            <td>${student.grade} -  ${student.class_name}</td>
           `;
 
           tbody.appendChild(row);
@@ -29,26 +56,9 @@
       .catch((err) => {
         console.error(err);
         const tbody = document.querySelector("#student-table tbody");
-        tbody.innerHTML = `<tr><td colspan="3" class="text-error">${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3" class="text-error">Error loading students</td></tr>`;
       });
   }
+
   fetchStudents();
 </script>
-
-<section class="section">
-  <h2 class="heading" data="navigation.students"></h2>
-
-  <div class="card">
-    <h1 class="title" data="sidebar.students"></h1>
-    <table id="student-table">
-      <thead>
-        <tr>
-          <th data="table.name">Name</th>
-          <th data="table.email">Email</th>
-          <th data="table.grade">Grade</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-</section>

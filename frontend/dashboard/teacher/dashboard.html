@@ -14,9 +14,11 @@
 
   <!-- Today's Timetable -->
   <div class="card dashboard-tile w-1 h-2" id="todays-timetable">
-    <i class="fas fa-calendar-day icon"></i>
-    <div>
+    <div class="icon-title">
+      <i class="fas fa-calendar-day icon"></i>
       <p class="tile-label" data="teacher.timetable"></p>
+    </div>
+    <div>
       <ul class="tile-list">
         <!-- Dynamic timetable entries will appear here -->
       </ul>
@@ -25,13 +27,14 @@
 
   <!-- Current Class -->
   <div class="card dashboard-tile" id="current-class">
-    <i class="fas fa-chalkboard icon"></i>
-    <div>
+    <div class="icon-title">
+      <i class="fas fa-chalkboard icon"></i>
       <p class="tile-label" data="teacher.current_class"></p>
+    </div>
+    <div>
       <p class="title-primary" style="font-size: 32px" id="current-class-name">
         Grade 10-A
       </p>
-
       <h1 class="tile-value" style="font-size: 24px" id="current-subject-name">
         Math
       </h1>
@@ -41,14 +44,15 @@
 
   <!-- Attendance Status -->
   <div class="card dashboard-tile">
-    <i class="fas fa-clipboard-check icon"></i>
-    <div>
+    <div class="icon-title">
+      <i class="fas fa-clipboard-check icon"></i>
       <p class="tile-label" data="teacher.attendance"></p>
+    </div>
+    <div>
       <h3
         class="tile-value text-error"
         data="teacher.attendance_not_marked"
       ></h3>
-      <!-- mark attendance button -->
       <button class="btn">
         <i class="fas fa-user-check"></i>
         <span data="teacher.mark_attendance"></span>
@@ -57,10 +61,12 @@
   </div>
 
   <!-- Tasks -->
-  <div class="card dashboard-tile">
-    <i class="fas fa-tasks icon"></i>
-    <div>
+  <div class="card dashboard-tile flex-column">
+    <div class="icon-title">
+      <i class="fas fa-tasks icon"></i>
       <p class="tile-label">Pending Tasks</p>
+    </div>
+    <div>
       <ul class="tile-list">
         <li>Upload results</li>
         <li>Mark attendance</li>

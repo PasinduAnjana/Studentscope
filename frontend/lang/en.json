@@ -14,18 +14,23 @@
     "marks": "Enter Marks",
     "students": "Students"
   },
-"teacher": {
-  "greeting": "Welcome to StudentScope!",
-  "greeting_2": "You are logged in as a teacher",
-  "attendance": "Attendance",
-  "attendance_not_marked": "Not marked",
-  "mark_attendance": "Mark Attendance",
-  "timetable": "Today's Time Table",
-  "current_class": "Current Class",
-  "marks": "Enter Marks",
-  "students": "Students"
-},
-
+  "teacher": {
+    "greeting": "Welcome to StudentScope!",
+    "greeting_2": "You are logged in as a Teacher",
+    "attendance": "Attendance",
+    "attendance_not_marked": "Not marked",
+    "mark_attendance": "Mark Attendance",
+    "timetable": "Today's Time Table",
+    "current_class": "Current Class",
+    "marks": "Enter Marks",
+    "students": "Students"
+  },
+  "clerk": {
+    "greeting": "Welcome to StudentScope!",
+    "greeting_2": "You are logged in as a Clerk",
+    "add_student": "Add Student",
+    "notices": "Post Notices"
+  },
 
   "buttons": {
     "save": "Save",

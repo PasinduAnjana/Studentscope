@@ -1,9 +1,11 @@
+@import url("https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
 /* ========================
   🎨 COLOR VARIABLES
 ======================== */
 :root {
   --color-primary: #0086bb;
-  --color-primary-hover: #009bb5;
+  --color-primary-hover: rgb(84, 188, 206);
   --color-bg: #f9fafb;
   --color-white: #ffffff;
   --color-text: #111827;
@@ -24,6 +26,7 @@
 
 body {
   font-family: "Inter", sans-serif;
+  /* font-family: "Libertinus", serif; */
   background-color: var(--color-bg);
   color: var(--color-text);
   line-height: 1.6;
@@ -129,7 +132,15 @@ span {
 }
 
 .btn:hover {
-  background-color: var(--color-primary-hover);
+  /* background-color: var(--color-primary-hover); */
+  color: var(--color-primary);
+  border: 1px dashed var(--color-border);
+  background-color: var(--color-white);
+}
+
+.btn:hover span {
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 .btn-outline {
@@ -170,6 +181,16 @@ select:focus,
 textarea:focus {
   border-color: var(--color-primary);
   outline: none;
+}
+
+/* select menu options  */
+option {
+  background-color: var(--color-white);
+  color: var(--color-text);
+  font-size: 14px;
+  padding: 12px 14px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
 }
 
 /* CARDS */
@@ -342,4 +363,22 @@ tr:hover {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.flex-end {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.flex-start {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }

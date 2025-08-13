@@ -1,43 +1,55 @@
 {
   "common": {
-      "welcome": "StudentScope වෙත සාදරයෙන් පිළිගනිමු",
-      "dashboard": "පාලක මණ්ඩලය",
-      "profile": "පැතිකඩ",
-      "settings": "සැකසුම්",
-      "logout": "ඉවත් වන්න"
-    },
-    "sidebar": {
-      "dashboard": "පාලක මණ්ඩලය",
-      "attendance": "පැමිණීම",
-      "timeTable": "කාලසටහන",
-      "marks": "ලකුණු",
-      "students": "ශිෂ්‍යයන්"
-    },
-    "teacher": {
-      "greeting": "StudentScope වෙත සාදරයෙන් පිළිගනිමු!",
-      "greeting_2": "ඔබ ගුරුවරයා ලෙස පිවිසී ඇත",
-      "attendance": "පැමිණීම",
-      "attendance_not_marked": "සලකුණු කර නැත",
-      "mark_attendance": "පැමිණීම සලකුණු කරන්න",
-      "timetable": "අද කාලසටහන",
-      "current_class": "වර්තමාන පන්තිය",
-      "marks": "ලකුණු ඇතුල් කරන්න",
-      "students": "ශිෂ්‍යයන්"
-    },
-    "buttons": {
-      "save": "සුරකින්න",
-      "cancel": "අවලංගු කරන්න",
-      "submit": "යවන්න",
-      "edit": "සංස්කරණය",
-      "delete": "මකන්න"
-    },
-    "errors": {
-      "pageNotFound": "පිටුව හමු නොවිණි",
-      "pageNotFoundDescription": "ඉල්ලූ පිටුව ලොඩ් කළ නොහැක."
-    },
-    "languages": {
-      "en": "English",
-      "si": "සිංහල",
-      "ta": "தமிழ்"
-    }
+    "welcome": "StudentScope වෙත සාදරයෙන් පිළිගනිමු",
+    "dashboard": "ඩෑෂ්බෝර්ඩ්",
+    "profile": "පැතිකඩ",
+    "settings": "සැකසුම්",
+    "logout": "පිටවීම"
+  },
+
+  "sidebar": {
+    "dashboard": "ඩෑෂ්බෝර්ඩ්",
+    "attendance": "පැමිණීම",
+    "timeTable": "කාලසටහන",
+    "marks": "ලකුණු ",
+    "students": "ශිෂ්‍යයන්"
+  },
+
+  "teacher": {
+    "greeting": "StudentScope වෙත සාදරයෙන් පිළිගනිමු!",
+    "greeting_2": "ඔබ ගුරුවරයෙකු ලෙස ලොග් වී ඇත",
+    "attendance": "පැමිණීම",
+    "attendance_not_marked": "සලකුණු කර නැත",
+    "mark_attendance": "පැමිණීම සලකුණු කරන්න",
+    "timetable": "අද කාලසටහන",
+    "current_class": "වර්තමාන පන්තිය",
+    "marks": "ලකුණු ඇතුල් කරන්න",
+    "students": "ශිෂ්‍යයන්"
+  },
+
+  "clerk": {
+    "greeting": "StudentScope වෙත සාදරයෙන් පිළිගනිමු!",
+    "greeting_2": "ඔබ ලේකම්වරයෙකු වශයෙන් ලොග් වී ඇත",
+    "add_student": "ශිෂ්‍යයෙකු එක් කරන්න",
+    "notices": "නිවේදන යවන්න"
+  },
+
+  "buttons": {
+    "save": "සුරකින්න",
+    "cancel": "අවලංගු කරන්න",
+    "submit": "ඇතුල් කරන්න",
+    "edit": "සකසන්න",
+    "delete": "මකන්න"
+  },
+
+  "errors": {
+    "pageNotFound": "පිටුව සොයා ගත නොහැකි විය",
+    "pageNotFoundDescription": "අයදුම් කළ පිටුව ලෝඩ් කළ නොහැකිවිය."
+  },
+
+  "languages": {
+    "en": "English",
+    "si": "සිංහල",
+    "ta": "தமிழ்"
   }
+}

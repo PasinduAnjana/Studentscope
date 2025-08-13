@@ -15,6 +15,12 @@ module.exports = async (req, res) => {
     );
   }
 
+  if (req.method === "GET" && req.url === "/api/clerk/students") {
+    return protect("clerk")(req, res, () =>
+      studentsController.getAllStudents(req, res)
+    );
+  }
+
   res.writeHead(404);
   res.end("Not Found");
 };
