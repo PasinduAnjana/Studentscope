@@ -1,1 +1,96 @@
-<h1>Time table</h1>
+<h2 class="heading">
+  <i class="fas fa-calendar-day"></i>
+  Timetable
+</h2>
+
+<div class="timetable" id="timetable">
+  <!-- Header row -->
+  <div class="timetable-row header-row">
+    <div class="timetable-cell header-cell">Time</div>
+    <div class="timetable-cell header-cell">Monday</div>
+    <div class="timetable-cell header-cell">Tuesday</div>
+    <div class="timetable-cell header-cell">Wednesday</div>
+    <div class="timetable-cell header-cell">Thursday</div>
+    <div class="timetable-cell header-cell">Friday</div>
+  </div>
+</div>
+
+<script>
+  async function loadTimetable() {
+    const [timeData, timetableData] = await Promise.all([
+      fetch("../../data/time.json").then((res) => res.json()),
+      fetch("../../data/timetable.json").then((res) => res.json()),
+    ]);
+
+    const timetableContainer = document.getElementById("timetable");
+
+    timeData.forEach((slot, index) => {
+      const row = document.createElement("div");
+      row.classList.add("timetable-row");
+
+      // Time cell
+      const timeCell = document.createElement("div");
+      timeCell.classList.add("timetable-cell", "time-cell");
+      timeCell.textContent = `${slot.start}`;
+      row.appendChild(timeCell);
+
+      // Monday to Friday
+      for (let day = 1; day <= 5; day++) {
+        const cell = document.createElement("div");
+        cell.classList.add("timetable-cell");
+
+        const entry = timetableData.find(
+          (item) => item.day_of_week === day && item.period_number === slot.slot
+        );
+
+        // Always create a card
+        const card = document.createElement("div");
+        card.classList.add("card", "slot-card");
+
+        if (entry) {
+          const subjectDiv = document.createElement("div");
+          subjectDiv.classList.add("subject");
+          subjectDiv.textContent = entry.subject.name;
+
+          const classNameDiv = document.createElement("div");
+          classNameDiv.classList.add("class-name");
+          classNameDiv.textContent = `Grade ${entry.class.grade}${entry.class.name}`;
+
+          card.appendChild(subjectDiv);
+          card.appendChild(classNameDiv);
+        } else {
+          // Empty slot placeholder
+          const emptyDiv = document.createElement("div");
+          emptyDiv.classList.add("empty-slot");
+          //emptyDiv.textContent = "-";
+          card.appendChild(emptyDiv);
+        }
+
+        cell.appendChild(card);
+        row.appendChild(cell);
+      }
+
+      timetableContainer.appendChild(row);
+
+      // Insert Interval row after 4th period
+      if (slot.slot === 4) {
+        const breakRow = document.createElement("div");
+        breakRow.classList.add("timetable-row", "interval-row");
+
+        const breakCell = document.createElement("h3");
+        breakCell.classList.add("timetable-cell", "interval-cell");
+        breakCell.style.color = "var(--color-primary)";
+        breakCell.textContent = "INTERVAL";
+        breakCell.colSpan = 6; // Full width (time + 5 days)
+
+        // Span across all columns
+        breakCell.style.gridColumn = "1 / span 6";
+
+        breakRow.appendChild(breakCell);
+        timetableContainer.appendChild(breakRow);
+      }
+    });
+  }
+
+  loadTimetable();
+</script>

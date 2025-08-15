@@ -78,6 +78,9 @@ span {
   font-size: 30px;
   font-weight: 600;
 }
+.heading i {
+  color: var(--color-primary);
+}
 
 .title {
   margin-bottom: 4px;

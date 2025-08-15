@@ -1,0 +1,120 @@
+/* 📅 Timetable Grid Layout */
+* {
+  box-sizing: border-box;
+}
+
+.timetable {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 4px;
+}
+
+.timetable-row {
+  display: grid;
+  grid-template-columns: 1fr repeat(5, 1fr); /* time + 5 weekdays, all flexible */
+  gap: 4px;
+  width: 100%;
+}
+
+.timetable-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Header */
+.header-cell {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-weight: 600;
+  text-align: center;
+  padding: 6px;
+  border-radius: 6px;
+  font-size: clamp(8px, 1vw, 14px);
+}
+
+/* Time */
+.time-cell {
+  font-weight: 600;
+  text-align: center;
+  padding: 6px;
+  border-radius: 6px;
+  font-size: clamp(10px, 1vw, 14px);
+  border: 1px dashed var(--color-border);
+  background-color: var(--color-white);
+}
+
+/* Slot cards */
+.slot-card {
+  width: 100%;
+  padding: 6px 4px;
+  border-radius: 6px;
+  background-color: var(--color-white);
+  border: 1px dashed var(--color-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  min-height: 60px;
+}
+
+.slot-card .subject {
+  font-weight: 600;
+  font-size: clamp(10px, 1vw, 16px);
+  color: var(--color-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot-card .class-name {
+  font-size: clamp(8px, 0.8vw, 12px);
+  color: var(--color-subtext);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Interval row */
+.interval-row {
+  grid-column: 1 / span 6;
+  background-color: var(--color-primary-light);
+  border-radius: 6px;
+  text-align: center;
+  font-weight: bold;
+  font-size: clamp(10px, 1vw, 14px);
+  color: var(--color-primary);
+  padding: 4px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .timetable-row {
+    gap: 2px;
+  }
+
+  .slot-card {
+    padding: 4px 2px;
+  }
+}
+
+@media (max-width: 500px) {
+  .timetable-row {
+    gap: 1px;
+  }
+
+  .slot-card {
+    padding: 2px 1px;
+  }
+  .slot-card .subject {
+    font-size: 6px;
+  }
+  .slot-card .class-name {
+    font-size: 6px;
+  }
+}

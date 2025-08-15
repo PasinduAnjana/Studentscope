@@ -1,0 +1,241 @@
+[
+  {
+    "day_of_week": 1,
+    "period_number": 1,
+    "subject": { "name": "Mathematics" },
+    "class": { "grade": "10", "name": "A" }
+  },
+  {
+    "day_of_week": 1,
+    "period_number": 2,
+    "subject": { "name": "English" },
+    "class": { "grade": "10", "name": "B" }
+  },
+
+  {
+    "day_of_week": 1,
+    "period_number": 4,
+    "subject": { "name": "Chemistry" },
+    "class": { "grade": "10", "name": "C" }
+  },
+  {
+    "day_of_week": 1,
+    "period_number": 5,
+    "subject": { "name": "History" },
+    "class": { "grade": "10", "name": "B" }
+  },
+  {
+    "day_of_week": 1,
+    "period_number": 6,
+    "subject": { "name": "Geography" },
+    "class": { "grade": "10", "name": "A" }
+  },
+  {
+    "day_of_week": 1,
+    "period_number": 7,
+    "subject": { "name": "Biology" },
+    "class": { "grade": "10", "name": "C" }
+  },
+  {
+    "day_of_week": 1,
+    "period_number": 8,
+    "subject": { "name": "Mathematics" },
+    "class": { "grade": "10", "name": "A" }
+  },
+
+  {
+    "day_of_week": 2,
+    "period_number": 1,
+    "subject": { "name": "English" },
+    "class": { "grade": "10", "name": "B" }
+  },
+  {
+    "day_of_week": 2,
+    "period_number": 2,
+    "subject": { "name": "Biology" },
+    "class": { "grade": "10", "name": "C" }
+  },
+  {
+    "day_of_week": 2,
+    "period_number": 3,
+    "subject": { "name": "History" },
+    "class": { "grade": "10", "name": "B" }
+  },
+  {
+    "day_of_week": 2,
+    "period_number": 4,
+    "subject": { "name": "Mathematics" },
+    "class": { "grade": "10", "name": "A" }
+  },
+  {
+    "day_of_week": 2,
+    "period_number": 5,
+    "subject": { "name": "Geography" },
+    "class": { "grade": "10", "name": "C" }
+  },
+  {
+    "day_of_week": 2,
+    "period_number": 6,
+    "subject": { "name": "Physics" },
+    "class": { "grade": "10", "name": "A" }
+  },
+  {
+    "day_of_week": 2,
+    "period_number": 7,
+    "subject": { "name": "Chemistry" },
+    "class": { "grade": "10", "name": "B" }
+  },
+  {
+    "day_of_week": 2,
+    "period_number": 8,
+    "subject": { "name": "English" },
+    "class": { "grade": "10", "name": "C" }
+  },
+
+  {
+    "day_of_week": 3,
+    "period_number": 1,
+    "subject": { "name": "Physics" },
+    "class": { "grade": "10", "name": "A" }
+  },
+  {
+    "day_of_week": 3,
+    "period_number": 2,
+    "subject": { "name": "Mathematics" },
+    "class": { "grade": "10", "name": "B" }
+  },
+  {
+    "day_of_week": 3,
+    "period_number": 3,
+    "subject": { "name": "English" },
+    "class": { "grade": "10", "name": "C" }
+  },
+  {
+    "day_of_week": 3,
+    "period_number": 4,
+    "subject": { "name": "Chemistry" },
+    "class": { "grade": "10", "name": "A" }
+  },
+  {
+    "day_of_week": 3,
+    "period_number": 5,
+    "subject": { "name": "History" },
+    "class": { "grade": "10", "name": "B" }
+  },
+  {
+    "day_of_week": 3,
+    "period_number": 6,
+    "subject": { "name": "Geography" },
+    "class": { "grade": "10", "name": "C" }
+  },
+  {
+    "day_of_week": 3,
+    "period_number": 7,
+    "subject": { "name": "Physics" },
+    "class": { "grade": "10", "name": "A" }
+  },
+  {
+    "day_of_week": 3,
+    "period_number": 8,
+    "subject": { "name": "Biology" },
+    "class": { "grade": "10", "name": "C" }
+  },
+
+  {
+    "day_of_week": 4,
+    "period_number": 1,
+    "subject": { "name": "Chemistry" },
+    "class": { "grade": "10", "name": "C" }
+  },
+  {
+    "day_of_week": 4,
+    "period_number": 2,
+    "subject": { "name": "English" },
+    "class": { "grade": "10", "name": "B" }
+  },
+  {
+    "day_of_week": 4,
+    "period_number": 3,
+    "subject": { "name": "History" },
+    "class": { "grade": "10", "name": "B" }
+  },
+  {
+    "day_of_week": 4,
+    "period_number": 4,
+    "subject": { "name": "Mathematics" },
+    "class": { "grade": "10", "name": "A" }
+  },
+  {
+    "day_of_week": 4,
+    "period_number": 5,
+    "subject": { "name": "Physics" },
+    "class": { "grade": "10", "name": "A" }
+  },
+  {
+    "day_of_week": 4,
+    "period_number": 6,
+    "subject": { "name": "Geography" },
+    "class": { "grade": "10", "name": "C" }
+  },
+  {
+    "day_of_week": 4,
+    "period_number": 7,
+    "subject": { "name": "Biology" },
+    "class": { "grade": "10", "name": "C" }
+  },
+  {
+    "day_of_week": 4,
+    "period_number": 8,
+    "subject": { "name": "English" },
+    "class": { "grade": "10", "name": "B" }
+  },
+
+  {
+    "day_of_week": 5,
+    "period_number": 1,
+    "subject": { "name": "History" },
+    "class": { "grade": "10", "name": "B" }
+  },
+  {
+    "day_of_week": 5,
+    "period_number": 2,
+    "subject": { "name": "Chemistry" },
+    "class": { "grade": "10", "name": "C" }
+  },
+  {
+    "day_of_week": 5,
+    "period_number": 3,
+    "subject": { "name": "Mathematics" },
+    "class": { "grade": "10", "name": "A" }
+  },
+  {
+    "day_of_week": 5,
+    "period_number": 4,
+    "subject": { "name": "English" },
+    "class": { "grade": "10", "name": "B" }
+  },
+  {
+    "day_of_week": 5,
+    "period_number": 5,
+    "subject": { "name": "Physics" },
+    "class": { "grade": "10", "name": "A" }
+  },
+  {
+    "day_of_week": 5,
+    "period_number": 6,
+    "subject": { "name": "Biology" },
+    "class": { "grade": "10", "name": "C" }
+  },
+  {
+    "day_of_week": 5,
+    "period_number": 7,
+    "subject": { "name": "Geography" },
+    "class": { "grade": "10", "name": "C" }
+  },
+  {
+    "day_of_week": 5,
+    "period_number": 8,
+    "subject": { "name": "Mathematics" },
+    "class": { "grade": "10", "name": "A" }
+  }
+]
