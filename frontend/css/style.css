@@ -73,13 +73,16 @@ span {
   text-align: center;
 }
 
-.heading {
+.heading,
+.heading span {
   margin-bottom: 16px;
   font-size: 30px;
   font-weight: 600;
+  color: var(--color-text);
 }
 .heading i {
   color: var(--color-primary);
+  font-size: 30px;
 }
 
 .title {
