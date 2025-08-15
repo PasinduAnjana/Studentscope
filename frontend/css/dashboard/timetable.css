@@ -43,7 +43,7 @@
   text-align: center;
   padding: 6px;
   border-radius: 12px;
-  font-size: clamp(10px, 1vw, 20px);
+  font-size: clamp(10px, 1vw, 16px);
   border: 1px dashed var(--color-border);
   background-color: var(--color-white);
 }
