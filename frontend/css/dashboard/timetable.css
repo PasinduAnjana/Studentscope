@@ -32,8 +32,9 @@
   font-weight: 600;
   text-align: center;
   padding: 6px;
-  border-radius: 6px;
+  border-radius: 12px;
   font-size: clamp(8px, 1vw, 14px);
+  margin-bottom: 4px;
 }
 
 /* Time */
@@ -41,7 +42,7 @@
   font-weight: 600;
   text-align: center;
   padding: 6px;
-  border-radius: 6px;
+  border-radius: 12px;
   font-size: clamp(10px, 1vw, 14px);
   border: 1px dashed var(--color-border);
   background-color: var(--color-white);
@@ -51,7 +52,7 @@
 .slot-card {
   width: 100%;
   padding: 6px 4px;
-  border-radius: 6px;
+  border-radius: 12px;
   background-color: var(--color-white);
   border: 1px dashed var(--color-border);
   display: flex;

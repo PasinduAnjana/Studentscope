@@ -85,12 +85,6 @@
     "subject": { "name": "Chemistry" },
     "class": { "grade": "10", "name": "B" }
   },
-  {
-    "day_of_week": 2,
-    "period_number": 8,
-    "subject": { "name": "English" },
-    "class": { "grade": "10", "name": "C" }
-  },
 
   {
     "day_of_week": 3,
@@ -153,12 +147,7 @@
     "subject": { "name": "English" },
     "class": { "grade": "10", "name": "B" }
   },
-  {
-    "day_of_week": 4,
-    "period_number": 3,
-    "subject": { "name": "History" },
-    "class": { "grade": "10", "name": "B" }
-  },
+
   {
     "day_of_week": 4,
     "period_number": 4,
