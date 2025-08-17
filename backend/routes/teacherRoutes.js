@@ -13,6 +13,7 @@ module.exports = (req, res) => {
     req.url.startsWith("/api/teacher/timetable/today/")
   ) {
     const teacherId = req.url.split("/").pop(); // Get last part of URL
+
     return protect("teacher")(req, res, () =>
       timetableController.getTeacherTodayTimetable(
         { ...req, params: { teacherId } },
