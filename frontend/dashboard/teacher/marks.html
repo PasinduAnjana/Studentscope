@@ -1,20 +1,36 @@
 <h2 class="heading"><i class="fas fa-pen"></i> Enter Marks</h2>
+<div class="mark-controls">
+  <!-- Search Bar -->
+  <div class="input-group search-group">
+    <input
+      type="text"
+      id="student-search"
+      class="search-input"
+      placeholder="Search students"
+    />
+    <i class="fas fa-search search-icon"></i>
+  </div>
 
-<div class="controls">
-  <label>
-    Class:
-    <select id="class-select">
-      <option>10A</option>
-      <option>10B</option>
+  <!-- Class Dropdown -->
+  <div class="input-group">
+    <label> Class: </label>
+    <select id="class-select" class="dropdown-select">
+      <option value="10A">10A</option>
+      <option value="10B">10B</option>
+      <option value="10C">10C</option>
+      <option value="11A">11A</option>
+      <option value="11B">11B</option>
     </select>
-  </label>
-  <label>
-    Exam:
-    <select id="exam-select">
-      <option>Midterm</option>
-      <option>Final</option>
+  </div>
+
+  <!-- Exam Dropdown -->
+  <div class="input-group">
+    <label> Exam: </label>
+    <select id="exam-select" class="dropdown-select">
+      <option value="Midterm">Midterm</option>
+      <option value="Final">Final</option>
     </select>
-  </label>
+  </div>
 </div>
 
 <div class="marks-container">
@@ -33,13 +49,55 @@
 </div>
 
 <script>
+  let allStudents = [];
+  let subjects = [];
+  function limitMarks() {
+    document.querySelectorAll(".mark-input").forEach((input) => {
+      input.addEventListener("input", (e) => {
+        let val = input.value;
+
+        // Remove non-digits
+        val = val.replace(/\D/g, "");
+
+        // Prevent value > 100
+        if (parseInt(val) > 100) {
+          val = val.slice(0, -1); // Remove last typed digit
+        }
+
+        input.value = val;
+      });
+    });
+  }
+
   async function loadMarksTable() {
-    const [students, subjects] = await Promise.all([
+    const [students, subs] = await Promise.all([
       fetch("../../data/students.json").then((res) => res.json()),
       fetch("../../data/subjects.json").then((res) => res.json()),
     ]);
 
+    allStudents = students;
+    subjects = subs;
+    renderTable(students);
+    addInputHighlighting();
+    limitMarks();
+
+    const searchInput = document.getElementById("student-search");
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase().trim();
+      const filteredStudents = allStudents.filter(
+        (student) =>
+          student.name.toLowerCase().includes(query) ||
+          student.index_number.toLowerCase().includes(query)
+      );
+      renderTable(filteredStudents);
+      addInputHighlighting();
+      limitMarks();
+    });
+  }
+
+  function renderTable(students) {
     const table = document.getElementById("marks-table");
+    table.innerHTML = "";
 
     // 🔹 Header row
     const headerRow = document.createElement("tr");
@@ -55,15 +113,15 @@
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${student.index_number}</td>
-        <td>${student.name}</td>
+        <td class="student-name">${student.name}</td>
         ${subjects
           .map(
             (s) =>
-              `<td><input 
-                  type="number" 
+              `<td><input
+                  type="number"
                   class="mark-input"
                   min="0" max="100"
-                  data-student="${student.id}" 
+                  data-student="${student.id}"
                   data-subject="${s.id}"
                 /></td>`
           )
@@ -73,15 +131,52 @@
     });
   }
 
-  function saveDraft() {
-    const inputs = document.querySelectorAll(".mark-input");
-    const data = Array.from(inputs).map((input) => ({
-      student_id: input.dataset.student,
-      subject_id: input.dataset.subject,
-      mark: input.value ? parseInt(input.value) : null,
-    }));
-    console.log("Draft Saved:", data);
-    alert("Draft saved (check console)");
+  // ✨ Highlight student name + subject header
+  function addInputHighlighting() {
+    const table = document.getElementById("marks-table");
+
+    table.addEventListener("focusin", (e) => {
+      if (e.target.classList.contains("mark-input")) {
+        const input = e.target;
+
+        // Clear old highlights
+        document
+          .querySelectorAll(".highlight-student, .highlight-subject")
+          .forEach((el) =>
+            el.classList.remove("highlight-student", "highlight-subject")
+          );
+
+        // Highlight student name (2nd column)
+        const row = input.closest("tr");
+        const studentNameCell = row.querySelector(".student-name");
+        if (studentNameCell) studentNameCell.classList.add("highlight-student");
+
+        // Find column index
+        const cell = input.closest("td");
+        const colIndex = Array.from(cell.parentNode.children).indexOf(cell);
+
+        // Highlight header cell (same column)
+        const headerCell = table.querySelector(
+          `tr:first-child th:nth-child(${colIndex + 1})`
+        );
+        if (headerCell) headerCell.classList.add("highlight-subject");
+      }
+    });
+
+    // Clear on blur
+    table.addEventListener("focusout", (e) => {
+      if (e.target.classList.contains("mark-input")) {
+        setTimeout(() => {
+          if (!table.contains(document.activeElement)) {
+            document
+              .querySelectorAll(".highlight-student, .highlight-subject")
+              .forEach((el) =>
+                el.classList.remove("highlight-student", "highlight-subject")
+              );
+          }
+        }, 50);
+      }
+    });
   }
 
   function submitMarks() {
@@ -94,6 +189,25 @@
     console.log("Submitted:", data);
     alert("Marks submitted (check console)");
   }
+
+  function saveDraft() {
+    const inputs = document.querySelectorAll(".mark-input");
+    const data = Array.from(inputs).map((input) => ({
+      student_id: input.dataset.student,
+      subject_id: input.dataset.subject,
+      mark: input.value ? parseInt(input.value) : null,
+    }));
+    console.log("Draft saved:", data);
+    alert("Draft saved (check console)");
+  }
+
+  //dropdown select menus
+  makeSearchableDropdown("class-select", (val) =>
+    console.log("✅ Selected class:", val)
+  );
+  makeSearchableDropdown("exam-select", (val) =>
+    console.log("✅ Selected exam:", val)
+  );
 
   loadMarksTable();
 </script>
