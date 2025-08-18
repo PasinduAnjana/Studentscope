@@ -1,25 +1,108 @@
-<h1 class="heading">Attendance</h1>
+<h2 class="heading"><i class="fas fa-user-check"></i> Mark Attendance</h2>
 
-<div>
-  <div class="card-grid">
-    <div class="card w-2">
-      <h2 class="title">Attendance</h2>
-      <p>Mark Attendance</p>
-    </div>
+<div class="attendance-container" id="attendanceContainer"></div>
 
-    <div class="card w-2">
-      <h2 class="title">Approved</h2>
-      <p>65 this month</p>
-    </div>
-
-    <div class="card w-1">
-      <h2 class="title">Requests</h2>
-      <p>8 pending</p>
-    </div>
-
-    <div class="card w-4">
-      <h2 class="title">Attendance Summary</h2>
-      <p>No exams this week.</p>
-    </div>
-  </div>
+<div class="actions" id="paginationControls">
+  <button class="btn" id="backBtn" onclick="prevPage()" disabled>
+    <i class="fas fa-arrow-left"></i> Back
+  </button>
+  <button class="btn" id="nextBtn" onclick="nextPage()">
+    Next <i class="fas fa-arrow-right"></i>
+  </button>
 </div>
+
+<script>
+  // Example students
+  const students = Array.from({ length: 23 }, (_, i) => ({
+    id: i + 1,
+    name: `Student ${i + 1}`,
+    index: `S${1000 + i + 1}`,
+    status: null, // present/absent/null
+  }));
+
+  const studentsPerPage = 10;
+  let currentPage = 1;
+
+  function renderStudents() {
+    const container = document.getElementById("attendanceContainer");
+    container.innerHTML = "";
+
+    const start = (currentPage - 1) * studentsPerPage;
+    const end = start + studentsPerPage;
+    const currentStudents = students.slice(start, end);
+
+    currentStudents.forEach((student) => {
+      const row = document.createElement("div");
+      row.classList.add("student-row", "slot-card");
+      if (student.status) row.classList.add(student.status);
+
+      const info = document.createElement("div");
+      info.classList.add("student-info");
+      info.innerHTML = `<strong>${student.name}</strong> <small>(${student.index})</small>`;
+
+      const actions = document.createElement("div");
+      actions.classList.add("attendance-actions");
+
+      const presentBtn = document.createElement("button");
+      presentBtn.classList.add("btn", "btn-present");
+      presentBtn.innerHTML = '<i class="fas fa-check"></i> Present';
+      presentBtn.onclick = () => {
+        student.status = "present";
+        renderStudents(); // refresh row
+      };
+
+      const absentBtn = document.createElement("button");
+      absentBtn.classList.add("btn", "btn-absent");
+      absentBtn.innerHTML = '<i class="fas fa-times"></i> Absent';
+      absentBtn.onclick = () => {
+        student.status = "absent";
+        renderStudents(); // refresh row
+      };
+
+      actions.appendChild(presentBtn);
+      actions.appendChild(absentBtn);
+
+      row.appendChild(info);
+      row.appendChild(actions);
+      container.appendChild(row);
+    });
+
+    updatePagination();
+  }
+
+  function updatePagination() {
+    const backBtn = document.getElementById("backBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    backBtn.disabled = currentPage === 1;
+
+    if (currentPage * studentsPerPage >= students.length) {
+      nextBtn.innerHTML = '<i class="fas fa-upload"></i> Submit';
+      nextBtn.onclick = submitAttendance;
+    } else {
+      nextBtn.innerHTML = 'Next <i class="fas fa-arrow-right"></i>';
+      nextBtn.onclick = nextPage;
+    }
+  }
+
+  function prevPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      renderStudents();
+    }
+  }
+
+  function nextPage() {
+    if (currentPage * studentsPerPage < students.length) {
+      currentPage++;
+      renderStudents();
+    }
+  }
+
+  function submitAttendance() {
+    console.log("Attendance submitted:", students);
+    alert("Attendance submitted");
+  }
+
+  renderStudents();
+</script>

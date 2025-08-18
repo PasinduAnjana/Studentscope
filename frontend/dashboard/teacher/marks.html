@@ -1,1 +1,99 @@
-<h1>Marks</h1>
+<h2 class="heading"><i class="fas fa-pen"></i> Enter Marks</h2>
+
+<div class="controls">
+  <label>
+    Class:
+    <select id="class-select">
+      <option>10A</option>
+      <option>10B</option>
+    </select>
+  </label>
+  <label>
+    Exam:
+    <select id="exam-select">
+      <option>Midterm</option>
+      <option>Final</option>
+    </select>
+  </label>
+</div>
+
+<div class="marks-container">
+  <table class="marks-table" id="marks-table">
+    <!-- Populated by JS -->
+  </table>
+</div>
+
+<div class="actions">
+  <button class="btn btn-secondary" onclick="saveDraft()">
+    <i class="fas fa-save"></i> Save Draft
+  </button>
+  <button class="btn btn-primary" onclick="submitMarks()">
+    <i class="fas fa-check"></i> Submit Marks
+  </button>
+</div>
+
+<script>
+  async function loadMarksTable() {
+    const [students, subjects] = await Promise.all([
+      fetch("../../data/students.json").then((res) => res.json()),
+      fetch("../../data/subjects.json").then((res) => res.json()),
+    ]);
+
+    const table = document.getElementById("marks-table");
+
+    // 🔹 Header row
+    const headerRow = document.createElement("tr");
+    headerRow.innerHTML = `
+      <th>Index No</th>
+      <th>Name</th>
+      ${subjects.map((s) => `<th>${s.name}</th>`).join("")}
+    `;
+    table.appendChild(headerRow);
+
+    // 🔹 Student rows
+    students.forEach((student) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${student.index_number}</td>
+        <td>${student.name}</td>
+        ${subjects
+          .map(
+            (s) =>
+              `<td><input 
+                  type="number" 
+                  class="mark-input"
+                  min="0" max="100"
+                  data-student="${student.id}" 
+                  data-subject="${s.id}"
+                /></td>`
+          )
+          .join("")}
+      `;
+      table.appendChild(row);
+    });
+  }
+
+  function saveDraft() {
+    const inputs = document.querySelectorAll(".mark-input");
+    const data = Array.from(inputs).map((input) => ({
+      student_id: input.dataset.student,
+      subject_id: input.dataset.subject,
+      mark: input.value ? parseInt(input.value) : null,
+    }));
+    console.log("Draft Saved:", data);
+    alert("Draft saved (check console)");
+  }
+
+  function submitMarks() {
+    const inputs = document.querySelectorAll(".mark-input");
+    const data = Array.from(inputs).map((input) => ({
+      student_id: input.dataset.student,
+      subject_id: input.dataset.subject,
+      mark: input.value ? parseInt(input.value) : null,
+    }));
+    console.log("Submitted:", data);
+    alert("Marks submitted (check console)");
+  }
+
+  loadMarksTable();
+</script>
