@@ -1,108 +1,213 @@
-<h2 class="heading"><i class="fas fa-user-check"></i> Mark Attendance</h2>
+<h2 class="heading">
+  <i class="fas fa-user-check"></i>
+  <span data="sidebar.attendance"></span>
+</h2>
 
-<div class="attendance-container" id="attendanceContainer"></div>
+<div class="card-grid">
+  <!-- Today's Attendance -->
+  <div class="card w-1 h-2 dashboard-tile" id="attendanceSummary">
+    <div class="icon-title">
+      <i class="fas fa-clipboard-check icon"></i>
+      <p class="tile-label" data="teacher.todayAttendance"></p>
+    </div>
+    <canvas id="attendanceChart" height="150"></canvas>
+  </div>
 
-<div class="actions" id="paginationControls">
-  <button class="btn" id="backBtn" onclick="prevPage()" disabled>
-    <i class="fas fa-arrow-left"></i> Back
-  </button>
-  <button class="btn" id="nextBtn" onclick="nextPage()">
-    Next <i class="fas fa-arrow-right"></i>
-  </button>
+  <!-- Mark/Edit Attendance Card -->
+  <div class="card w-1 dashboard-tile" id="attendanceActionCard">
+    <div class="icon-title">
+      <i class="fas fa-user-check icon"></i>
+      <p class="tile-label" data="teacher.attendanceAction"></p>
+    </div>
+    <div>
+      <h3 class="tile-value" id="attendanceActionText"></h3>
+      <button class="btn" id="attendanceActionBtn">
+        <i class="fas fa-pen"></i>
+        <span id="attendanceActionBtnText"></span>
+      </button>
+      <!-- delete attendance -->
+      <button
+        class="btn btn-danger"
+        id="deleteAttendanceBtn"
+        onclick="deleteAttendance()"
+      >
+        <i class="fas fa-trash"></i>
+        <span data="teacher.deleteAttendanceBtn"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Weekly Attendance -->
+  <div class="card w-1 dashboard-tile">
+    <div class="icon-title">
+      <i class="fas fa-calendar-week icon"></i>
+      <p class="tile-label" data="teacher.weeklyAttendance"></p>
+    </div>
+    <canvas id="weeklyChart" height="150"></canvas>
+  </div>
+
+  <!-- Monthly Attendance -->
+  <div class="card w-2 h-1 dashboard-tile">
+    <div class="icon-title">
+      <i class="fas fa-calendar-alt icon"></i>
+      <p class="tile-label" data="teacher.monthlyAttendance"></p>
+    </div>
+    <canvas id="monthlyChart" height="150"></canvas>
+  </div>
 </div>
 
 <script>
-  // Example students
-  const students = Array.from({ length: 23 }, (_, i) => ({
+  const rootStyles = getComputedStyle(document.documentElement);
+  const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
+  const secondaryColor = rootStyles.getPropertyValue("--color-border").trim();
+
+  // Example student data
+  const students = Array.from({ length: 44 }, (_, i) => ({
     id: i + 1,
     name: `Student ${i + 1}`,
-    index: `S${1000 + i + 1}`,
-    status: null, // present/absent/null
+    status: i % 4 === 0 ? "absent" : "present",
   }));
 
-  const studentsPerPage = 10;
-  let currentPage = 1;
+  const presentCount = students.filter((s) => s.status === "present").length;
+  const absentCount = students.filter((s) => s.status === "absent").length;
 
-  function renderStudents() {
-    const container = document.getElementById("attendanceContainer");
-    container.innerHTML = "";
+  // Check if attendance already marked today
+  let attendanceMarked = localStorage.getItem("attendanceMarked") === "true";
 
-    const start = (currentPage - 1) * studentsPerPage;
-    const end = start + studentsPerPage;
-    const currentStudents = students.slice(start, end);
+  // --- Attendance Action Card ---
+  const actionText = document.getElementById("attendanceActionText");
+  const actionBtn = document.getElementById("attendanceActionBtn");
+  const actionBtnText = document.getElementById("attendanceActionBtnText");
 
-    currentStudents.forEach((student) => {
-      const row = document.createElement("div");
-      row.classList.add("student-row", "slot-card");
-      if (student.status) row.classList.add(student.status);
-
-      const info = document.createElement("div");
-      info.classList.add("student-info");
-      info.innerHTML = `<strong>${student.name}</strong> <small>(${student.index})</small>`;
-
-      const actions = document.createElement("div");
-      actions.classList.add("attendance-actions");
-
-      const presentBtn = document.createElement("button");
-      presentBtn.classList.add("btn", "btn-present");
-      presentBtn.innerHTML = '<i class="fas fa-check"></i> Present';
-      presentBtn.onclick = () => {
-        student.status = "present";
-        renderStudents(); // refresh row
-      };
-
-      const absentBtn = document.createElement("button");
-      absentBtn.classList.add("btn", "btn-absent");
-      absentBtn.innerHTML = '<i class="fas fa-times"></i> Absent';
-      absentBtn.onclick = () => {
-        student.status = "absent";
-        renderStudents(); // refresh row
-      };
-
-      actions.appendChild(presentBtn);
-      actions.appendChild(absentBtn);
-
-      row.appendChild(info);
-      row.appendChild(actions);
-      container.appendChild(row);
-    });
-
-    updatePagination();
+  if (!attendanceMarked) {
+    actionText.innerText = "You have not marked attendance today";
+    actionBtnText.innerText = "Mark Attendance";
+  } else {
+    actionText.innerText = "Attendance already marked today";
+    actionBtnText.innerText = "Edit Attendance";
   }
 
-  function updatePagination() {
-    const backBtn = document.getElementById("backBtn");
-    const nextBtn = document.getElementById("nextBtn");
+  actionBtn.onclick = () => {
+    window.location.href = "layout.html?role=teacher&page=attendance_mark";
+  };
 
-    backBtn.disabled = currentPage === 1;
+  // --- Custom plugin to draw center text in doughnut ---
+  const centerTextPlugin = {
+    id: "centerText",
+    beforeDraw(chart, args, options) {
+      if (chart.config.type !== "doughnut") return;
+      const { ctx, width, height } = chart;
+      ctx.save();
+      const fontSize = (height / 114).toFixed(2);
+      ctx.font = `${fontSize}em sans-serif`;
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      ctx.fillStyle = options.color || primaryColor;
+      const text = options.text || "";
+      ctx.fillText(text, width / 2, chart.getDatasetMeta(0).data[0].y);
+      ctx.restore();
+    },
+  };
 
-    if (currentPage * studentsPerPage >= students.length) {
-      nextBtn.innerHTML = '<i class="fas fa-upload"></i> Submit';
-      nextBtn.onclick = submitAttendance;
-    } else {
-      nextBtn.innerHTML = 'Next <i class="fas fa-arrow-right"></i>';
-      nextBtn.onclick = nextPage;
+  // --- Today's Attendance Doughnut Chart ---
+  new Chart(document.getElementById("attendanceChart"), {
+    type: "doughnut",
+    data: {
+      labels: ["Present", "Absent"],
+      datasets: [
+        {
+          data: [presentCount, absentCount],
+          backgroundColor: [primaryColor, secondaryColor],
+          borderRadius: 20,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      cutout: "85%",
+      plugins: {
+        legend: { position: "bottom" },
+        title: {
+          display: true,
+          // from json
+          text: "Today's Attendance",
+          font: { size: 20, weight: "bold" },
+          position: "bottom",
+        },
+        centerText: {
+          text: `${presentCount}/${presentCount + absentCount}`,
+          color: primaryColor,
+        },
+      },
+    },
+    plugins: [centerTextPlugin],
+  });
+
+  // --- Weekly Attendance Bar Chart ---
+  const weeklyData = {
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+    datasets: [
+      {
+        label: "Present",
+        data: [40, 42, 38, 44, 41],
+        backgroundColor: primaryColor,
+      },
+      {
+        label: "Absent",
+        data: [4, 2, 6, 0, 3],
+        backgroundColor: secondaryColor,
+      },
+    ],
+  };
+
+  new Chart(document.getElementById("weeklyChart"), {
+    type: "bar",
+    data: weeklyData,
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "top" },
+        title: { display: true, text: "Weekly Attendance" },
+      },
+      scales: { y: { beginAtZero: true } },
+    },
+  });
+
+  // --- Monthly Attendance Line Chart ---
+  const monthlyData = {
+    labels: Array.from({ length: 30 }, (_, i) => `Sep ${i + 1}`),
+    datasets: [
+      {
+        label: "Present",
+        data: Array.from({ length: 30 }, () =>
+          Math.floor(Math.random() * 20 + 25)
+        ),
+        borderColor: primaryColor,
+        backgroundColor: primaryColor + "33",
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  };
+
+  new Chart(document.getElementById("monthlyChart"), {
+    type: "line",
+    data: monthlyData,
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "top" },
+        title: { display: true, text: "Monthly Attendance" },
+      },
+      scales: { y: { beginAtZero: true } },
+    },
+  });
+
+  function deleteAttendance() {
+    if (confirm("Are you sure you want to delete today's attendance?")) {
+      localStorage.removeItem("attendanceMarked");
+      alert("Today's attendance deleted.");
+      location.reload();
     }
   }
-
-  function prevPage() {
-    if (currentPage > 1) {
-      currentPage--;
-      renderStudents();
-    }
-  }
-
-  function nextPage() {
-    if (currentPage * studentsPerPage < students.length) {
-      currentPage++;
-      renderStudents();
-    }
-  }
-
-  function submitAttendance() {
-    console.log("Attendance submitted:", students);
-    alert("Attendance submitted");
-  }
-
-  renderStudents();
 </script>

@@ -23,7 +23,16 @@
     "timetable": "Today's Time Table",
     "current_class": "Current Class",
     "marks": "Enter Marks",
-    "students": "Students"
+    "students": "Students",
+    "todayAttendance": "Today's Attendance",
+    "attendanceAction": "Attendance Action",
+    "attendanceNotMarkedText": "You have not marked attendance today",
+    "attendanceMarkedText": "Attendance already marked today",
+    "markAttendanceBtn": "Mark Attendance",
+    "editAttendanceBtn": "Edit Attendance",
+    "deleteAttendanceBtn": "Delete Attendance",
+    "weeklyAttendance": "Weekly Attendance",
+    "monthlyAttendance": "Monthly Attendance"
   },
   "clerk": {
     "greeting": "Welcome to StudentScope!",

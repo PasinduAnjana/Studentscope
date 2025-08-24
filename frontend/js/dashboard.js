@@ -21,15 +21,26 @@ function loadPage(role, page) {
       document.getElementById("content").innerHTML = temp.innerHTML;
       applyTranslations();
 
-      scripts.forEach((oldScript) => {
-        const newScript = document.createElement("script");
-        if (oldScript.src) {
-          newScript.src = oldScript.src;
-        } else {
-          newScript.textContent = oldScript.textContent;
-        }
-        document.body.appendChild(newScript);
-      });
+      setTimeout(() => {
+        scripts.forEach((oldScript) => {
+          if (oldScript.src) {
+            if (![...document.scripts].some((s) => s.src === oldScript.src)) {
+              const newScript = document.createElement("script");
+              newScript.src = oldScript.src;
+              document.body.appendChild(newScript);
+            }
+          } else {
+            try {
+              window.eval(oldScript.textContent); // <-- run inline script globally
+            } catch (e) {
+              console.error("Error executing inline script:", e);
+            }
+          }
+        });
+      }, 0);
+    })
+    .catch((err) => {
+      console.error("Failed to load page:", err);
     });
 }
 

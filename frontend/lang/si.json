@@ -24,7 +24,16 @@
     "timetable": "අද කාලසටහන",
     "current_class": "වර්තමාන පන්තිය",
     "marks": "ලකුණු ඇතුල් කරන්න",
-    "students": "ශිෂ්‍යයන්"
+    "students": "ශිෂ්‍යයන්",
+    "todayAttendance": "අද දිනයේ පැමිණීම",
+    "attendanceAction": "පැමිණීම සලකුණු කරන්න",
+    "attendanceNotMarkedText": "ඔබ අද පැමිණීම සලකුණු කර නොමැත",
+    "attendanceMarkedText": "අද දින පැමිණීම සලකුණු කර ඇත",
+    "markAttendanceBtn": "පැමිණීම සලකුණු කරන්න",
+    "editAttendanceBtn": "පැමිණීම සංස්කරණය කරන්න",
+    "deleteAttendanceBtn": "පැමිණීම මකන්න",
+    "weeklyAttendance": "සතිපතා පැමිණීම",
+    "monthlyAttendance": "මාසික පැමිණීම"
   },
 
   "clerk": {

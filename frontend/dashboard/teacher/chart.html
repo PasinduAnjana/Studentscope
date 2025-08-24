@@ -1,0 +1,104 @@
+<h2 class="heading"><i class="fas fa-chart-pie"></i> Charts Test</h2>
+
+<div class="card-grid">
+  <!-- Existing Tiles like Greeting, Timetable, etc. -->
+
+  <!-- Attendance Not Marked -->
+  <div
+    class="card dashboard-tile"
+    id="attendanceNotMarked"
+    style="display: none"
+  >
+    <div class="icon-title">
+      <i class="fas fa-clipboard-check icon"></i>
+      <p class="tile-label">Attendance</p>
+    </div>
+    <div>
+      <h3 class="tile-value text-error">Attendance not marked yet</h3>
+      <button class="btn" onclick="goToMarkAttendance()">
+        <i class="fas fa-user-check"></i> Mark Attendance
+      </button>
+    </div>
+  </div>
+
+  <!-- Attendance Summary -->
+  <div
+    class="card dashboard-tile w-2 h-2"
+    id="attendanceSummary"
+    style="display: none"
+  >
+    <h3>Today's Attendance Summary</h3>
+    <canvas id="attendanceChart" height="150"></canvas>
+
+    <div class="quick-stats">
+      <p><strong>Total Students:</strong> <span id="totalStudents"></span></p>
+      <p><strong>Present:</strong> <span id="presentCount"></span></p>
+      <p><strong>Absent:</strong> <span id="absentCount"></span></p>
+    </div>
+  </div>
+
+  <!-- Other cards like Tasks, etc. -->
+</div>
+
+<script>
+  const students = Array.from({ length: 23 }, (_, i) => ({
+    id: i + 1,
+    name: `Student ${i + 1}`,
+    index: `S${1000 + i + 1}`,
+    status: "present", // present/absent/null
+  }));
+
+  const rootStyles = getComputedStyle(document.documentElement);
+  const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
+  const secondaryColor = rootStyles.getPropertyValue("--color-bg").trim();
+
+  let attendanceMarked = localStorage.getItem("attendanceMarked") === "true";
+
+  function renderDashboard() {
+    const notMarked = document.getElementById("attendanceNotMarked");
+    const summary = document.getElementById("attendanceSummary");
+
+    if (!attendanceMarked) {
+      notMarked.style.display = "block";
+      summary.style.display = "none";
+    } else {
+      notMarked.style.display = "none";
+      summary.style.display = "block";
+
+      const presentCount = students.filter(
+        (s) => s.status === "present"
+      ).length;
+      const absentCount = students.filter((s) => s.status === "absent").length;
+
+      document.getElementById("totalStudents").innerText = students.length;
+      document.getElementById("presentCount").innerText = presentCount;
+      document.getElementById("absentCount").innerText = absentCount;
+
+      new Chart(document.getElementById("attendanceChart"), {
+        type: "doughnut",
+        data: {
+          labels: ["Present", "Absent"],
+          datasets: [
+            {
+              data: [presentCount, absentCount],
+              backgroundColor: [primaryColor, secondaryColor],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: "top" },
+            title: { display: true, text: "Attendance Summary" },
+          },
+        },
+      });
+    }
+  }
+
+  function goToMarkAttendance() {
+    window.location.href = "layout.html?role=teacher&page=attendance_mark";
+  }
+
+  renderDashboard();
+</script>
