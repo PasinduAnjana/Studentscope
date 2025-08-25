@@ -137,7 +137,7 @@
 .greeting-tile {
   position: relative; /* ✅ Needed for absolute positioning inside */
   background-color: var(--color-primary);
-  color: var(--color-white);
+  color: var(--color-text);
   padding: 32px;
   min-height: 200px;
   border-radius: 20px;

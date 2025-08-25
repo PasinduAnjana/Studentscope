@@ -125,15 +125,16 @@
     options: {
       responsive: true,
       cutout: "85%",
+      borderColor: "transparent",
       plugins: {
         legend: { position: "bottom" },
         title: {
           display: true,
-          // from json
           text: "Today's Attendance",
           font: { size: 20, weight: "bold" },
           position: "bottom",
         },
+
         centerText: {
           text: `${presentCount}/${presentCount + absentCount}`,
           color: primaryColor,

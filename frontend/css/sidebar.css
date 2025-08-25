@@ -4,7 +4,7 @@
 
 #sidebar {
   width: 300px;
-  background-color: var(--color-white);
+  background-color: var(--color-card);
   color: var(--color-text);
   padding: 8px 0;
   height: 100%;

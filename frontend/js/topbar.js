@@ -11,6 +11,7 @@ function loadTopbar() {
       setupLogoutButton();
       applyTranslations();
       fetchUsername();
+      setupDarkModeToggle();
     });
 }
 
@@ -101,4 +102,17 @@ async function fetchUsername() {
     console.error("❌ Error loading profile name:", err);
     document.getElementById("profile-name").textContent = "Guest";
   }
+}
+
+function setupDarkModeToggle() {
+  const toggle = document.getElementById("darkmode-toggle");
+  const savedMode = localStorage.getItem("darkmode") === "true";
+
+  toggle.checked = savedMode;
+  document.documentElement.classList.toggle("dark-mode", savedMode);
+
+  toggle.addEventListener("change", () => {
+    document.documentElement.classList.toggle("dark-mode", toggle.checked);
+    localStorage.setItem("darkmode", toggle.checked);
+  });
 }
