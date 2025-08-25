@@ -16,7 +16,7 @@
   align-items: center;
   padding: 14px 18px;
   border-radius: 16px;
-  background: var(--color-white);
+  background: var(--color-card);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   transition: background 0.2s ease, transform 0.2s ease;
 }
@@ -26,11 +26,11 @@
 }
 
 .student-row.present {
-  background: #d4e9f7;
+  background: var(--color-primary-light);
 }
 
 .student-row.absent {
-  background: #fff0f0;
+  background: var(--color-error-light);
 }
 
 /* Student info aligned left */
@@ -46,7 +46,7 @@
   gap: 10px;
 }
 .btn-absent {
-  background: var(--color-white);
+  background: var(--color-card);
   border: 2px solid var(--color-primary);
   color: var(--color-primary);
 }
@@ -57,24 +57,24 @@
 }
 
 .student-row.present .btn-present {
-  background: var(--color-white);
+  background: var(--color-card);
   border: 1px dashed var(--color-primary);
   color: var(--color-primary);
 }
 .student-row.present .btn-absent {
-  background: var(--color-white);
+  background: var(--color-card);
   border: 1px solid var(--color-border);
   color: var(--color-border);
 }
 
 .student-row.absent .btn-absent {
-  background: var(--color-white);
+  background: var(--color-card);
   border: 1px dashed var(--color-error);
   color: var(--color-error);
 }
 
 .student-row.absent .btn-present {
-  background: var(--color-white);
+  background: var(--color-card);
   border: 1px solid var(--color-border);
   color: var(--color-border);
 }

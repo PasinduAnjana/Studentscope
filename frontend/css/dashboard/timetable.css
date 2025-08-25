@@ -90,7 +90,6 @@
 /* Interval row */
 .interval-row {
   grid-column: 1 / span 6;
-  background-color: var(--color-primary-light);
   border-radius: 6px;
   text-align: center;
   font-weight: bold;
