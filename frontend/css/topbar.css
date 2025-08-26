@@ -214,12 +214,6 @@ input:checked + .slider:before {
 
 /* Mobile Fix */
 @media (max-width: 600px) {
-  #topbar {
-    flex-wrap: wrap; /* allow items to break into next line */
-    height: auto; /* let it expand instead of fixed 60px */
-    padding: 8px 12px;
-  }
-
   #topbar h2 {
     display: none; /* hide title on small screens */
   }
