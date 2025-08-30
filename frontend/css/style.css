@@ -30,6 +30,8 @@
   --color-success: #10b981;
   --color-error: #f87171;
   --color-border: #374151;
+  --color-primary-light: rgba(0, 134, 187, 0.3);
+  --color-error-light: rgba(248, 113, 113, 0.2);
 }
 /* ========================
   🔧 BASE STYLES & RESETS

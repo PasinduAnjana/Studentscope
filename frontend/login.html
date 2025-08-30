@@ -4,20 +4,90 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - StudentScope</title>
-    <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/login.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
   </head>
   <body>
-    <div class="login-container">
-      <h2>Login to StudentScope</h2>
-      <form id="loginForm">
-        <input type="text" id="username" placeholder="Username" required />
-        <input type="password" id="password" placeholder="Password" required />
-        <button type="submit" class="btn">Login</button>
-        <p class="text-error" id="loginError"></p>
-      </form>
+    <div class="login-wrapper">
+      <!-- Top-right Controls (GLOBAL, OUTSIDE box) -->
+      <div class="login-controls">
+        <!-- Language Dropdown -->
+        <div class="language-wrapper">
+          <div id="language-btn" class="flex" style="gap: 8px; cursor: pointer">
+            <span>English</span>
+            <i class="language-icon">▼</i>
+          </div>
+          <div id="language-dropdown" class="dropdown-menu">
+            <button class="dropdown-item" data-lang="en">English</button>
+            <button class="dropdown-item" data-lang="si">සිංහල</button>
+            <button class="dropdown-item" data-lang="ta">தமிழ்</button>
+          </div>
+        </div>
+
+        <!-- Dark Mode Toggle -->
+        <div
+          class="darkmode-wrapper flex"
+          style="gap: 8px; align-items: center"
+        >
+          <label class="switch">
+            <input type="checkbox" id="darkmode-toggle" />
+            <span class="slider round"></span>
+          </label>
+          <i class="fas fa-moon darkmode-icon"></i>
+        </div>
+      </div>
+
+      <!-- Login Box -->
+      <div class="login-box">
+        <!-- Left side: Illustration -->
+        <div class="login-illustration">
+          <div class="logo">
+            <i class="fas fa-search"></i>
+            <h2>StudentScope</h2>
+          </div>
+          <img src="/assets/images/login.svg" alt="Login Illustration" />
+        </div>
+
+        <!-- Right side: Form -->
+        <div class="login-form">
+          <h1 data="login.welcome"></h1>
+          <p class="subtitle" data="login.title"></p>
+          <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" required />
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              required
+            />
+            <button type="submit" class="btn" data="login.loginButton">
+              Login
+            </button>
+            <p class="text-error" id="loginError"></p>
+          </form>
+        </div>
+      </div>
     </div>
 
     <script src="/js/login.js"></script>
+    <script src="/js/topbar.js"></script>
+    <script src="/js/language.js"></script>
+
+    <script>
+      // Initialize language & dark mode on login page
+      document.addEventListener("DOMContentLoaded", () => {
+        setupLanguageDropdown();
+        setupDarkModeToggle();
+      });
+      const savedLang = localStorage.getItem("lang") || "en";
+      if (typeof updateLanguage === "function") {
+        updateLanguage(savedLang);
+      }
+    </script>
   </body>
 </html>

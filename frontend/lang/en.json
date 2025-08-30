@@ -6,6 +6,14 @@
     "settings": "Settings",
     "logout": "Logout"
   },
+  "login": {
+    "title": "Login to StudentScope",
+    "username": "Username",
+    "password": "Password",
+    "loginButton": "Login",
+    "invalidCredentials": "Invalid username or password",
+    "welcome": "Welcome!"
+  },
 
   "sidebar": {
     "dashboard": "Dashboard",
