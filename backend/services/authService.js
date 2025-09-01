@@ -5,11 +5,14 @@ const ITERATIONS = 100_000;
 const KEYLEN = 64;
 const DIGEST = "sha512";
 
-// Hashing the password
 function hashPassword(password, salt) {
   return crypto
     .pbkdf2Sync(password, salt, ITERATIONS, KEYLEN, DIGEST)
     .toString("hex");
+}
+
+function generateSessionToken() {
+  return crypto.randomBytes(32).toString("hex");
 }
 
 exports.authenticate = async (username, password) => {
@@ -29,7 +32,73 @@ exports.authenticate = async (username, password) => {
   }
 };
 
-// Optional: use this function when registering a user
+exports.createSession = async (user) => {
+  const sessionToken = generateSessionToken();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+  try {
+    await pool.query(
+      "INSERT INTO sessions (token, user_id, expires_at) VALUES ($1, $2, $3)",
+      [sessionToken, user.id, expiresAt]
+    );
+
+    return sessionToken;
+  } catch (err) {
+    console.error("Error creating session:", err);
+    return null;
+  }
+};
+
+exports.getSession = async (sessionToken) => {
+  try {
+    const result = await pool.query(
+      `
+      SELECT s.token, s.user_id, s.expires_at, u.username, u.role
+      FROM sessions s
+      JOIN users u ON s.user_id = u.id
+      WHERE s.token = $1 AND s.expires_at > NOW()
+    `,
+      [sessionToken]
+    );
+
+    if (result.rows.length === 0) {
+      // Clean up expired session if it exists
+      await pool.query("DELETE FROM sessions WHERE token = $1", [sessionToken]);
+      return null;
+    }
+
+    const session = result.rows[0];
+    return {
+      userId: session.user_id,
+      username: session.username,
+      role: session.role,
+      expiresAt: session.expires_at,
+    };
+  } catch (err) {
+    console.error("Error getting session:", err);
+    return null;
+  }
+};
+
+exports.destroySession = async (sessionToken) => {
+  try {
+    await pool.query("DELETE FROM sessions WHERE token = $1", [sessionToken]);
+  } catch (err) {
+    console.error("Error destroying session:", err);
+  }
+};
+
+exports.cleanupExpiredSessions = async () => {
+  try {
+    const result = await pool.query(
+      "DELETE FROM sessions WHERE expires_at <= NOW()"
+    );
+    console.log(`Cleaned up ${result.rowCount} expired sessions`);
+  } catch (err) {
+    console.error("Error cleaning up sessions:", err);
+  }
+};
+
 exports.createUser = async (username, rawPassword, role) => {
   const salt = crypto.randomBytes(16).toString("hex");
   const hashedPassword = hashPassword(rawPassword, salt);
