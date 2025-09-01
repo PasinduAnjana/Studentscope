@@ -42,7 +42,7 @@ exports.login = async (req, res) => {
         res.end(
           JSON.stringify({
             message: "Login successful",
-            role: user.role,
+            role: user.role, // use the role from safe object
             username: user.username,
           })
         );

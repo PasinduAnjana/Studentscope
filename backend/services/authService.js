@@ -17,15 +17,29 @@ function generateSessionToken() {
 
 exports.authenticate = async (username, password) => {
   try {
-    const result = await pool.query("SELECT * FROM users WHERE username = $1", [
-      username,
-    ]);
-    if (result.rows.length === 0) return null;
+    const result = await pool.query(
+      `SELECT u.*, r.name AS role_name
+       FROM users u
+       JOIN roles r ON u.role_id = r.id
+       WHERE u.username = $1`,
+      [username]
+    );
+
+    if (!result.rows.length) return null;
 
     const user = result.rows[0];
     const hashedInput = hashPassword(password, user.salt);
 
-    return hashedInput === user.password ? user : null;
+    if (hashedInput !== user.password) return null;
+
+    // return safe user object
+    return {
+      id: user.id,
+      username: user.username,
+      role: user.role_name,
+      class_id: user.class_id,
+      is_class_teacher: user.is_class_teacher,
+    };
   } catch (err) {
     console.error("Auth error:", err);
     return null;
@@ -53,11 +67,12 @@ exports.getSession = async (sessionToken) => {
   try {
     const result = await pool.query(
       `
-      SELECT s.token, s.user_id, s.expires_at, u.username, u.role
+      SELECT s.token, s.user_id, s.expires_at, u.username, r.name AS role
       FROM sessions s
       JOIN users u ON s.user_id = u.id
+      JOIN roles r ON u.role_id = r.id
       WHERE s.token = $1 AND s.expires_at > NOW()
-    `,
+      `,
       [sessionToken]
     );
 
@@ -99,14 +114,32 @@ exports.cleanupExpiredSessions = async () => {
   }
 };
 
-exports.createUser = async (username, rawPassword, role) => {
+exports.createUser = async (
+  username,
+  rawPassword,
+  roleName,
+  classId = null,
+  isClassTeacher = false
+) => {
   const salt = crypto.randomBytes(16).toString("hex");
   const hashedPassword = hashPassword(rawPassword, salt);
 
+  // Get role_id from roles table
+  const roleRes = await pool.query("SELECT id FROM roles WHERE name = $1", [
+    roleName,
+  ]);
+  if (roleRes.rows.length === 0) {
+    throw new Error(`Role "${roleName}" not found`);
+  }
+  const roleId = roleRes.rows[0].id;
+
   await pool.query(
-    "INSERT INTO users (username, password, salt, role) VALUES ($1, $2, $3, $4)",
-    [username, hashedPassword, salt, role]
+    `INSERT INTO users (username, password, salt, role_id, class_id, is_class_teacher)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [username, hashedPassword, salt, roleId, classId, isClassTeacher]
   );
+
+  console.log(`✅ Created user: ${username} (${roleName})`);
 };
 
 exports.getUsernameById = async (userId) => {

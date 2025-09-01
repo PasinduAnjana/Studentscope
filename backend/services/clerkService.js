@@ -1,5 +1,4 @@
-const pool = require("../db"); // your existing pool
-
+const pool = require("../db");
 const crypto = require("crypto");
 
 const ITERATIONS = 100_000;
@@ -12,35 +11,47 @@ function hashPassword(password, salt) {
     .toString("hex");
 }
 
-async function createStudent({ index_number, name, email, age, class_id }) {
+// Create a student user
+async function createStudent({ index_number, name, class_id }) {
   const salt = crypto.randomBytes(16).toString("hex");
   const hashedPassword = hashPassword("123", salt); // default password
 
+  // Get role_id for student
+  const roleRes = await pool.query(
+    "SELECT id FROM roles WHERE name = 'student'"
+  );
+  if (!roleRes.rows.length) throw new Error("Role 'student' not found");
+  const roleId = roleRes.rows[0].id;
+
+  // Insert into users table
   const userResult = await pool.query(
-    `INSERT INTO users (username, password, salt, role)
-     VALUES ($1, $2, $3, 'student')
-     RETURNING id`,
-    [index_number, hashedPassword, salt]
+    `INSERT INTO users (username, password, salt, role_id, class_id)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING id, username AS name, class_id`,
+    [index_number, hashedPassword, salt, roleId, class_id]
   );
 
-  const userId = userResult.rows[0].id;
+  const user = userResult.rows[0];
 
-  const studentResult = await pool.query(
-    `INSERT INTO students (user_id, index_number, name, email, age, class_id)
-     VALUES ($1, $2, $3, $4, $5, $6)
-     RETURNING *`,
-    [userId, index_number, name, email, age, class_id]
-  );
-
-  return studentResult.rows[0];
+  // Map to previous returning format
+  return {
+    id: user.id,
+    name: name || user.name, // optional: override username with real name
+    email: null, // no email in new schema
+    age: null, // no age in new schema
+    class_id: user.class_id,
+    class_name: null, // you can populate this if needed
+    grade: null,
+  };
 }
 
+// Get all classes
 async function getAllClasses() {
-  const result = await pool.query("SELECT id, name,grade FROM classes");
+  const result = await pool.query("SELECT id, name, grade FROM classes");
   return result.rows;
 }
 
 module.exports = {
   createStudent,
-  getAllClasses, // <-- export it here!
+  getAllClasses,
 };

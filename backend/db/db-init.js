@@ -7,78 +7,135 @@ async function initializeDatabase() {
       `Connected to database: ${process.env.DB_NAME || "(from URL)"}`
     );
 
-    // Users
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        username VARCHAR(50) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'teacher', 'student', 'clerk')),
-        salt VARCHAR(255)
-      );
-    `);
-
-    // Teachers
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS teachers (
-        id SERIAL PRIMARY KEY,
-        user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-        name VARCHAR(100) NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL
-      );
-    `);
-
     // Classes
     await pool.query(`
       CREATE TABLE IF NOT EXISTS classes (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(50) UNIQUE NOT NULL,
-        grade VARCHAR(10) NOT NULL,
-        class_teacher_id INT REFERENCES teachers(id) ON DELETE SET NULL
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        name TEXT NOT NULL UNIQUE,
+        grade INTEGER NOT NULL
       );
     `);
 
-    // Students (with index_number)
+    // Roles
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS students (
-        id SERIAL PRIMARY KEY,
-        user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-        index_number VARCHAR(50) UNIQUE NOT NULL,
-        name VARCHAR(100) NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        age INT CHECK (age > 0),
-        class_id INT REFERENCES classes(id) ON DELETE SET NULL
+      CREATE TABLE IF NOT EXISTS roles (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        name TEXT NOT NULL UNIQUE
+      );
+    `);
+
+    // Users
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        username TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        salt TEXT NOT NULL,
+        role_id BIGINT REFERENCES roles(id),
+        class_id BIGINT REFERENCES classes(id),
+        is_class_teacher BOOLEAN DEFAULT FALSE
       );
     `);
 
     // Subjects
     await pool.query(`
       CREATE TABLE IF NOT EXISTS subjects (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        code VARCHAR(20) UNIQUE NOT NULL
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        name TEXT NOT NULL UNIQUE
       );
     `);
 
-    // Teacher_Class_Subject
+    // Exams
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS teacher_class_subject (
-        id SERIAL PRIMARY KEY,
-        teacher_id INT REFERENCES teachers(id) ON DELETE CASCADE,
-        class_id INT REFERENCES classes(id) ON DELETE CASCADE,
-        subject_id INT REFERENCES subjects(id) ON DELETE CASCADE,
-        UNIQUE (teacher_id, class_id, subject_id)
+      CREATE TABLE IF NOT EXISTS exams (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        name TEXT NOT NULL,
+        year INTEGER NOT NULL
       );
     `);
 
     // Timetables
     await pool.query(`
       CREATE TABLE IF NOT EXISTS timetables (
-        id SERIAL PRIMARY KEY,
-        day_of_week SMALLINT NOT NULL CHECK (day_of_week BETWEEN 1 AND 5),
-        period_number INT NOT NULL CHECK (period_number BETWEEN 1 AND 8),
-        teacher_class_subject_id INT REFERENCES teacher_class_subject(id) ON DELETE CASCADE,
-        UNIQUE(day_of_week, period_number, teacher_class_subject_id)
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        class_id BIGINT REFERENCES classes(id),
+        subject_id BIGINT REFERENCES subjects(id),
+        teacher_id BIGINT REFERENCES users(id),
+        day_of_week INTEGER NOT NULL,
+        slot INTEGER NOT NULL
+      );
+    `);
+
+    // Marks
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS marks (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        student_id BIGINT REFERENCES users(id),
+        subject_id BIGINT REFERENCES subjects(id),
+        marks INTEGER NOT NULL,
+        exam_id BIGINT REFERENCES exams(id)
+      );
+    `);
+
+    // Attendance
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS attendance (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        student_id BIGINT REFERENCES users(id),
+        class_id BIGINT REFERENCES classes(id),
+        date DATE NOT NULL,
+        status BOOLEAN NOT NULL
+      );
+    `);
+
+    // Class Teachers
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS class_teachers (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        teacher_id BIGINT REFERENCES users(id),
+        class_id BIGINT REFERENCES classes(id)
+      );
+    `);
+
+    // Teacher Subjects
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS teacher_subjects (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        teacher_id BIGINT REFERENCES users(id),
+        subject_id BIGINT REFERENCES subjects(id),
+        class_id BIGINT REFERENCES classes(id)
+      );
+    `);
+
+    // Notices
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS notices (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        posted_by BIGINT REFERENCES users(id),
+        audience TEXT NOT NULL,
+        posted_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `);
+
+    // Achievements
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS achievements (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        student_id BIGINT REFERENCES users(id),
+        description TEXT NOT NULL,
+        achieved_at DATE NOT NULL
+      );
+    `);
+
+    // Sessions
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS sessions (
+        token TEXT PRIMARY KEY,
+        user_id BIGINT REFERENCES users(id),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        expires_at TIMESTAMPTZ NOT NULL
       );
     `);
 
