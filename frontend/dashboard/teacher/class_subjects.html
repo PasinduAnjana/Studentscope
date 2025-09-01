@@ -1,0 +1,326 @@
+<h2 class="heading">
+  <i class="fas fa-book"></i>
+  <span data="sidebar.class_subjects"></span>
+</h2>
+
+<div class="mark-controls">
+  <!-- Search Bar -->
+  <div class="input-group search-group">
+    <input
+      type="text"
+      id="student-search"
+      class="search-input"
+      placeholder="Search students"
+    />
+    <i class="fas fa-search search-icon"></i>
+  </div>
+
+  <!-- Class Dropdown -->
+  <div class="input-group">
+    <label> Class: </label>
+    <select id="class-select" class="dropdown-select"></select>
+  </div>
+
+  <!-- Toggle Class Subjects -->
+  <div class="input-group">
+    <label>
+      <input type="checkbox" id="toggle-class-subjects" checked />
+      Show Class Subjects
+    </label>
+  </div>
+</div>
+
+<div class="marks-container">
+  <table class="marks-table" id="subjects-table"></table>
+</div>
+
+<div class="actions">
+  <button class="btn btn-secondary" onclick="saveDraft()">
+    <i class="fas fa-save"></i> Save Draft
+  </button>
+  <button class="btn btn-primary" onclick="submitSubjects()">
+    <i class="fas fa-check"></i> Submit
+  </button>
+</div>
+
+<script>
+  let allStudents = [];
+  let subjects = [];
+  let classInfo = {};
+  let classSubjects = [];
+
+  async function loadSubjectAssignmentPage() {
+    const [students, subs, classData, classSubs] = await Promise.all([
+      fetch("../../data/students.json").then((r) => r.json()),
+      fetch("../../data/subjects.json").then((r) => r.json()),
+      fetch("../../data/class_info.json").then((r) => r.json()),
+      fetch("../../data/class_subjects.json").then((r) => r.json()),
+    ]);
+
+    allStudents = students;
+    subjects = subs;
+    classInfo = classData;
+    classSubjects = classSubs;
+
+    // Populate class dropdown
+    const classSelect = document.getElementById("class-select");
+    classSelect.innerHTML = `<option value="${classInfo.id}">${classInfo.name} (Grade ${classInfo.grade})</option>`;
+    makeSearchableDropdown("class-select", (val) =>
+      console.log("Selected class:", val)
+    );
+
+    renderTable(allStudents, true);
+    addInputHighlighting();
+
+    // Search
+    document.getElementById("student-search").addEventListener("input", () => {
+      const selectedMap = getCurrentSelectedSubjects();
+
+      const query = document
+        .getElementById("student-search")
+        .value.toLowerCase()
+        .trim();
+      const filtered = allStudents.filter(
+        (s) =>
+          s.name.toLowerCase().includes(query) ||
+          s.index_number.toLowerCase().includes(query)
+      );
+      const show = document.getElementById("toggle-class-subjects").checked;
+      renderTable(filtered, show, selectedMap);
+      addInputHighlighting();
+    });
+
+    // Toggle Class Subjects
+    document
+      .getElementById("toggle-class-subjects")
+      .addEventListener("change", () => {
+        const selectedMap = getCurrentSelectedSubjects();
+
+        const show = document.getElementById("toggle-class-subjects").checked;
+        const query = document
+          .getElementById("student-search")
+          .value.toLowerCase()
+          .trim();
+        const filtered = allStudents.filter(
+          (s) =>
+            s.name.toLowerCase().includes(query) ||
+            s.index_number.toLowerCase().includes(query)
+        );
+        renderTable(filtered, show, selectedMap);
+        addInputHighlighting();
+      });
+  }
+
+  // Get current selected subjects per student to preserve them on re-render
+  function getCurrentSelectedSubjects() {
+    const selects = document.querySelectorAll(".subject-select");
+    const selections = {};
+
+    selects.forEach((select) => {
+      const studentId = select.dataset.student;
+      if (!studentId) return;
+
+      if (!selections[studentId]) {
+        selections[studentId] = [];
+      }
+
+      const value = select.value;
+      if (value) selections[studentId].push(value);
+    });
+
+    return selections;
+  }
+
+  function renderTable(
+    students,
+    showClassSubjects = true,
+    selectedSubjectsMap = {}
+  ) {
+    const table = document.getElementById("subjects-table");
+    table.innerHTML = "";
+
+    // Header
+    const headerRow = document.createElement("tr");
+    let maxSubjects = 0;
+
+    students.forEach((s) => {
+      let count = 0;
+      if (classInfo.grade >= 6 && classInfo.grade <= 9)
+        count = (showClassSubjects ? classSubjects.length : 0) + 1;
+      else if (classInfo.grade >= 1 && classInfo.grade <= 5)
+        count = showClassSubjects ? classSubjects.length : 0;
+      else if (classInfo.grade >= 10 && classInfo.grade <= 11)
+        count = (showClassSubjects ? classSubjects.length : 0) + 3;
+      else if (classInfo.grade >= 12 && classInfo.grade <= 13) count = 3;
+      if (count > maxSubjects) maxSubjects = count;
+    });
+
+    headerRow.innerHTML =
+      `<th>Index No</th><th>Name</th>` +
+      Array.from({ length: maxSubjects })
+        .map((_, i) => `<th>Subject ${i + 1}</th>`)
+        .join("");
+    table.appendChild(headerRow);
+
+    // Rows
+    students.forEach((student) => {
+      const row = document.createElement("tr");
+      const subjectCells = [];
+
+      const selected = selectedSubjectsMap[student.id] || [];
+
+      // Grade 6–9: default + 1 selectable
+      if (classInfo.grade >= 6 && classInfo.grade <= 9) {
+        if (showClassSubjects) {
+          classSubjects.forEach((s, i) => {
+            const id = `student-${student.id}-class-subject-${i}`;
+            subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
+              <option>${s.name}</option>
+            </select></td>`);
+          });
+        }
+
+        // One selectable
+        const id = `student-${student.id}-student-subject-0`;
+        subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select" data-student="${
+          student.id
+        }">
+          <option value="">Select subject</option>
+          ${subjects
+            .map(
+              (sub) =>
+                `<option value="${sub.id}" ${
+                  selected.includes(sub.id.toString()) ? "selected" : ""
+                }>${sub.name}</option>`
+            )
+            .join("")}
+        </select></td>`);
+      }
+
+      // Grade 1–5: only class subjects
+      else if (classInfo.grade >= 1 && classInfo.grade <= 5) {
+        if (showClassSubjects) {
+          classSubjects.forEach((s, i) => {
+            const id = `student-${student.id}-class-subject-${i}`;
+            subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
+              <option>${s.name}</option>
+            </select></td>`);
+          });
+        }
+      }
+
+      // Grade 10–11: class subjects + 3 selectable
+      else if (classInfo.grade >= 10 && classInfo.grade <= 11) {
+        if (showClassSubjects) {
+          classSubjects.forEach((s, i) => {
+            const id = `student-${student.id}-class-subject-${i}`;
+            subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
+              <option>${s.name}</option>
+            </select></td>`);
+          });
+        }
+        for (let i = 0; i < 3; i++) {
+          const id = `student-${student.id}-student-subject-${i}`;
+          // For multiple selectable subjects, check corresponding selected values:
+          // We assume selected array order matches, so take the first 3
+          const val = selected[i] || "";
+          subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select" data-student="${
+            student.id
+          }">
+            <option value="">Select subject</option>
+            ${subjects
+              .map(
+                (sub) =>
+                  `<option value="${sub.id}" ${
+                    val === sub.id.toString() ? "selected" : ""
+                  }>${sub.name}</option>`
+              )
+              .join("")}
+          </select></td>`);
+        }
+      }
+
+      // Grade 12–13: only 3 selectable subjects
+      else if (classInfo.grade >= 12 && classInfo.grade <= 13) {
+        for (let i = 0; i < 3; i++) {
+          const id = `student-${student.id}-student-subject-${i}`;
+          const val = selected[i] || "";
+          subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select" data-student="${
+            student.id
+          }">
+            <option value="">Select subject</option>
+            ${subjects
+              .map(
+                (sub) =>
+                  `<option value="${sub.id}" ${
+                    val === sub.id.toString() ? "selected" : ""
+                  }>${sub.name}</option>`
+              )
+              .join("")}
+          </select></td>`);
+        }
+      }
+
+      // Final row output
+      row.innerHTML = `<td>${
+        student.index_number
+      }</td><td class="student-name">${student.name}</td>${subjectCells.join(
+        ""
+      )}`;
+      table.appendChild(row);
+
+      // Initialize searchable dropdowns
+      row.querySelectorAll(".subject-select").forEach((select) => {
+        if (!select.disabled) {
+          setTimeout(
+            () =>
+              makeSearchableDropdown(select.id, (val) =>
+                console.log(`Student ${student.id} selected:`, val)
+              ),
+            0
+          );
+        }
+      });
+    });
+  }
+
+  function addInputHighlighting() {
+    const table = document.getElementById("subjects-table");
+    table.addEventListener("focusin", (e) => {
+      if (e.target.classList.contains("subject-select")) {
+        document
+          .querySelectorAll(".highlight-student")
+          .forEach((el) => el.classList.remove("highlight-student"));
+        const row = e.target.closest("tr");
+        const nameCell = row.querySelector(".student-name");
+        if (nameCell) nameCell.classList.add("highlight-student");
+      }
+    });
+  }
+
+  function submitSubjects() {
+    const selects = document.querySelectorAll(".subject-select");
+    const data = Array.from(selects)
+      .filter((s) => s.dataset.student)
+      .map((select) => ({
+        student_id: select.dataset.student,
+        subject_ids: Array.from(select.selectedOptions).map((o) => o.value),
+      }));
+    console.log("Submitted:", data);
+    alert("Subjects submitted (check console)");
+  }
+
+  function saveDraft() {
+    const selects = document.querySelectorAll(".subject-select");
+    const data = Array.from(selects)
+      .filter((s) => s.dataset.student)
+      .map((select) => ({
+        student_id: select.dataset.student,
+        subject_ids: Array.from(select.selectedOptions).map((o) => o.value),
+      }));
+    console.log("Draft saved:", data);
+    alert("Draft saved (check console)");
+  }
+
+  loadSubjectAssignmentPage();
+</script>

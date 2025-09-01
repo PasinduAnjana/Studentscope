@@ -20,7 +20,8 @@
     "attendance": "පැමිණීම",
     "timeTable": "කාලසටහන",
     "marks": "ලකුණු ",
-    "students": "ශිෂ්‍යයන්"
+    "students": "ශිෂ්‍යයන්",
+    "class_subjects": "පන්ති විෂයයන්"
   },
 
   "teacher": {

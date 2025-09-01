@@ -175,3 +175,26 @@ input::-webkit-inner-spin-button {
     flex: 1 1 100%;
   }
 }
+
+/* subject */
+.subject-select {
+  min-width: max-content;
+  border: none !important;
+}
+
+.subject-dropdown {
+  border: none !important;
+}
+
+td .dropdown-display {
+  border: none !important;
+  min-width: max-content;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 0px;
+  text-align: center;
+}
+
+.marks-table th {
+  min-width: 200px !important;
+}

@@ -11,5 +11,10 @@
     "page": "timetable",
     "icon": "fas fa-calendar-alt"
   },
+  {
+    "label": "sidebar.class_subjects",
+    "page": "class_subjects",
+    "icon": "fas fa-book"
+  },
   { "label": "sidebar.students", "page": "students", "icon": "fas fa-users" }
 ]

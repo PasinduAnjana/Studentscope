@@ -20,7 +20,8 @@
     "attendance": "Mark Attendance",
     "timeTable": "Time Table",
     "marks": "Enter Marks",
-    "students": "Students"
+    "students": "Students",
+    "class_subjects": "Class Subjects"
   },
   "teacher": {
     "greeting": "Welcome to StudentScope!",
