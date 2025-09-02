@@ -43,6 +43,16 @@
   </button>
 </div>
 
+<style>
+  /* 👇 hide columns when toggle unchecked */
+  .hidden-subject {
+    display: none;
+  }
+  .highlight-student {
+    background: #ffffcc;
+  }
+</style>
+
 <script>
   let allStudents = [];
   let subjects = [];
@@ -69,13 +79,11 @@
       console.log("Selected class:", val)
     );
 
-    renderTable(allStudents, true);
+    renderTable(allStudents);
     addInputHighlighting();
 
-    // Search
+    // 🔍 Search
     document.getElementById("student-search").addEventListener("input", () => {
-      const selectedMap = getCurrentSelectedSubjects();
-
       const query = document
         .getElementById("student-search")
         .value.toLowerCase()
@@ -85,81 +93,46 @@
           s.name.toLowerCase().includes(query) ||
           s.index_number.toLowerCase().includes(query)
       );
-      const show = document.getElementById("toggle-class-subjects").checked;
-      renderTable(filtered, show, selectedMap);
+      renderTable(filtered);
       addInputHighlighting();
     });
 
-    // Toggle Class Subjects
+    // ✅ Toggle just hides/shows, no re-render
     document
       .getElementById("toggle-class-subjects")
-      .addEventListener("change", () => {
-        const selectedMap = getCurrentSelectedSubjects();
-
-        const show = document.getElementById("toggle-class-subjects").checked;
-        const query = document
-          .getElementById("student-search")
-          .value.toLowerCase()
-          .trim();
-        const filtered = allStudents.filter(
-          (s) =>
-            s.name.toLowerCase().includes(query) ||
-            s.index_number.toLowerCase().includes(query)
-        );
-        renderTable(filtered, show, selectedMap);
-        addInputHighlighting();
+      .addEventListener("change", (e) => {
+        const show = e.target.checked;
+        document.querySelectorAll(".class-subject-cell").forEach((cell) => {
+          cell.style.display = show ? "" : "none";
+        });
       });
   }
 
-  // Get current selected subjects per student to preserve them on re-render
-  function getCurrentSelectedSubjects() {
-    const selects = document.querySelectorAll(".subject-select");
-    const selections = {};
-
-    selects.forEach((select) => {
-      const studentId = select.dataset.student;
-      if (!studentId) return;
-
-      if (!selections[studentId]) {
-        selections[studentId] = [];
-      }
-
-      const value = select.value;
-      if (value) selections[studentId].push(value);
-    });
-
-    return selections;
-  }
-
-  function renderTable(
-    students,
-    showClassSubjects = true,
-    selectedSubjectsMap = {}
-  ) {
+  function renderTable(students) {
     const table = document.getElementById("subjects-table");
     table.innerHTML = "";
 
     // Header
     const headerRow = document.createElement("tr");
-    let maxSubjects = 0;
+    headerRow.innerHTML = `<th>Index No</th><th>Name</th>`;
 
-    students.forEach((s) => {
-      let count = 0;
-      if (classInfo.grade >= 6 && classInfo.grade <= 9)
-        count = (showClassSubjects ? classSubjects.length : 0) + 1;
-      else if (classInfo.grade >= 1 && classInfo.grade <= 5)
-        count = showClassSubjects ? classSubjects.length : 0;
-      else if (classInfo.grade >= 10 && classInfo.grade <= 11)
-        count = (showClassSubjects ? classSubjects.length : 0) + 3;
-      else if (classInfo.grade >= 12 && classInfo.grade <= 13) count = 3;
-      if (count > maxSubjects) maxSubjects = count;
+    // Add headers for class subjects
+    classSubjects.forEach((_, i) => {
+      headerRow.innerHTML += `<th class="class-subject-cell">Class Subject ${
+        i + 1
+      }</th>`;
     });
 
-    headerRow.innerHTML =
-      `<th>Index No</th><th>Name</th>` +
-      Array.from({ length: maxSubjects })
-        .map((_, i) => `<th>Subject ${i + 1}</th>`)
-        .join("");
+    // Add headers for extra student subjects
+    let extraSubjects = 0;
+    if (classInfo.grade >= 6 && classInfo.grade <= 9) extraSubjects = 1;
+    else if (classInfo.grade >= 10 && classInfo.grade <= 11) extraSubjects = 3;
+    else if (classInfo.grade >= 12 && classInfo.grade <= 13) extraSubjects = 3;
+
+    for (let i = 0; i < extraSubjects; i++) {
+      headerRow.innerHTML += `<th>Subject ${i + 1}</th>`;
+    }
+
     table.appendChild(headerRow);
 
     // Rows
@@ -167,101 +140,81 @@
       const row = document.createElement("tr");
       const subjectCells = [];
 
-      const selected = selectedSubjectsMap[student.id] || [];
-
-      // Grade 6–9: default + 1 selectable
+      // Grade 6–9
       if (classInfo.grade >= 6 && classInfo.grade <= 9) {
-        if (showClassSubjects) {
-          classSubjects.forEach((s, i) => {
-            const id = `student-${student.id}-class-subject-${i}`;
-            subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
+        classSubjects.forEach((s, i) => {
+          const id = `student-${student.id}-class-subject-${i}`;
+          subjectCells.push(`<td class="class-subject-cell"><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
               <option>${s.name}</option>
             </select></td>`);
-          });
-        }
+        });
 
-        // One selectable
         const id = `student-${student.id}-student-subject-0`;
         subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select" data-student="${
           student.id
         }">
           <option value="">Select subject</option>
           ${subjects
-            .map(
-              (sub) =>
-                `<option value="${sub.id}" ${
-                  selected.includes(sub.id.toString()) ? "selected" : ""
-                }>${sub.name}</option>`
-            )
+            .map((sub) => `<option value="${sub.id}">${sub.name}</option>`)
             .join("")}
         </select></td>`);
       }
 
-      // Grade 1–5: only class subjects
+      // Grade 1–5
       else if (classInfo.grade >= 1 && classInfo.grade <= 5) {
-        if (showClassSubjects) {
-          classSubjects.forEach((s, i) => {
-            const id = `student-${student.id}-class-subject-${i}`;
-            subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
+        classSubjects.forEach((s, i) => {
+          const id = `student-${student.id}-class-subject-${i}`;
+          subjectCells.push(`<td class="class-subject-cell"><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
               <option>${s.name}</option>
             </select></td>`);
-          });
-        }
+        });
       }
 
-      // Grade 10–11: class subjects + 3 selectable
+      // Grade 10–11
       else if (classInfo.grade >= 10 && classInfo.grade <= 11) {
-        if (showClassSubjects) {
-          classSubjects.forEach((s, i) => {
-            const id = `student-${student.id}-class-subject-${i}`;
-            subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
+        classSubjects.forEach((s, i) => {
+          const id = `student-${student.id}-class-subject-${i}`;
+          subjectCells.push(`<td class="class-subject-cell"><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
               <option>${s.name}</option>
             </select></td>`);
-          });
-        }
+        });
         for (let i = 0; i < 3; i++) {
           const id = `student-${student.id}-student-subject-${i}`;
-          // For multiple selectable subjects, check corresponding selected values:
-          // We assume selected array order matches, so take the first 3
-          const val = selected[i] || "";
           subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select" data-student="${
             student.id
           }">
             <option value="">Select subject</option>
             ${subjects
-              .map(
-                (sub) =>
-                  `<option value="${sub.id}" ${
-                    val === sub.id.toString() ? "selected" : ""
-                  }>${sub.name}</option>`
-              )
+              .map((sub) => `<option value="${sub.id}">${sub.name}</option>`)
               .join("")}
           </select></td>`);
         }
       }
 
-      // Grade 12–13: only 3 selectable subjects
+      // Grade 12–13
       else if (classInfo.grade >= 12 && classInfo.grade <= 13) {
+        // ✅ Show ALL class subjects
+        classSubjects.forEach((s, i) => {
+          const id = `student-${student.id}-class-subject-${i}`;
+          subjectCells.push(`<td class="class-subject-cell"><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
+              <option>${s.name}</option>
+            </select></td>`);
+        });
+
+        // ✅ Then add 3 selectable student subjects
         for (let i = 0; i < 3; i++) {
           const id = `student-${student.id}-student-subject-${i}`;
-          const val = selected[i] || "";
           subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select" data-student="${
             student.id
           }">
             <option value="">Select subject</option>
             ${subjects
-              .map(
-                (sub) =>
-                  `<option value="${sub.id}" ${
-                    val === sub.id.toString() ? "selected" : ""
-                  }>${sub.name}</option>`
-              )
+              .map((sub) => `<option value="${sub.id}">${sub.name}</option>`)
               .join("")}
           </select></td>`);
         }
       }
 
-      // Final row output
       row.innerHTML = `<td>${
         student.index_number
       }</td><td class="student-name">${student.name}</td>${subjectCells.join(
@@ -269,7 +222,7 @@
       )}`;
       table.appendChild(row);
 
-      // Initialize searchable dropdowns
+      // make searchable dropdowns
       row.querySelectorAll(".subject-select").forEach((select) => {
         if (!select.disabled) {
           setTimeout(
