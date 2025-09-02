@@ -73,6 +73,8 @@
       <ul class="tile-list">
         <li>Upload results</li>
         <li>Mark attendance</li>
+        <li>Assign Student Subjects</li>
+        <li>Enter Marks</li>
       </ul>
     </div>
   </div>
@@ -89,6 +91,9 @@
         `/api/teacher/timetable/today/${teacherId}`
       );
       const timetable = await timetableRes.json();
+
+      console.log("Timetable:", timetable);
+      
 
       const timeRes = await fetch("/data/time.json");
       const timeSlots = await timeRes.json();
@@ -158,5 +163,5 @@
   }
 
   // Load for teacher with ID 1 (replace as needed)
-  loadTodaysTimetable(1);
+  loadTodaysTimetable(3);
 </script>

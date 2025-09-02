@@ -45,6 +45,36 @@ async function initializeDatabase() {
       );
     `);
 
+    // Class Subjects
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS class_subjects (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        class_id BIGINT REFERENCES classes(id),
+        subject_id BIGINT REFERENCES subjects(id),
+        is_common BOOLEAN DEFAULT true,
+        is_mandatory BOOLEAN DEFAULT true,
+        display_order INT
+      );
+    `);
+
+    // Grade Subject Rules
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS grade_subject_rules (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        grade INT NOT NULL,
+        elective_count INT NOT NULL DEFAULT 0
+      );
+    `);
+
+    // Student Subjects (Electives)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS student_subjects (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        student_id BIGINT REFERENCES users(id),
+        subject_id BIGINT REFERENCES subjects(id)
+      );
+    `);
+
     // Exams
     await pool.query(`
       CREATE TABLE IF NOT EXISTS exams (

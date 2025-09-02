@@ -1,6 +1,6 @@
 <h2 class="heading">
   <i class="fas fa-book"></i>
-  <span data="sidebar.class_subjects"></span>
+  <span data="sidebar.class_subjects">Subject Assignment</span>
 </h2>
 
 <div class="mark-controls">
@@ -30,6 +30,27 @@
   </div>
 </div>
 
+<!-- Loading indicator -->
+<div
+  id="loading-indicator"
+  style="text-align: center; padding: 20px; display: none"
+>
+  <i class="fas fa-spinner fa-spin"></i> Loading...
+</div>
+
+<!-- Error message -->
+<div
+  id="error-message"
+  style="
+    display: none;
+    color: red;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid red;
+    border-radius: 4px;
+  "
+></div>
+
 <div class="marks-container">
   <table class="marks-table" id="subjects-table"></table>
 </div>
@@ -44,12 +65,35 @@
 </div>
 
 <style>
-  /* 👇 hide columns when toggle unchecked */
+  /* Hide columns when toggle unchecked */
   .hidden-subject {
     display: none;
   }
   .highlight-student {
     background: #ffffcc;
+  }
+
+  .loading {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .error-message {
+    background-color: #fee;
+    border-color: #f00;
+    color: #c00;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+  }
+
+  .success-message {
+    background-color: #efe;
+    border-color: #0a0;
+    color: #060;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
   }
 </style>
 
@@ -58,36 +102,163 @@
   let subjects = [];
   let classInfo = {};
   let classSubjects = [];
+  let electiveSubjects = [];
+  let gradeRules = {};
+  let studentSubjects = {};
+  let allClasses = [];
+  let currentClassId = null;
+
+  // Get authentication token from session/localStorage if using auth
+  function getAuthToken() {
+    // Adjust this based on your auth implementation
+    return (
+      localStorage.getItem("authToken") || sessionStorage.getItem("authToken")
+    );
+  }
+
+  // API helper function
+  async function apiCall(url, options = {}) {
+    const token = getAuthToken();
+    const headers = {
+      "Content-Type": "application/json",
+      ...options.headers,
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+      });
+
+      if (!response.ok) {
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: "Unknown error" }));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("API call failed:", error);
+      throw error;
+    }
+  }
+
+  function showLoading(show = true) {
+    const loadingEl = document.getElementById("loading-indicator");
+    const containerEl = document.querySelector(".marks-container");
+
+    if (show) {
+      loadingEl.style.display = "block";
+      containerEl.classList.add("loading");
+    } else {
+      loadingEl.style.display = "none";
+      containerEl.classList.remove("loading");
+    }
+  }
+
+  function showError(message) {
+    const errorEl = document.getElementById("error-message");
+    errorEl.textContent = message;
+    errorEl.style.display = "block";
+    setTimeout(() => {
+      errorEl.style.display = "none";
+    }, 5000);
+  }
+
+  function showSuccess(message) {
+    // Create success message element if it doesn't exist
+    let successEl = document.getElementById("success-message");
+    if (!successEl) {
+      successEl = document.createElement("div");
+      successEl.id = "success-message";
+      successEl.className = "success-message";
+      successEl.style.display = "none";
+      document.querySelector(".mark-controls").after(successEl);
+    }
+
+    successEl.textContent = message;
+    successEl.style.display = "block";
+    setTimeout(() => {
+      successEl.style.display = "none";
+    }, 3000);
+  }
+
+  async function loadInitialData() {
+    try {
+      showLoading(true);
+
+      // First load all classes to populate the dropdown
+      allClasses = await apiCall("/api/teacher/classes");
+
+      // Populate class dropdown
+      const classSelect = document.getElementById("class-select");
+      classSelect.innerHTML = '<option value="">Select a class</option>';
+
+      allClasses.forEach((cls) => {
+        const option = document.createElement("option");
+        option.value = cls.id;
+        option.textContent = `${cls.name} (Grade ${cls.grade})`;
+        classSelect.appendChild(option);
+      });
+
+      // Set default class (first available or from URL params)
+      if (allClasses.length > 0) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const defaultClassId = urlParams.get("classId") || allClasses[0].id;
+        classSelect.value = defaultClassId;
+        await loadClassData(defaultClassId);
+      }
+
+      makeSearchableDropdown("class-select", loadClassData);
+    } catch (error) {
+      console.error("Failed to load initial data:", error);
+      showError("Failed to load classes. Please refresh the page.");
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  async function loadClassData(classId) {
+    if (!classId || classId === currentClassId) return;
+
+    try {
+      showLoading(true);
+      currentClassId = classId;
+
+      // Use the combined endpoint to get all data at once
+      const data = await apiCall(`/api/teacher/subjects/assignment/${classId}`);
+
+      allStudents = data.students;
+      subjects = data.subjects; // All subjects for dropdowns
+      classInfo = data.classInfo;
+      classSubjects = data.classSubjects;
+      electiveSubjects = data.electiveSubjects;
+      gradeRules = data.gradeRules;
+      studentSubjects = data.studentSubjects;
+
+      console.log("Loaded data for class:", classInfo.name);
+
+      renderTable(allStudents);
+      addInputHighlighting();
+    } catch (error) {
+      console.error("Failed to load class data:", error);
+      showError(`Failed to load data for selected class: ${error.message}`);
+    } finally {
+      showLoading(false);
+    }
+  }
 
   async function loadSubjectAssignmentPage() {
-    const [students, subs, classData, classSubs] = await Promise.all([
-      fetch("../../data/students.json").then((r) => r.json()),
-      fetch("../../data/subjects.json").then((r) => r.json()),
-      fetch("../../data/class_info.json").then((r) => r.json()),
-      fetch("../../data/class_subjects.json").then((r) => r.json()),
-    ]);
+    await loadInitialData();
 
-    allStudents = students;
-    subjects = subs;
-    classInfo = classData;
-    classSubjects = classSubs;
-
-    // Populate class dropdown
-    const classSelect = document.getElementById("class-select");
-    classSelect.innerHTML = `<option value="${classInfo.id}">${classInfo.name} (Grade ${classInfo.grade})</option>`;
-    makeSearchableDropdown("class-select", (val) =>
-      console.log("Selected class:", val)
-    );
-
-    renderTable(allStudents);
-    addInputHighlighting();
-
-    // 🔍 Search
-    document.getElementById("student-search").addEventListener("input", () => {
-      const query = document
-        .getElementById("student-search")
-        .value.toLowerCase()
-        .trim();
+    // Search functionality
+    document.getElementById("student-search").addEventListener("input", (e) => {
+      const query = e.target.value.toLowerCase().trim();
       const filtered = allStudents.filter(
         (s) =>
           s.name.toLowerCase().includes(query) ||
@@ -97,7 +268,7 @@
       addInputHighlighting();
     });
 
-    // ✅ Toggle just hides/shows, no re-render
+    // Toggle class subjects visibility
     document
       .getElementById("toggle-class-subjects")
       .addEventListener("change", (e) => {
@@ -112,25 +283,25 @@
     const table = document.getElementById("subjects-table");
     table.innerHTML = "";
 
+    if (!classInfo.id) {
+      table.innerHTML =
+        '<tr><td colspan="100%">Please select a class first</td></tr>';
+      return;
+    }
+
     // Header
     const headerRow = document.createElement("tr");
     headerRow.innerHTML = `<th>Index No</th><th>Name</th>`;
 
     // Add headers for class subjects
-    classSubjects.forEach((_, i) => {
-      headerRow.innerHTML += `<th class="class-subject-cell">Class Subject ${
-        i + 1
-      }</th>`;
+    classSubjects.forEach((subject) => {
+      headerRow.innerHTML += `<th class="class-subject-cell">${subject.name}</th>`;
     });
 
-    // Add headers for extra student subjects
-    let extraSubjects = 0;
-    if (classInfo.grade >= 6 && classInfo.grade <= 9) extraSubjects = 1;
-    else if (classInfo.grade >= 10 && classInfo.grade <= 11) extraSubjects = 3;
-    else if (classInfo.grade >= 12 && classInfo.grade <= 13) extraSubjects = 3;
-
-    for (let i = 0; i < extraSubjects; i++) {
-      headerRow.innerHTML += `<th>Subject ${i + 1}</th>`;
+    // Add headers for elective subjects based on grade rules
+    const electiveCount = gradeRules.elective_count || 0;
+    for (let i = 0; i < electiveCount; i++) {
+      headerRow.innerHTML += `<th>Elective ${i + 1}</th>`;
     }
 
     table.appendChild(headerRow);
@@ -140,98 +311,63 @@
       const row = document.createElement("tr");
       const subjectCells = [];
 
-      // Grade 6–9
-      if (classInfo.grade >= 6 && classInfo.grade <= 9) {
-        classSubjects.forEach((s, i) => {
-          const id = `student-${student.id}-class-subject-${i}`;
-          subjectCells.push(`<td class="class-subject-cell"><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
-              <option>${s.name}</option>
-            </select></td>`);
-        });
+      // Get current student's selected elective subjects
+      const currentElectives = studentSubjects[student.id] || [];
+      const electiveIds = currentElectives.map((s) => s.subject_id);
 
-        const id = `student-${student.id}-student-subject-0`;
-        subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select" data-student="${
+      // Add class subjects (mandatory, disabled)
+      classSubjects.forEach((subject, i) => {
+        const id = `student-${student.id}-class-subject-${i}`;
+        subjectCells.push(`
+          <td class="class-subject-cell">
+            <select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
+              <option>${subject.name}</option>
+            </select>
+          </td>
+        `);
+      });
+
+      // Add elective subject dropdowns
+      for (let i = 0; i < electiveCount; i++) {
+        const id = `student-${student.id}-student-subject-${i}`;
+        const selectedSubjectId = electiveIds[i] || "";
+
+        subjectCells.push(`
+          <td>
+            <select id="${id}" class="dropdown-select subject-select" data-student="${
           student.id
-        }">
-          <option value="">Select subject</option>
-          ${subjects
-            .map((sub) => `<option value="${sub.id}">${sub.name}</option>`)
-            .join("")}
-        </select></td>`);
+        }" data-elective-index="${i}">
+              <option value="">Select subject</option>
+              ${electiveSubjects
+                .map(
+                  (sub) =>
+                    `<option value="${sub.id}" ${
+                      sub.id == selectedSubjectId ? "selected" : ""
+                    }>${sub.name}</option>`
+                )
+                .join("")}
+            </select>
+          </td>
+        `);
       }
 
-      // Grade 1–5
-      else if (classInfo.grade >= 1 && classInfo.grade <= 5) {
-        classSubjects.forEach((s, i) => {
-          const id = `student-${student.id}-class-subject-${i}`;
-          subjectCells.push(`<td class="class-subject-cell"><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
-              <option>${s.name}</option>
-            </select></td>`);
-        });
-      }
-
-      // Grade 10–11
-      else if (classInfo.grade >= 10 && classInfo.grade <= 11) {
-        classSubjects.forEach((s, i) => {
-          const id = `student-${student.id}-class-subject-${i}`;
-          subjectCells.push(`<td class="class-subject-cell"><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
-              <option>${s.name}</option>
-            </select></td>`);
-        });
-        for (let i = 0; i < 3; i++) {
-          const id = `student-${student.id}-student-subject-${i}`;
-          subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select" data-student="${
-            student.id
-          }">
-            <option value="">Select subject</option>
-            ${subjects
-              .map((sub) => `<option value="${sub.id}">${sub.name}</option>`)
-              .join("")}
-          </select></td>`);
-        }
-      }
-
-      // Grade 12–13
-      else if (classInfo.grade >= 12 && classInfo.grade <= 13) {
-        // ✅ Show ALL class subjects
-        classSubjects.forEach((s, i) => {
-          const id = `student-${student.id}-class-subject-${i}`;
-          subjectCells.push(`<td class="class-subject-cell"><select id="${id}" class="dropdown-select subject-select dropdown-display" disabled>
-              <option>${s.name}</option>
-            </select></td>`);
-        });
-
-        // ✅ Then add 3 selectable student subjects
-        for (let i = 0; i < 3; i++) {
-          const id = `student-${student.id}-student-subject-${i}`;
-          subjectCells.push(`<td><select id="${id}" class="dropdown-select subject-select" data-student="${
-            student.id
-          }">
-            <option value="">Select subject</option>
-            ${subjects
-              .map((sub) => `<option value="${sub.id}">${sub.name}</option>`)
-              .join("")}
-          </select></td>`);
-        }
-      }
-
-      row.innerHTML = `<td>${
-        student.index_number
-      }</td><td class="student-name">${student.name}</td>${subjectCells.join(
-        ""
-      )}`;
+      row.innerHTML = `
+        <td>${student.index_number}</td>
+        <td class="student-name">${student.name}</td>
+        ${subjectCells.join("")}
+      `;
       table.appendChild(row);
 
-      // make searchable dropdowns
+      // Make searchable dropdowns for elective subjects only
       row.querySelectorAll(".subject-select").forEach((select) => {
         if (!select.disabled) {
-          setTimeout(
-            () =>
-              makeSearchableDropdown(select.id, (val) =>
-                console.log(`Student ${student.id} selected:`, val)
-              ),
-            0
-          );
+          setTimeout(() => {
+            makeSearchableDropdown(select.id, (val) => {
+              console.log(`Student ${student.id} selected subject:`, val);
+              // Optional: Auto-save on change
+              // saveStudentSubject(student.id);
+            });
+          }, 0);
         }
       });
     });
@@ -239,41 +375,132 @@
 
   function addInputHighlighting() {
     const table = document.getElementById("subjects-table");
-    table.addEventListener("focusin", (e) => {
-      if (e.target.classList.contains("subject-select")) {
-        document
-          .querySelectorAll(".highlight-student")
-          .forEach((el) => el.classList.remove("highlight-student"));
-        const row = e.target.closest("tr");
-        const nameCell = row.querySelector(".student-name");
-        if (nameCell) nameCell.classList.add("highlight-student");
-      }
+
+    // Remove existing listeners to prevent duplicates
+    const newTable = table.cloneNode(true);
+    table.parentNode.replaceChild(newTable, table);
+
+    document
+      .getElementById("subjects-table")
+      .addEventListener("focusin", (e) => {
+        if (e.target.classList.contains("subject-select")) {
+          document
+            .querySelectorAll(".highlight-student")
+            .forEach((el) => el.classList.remove("highlight-student"));
+          const row = e.target.closest("tr");
+          const nameCell = row.querySelector(".student-name");
+          if (nameCell) nameCell.classList.add("highlight-student");
+        }
+      });
+  }
+
+  function collectStudentSubjects() {
+    const assignments = [];
+    const studentIds = new Set();
+
+    // Collect all student IDs first
+    document.querySelectorAll("[data-student]").forEach((select) => {
+      studentIds.add(parseInt(select.dataset.student));
     });
+
+    // For each student, collect their selected subjects
+    studentIds.forEach((studentId) => {
+      const studentSelects = document.querySelectorAll(
+        `[data-student="${studentId}"]`
+      );
+      const subjectIds = Array.from(studentSelects)
+        .map((select) => select.value)
+        .filter((value) => value); // Remove empty selections
+
+      assignments.push({
+        student_id: parseInt(studentId),
+        subject_ids: subjectIds,
+      });
+    });
+
+    return assignments;
   }
 
-  function submitSubjects() {
-    const selects = document.querySelectorAll(".subject-select");
-    const data = Array.from(selects)
-      .filter((s) => s.dataset.student)
-      .map((select) => ({
-        student_id: select.dataset.student,
-        subject_ids: Array.from(select.selectedOptions).map((o) => o.value),
-      }));
-    console.log("Submitted:", data);
-    alert("Subjects submitted (check console)");
+  async function submitSubjects() {
+    if (!currentClassId) {
+      showError("Please select a class first");
+      return;
+    }
+
+    try {
+      showLoading(true);
+
+      const assignments = collectStudentSubjects();
+      console.log("Submitting assignments:", assignments);
+
+      const result = await apiCall("/api/teacher/students/subjects/batch", {
+        method: "POST",
+        body: JSON.stringify({ assignments }),
+      });
+
+      if (result.success) {
+        showSuccess("Subject assignments submitted successfully!");
+        // Reload data to reflect changes
+        await loadClassData(currentClassId);
+      } else {
+        showError("Failed to submit assignments");
+      }
+    } catch (error) {
+      console.error("Submit error:", error);
+      showError(`Failed to submit assignments: ${error.message}`);
+    } finally {
+      showLoading(false);
+    }
   }
 
-  function saveDraft() {
-    const selects = document.querySelectorAll(".subject-select");
-    const data = Array.from(selects)
-      .filter((s) => s.dataset.student)
-      .map((select) => ({
-        student_id: select.dataset.student,
-        subject_ids: Array.from(select.selectedOptions).map((o) => o.value),
-      }));
-    console.log("Draft saved:", data);
-    alert("Draft saved (check console)");
+  async function saveDraft() {
+    if (!currentClassId) {
+      showError("Please select a class first");
+      return;
+    }
+
+    try {
+      const assignments = collectStudentSubjects();
+      console.log("Saving draft:", assignments);
+
+      // For draft, we can use the same endpoint but show different message
+      const result = await apiCall("/api/teacher/students/subjects/batch", {
+        method: "POST",
+        body: JSON.stringify({ assignments }),
+      });
+
+      if (result.success) {
+        showSuccess("Draft saved successfully!");
+      } else {
+        showError("Failed to save draft");
+      }
+    } catch (error) {
+      console.error("Save draft error:", error);
+      showError(`Failed to save draft: ${error.message}`);
+    }
   }
 
+  // Individual student subject save (if needed)
+  async function saveStudentSubject(studentId) {
+    try {
+      const studentSelects = document.querySelectorAll(
+        `[data-student="${studentId}"]`
+      );
+      const subjectIds = Array.from(studentSelects)
+        .map((select) => select.value)
+        .filter((value) => value);
+
+      await apiCall(`/api/teacher/students/${studentId}/subjects`, {
+        method: "POST",
+        body: JSON.stringify({ subject_ids: subjectIds }),
+      });
+
+      console.log(`Saved subjects for student ${studentId}`);
+    } catch (error) {
+      console.error("Failed to save student subject:", error);
+    }
+  }
+
+  // Initialize the page
   loadSubjectAssignmentPage();
 </script>
