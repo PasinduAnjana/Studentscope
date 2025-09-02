@@ -64,55 +64,85 @@ async function run() {
       classIds[grade] = res.rows[0].id;
     }
 
-    // 3️⃣ Subjects by grade
+    // 3️⃣ Subjects by grade (compulsory)
     const subjectsByGrade = {
-      "1-5": ["Sinhala", "Buddhism", "English", "Maths", "Science"],
+      "1-5": [
+        "First Language",
+        "English Language",
+        "Mathematics",
+        "Environmental Studies",
+        "Religion",
+        "Aesthetic Education",
+        "Physical Education",
+      ],
       "6-9": [
-        "Sinhala",
-        "Buddhism",
-        "History",
+        "First Language",
+        "English Language",
+        "Mathematics",
         "Science",
-        "Maths",
-        "Geography",
-        "English",
+        "History",
+        "Religion",
+        "Civics",
+        "Health & Physical Education",
+        "Aesthetic Education",
       ],
       "10-11": [
-        "Sinhala",
-        "Buddhism",
-        "English",
-        "Maths",
+        "First Language",
+        "English Language",
+        "Mathematics",
         "Science",
+        "Religion",
         "History",
       ],
-      "12-13": ["GIT", "English"],
+      "12-13": ["General English", "Common General Test"],
     };
 
+    // Electives
     const studentElectives = {
-      "6-9": ["Art", "Dancing", "Western Music", "Eastern Music", "Drama"],
-      "10-11": [
-        "ICT",
-        "Commerce",
-        "Health",
-        "Geography",
-        "French",
-        "Literature",
+      "6-9": [
+        "Practical and Technical Skills",
+        "Drama",
+        "Dance",
         "Art",
-        "Dancing",
         "Music",
       ],
-      "12-13": [
-        "Maths",
-        "Chemistry",
-        "Physics",
+      "10-11": [
+        "Business & Accounting Studies",
+        "Geography",
+        "Civic Education",
+        "Agriculture & Food Technology",
         "ICT",
-        "Commerce",
+        "Health & Physical Education",
+        "Aesthetic Subjects",
+        "Home Science",
+        "Technical Subjects",
+      ],
+      "12-13": [
+        "Physics",
+        "Chemistry",
+        "Biology",
+        "Combined Mathematics",
+        "ICT",
         "Business Studies",
+        "Accounting",
+        "Economics",
+        "History",
+        "Political Science",
+        "Sinhala Literature",
+        "Tamil Literature",
+        "English Literature",
+        "Geography",
+        "Logic",
+        "Religion",
+        "Performing Arts",
+        "Engineering Technology",
+        "Bio-System Technology",
+        "Science for Technology",
       ],
     };
 
+    // 4️⃣ Insert all subjects (deduplicated)
     const subjectIdsMap = {};
-
-    // Insert all subjects
     const allSubjects = new Set();
     Object.values(subjectsByGrade).forEach((arr) =>
       arr.forEach((s) => allSubjects.add(s))
@@ -138,7 +168,7 @@ async function run() {
       subjectIdsMap[name] = id;
     }
 
-    // 4️⃣ Class subjects
+    // 5️⃣ Class subjects (mandatory)
     const classSubjectsMapping = {
       1: subjectsByGrade["1-5"],
       6: subjectsByGrade["6-9"],
@@ -159,10 +189,10 @@ async function run() {
       }
     }
 
-    // 5️⃣ Grade subject rules (elective counts)
+    // 6️⃣ Grade subject rules (elective counts)
     const gradeRules = [
       [1, 0],
-      [6, 2],
+      [6, 1],
       [10, 3],
       [12, 3],
     ];
@@ -173,7 +203,25 @@ async function run() {
       );
     }
 
-    // 6️⃣ Users
+    // 7️⃣ Insert elective subjects into grade_subjects
+    const electiveMapping = {
+      6: studentElectives["6-9"],
+      10: studentElectives["10-11"],
+      12: studentElectives["12-13"],
+    };
+    for (const grade in electiveMapping) {
+      const electives = electiveMapping[grade];
+      for (let i = 0; i < electives.length; i++) {
+        const subId = subjectIdsMap[electives[i]];
+        await pool.query(
+          `INSERT INTO grade_subjects (grade, subject_id, type, display_order)
+           VALUES ($1, $2, 'elective', $3)`,
+          [grade, subId, i + 1]
+        );
+      }
+    }
+
+    // 8️⃣ Users
     const adminId = await createUser("admin", "123", "admin");
     const clerkId = await createUser("clerk", "123", "clerk");
 
@@ -193,14 +241,13 @@ async function run() {
       );
     }
 
-    // Students (Sri Lankan names, 5 per class)
+    // 9️⃣ Students
     const studentsByClass = {
       1: ["Amal", "Kamal", "Nimal", "Sunil", "Anusha"],
       6: ["Sajith", "Ishara", "Dilshan", "Hashini", "Ruwan"],
       10: ["Chathura", "Lakshan", "Shanika", "Thilina", "Manori"],
       12: ["Dinusha", "Gayathri", "Pasindu", "Sandeepa", "Isuru"],
     };
-
     const studentIds = {};
     for (const grade in studentsByClass) {
       studentIds[grade] = [];
@@ -210,7 +257,7 @@ async function run() {
       }
     }
 
-    // 7️⃣ Teacher-Subjects mapping
+    // 🔟 Teacher-Subjects mapping (teachers cover compulsory subjects)
     for (const grade in teacherIds) {
       const tId = teacherIds[grade];
       const classId = classIds[grade];
@@ -223,55 +270,36 @@ async function run() {
       }
     }
 
-    // 8️⃣ Assign elective subjects to students
-    // Grade 6 students: 2 electives each
-    const grade6Electives = studentElectives["6-9"];
-    studentIds[6].forEach((sId, i) => {
-      const e1 = subjectIdsMap[grade6Electives[i % grade6Electives.length]];
-      const e2 =
-        subjectIdsMap[grade6Electives[(i + 1) % grade6Electives.length]];
-      pool.query(
-        `INSERT INTO student_subjects (student_id, subject_id) VALUES ($1,$2),($1,$3)`,
-        [sId, e1, e2]
-      );
-    });
+    // 1️⃣1️⃣ Assign elective subjects to students
+    const assignElectives = [
+      [6, 1],
+      [10, 3],
+      [12, 3],
+    ];
+    for (const [grade, count] of assignElectives) {
+      studentIds[grade].forEach((sId, i) => {
+        const values = [];
+        for (let j = 0; j < count; j++) {
+          const subId =
+            subjectIdsMap[
+              electiveMapping[grade][(i + j) % electiveMapping[grade].length]
+            ];
+          values.push(`(${sId},${subId})`);
+        }
+        const query = `INSERT INTO student_subjects (student_id, subject_id) VALUES ${values.join(
+          ","
+        )}`;
+        pool.query(query);
+      });
+    }
 
-    // Grade 10 students: 3 electives each
-    const grade10Electives = studentElectives["10-11"];
-    studentIds[10].forEach((sId, i) => {
-      const e1 = subjectIdsMap[grade10Electives[i % grade10Electives.length]];
-      const e2 =
-        subjectIdsMap[grade10Electives[(i + 1) % grade10Electives.length]];
-      const e3 =
-        subjectIdsMap[grade10Electives[(i + 2) % grade10Electives.length]];
-      pool.query(
-        `INSERT INTO student_subjects (student_id, subject_id) VALUES ($1,$2),($1,$3),($1,$4)`,
-        [sId, e1, e2, e3]
-      );
-    });
-
-    // Grade 12 students: 3 electives each
-    const grade12Electives = studentElectives["12-13"];
-    studentIds[12].forEach((sId, i) => {
-      const e1 = subjectIdsMap[grade12Electives[i % grade12Electives.length]];
-      const e2 =
-        subjectIdsMap[grade12Electives[(i + 1) % grade12Electives.length]];
-      const e3 =
-        subjectIdsMap[grade12Electives[(i + 2) % grade12Electives.length]];
-      pool.query(
-        `INSERT INTO student_subjects (student_id, subject_id) VALUES ($1,$2),($1,$3),($1,$4)`,
-        [sId, e1, e2, e3]
-      );
-    });
-
-    // 9️⃣ Timetable generation (5 days × 8 slots for each class)
+    // 1️⃣2️⃣ Timetable
     for (const grade of [1, 6, 10, 12]) {
       const classId = classIds[grade];
       const tId = teacherIds[grade];
       const subjects = classSubjectsMapping[grade].map(
         (name) => subjectIdsMap[name]
       );
-
       let idx = 0;
       for (let day = 1; day <= 5; day++) {
         for (let slot = 1; slot <= 8; slot++) {
@@ -287,7 +315,7 @@ async function run() {
     }
 
     console.log(
-      "🎉 Database seeded successfully with classes, students, subjects, teachers & timetable!"
+      "🎉 Database seeded successfully with electives and all subjects!"
     );
   } catch (err) {
     console.error("❌ Seeding error:", err);

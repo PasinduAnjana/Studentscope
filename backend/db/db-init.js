@@ -7,7 +7,20 @@ async function initializeDatabase() {
       `Connected to database: ${process.env.DB_NAME || "(from URL)"}`
     );
 
-    // Classes
+    // ⚠ Drop all tables first
+    await pool.query(`
+DO $$ DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+        EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
+    END LOOP;
+END $$;
+`);
+
+    console.log("✅ All existing tables dropped");
+
+    // --- Tables ---
     await pool.query(`
       CREATE TABLE IF NOT EXISTS classes (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -16,7 +29,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Roles
     await pool.query(`
       CREATE TABLE IF NOT EXISTS roles (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -24,7 +36,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Users
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -37,7 +48,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Subjects
     await pool.query(`
       CREATE TABLE IF NOT EXISTS subjects (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -45,7 +55,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Class Subjects
     await pool.query(`
       CREATE TABLE IF NOT EXISTS class_subjects (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -57,7 +66,16 @@ async function initializeDatabase() {
       );
     `);
 
-    // Grade Subject Rules
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS grade_subjects (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        grade INT NOT NULL,
+        subject_id BIGINT REFERENCES subjects(id),
+        type TEXT NOT NULL CHECK (type IN ('compulsory','elective')),
+        display_order INT
+      );
+    `);
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS grade_subject_rules (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -66,7 +84,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Student Subjects (Electives)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS student_subjects (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -75,7 +92,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Exams
     await pool.query(`
       CREATE TABLE IF NOT EXISTS exams (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -84,7 +100,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Timetables
     await pool.query(`
       CREATE TABLE IF NOT EXISTS timetables (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -96,7 +111,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Marks
     await pool.query(`
       CREATE TABLE IF NOT EXISTS marks (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -107,7 +121,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Attendance
     await pool.query(`
       CREATE TABLE IF NOT EXISTS attendance (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -118,7 +131,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Class Teachers
     await pool.query(`
       CREATE TABLE IF NOT EXISTS class_teachers (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -127,7 +139,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Teacher Subjects
     await pool.query(`
       CREATE TABLE IF NOT EXISTS teacher_subjects (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -137,7 +148,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Notices
     await pool.query(`
       CREATE TABLE IF NOT EXISTS notices (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -149,7 +159,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Achievements
     await pool.query(`
       CREATE TABLE IF NOT EXISTS achievements (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -159,7 +168,6 @@ async function initializeDatabase() {
       );
     `);
 
-    // Sessions
     await pool.query(`
       CREATE TABLE IF NOT EXISTS sessions (
         token TEXT PRIMARY KEY,
@@ -169,9 +177,9 @@ async function initializeDatabase() {
       );
     `);
 
-    console.log("✅ All tables created successfully");
+    console.log("✅ Tables created successfully");
   } catch (err) {
-    console.error("❌ Error creating tables:", err);
+    console.error("❌ Error initializing database:", err);
   } finally {
     await pool.end();
   }

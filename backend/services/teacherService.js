@@ -255,22 +255,29 @@ exports.saveMultipleStudentSubjects = async (assignments) => {
 };
 
 // Get available elective subjects for a grade (subjects not in class_subjects)
+// Get available elective subjects for a class (from grade_subjects)
 exports.getElectiveSubjects = async (classId) => {
+  // 1️⃣ Get the grade for the class
+  const classRes = await pool.query(`SELECT grade FROM classes WHERE id = $1`, [
+    classId,
+  ]);
+  if (!classRes.rows.length) return [];
+  const grade = classRes.rows[0].grade;
+
+  // 2️⃣ Fetch elective subjects for this grade
   const result = await pool.query(
     `
     SELECT s.id, s.name
-    FROM subjects s
-    WHERE s.id NOT IN (
-      SELECT cs.subject_id
-      FROM class_subjects cs
-      WHERE cs.class_id = $1
-    )
-    ORDER BY s.name
-  `,
-    [classId]
+    FROM grade_subjects gs
+    JOIN subjects s ON gs.subject_id = s.id
+    WHERE gs.grade = $1
+      AND gs.type = 'elective'
+    ORDER BY gs.display_order, s.name
+    `,
+    [grade]
   );
 
-  return result.rows;
+  return result.rows; // directly return the elective subjects
 };
 
 // Get today's timetable for a teacher
