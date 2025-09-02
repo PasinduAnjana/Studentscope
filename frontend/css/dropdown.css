@@ -30,17 +30,27 @@
   transform: rotate(180deg);
 }
 
+/* Updated dropdown list styles for portal */
 .dropdown-list {
-  display: none;
   position: absolute;
-  width: 100%;
   background: var(--color-card);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  margin-top: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 9999; /* Higher z-index for portal */
   padding: 6px;
+  min-width: 200px; /* Ensure minimum width */
+}
+
+/* Portal-specific styles */
+.dropdown-list.dropdown-portal {
+  position: fixed !important;
+  z-index: 10000;
+}
+
+/* Style for dropdowns that open above */
+.dropdown-list.dropdown-above {
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .dropdown-search {
@@ -50,11 +60,31 @@
   border-radius: 6px;
   margin-bottom: 6px;
   font-size: 13px;
+  box-sizing: border-box;
 }
 
 .dropdown-options {
   max-height: 180px;
   overflow-y: auto;
+}
+
+/* Alternative: Custom thin scrollbar (uncomment if you prefer a subtle scrollbar) */
+
+.dropdown-options::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dropdown-options::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dropdown-options::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.dropdown-options::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .dropdown-item {
@@ -73,6 +103,11 @@
   cursor: default;
 }
 
+.dropdown-item.empty:hover {
+  background: transparent;
+  color: #888;
+}
+
 .mark-controls {
   width: 100%;
   display: flex;
@@ -80,8 +115,8 @@
   gap: 16px;
   margin-bottom: 16px;
 }
+
 .input-group {
-  /* width: 100%; */
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -90,4 +125,11 @@
 
 label {
   font-weight: 600;
+}
+
+/* Alternative: CSS-only solution using transform */
+.dropdown-list.transform-solution {
+  position: absolute;
+  transform: translateY(0);
+  /* This can help in some cases but won't work with overflow:hidden containers */
 }

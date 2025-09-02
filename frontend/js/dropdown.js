@@ -1,6 +1,7 @@
+// Enhanced dropdown.js with overflow fix
 function makeSearchableDropdown(selectId, onSelect) {
   const select = document.getElementById(selectId);
-  select.style.display = "none"; // hide original
+  select.style.display = "none";
 
   const wrapper = document.createElement("div");
   wrapper.classList.add("searchable-select");
@@ -9,20 +10,20 @@ function makeSearchableDropdown(selectId, onSelect) {
   const display = document.createElement("div");
   display.classList.add("dropdown-display");
 
-  // Selected text
   const selectedText = document.createElement("span");
   selectedText.textContent = select.options[0].text;
 
-  // Arrow icon (FontAwesome)
   const arrow = document.createElement("i");
   arrow.classList.add("fas", "fa-chevron-down", "dropdown-arrow");
 
   display.appendChild(selectedText);
   display.appendChild(arrow);
 
-  // Dropdown list
+  // Create dropdown list as a portal (appended to body)
   const list = document.createElement("div");
-  list.classList.add("dropdown-list");
+  list.classList.add("dropdown-list", "dropdown-portal");
+  list.style.position = "fixed"; // Use fixed positioning
+  list.style.display = "none";
 
   const searchInput = document.createElement("input");
   searchInput.type = "text";
@@ -34,6 +35,33 @@ function makeSearchableDropdown(selectId, onSelect) {
 
   list.appendChild(searchInput);
   list.appendChild(optionsContainer);
+
+  // Append dropdown to body to escape overflow constraints
+  document.body.appendChild(list);
+
+  // Position the dropdown relative to the display element
+  function positionDropdown() {
+    const displayRect = display.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const dropdownHeight = 200; // Approximate height
+
+    // Check if there's space below
+    const spaceBelow = viewportHeight - displayRect.bottom;
+    const spaceAbove = displayRect.top;
+
+    list.style.left = displayRect.left + "px";
+    list.style.width = displayRect.width + "px";
+
+    if (spaceBelow >= dropdownHeight || spaceBelow >= spaceAbove) {
+      // Position below
+      list.style.top = displayRect.bottom + 6 + "px";
+      list.classList.remove("dropdown-above");
+    } else {
+      // Position above
+      list.style.top = displayRect.top - dropdownHeight - 6 + "px";
+      list.classList.add("dropdown-above");
+    }
+  }
 
   // Render options
   function renderOptions(filter = "") {
@@ -65,8 +93,8 @@ function makeSearchableDropdown(selectId, onSelect) {
     });
   }
 
-  // Open/close
   function openDropdown() {
+    positionDropdown();
     list.style.display = "block";
     arrow.classList.add("open");
     searchInput.value = "";
@@ -89,11 +117,39 @@ function makeSearchableDropdown(selectId, onSelect) {
   });
 
   document.addEventListener("click", (e) => {
-    if (!wrapper.contains(e.target)) closeDropdown();
+    if (!wrapper.contains(e.target) && !list.contains(e.target)) {
+      closeDropdown();
+    }
   });
+
+  // Reposition on scroll/resize
+  window.addEventListener("scroll", () => {
+    if (list.style.display === "block") {
+      positionDropdown();
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (list.style.display === "block") {
+      positionDropdown();
+    }
+  });
+
+  // Cleanup function
+  function destroy() {
+    if (list.parentNode) {
+      list.parentNode.removeChild(list);
+    }
+    if (wrapper.parentNode) {
+      wrapper.parentNode.removeChild(wrapper);
+    }
+    select.style.display = "";
+  }
 
   // Init
   wrapper.appendChild(display);
-  wrapper.appendChild(list);
   select.parentNode.insertBefore(wrapper, select);
+
+  // Return object with destroy method for cleanup
+  return { destroy };
 }
