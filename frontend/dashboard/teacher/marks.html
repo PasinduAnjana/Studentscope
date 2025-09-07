@@ -1,215 +1,75 @@
 <h2 class="heading">
   <i class="fas fa-pen"></i> <span data="sidebar.marks"></span>
 </h2>
-<div class="mark-controls">
-  <!-- Search Bar -->
-  <div class="input-group search-group">
-    <input
-      type="text"
-      id="student-search"
-      class="search-input"
-      placeholder="Search students"
-    />
-    <i class="fas fa-search search-icon"></i>
-  </div>
 
-  <!-- Class Dropdown -->
-  <div class="input-group">
-    <label> Class: </label>
-    <select id="class-select" class="dropdown-select">
-      <option value="10A">10A</option>
-      <option value="10B">10B</option>
-      <option value="10C">10C</option>
-      <option value="11A">11A</option>
-      <option value="11B">11B</option>
-    </select>
-  </div>
-
-  <!-- Exam Dropdown -->
-  <div class="input-group">
-    <label> Exam: </label>
-    <select id="exam-select" class="dropdown-select">
-      <option value="Midterm">Midterm</option>
-      <option value="Final">Final</option>
-    </select>
-  </div>
-</div>
-
-<div class="marks-container">
-  <table class="marks-table" id="marks-table">
-    <!-- Populated by JS -->
-  </table>
-</div>
-
-<div class="actions">
-  <button class="btn btn-secondary" onclick="saveDraft()">
-    <i class="fas fa-save"></i> Save Draft
-  </button>
-  <button class="btn btn-primary" onclick="submitMarks()">
-    <i class="fas fa-check"></i> Submit Marks
-  </button>
+<div class="marks-grid" id="marksCards">
+  <!-- Cards will be populated by JS -->
 </div>
 
 <script>
-  let allStudents = [];
-  let subjects = [];
-  function limitMarks() {
-    document.querySelectorAll(".mark-input").forEach((input) => {
-      input.addEventListener("input", (e) => {
-        let val = input.value;
+  // Fetch all required data
+  async function loadClasses() {
+    try {
+      // Mock data - replace with API call
+      const teacherData = {
+        id: "T1",
+        classTeacherOf: "10A",
+        subjectAssignments: [
+          { class: "10B", subject: "Mathematics" },
+          { class: "11A", subject: "Mathematics" },
+          { class: "10C", subject: "Mathematics" },
+        ],
+      };
 
-        // Remove non-digits
-        val = val.replace(/\D/g, "");
-
-        // Prevent value > 100
-        if (parseInt(val) > 100) {
-          val = val.slice(0, -1); // Remove last typed digit
-        }
-
-        input.value = val;
-      });
-    });
+      renderCards(teacherData);
+    } catch (err) {
+      console.error("Error loading data:", err);
+    }
   }
 
-  async function loadMarksTable() {
-    const [students, subs] = await Promise.all([
-      fetch("../../data/students.json").then((res) => res.json()),
-      fetch("../../data/subjects.json").then((res) => res.json()),
-    ]);
+  function renderCards(teacherData) {
+    const container = document.getElementById("marksCards");
+    container.innerHTML = "";
 
-    allStudents = students;
-    subjects = subs;
-    renderTable(students);
-    addInputHighlighting();
-    limitMarks();
+    // Class teacher card
+    if (teacherData.classTeacherOf) {
+      const card = document.createElement("a");
+      card.href = `./enter_marks.html?class=${teacherData.classTeacherOf}&type=class_teacher`;
+      card.className = "marks-card class-teacher";
 
-    const searchInput = document.getElementById("student-search");
-    searchInput.addEventListener("input", () => {
-      const query = searchInput.value.toLowerCase().trim();
-      const filteredStudents = allStudents.filter(
-        (student) =>
-          student.name.toLowerCase().includes(query) ||
-          student.index_number.toLowerCase().includes(query)
-      );
-      renderTable(filteredStudents);
-      addInputHighlighting();
-      limitMarks();
-    });
-  }
-
-  function renderTable(students) {
-    const table = document.getElementById("marks-table");
-    table.innerHTML = "";
-
-    // 🔹 Header row
-    const headerRow = document.createElement("tr");
-    headerRow.innerHTML = `
-      <th>Index No</th>
-      <th>Name</th>
-      ${subjects.map((s) => `<th>${s.name}</th>`).join("")}
-    `;
-    table.appendChild(headerRow);
-
-    // 🔹 Student rows
-    students.forEach((student) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${student.index_number}</td>
-        <td class="student-name">${student.name}</td>
-        ${subjects
-          .map(
-            (s) =>
-              `<td><input
-                  type="number"
-                  class="mark-input"
-                  min="0" max="100"
-                  data-student="${student.id}"
-                  data-subject="${s.id}"
-                /></td>`
-          )
-          .join("")}
+      card.innerHTML = `
+        <div class="marks-card-header">
+          <div>
+            <h3 class="marks-card-title">Class ${teacherData.classTeacherOf}</h3>
+            <p class="marks-card-subtitle">Class Teacher - All Subjects</p>
+            <span class="status pending">Pending Marks</span>
+          </div>
+        </div>
       `;
-      table.appendChild(row);
+
+      container.appendChild(card);
+    }
+
+    // Subject teacher cards
+    teacherData.subjectAssignments.forEach((assignment) => {
+      const card = document.createElement("a");
+      card.href = `./enter_marks.html?class=${assignment.class}&subject=${assignment.subject}&type=subject_teacher`;
+      card.className = "marks-card";
+
+      card.innerHTML = `
+        <div class="marks-card-header">
+          <div>
+            <h3 class="marks-card-title">Class ${assignment.class}</h3>
+            <p class="marks-card-subtitle">Subject Teacher - ${assignment.subject}</p>
+            <span class="status pending">Pending Marks</span>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
     });
   }
 
-  // ✨ Highlight student name + subject header
-  function addInputHighlighting() {
-    const table = document.getElementById("marks-table");
-
-    table.addEventListener("focusin", (e) => {
-      if (e.target.classList.contains("mark-input")) {
-        const input = e.target;
-
-        // Clear old highlights
-        document
-          .querySelectorAll(".highlight-student, .highlight-subject")
-          .forEach((el) =>
-            el.classList.remove("highlight-student", "highlight-subject")
-          );
-
-        // Highlight student name (2nd column)
-        const row = input.closest("tr");
-        const studentNameCell = row.querySelector(".student-name");
-        if (studentNameCell) studentNameCell.classList.add("highlight-student");
-
-        // Find column index
-        const cell = input.closest("td");
-        const colIndex = Array.from(cell.parentNode.children).indexOf(cell);
-
-        // Highlight header cell (same column)
-        const headerCell = table.querySelector(
-          `tr:first-child th:nth-child(${colIndex + 1})`
-        );
-        if (headerCell) headerCell.classList.add("highlight-subject");
-      }
-    });
-
-    // Clear on blur
-    table.addEventListener("focusout", (e) => {
-      if (e.target.classList.contains("mark-input")) {
-        setTimeout(() => {
-          if (!table.contains(document.activeElement)) {
-            document
-              .querySelectorAll(".highlight-student, .highlight-subject")
-              .forEach((el) =>
-                el.classList.remove("highlight-student", "highlight-subject")
-              );
-          }
-        }, 50);
-      }
-    });
-  }
-
-  function submitMarks() {
-    const inputs = document.querySelectorAll(".mark-input");
-    const data = Array.from(inputs).map((input) => ({
-      student_id: input.dataset.student,
-      subject_id: input.dataset.subject,
-      mark: input.value ? parseInt(input.value) : null,
-    }));
-    console.log("Submitted:", data);
-    alert("Marks submitted (check console)");
-  }
-
-  function saveDraft() {
-    const inputs = document.querySelectorAll(".mark-input");
-    const data = Array.from(inputs).map((input) => ({
-      student_id: input.dataset.student,
-      subject_id: input.dataset.subject,
-      mark: input.value ? parseInt(input.value) : null,
-    }));
-    console.log("Draft saved:", data);
-    alert("Draft saved (check console)");
-  }
-
-  //dropdown select menus
-  makeSearchableDropdown("class-select", (val) =>
-    console.log("✅ Selected class:", val)
-  );
-  makeSearchableDropdown("exam-select", (val) =>
-    console.log("✅ Selected exam:", val)
-  );
-
-  loadMarksTable();
+  // Initialize
+  loadClasses();
 </script>

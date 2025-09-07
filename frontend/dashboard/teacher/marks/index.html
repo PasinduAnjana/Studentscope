@@ -1,0 +1,158 @@
+<h2 class="heading">
+  <i class="fas fa-pen"></i> <span data="sidebar.marks"></span>
+</h2>
+
+<div class="marks-grid" id="marksCards">
+  <!-- Cards will be populated by JS -->
+</div>
+
+<script>
+  // Fetch all required data
+  async function loadClasses() {
+    try {
+      // Mock data - replace with API call
+      const teacherData = {
+        id: "T1",
+        classTeacherOf: "10A", // As class teacher, can enter marks for all subjects
+        subjectAssignments: [
+          // Mathematics classes
+          { class: "10B", subject: "Mathematics" },
+          { class: "11A", subject: "Mathematics" },
+          { class: "10C", subject: "Mathematics" },
+          // Physics classes
+          { class: "10A", subject: "Physics" },
+          { class: "10B", subject: "Physics" },
+          // Chemistry class
+          { class: "10A", subject: "Chemistry" },
+        ],
+      };
+
+      renderCards(teacherData);
+    } catch (err) {
+      console.error("Error loading data:", err);
+    }
+  }
+
+  function renderCards(teacherData) {
+    const container = document.getElementById("marksCards");
+    container.innerHTML = "";
+
+    // Group assignments by class
+    const classAssignments = {};
+    teacherData.subjectAssignments.forEach((assignment) => {
+      if (!classAssignments[assignment.class]) {
+        classAssignments[assignment.class] = [];
+      }
+      classAssignments[assignment.class].push(assignment.subject);
+    });
+
+    // Class teacher card
+    if (teacherData.classTeacherOf) {
+      const card = document.createElement("a");
+      const url = new URL(window.location.href);
+      url.searchParams.set("page", "marks/entry");
+      url.searchParams.set("class", teacherData.classTeacherOf);
+      url.searchParams.set("type", "class_teacher");
+      card.href = "#";
+      card.onclick = (e) => {
+        e.preventDefault();
+        const url = new URL(window.location.href);
+        url.searchParams.set("page", "marks/entry");
+        url.searchParams.set("class", teacherData.classTeacherOf);
+        url.searchParams.set("type", "class_teacher");
+        window.history.pushState({}, "", url);
+        loadPage("teacher", "marks/entry");
+      };
+      card.className = "marks-card class-teacher";
+
+      card.innerHTML = `
+        <div class="marks-card-header">
+          <div>
+            <h3 class="marks-card-title">
+              <i class="fas fa-chalkboard-teacher"></i> Class ${
+                teacherData.classTeacherOf
+              }
+            </h3>
+            <p class="marks-card-subtitle">Class Teacher - All Subjects</p>
+            <div class="subject-tags">
+              ${
+                classAssignments[teacherData.classTeacherOf]
+                  ?.map(
+                    (subject) => `<span class="subject-tag">${subject}</span>`
+                  )
+                  .join("") || ""
+              }
+            </div>
+            <span class="status pending">Pending Marks</span>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
+
+      // Remove the class teacher's class from regular assignments
+      delete classAssignments[teacherData.classTeacherOf];
+    }
+
+    // One card per class with subject tags
+    Object.entries(classAssignments).forEach(([className, subjects]) => {
+      const card = document.createElement("div");
+      card.className = "marks-card";
+
+      card.innerHTML = `
+        <div class="marks-card-header">
+          <div>
+            <h3 class="marks-card-title">
+              <i class="fas fa-graduation-cap"></i> Class ${className}
+            </h3>
+            <p class="marks-card-subtitle">Subject Teacher</p>
+            <div class="subject-tags">
+              ${subjects
+                .map(
+                  (subject) => `
+                <a href="#" class="subject-tag" onclick="handleSubjectClick(event, '${className}', '${subject}')">
+                  <i class="fas ${getSubjectIcon(subject)}"></i> ${subject}
+                </a>
+              `
+                )
+                .join("")}
+            </div>
+            <span class="status pending">Pending Marks</span>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+  }
+
+  // Get appropriate icon for each subject
+  function getSubjectIcon(subject) {
+    const icons = {
+      Mathematics: "fa-square-root-alt",
+      Physics: "fa-atom",
+      Chemistry: "fa-flask",
+      Biology: "fa-dna",
+      English: "fa-book",
+      History: "fa-landmark",
+      Geography: "fa-globe-americas",
+      "Computer Science": "fa-laptop-code",
+    };
+    return icons[subject] || "fa-book"; // default to book icon
+  }
+
+  // Handle subject tag clicks
+  function handleSubjectClick(event, className, subject) {
+    event.preventDefault();
+    const url = new URL(window.location.href);
+    url.searchParams.set("page", "marks/entry");
+    url.searchParams.set("class", className);
+    url.searchParams.set("subject", subject);
+    url.searchParams.set("type", "subject_teacher");
+    window.history.pushState({}, "", url);
+    loadPage("teacher", "marks/entry");
+  }
+
+  // Initialize
+  loadClasses();
+</script>

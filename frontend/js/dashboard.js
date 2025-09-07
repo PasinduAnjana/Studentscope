@@ -21,15 +21,18 @@ async function checkSessionValidity() {
 
 function loadPage(role, page) {
   // Handle subfolders: if page is folder/subpage, load folder/subpage.html
-  // if page is just a folder like 'attendance', load folder/index.html
+  // if page is just a folder name, load folder/index.html
   // otherwise load the page directly with .html extension
   let path;
   if (page.includes("/")) {
-    path = `dashboard/${role}/${page}.html`; // e.g., attendance/mark.html
-  } else if (page === "attendance") {
-    path = `dashboard/${role}/${page}/index.html`; // only attendance uses subfolder
+    // For subfolder pages like marks/entry or attendance/mark
+    path = `dashboard/${role}/${page}.html`;
+  } else if (["attendance", "marks"].includes(page)) {
+    // For folders that use index.html
+    path = `dashboard/${role}/${page}/index.html`;
   } else {
-    path = `dashboard/${role}/${page}.html`; // normal pages like dashboard.html, marks.html
+    // For direct pages like dashboard.html
+    path = `dashboard/${role}/${page}.html`;
   }
   fetch(path)
     .then((res) => res.text())

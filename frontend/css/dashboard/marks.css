@@ -1,9 +1,208 @@
 /* ---------------------------- */
+/* 📊 Marks Card Grid */
+/* ---------------------------- */
+.marks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.marks-card {
+  background: var(--color-card);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.marks-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.marks-card.class-teacher {
+  border: 2px solid var(--color-primary);
+}
+
+.marks-card .status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.marks-card .status.pending {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.marks-card .status.submitted {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.marks-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.marks-card-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.marks-card-title i {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.marks-card-subtitle {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+/* ---------------------------- */
+/* 📝 Marks Entry Page */
+/* ---------------------------- */
+.marks-entry {
+  background: var(--color-card);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.marks-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+#classInfo h3 {
+  font-size: 24px;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+#classInfo p {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  margin: 4px 0 0 0;
+}
+
+.exam-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.exam-selector label {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.exam-dropdown {
+  min-width: 200px;
+  position: relative;
+}
+
+.exam-dropdown .dropdown-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-white);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exam-dropdown .dropdown-display:hover {
+  border-color: var(--color-primary);
+}
+
+.exam-dropdown.active .dropdown-display {
+  border-color: var(--color-primary);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.exam-dropdown .dropdown-search {
+  display: none;
+  padding: 8px;
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  background: var(--color-white);
+}
+
+.exam-dropdown.active .dropdown-search {
+  display: block;
+}
+
+.exam-dropdown .search-input {
+  width: 100%;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.exam-dropdown .dropdown-list {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  z-index: 1000;
+}
+
+.exam-dropdown.active .dropdown-list {
+  display: block;
+}
+
+.exam-dropdown .dropdown-list li {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exam-dropdown .dropdown-list li:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+/* ---------------------------- */
 /* 📊 Marks Table Container */
 /* ---------------------------- */
-.marks-container {
+.marks-table-container {
   overflow-x: auto;
-  margin-top: 16px;
+  margin: 20px 0;
+  background: var(--color-bg);
+  border-radius: 12px;
+  padding: 16px;
 }
 
 /* ---------------------------- */
@@ -31,6 +230,13 @@
   color: var(--color-white);
   font-weight: 600;
   font-size: 14px;
+  min-width: 200px !important;
+}
+
+/* Student name column */
+.marks-table td.student-name {
+  text-align: left;
+  min-width: 200px;
 }
 
 /* Input fields inside cells */
@@ -75,104 +281,132 @@ input::-webkit-inner-spin-button {
 }
 
 /* ---------------------------- */
-/* 🔍 Search & Controls */
+/* � Action Buttons */
 /* ---------------------------- */
-.mark-controls {
+.marks-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 16px;
-  align-items: center;
-}
-
-/* Input Group */
-.input-group {
-  display: flex;
-  flex-direction: row;
-  min-width: 150px;
-  align-items: center;
-}
-
-.input-group label {
-  font-weight: 500;
-  margin: 0;
-}
-
-/* Search Bar */
-.search-group {
-  position: relative;
-  flex: 1 1 400px;
-}
-
-.search-input {
-  width: 100%;
-  /* padding: 8px 40px 8px 12px; Right space for icon */
-  padding: 10px 14px;
-  border: 1px solid var(--color-primary) !important;
-  border-radius: 8px !important;
-  font-size: 14px;
-  margin-bottom: 0px !important;
-}
-
-.search-icon {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-primary);
-  pointer-events: none;
-}
-
-/* Dropdown selects */
-.dropdown-select {
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  background-color: #fff;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-/* ---------------------------- */
-/* 🔘 Action Buttons */
-/* ---------------------------- */
-.actions {
-  margin-top: 20px;
-  display: flex;
+  justify-content: flex-end;
   gap: 12px;
+  margin-top: 20px;
+  position: relative;
 }
 
-.actions .btn {
+.btn {
   padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 600;
+  border-radius: 8px;
+  font-weight: 500;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
 }
 
 .btn-primary {
   background-color: var(--color-primary);
-  color: #fff;
+  color: var(--color-white);
   border: none;
 }
 
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
 .btn-secondary {
-  background-color: #f0f0f0;
-  color: #333;
-  border: none;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-bg-hover);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: fadeInOut 3s ease;
+}
+
+.status-badge.status-draft {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.status-badge.status-submitted {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ---------------------------- */
+/* Subject Tags */
+/* ---------------------------- */
+.subject-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.subject-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border-radius: 16px;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.subject-tag:hover {
+  background: var(--color-primary);
+  color: var(--color-white);
+  transform: translateY(-1px);
 }
 
 /* ---------------------------- */
 /* Responsive */
 @media (max-width: 768px) {
-  .mark-controls {
+  .marks-entry-header {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
+    gap: 16px;
   }
 
-  .input-group {
-    flex: 1 1 100%;
+  .exam-selector {
+    width: 100%;
+  }
+
+  .exam-selector select {
+    flex: 1;
+  }
+
+  .marks-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
@@ -193,8 +427,4 @@ td .dropdown-display {
   font-weight: 700;
   margin-bottom: 0px;
   text-align: center;
-}
-
-.marks-table th {
-  min-width: 200px !important;
 }

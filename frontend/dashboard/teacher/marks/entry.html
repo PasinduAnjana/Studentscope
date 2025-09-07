@@ -1,0 +1,350 @@
+<h2 class="heading">
+  <i class="fas fa-pen"></i>
+  <span id="pageTitle">Enter Marks</span>
+  <a
+    href="#"
+    onclick="goBack(event)"
+    class="btn btn-secondary btn-sm"
+    style="margin-left: 1rem"
+  >
+    <i class="fas fa-arrow-left"></i> Back to Overview
+  </a>
+
+  <script>
+    function goBack(e) {
+      e.preventDefault();
+      const url = new URL(window.location.href);
+      url.searchParams.set("page", "marks");
+      window.history.pushState({}, "", url);
+      loadPage("teacher", "marks");
+    }
+  </script>
+</h2>
+
+<div class="marks-entry">
+  <div class="marks-entry-header">
+    <div id="classInfo">
+      <!-- Class/subject info will be populated here -->
+    </div>
+    <div class="exam-selector">
+      <div class="input-group">
+        <label>Exam:</label>
+        <div class="searchable-select" id="examDropdown">
+          <div class="dropdown-display">
+            <span id="selectedExam">Select Exam Type</span>
+            <i class="fas fa-chevron-down dropdown-arrow"></i>
+          </div>
+          <div class="dropdown-list" style="display: none">
+            <input
+              type="text"
+              class="dropdown-search"
+              placeholder="Search exam type..."
+            />
+            <div class="dropdown-options">
+              <div class="dropdown-item" data-value="Term Test 1">
+                Term Test 1
+              </div>
+              <div class="dropdown-item" data-value="Term Test 2">
+                Term Test 2
+              </div>
+              <div class="dropdown-item" data-value="Term Test 3">
+                Term Test 3
+              </div>
+              <div class="dropdown-item" data-value="Midterm Exam">
+                Midterm Exam
+              </div>
+              <div class="dropdown-item" data-value="Final Exam">
+                Final Exam
+              </div>
+              <div class="dropdown-item" data-value="Unit Test 1">
+                Unit Test 1
+              </div>
+              <div class="dropdown-item" data-value="Unit Test 2">
+                Unit Test 2
+              </div>
+              <div class="dropdown-item" data-value="Unit Test 3">
+                Unit Test 3
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="marks-table-container">
+    <table class="marks-table">
+      <!-- Will be populated dynamically -->
+    </table>
+  </div>
+
+  <div class="marks-actions">
+    <button class="btn btn-secondary" onclick="saveDraft()">
+      <i class="fas fa-save"></i> Save Draft
+    </button>
+    <button class="btn btn-primary" onclick="submitMarks()">
+      <i class="fas fa-check"></i> Submit
+    </button>
+  </div>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const classId = urlParams.get("class");
+  const subject = urlParams.get("subject");
+  const type = urlParams.get("type");
+  let students = [],
+    subjects = [],
+    classInfo = {};
+
+  async function loadData() {
+    try {
+      [students, subjects, classInfo] = await Promise.all([
+        fetch("../../../data/students.json").then((res) => res.json()),
+        fetch("../../../data/subjects.json").then((res) => res.json()),
+        fetch("../../../data/class_info.json").then((res) => res.json()),
+      ]);
+
+      setupPage();
+      renderTable();
+    } catch (err) {
+      console.error("Error loading data:", err);
+      console.error("Students path:", "../../../data/students.json");
+    }
+  }
+
+  function setupPage() {
+    const infoDiv = document.getElementById("classInfo");
+    const pageTitle = document.getElementById("pageTitle");
+
+    if (type === "class_teacher") {
+      pageTitle.textContent = `Enter Marks - Class ${classId}`;
+      infoDiv.innerHTML = `
+        <h3>Class ${classId}</h3>
+        <p>Class Teacher - All Subjects</p>
+      `;
+    } else {
+      pageTitle.textContent = `Enter Marks - Class ${classId} ${subject}`;
+      infoDiv.innerHTML = `
+        <h3>Class ${classId}</h3>
+        <p>Subject Teacher - ${subject}</p>
+      `;
+    }
+  }
+
+  function renderTable() {
+    const table = document.querySelector(".marks-table");
+    const classStudents = students.filter((s) => s.class === classId);
+    console.log("Class ID:", classId);
+    console.log("Found students:", classStudents);
+    console.log("All students:", students);
+
+    const tableSubjects =
+      type === "class_teacher"
+        ? subjects
+        : subjects.filter((s) => s.name === subject);
+
+    // Create header row
+    const headerRow = document.createElement("tr");
+    headerRow.innerHTML = `
+      <th>Index No</th>
+      <th>Name</th>
+      ${tableSubjects.map((s) => `<th>${s.name}</th>`).join("")}
+    `;
+    table.innerHTML = "";
+    table.appendChild(headerRow);
+
+    // Create student rows
+    classStudents.forEach((student) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${student.index_number}</td>
+        <td class="student-name">${student.name}</td>
+        ${tableSubjects
+          .map(
+            (s) => `
+          <td>
+            <input type="number" 
+              class="mark-input" 
+              min="0" 
+              max="100"
+              data-student="${student.id}"
+              data-subject="${s.id}"
+            />
+          </td>
+        `
+          )
+          .join("")}
+      `;
+      table.appendChild(row);
+    });
+
+    addInputHighlighting();
+    limitMarks();
+  }
+
+  function limitMarks() {
+    document.querySelectorAll(".mark-input").forEach((input) => {
+      input.addEventListener("input", (e) => {
+        let val = input.value;
+        // Remove non-digits
+        val = val.replace(/\D/g, "");
+        // Prevent value > 100
+        if (parseInt(val) > 100) {
+          val = val.slice(0, -1);
+        }
+        input.value = val;
+      });
+    });
+  }
+
+  function addInputHighlighting() {
+    const table = document.querySelector(".marks-table");
+    table.addEventListener("focusin", (e) => {
+      if (e.target.classList.contains("mark-input")) {
+        const input = e.target;
+
+        // Clear old highlights
+        table
+          .querySelectorAll(".highlight-student, .highlight-subject")
+          .forEach((el) =>
+            el.classList.remove("highlight-student", "highlight-subject")
+          );
+
+        // Highlight student name
+        const row = input.closest("tr");
+        const studentNameCell = row.querySelector(".student-name");
+        if (studentNameCell) studentNameCell.classList.add("highlight-student");
+
+        // Highlight subject header
+        const cell = input.closest("td");
+        const colIndex = Array.from(cell.parentNode.children).indexOf(cell);
+        const headerCell = table.querySelector(
+          `tr:first-child th:nth-child(${colIndex + 1})`
+        );
+        if (headerCell) headerCell.classList.add("highlight-subject");
+      }
+    });
+
+    table.addEventListener("focusout", (e) => {
+      if (e.target.classList.contains("mark-input")) {
+        setTimeout(() => {
+          if (!table.contains(document.activeElement)) {
+            table
+              .querySelectorAll(".highlight-student, .highlight-subject")
+              .forEach((el) =>
+                el.classList.remove("highlight-student, highlight-subject")
+              );
+          }
+        }, 50);
+      }
+    });
+  }
+
+  // Initialize exam dropdown
+  function initExamDropdown() {
+    const container = document.querySelector("#examDropdown");
+    const display = container.querySelector(".dropdown-display");
+    const list = container.querySelector(".dropdown-list");
+    const search = container.querySelector(".dropdown-search");
+    const options = container.querySelector(".dropdown-options");
+    const arrow = container.querySelector(".dropdown-arrow");
+    const span = container.querySelector("#selectedExam");
+    let selectedValue = "";
+
+    // Toggle dropdown
+    display.addEventListener("click", () => {
+      const isOpen = list.style.display === "block";
+      list.style.display = isOpen ? "none" : "block";
+      arrow.classList.toggle("open", !isOpen);
+      if (!isOpen) {
+        search.focus();
+      }
+    });
+
+    // Handle search
+    search.addEventListener("input", (e) => {
+      const value = e.target.value.toLowerCase();
+      const items = options.querySelectorAll(".dropdown-item");
+
+      items.forEach((item) => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(value) ? "" : "none";
+      });
+    });
+
+    // Handle item selection
+    options.addEventListener("click", (e) => {
+      const item = e.target.closest(".dropdown-item");
+      if (item) {
+        selectedValue = item.dataset.value;
+        span.textContent = selectedValue;
+        list.style.display = "none";
+        arrow.classList.remove("open");
+      }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!container.contains(e.target)) {
+        list.style.display = "none";
+        arrow.classList.remove("open");
+      }
+    });
+  }
+
+  function saveDraft() {
+    const table = document.querySelector(".marks-table");
+    const examType = document.querySelector("#selectedExam").textContent;
+
+    if (examType === "Select Exam Type") {
+      alert("Please select an exam type first");
+      return;
+    }
+
+    const inputs = table.querySelectorAll(".mark-input");
+    const data = Array.from(inputs).map((input) => ({
+      student_id: input.dataset.student,
+      subject_id: input.dataset.subject,
+      mark: input.value ? parseInt(input.value) : null,
+      exam_type: examType,
+    }));
+
+    console.log("Draft saved:", data);
+    showStatus("Draft Saved", "draft");
+  }
+
+  function submitMarks() {
+    const table = document.querySelector(".marks-table");
+    const examType = document.querySelector("#selectedExam").textContent;
+
+    if (examType === "Select Exam Type") {
+      alert("Please select an exam type first");
+      return;
+    }
+
+    const inputs = table.querySelectorAll(".mark-input");
+    const data = Array.from(inputs).map((input) => ({
+      student_id: input.dataset.student,
+      subject_id: input.dataset.subject,
+      mark: input.value ? parseInt(input.value) : null,
+      exam_type: examType,
+    }));
+
+    console.log("Submitted marks:", data);
+    showStatus("Submitted", "submitted");
+  }
+
+  function showStatus(text, type) {
+    const actionsDiv = document.querySelector(".marks-actions");
+    const badge = document.createElement("span");
+    badge.className = `status-badge status-${type}`;
+    badge.textContent = text;
+    actionsDiv.insertBefore(badge, actionsDiv.firstChild);
+    setTimeout(() => badge.remove(), 3000);
+  }
+
+  // Initialize
+  loadData();
+  initExamDropdown();
+</script>
