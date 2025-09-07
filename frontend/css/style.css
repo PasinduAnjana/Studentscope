@@ -5,6 +5,7 @@
 ======================== */
 :root {
   --color-primary: #0086bb;
+  --color-primary-rgb: 0, 134, 187;
   --color-primary-hover: rgb(84, 188, 206);
   --color-bg: #f9fafb;
   --color-card: #ffffff;
@@ -221,6 +222,48 @@ textarea {
   font-size: 14px;
   margin-bottom: 16px;
   transition: border-color 0.2s ease;
+}
+
+/* Custom Checkbox Styling */
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-primary);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  background-color: var(--color-card);
+  transition: all 0.2s ease;
+}
+
+input[type="checkbox"]:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+input[type="checkbox"]:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 5px rgba(var(--color-primary-rgb), 0.3);
+}
+
+input[type="checkbox"]:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 5px rgba(var(--color-primary-rgb), 0.5);
 }
 
 input:focus,
