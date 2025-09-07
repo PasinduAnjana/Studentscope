@@ -67,7 +67,7 @@ exports.getSession = async (sessionToken) => {
   try {
     const result = await pool.query(
       `
-      SELECT s.token, s.user_id, s.expires_at, u.username, r.name AS role
+      SELECT s.token, s.user_id, s.expires_at, u.username, r.name AS role, u.class_id, u.is_class_teacher
       FROM sessions s
       JOIN users u ON s.user_id = u.id
       JOIN roles r ON u.role_id = r.id
@@ -87,6 +87,8 @@ exports.getSession = async (sessionToken) => {
       userId: session.user_id,
       username: session.username,
       role: session.role,
+      class_id: session.class_id,
+      is_class_teacher: session.is_class_teacher,
       expiresAt: session.expires_at,
     };
   } catch (err) {

@@ -15,15 +15,24 @@
     <i class="fas fa-search search-icon"></i>
   </div>
 
-  <!-- Class Dropdown -->
-  <div class="input-group">
-    <label> Class: </label>
-    <select id="class-select" class="dropdown-select"></select>
+  <!-- Class Info Display (instead of dropdown) -->
+  <div
+    class="input-group class-info"
+    style="display: flex; align-items: center; gap: 8px; flex: 0 1 auto"
+  >
+    <label style="margin: 0; font-weight: 500; white-space: nowrap"
+      >Managing Class:</label
+    >
+    <span
+      id="current-class-display"
+      style="font-weight: 600; color: var(--color-primary); margin: 0"
+      >Loading...</span
+    >
   </div>
 
   <!-- Toggle Class Subjects -->
-  <div class="input-group">
-    <label>
+  <div class="input-group" style="flex: 0 1 auto">
+    <label style="margin: 0; display: flex; align-items: center; gap: 8px">
       <input type="checkbox" id="toggle-class-subjects" checked />
       Show Class Subjects
     </label>
@@ -108,30 +117,18 @@
   let allClasses = [];
   let currentClassId = null;
 
-  // Get authentication token from session/localStorage if using auth
-  function getAuthToken() {
-    // Adjust this based on your auth implementation
-    return (
-      localStorage.getItem("authToken") || sessionStorage.getItem("authToken")
-    );
-  }
-
   // API helper function
   async function apiCall(url, options = {}) {
-    const token = getAuthToken();
     const headers = {
       "Content-Type": "application/json",
       ...options.headers,
     };
 
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
     try {
       const response = await fetch(url, {
         ...options,
         headers,
+        credentials: "include", // Include cookies for authentication
       });
 
       if (!response.ok) {
@@ -192,39 +189,32 @@
     try {
       showLoading(true);
 
-      // First load all classes to populate the dropdown
-      allClasses = await apiCall("/api/teacher/classes");
+      // Get current teacher's info to determine their assigned class
+      const user = await apiCall("/api/auth/me");
+      console.log("User data:", user);
 
-      // Populate class dropdown
-      const classSelect = document.getElementById("class-select");
-      classSelect.innerHTML = '<option value="">Select a class</option>';
-
-      allClasses.forEach((cls) => {
-        const option = document.createElement("option");
-        option.value = cls.id;
-        option.textContent = `${cls.name} (Grade ${cls.grade})`;
-        classSelect.appendChild(option);
-      });
-
-      // Set default class (first available or from URL params)
-      if (allClasses.length > 0) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const defaultClassId = urlParams.get("classId") || allClasses[0].id;
-        classSelect.value = defaultClassId;
-        await loadClassData(defaultClassId);
+      if (!user || !user.is_class_teacher || !user.class_id) {
+        showError(
+          "You are not assigned as a class teacher. Please contact the administrator."
+        );
+        return;
       }
 
-      makeSearchableDropdown("class-select", loadClassData);
+      currentClassId = user.class_id;
+      console.log("Loading class data for class ID:", currentClassId);
+
+      // Load the teacher's assigned class data
+      await loadClassData(currentClassId);
     } catch (error) {
       console.error("Failed to load initial data:", error);
-      showError("Failed to load classes. Please refresh the page.");
+      showError("Failed to load your assigned class. Please refresh the page.");
     } finally {
       showLoading(false);
     }
   }
 
   async function loadClassData(classId) {
-    if (!classId || classId === currentClassId) return;
+    if (!classId) return;
 
     try {
       showLoading(true);
@@ -232,6 +222,7 @@
 
       // Use the combined endpoint to get all data at once
       const data = await apiCall(`/api/teacher/subjects/assignment/${classId}`);
+      console.log("Class data received:", data);
 
       allStudents = data.students;
       subjects = data.subjects; // All subjects for dropdowns
@@ -241,13 +232,21 @@
       gradeRules = data.gradeRules;
       studentSubjects = data.studentSubjects;
 
+      // Update the class display
+      const classDisplay = document.getElementById("current-class-display");
+      if (classDisplay && classInfo) {
+        classDisplay.textContent = `${classInfo.name} (Grade ${classInfo.grade})`;
+      }
+
       console.log("Loaded data for class:", classInfo.name);
 
       renderTable(allStudents);
       addInputHighlighting();
     } catch (error) {
       console.error("Failed to load class data:", error);
-      showError(`Failed to load data for selected class: ${error.message}`);
+      showError(
+        `Failed to load data for your assigned class: ${error.message}`
+      );
     } finally {
       showLoading(false);
     }
@@ -285,7 +284,7 @@
 
     if (!classInfo.id) {
       table.innerHTML =
-        '<tr><td colspan="100%">Please select a class first</td></tr>';
+        '<tr><td colspan="100%">Loading your assigned class...</td></tr>';
       return;
     }
 
@@ -423,7 +422,7 @@
 
   async function submitSubjects() {
     if (!currentClassId) {
-      showError("Please select a class first");
+      showError("No class assigned");
       return;
     }
 
@@ -455,7 +454,7 @@
 
   async function saveDraft() {
     if (!currentClassId) {
-      showError("Please select a class first");
+      showError("No class assigned");
       return;
     }
 

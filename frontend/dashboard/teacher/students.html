@@ -5,13 +5,35 @@
   </h2>
   <div class="card">
     <h1 class="title" data="sidebar.students"></h1>
+    <!-- Search Bar and Class Dropdown -->
+    <div
+      class="flex mb-2"
+      style="gap: 16px; align-items: flex-end; flex-wrap: wrap"
+    >
+      <div class="search-group" style="max-width: 350px">
+        <input
+          type="text"
+          id="student-search"
+          class="search-input"
+          placeholder="Search students..."
+        />
+        <span class="search-icon"><i class="fas fa-search"></i></span>
+      </div>
+      <div class="input-group" style="min-width: 200px">
+        <label for="class-select" style="margin-right: 8px; font-weight: 500"
+          >Class:</label
+        >
+        <select id="class-select" class="dropdown-select">
+          <option value="">All Classes</option>
+        </select>
+      </div>
+    </div>
     <div class="table-responsive">
       <table id="student-table">
         <thead>
           <tr>
             <th data="table.name">Name</th>
             <th data="table.class">Index</th>
-            <th data="table.email">Email</th>
             <th data="table.grade">Grade</th>
           </tr>
         </thead>
@@ -24,6 +46,51 @@
 </section>
 
 <script>
+  let allStudents = [];
+  let allClasses = [];
+  let selectedClassId = "";
+
+  function renderStudents(filtered) {
+    const tbody = document.querySelector("#student-table tbody");
+    tbody.innerHTML = "";
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="3" class="text-error">No students found</td></tr>`;
+      return;
+    }
+    filtered.forEach((student) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${student.name}</td>
+        <td>${student.index_number}</td>
+        <td>${student.grade ?? ""} -  ${student.class_name ?? ""}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  function filterAndRender() {
+    const q = (document.getElementById("student-search")?.value || "")
+      .trim()
+      .toLowerCase();
+    const classId = selectedClassId;
+    let filtered = allStudents;
+    if (classId) {
+      filtered = filtered.filter((s) => String(s.class_id) === String(classId));
+    }
+    if (q) {
+      filtered = filtered.filter((student) => {
+        return (
+          (student.name && student.name.toLowerCase().includes(q)) ||
+          (student.index_number &&
+            student.index_number.toLowerCase().includes(q)) ||
+          (student.grade && String(student.grade).toLowerCase().includes(q)) ||
+          (student.class_name && student.class_name.toLowerCase().includes(q))
+        );
+      });
+    }
+    renderStudents(filtered);
+  }
+
   function fetchStudents() {
     fetch("/api/teacher/students")
       .then((res) => {
@@ -31,21 +98,8 @@
         return res.json();
       })
       .then((data) => {
-        const tbody = document.querySelector("#student-table tbody");
-        tbody.innerHTML = ""; // Clear previous data
-
-        data.forEach((student) => {
-          const row = document.createElement("tr");
-
-          row.innerHTML = `
-            <td>${student.name}</td>
-            <td>${student.index_number}</td>
-            <td>${student.email}</td>
-            <td>${student.grade} -  ${student.class_name}</td>
-          `;
-
-          tbody.appendChild(row);
-        });
+        allStudents = data;
+        filterAndRender();
       })
       .catch((err) => {
         console.error(err);
@@ -54,5 +108,73 @@
       });
   }
 
-  fetchStudents();
+  function fetchClasses() {
+    fetch("/api/teacher/classes")
+      .then((res) => res.json())
+      .then((classes) => {
+        allClasses = classes;
+        const classSelect = document.getElementById("class-select");
+        classSelect.innerHTML = '<option value="">All Classes</option>';
+        classes.forEach((cls) => {
+          const option = document.createElement("option");
+          option.value = cls.id;
+          option.textContent = `${cls.name} (Grade ${cls.grade})`;
+          classSelect.appendChild(option);
+        });
+        // Initialize searchable dropdown
+        if (window.makeSearchableDropdown) {
+          makeSearchableDropdown("class-select", (val) => {
+            selectedClassId = val;
+            filterAndRender();
+          });
+        } else {
+          // fallback: normal select
+          classSelect.addEventListener("change", function () {
+            selectedClassId = this.value;
+            filterAndRender();
+          });
+        }
+      });
+  }
+
+  // Setup search input event
+  function setupSearchInput() {
+    const searchInput = document.getElementById("student-search");
+    if (searchInput) {
+      searchInput.addEventListener("input", filterAndRender);
+    }
+  }
+
+  // On page load (after DOM inserted)
+  fetch("/api/auth/me")
+    .then((res) => res.json())
+    .then((user) => {
+      if (user && user.is_class_teacher && user.class_id) {
+        selectedClassId = String(user.class_id);
+      }
+      fetchClasses();
+      fetchStudents();
+      setupSearchInput();
+      // After classes are loaded, select the teacher's class if set
+      const interval = setInterval(() => {
+        const classSelect = document.getElementById("class-select");
+        if (classSelect && selectedClassId && allClasses.length > 0) {
+          classSelect.value = selectedClassId;
+          filterAndRender();
+          // Find the class object
+          const myClass = allClasses.find(
+            (c) => String(c.id) === String(selectedClassId)
+          );
+
+          // Optionally disable dropdown to prevent changing
+          classSelect.disabled = true;
+          clearInterval(interval);
+        }
+      }, 100);
+    })
+    .catch(() => {
+      fetchClasses();
+      fetchStudents();
+      setupSearchInput();
+    });
 </script>
