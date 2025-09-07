@@ -55,7 +55,7 @@
       ></h3>
       <button
         class="btn"
-        onclick="window.location.href = 'layout.html?role=teacher&page=attendance'""
+        onclick="window.location.href = 'layout.html?role=teacher&page=attendance'"
       >
         <i class="fas fa-user-check"></i>
         <span data="teacher.mark_attendance"></span>
@@ -93,7 +93,6 @@
       const timetable = await timetableRes.json();
 
       console.log("Timetable:", timetable);
-      
 
       const timeRes = await fetch("/data/time.json");
       const timeSlots = await timeRes.json();

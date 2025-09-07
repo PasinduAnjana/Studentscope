@@ -20,7 +20,17 @@ async function checkSessionValidity() {
 }
 
 function loadPage(role, page) {
-  const path = `dashboard/${role}/${page}.html`;
+  // Handle subfolders: if page is folder/subpage, load folder/subpage.html
+  // if page is just a folder like 'attendance', load folder/index.html
+  // otherwise load the page directly with .html extension
+  let path;
+  if (page.includes("/")) {
+    path = `dashboard/${role}/${page}.html`; // e.g., attendance/mark.html
+  } else if (page === "attendance") {
+    path = `dashboard/${role}/${page}/index.html`; // only attendance uses subfolder
+  } else {
+    path = `dashboard/${role}/${page}.html`; // normal pages like dashboard.html, marks.html
+  }
   fetch(path)
     .then((res) => res.text())
     .then(async (html) => {

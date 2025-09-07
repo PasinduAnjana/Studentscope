@@ -27,7 +27,8 @@ async function loadSidebar(role) {
     li.appendChild(text);
 
     // ✅ Highlight current page
-    if (link.page === currentPage) {
+    // Handle subfolders - if current page is folder/subpage, highlight the folder tab
+    if (currentPage === link.page || currentPage.startsWith(link.page + "/")) {
       li.classList.add("active");
     }
 
