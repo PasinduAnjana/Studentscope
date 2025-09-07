@@ -91,15 +91,35 @@ function setupSidebarToggle() {
   }
 }
 
+// topbar.js (updated)
 async function fetchUsername() {
   try {
     const res = await fetch("/api/auth/me", { credentials: "include" });
-    if (!res.ok) throw new Error("Failed to fetch user");
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        // Session expired
+        sessionStorage.clear();
+        localStorage.removeItem("role");
+        window.location.href = "/login.html";
+        return;
+      }
+      throw new Error("Failed to fetch user");
+    }
 
     const user = await res.json();
     document.getElementById("profile-name").textContent = user.username;
   } catch (err) {
     console.error("❌ Error loading profile name:", err);
+
+    // If it's an authentication error, redirect to login
+    if (err.message.includes("401") || err.message.includes("session")) {
+      sessionStorage.clear();
+      localStorage.removeItem("role");
+      window.location.href = "/login.html";
+      return;
+    }
+
     document.getElementById("profile-name").textContent = "Guest";
   }
 }

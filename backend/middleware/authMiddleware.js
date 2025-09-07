@@ -1,15 +1,21 @@
 const authService = require("../services/authService");
 
 // Updated to use session tokens instead of role cookies
+// authMiddleware.js (updated)
 exports.getSessionFromCookie = async (req) => {
-  const cookie = req.headers.cookie || "";
-  const match = cookie.match(/sessionToken=([^;]+)/);
-  const sessionToken = match ? match[1] : null;
+  try {
+    const cookie = req.headers.cookie || "";
+    const match = cookie.match(/sessionToken=([^;]+)/);
+    const sessionToken = match ? match[1] : null;
 
-  if (!sessionToken) return null;
+    if (!sessionToken) return null;
 
-  const session = await authService.getSession(sessionToken);
-  return session;
+    const session = await authService.getSession(sessionToken);
+    return session;
+  } catch (err) {
+    console.error("Error getting session from cookie:", err);
+    return null;
+  }
 };
 
 exports.protect = (allowedRoles = []) => {

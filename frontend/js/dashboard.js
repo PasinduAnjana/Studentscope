@@ -1,3 +1,4 @@
+// dashboard.js - Updated with session validation
 function getCookieValue(name) {
   const cookies = document.cookie.split(";");
   for (let cookie of cookies) {
@@ -7,11 +8,32 @@ function getCookieValue(name) {
   return null;
 }
 
+async function checkSessionValidity() {
+  try {
+    const res = await fetch("/api/auth/me", { credentials: "include" });
+    if (!res.ok) throw new Error("Session invalid");
+    return await res.json();
+  } catch (err) {
+    console.error("Session check failed:", err);
+    return null;
+  }
+}
+
 function loadPage(role, page) {
   const path = `dashboard/${role}/${page}.html`;
   fetch(path)
     .then((res) => res.text())
-    .then((html) => {
+    .then(async (html) => {
+      // Check session before rendering content
+      const userData = await checkSessionValidity();
+      if (!userData) {
+        alert("Session expired. Please login again.");
+        sessionStorage.clear();
+        localStorage.removeItem("role");
+        window.location.href = "/login.html";
+        return;
+      }
+
       const temp = document.createElement("div");
       temp.innerHTML = html;
 
@@ -31,7 +53,7 @@ function loadPage(role, page) {
             }
           } else {
             try {
-              window.eval(oldScript.textContent); // <-- run inline script globally
+              window.eval(oldScript.textContent);
             } catch (e) {
               console.error("Error executing inline script:", e);
             }
@@ -44,17 +66,38 @@ function loadPage(role, page) {
     });
 }
 
-window.addEventListener("DOMContentLoaded", async () => {
-  // const userRole = sessionStorage.getItem("role");
-  // const userRole = getCookieValue("role");
-  const userRole = localStorage.getItem("role");
+function setupSessionWatcher() {
+  // Check session every 30 seconds
+  setInterval(async () => {
+    try {
+      const res = await fetch("/api/auth/me", { credentials: "include" });
+      if (!res.ok) {
+        // Session expired
+        sessionStorage.clear();
+        localStorage.removeItem("role");
+        window.location.href = "/login.html";
+      }
+    } catch (err) {
+      console.error("Session watch error:", err);
+    }
+  }, 30000); // 30 seconds
+}
 
-  // 🛑 Not logged in
-  if (!userRole) {
-    alert("Access denied. Please login first.");
+window.addEventListener("DOMContentLoaded", async () => {
+  // First check if session is still valid
+  const userData = await checkSessionValidity();
+
+  // 🛑 Not logged in or session expired
+  if (!userData) {
+    alert("Session expired. Please login again.");
+    sessionStorage.clear();
+    localStorage.removeItem("role");
     window.location.href = "/login.html";
     return;
   }
+
+  const userRole = userData.role;
+  localStorage.setItem("role", userRole);
 
   // 🔐 Role from query
   const urlParams = new URLSearchParams(window.location.search);
@@ -74,4 +117,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   loadTopbar();
   loadSidebar(userRole);
   loadPage(userRole, page);
+
+  // Start session watcher
+  setupSessionWatcher();
 });

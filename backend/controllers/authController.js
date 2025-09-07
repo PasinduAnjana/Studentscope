@@ -90,31 +90,38 @@ exports.logout = async (req, res) => {
   res.end(JSON.stringify({ message: "Logout successful" }));
 };
 
+// authController.js - update getCurrentUser
 exports.getCurrentUser = async (req, res) => {
-  const cookie = req.headers.cookie || "";
-  const match = cookie.match(/sessionToken=([^;]+)/);
-  const sessionToken = match ? match[1] : null;
+  try {
+    const cookie = req.headers.cookie || "";
+    const match = cookie.match(/sessionToken=([^;]+)/);
+    const sessionToken = match ? match[1] : null;
 
-  if (!sessionToken) {
-    res.writeHead(401, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "No session token" }));
-    return;
+    if (!sessionToken) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "No session token" }));
+      return;
+    }
+
+    const session = await authService.getSession(sessionToken);
+
+    if (!session) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      return;
+    }
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(
+      JSON.stringify({
+        username: session.username,
+        role: session.role,
+        userId: session.userId,
+      })
+    );
+  } catch (err) {
+    console.error("Error in getCurrentUser:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Internal server error" }));
   }
-
-  const session = await authService.getSession(sessionToken);
-
-  if (!session) {
-    res.writeHead(401, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "Invalid or expired session" }));
-    return;
-  }
-
-  res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(
-    JSON.stringify({
-      username: session.username,
-      role: session.role,
-      userId: session.userId,
-    })
-  );
 };
