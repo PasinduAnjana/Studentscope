@@ -17,16 +17,6 @@ body {
   color: var(--color-text);
 }
 
-/* root dark mode */
-:root {
-  --color-login-bg: rgba(0, 134, 187, 0.18);
-}
-
-/* Dark mode */
-:root.dark-mode {
-  --color-login-bg: rgba(0, 102, 255, 0.2);
-}
-
 /* Wrapper */
 .login-wrapper {
   width: 100%;
@@ -77,52 +67,6 @@ body {
 
 .dropdown-item:hover {
   background: var(--color-primary-light);
-}
-
-/* Dark mode toggle switch */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 40px;
-  height: 20px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: 0.4s;
-  border-radius: 20px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 14px;
-  width: 14px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: var(--color-primary);
-}
-
-input:checked + .slider:before {
-  transform: translateX(20px);
 }
 
 /* Box */

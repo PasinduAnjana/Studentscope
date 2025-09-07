@@ -1,0 +1,65 @@
+/* ========================
+  📊 TABLES
+======================== */
+
+/* Basic Table Styling */
+table {
+  width: 100%;
+  border-spacing: 0;
+  background-color: var(--color-card);
+  font-size: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* Table Header */
+thead {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+th {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-weight: 600;
+  padding: 14px 18px;
+  text-align: left;
+}
+
+/* Table Body */
+td {
+  padding: 14px 18px;
+  text-align: left;
+}
+
+/* Zebra Striping */
+tbody tr:nth-child(even) {
+  background-color: rgba(0, 134, 187, 0.04);
+}
+
+/* Row Hover Effect */
+tr:hover {
+  background-color: rgba(0, 134, 187, 0.1) !important;
+}
+
+/* Responsive Table Container */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.table-responsive table {
+  min-width: 200px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  table {
+    font-size: 12px;
+  }
+}

@@ -1,4 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("inputs.css");
+@import url("tables.css");
 
 /* ========================
   🎨 COLOR VARIABLES
@@ -17,6 +19,7 @@
   --color-border: #d0e0ff;
   --color-primary-light: rgba(0, 134, 187, 0.2);
   --color-error-light: rgba(239, 68, 68, 0.1);
+  --color-login-bg: rgba(0, 134, 187, 0.18);
 }
 
 /* Dark mode variables */
@@ -33,6 +36,7 @@
   --color-border: #374151;
   --color-primary-light: rgba(0, 134, 187, 0.3);
   --color-error-light: rgba(248, 113, 113, 0.2);
+  --color-login-bg: rgba(0, 102, 255, 0.2);
 }
 /* ========================
   🔧 BASE STYLES & RESETS
@@ -206,92 +210,6 @@ span {
   border: 1px dashed var(--color-primary-hover);
 }
 
-/* FORM ELEMENTS */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-select,
-textarea {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background-color: var(--color-card);
-  color: var(--color-text);
-  font-size: 14px;
-  margin-bottom: 16px;
-  transition: border-color 0.2s ease;
-}
-
-/* Custom Checkbox Styling */
-input[type="checkbox"] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--color-primary);
-  border-radius: 4px;
-  outline: none;
-  cursor: pointer;
-  position: relative;
-  background-color: var(--color-card);
-  transition: all 0.2s ease;
-}
-
-input[type="checkbox"]:checked {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-input[type="checkbox"]:checked::after {
-  content: '✓';
-  position: absolute;
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-
-input[type="checkbox"]:hover {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 5px rgba(var(--color-primary-rgb), 0.3);
-}
-
-input[type="checkbox"]:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 5px rgba(var(--color-primary-rgb), 0.5);
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: var(--color-primary);
-  outline: none;
-}
-
-/* select menu options  */
-select {
-  background-color: var(--color-card);
-  color: var(--color-text);
-  padding: 12px 14px;
-  border-radius: 6px;
-  border: 1px solid var(--color-border);
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-}
-option {
-  background-color: var(--color-card);
-  color: var(--color-text);
-  font-size: 14px;
-  padding: 12px 14px;
-  border-radius: 6px;
-  transition: background-color 0.2s ease;
-}
-
 /* CARDS */
 .card {
   background-color: var(--color-card);
@@ -310,64 +228,6 @@ option {
 .card-primary {
   background-color: var(--color-primary);
   color: var(--color-white);
-}
-
-/* TABLES */
-table {
-  width: 100%;
-  border-spacing: 0;
-  background-color: var(--color-card);
-  /* margin-bottom: 30px; */
-  font-size: 14px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
-}
-
-thead {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-}
-
-th {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  font-weight: 600;
-  padding: 14px 18px;
-  text-align: left;
-}
-
-td {
-  padding: 14px 18px;
-  text-align: left;
-}
-
-tbody tr:nth-child(even) {
-  background-color: rgba(0, 134, 187, 0.04);
-}
-
-tr:hover {
-  background-color: rgba(0, 134, 187, 0.1) !important;
-}
-
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  -ms-overflow-style: -ms-autohiding-scrollbar;
-  border-radius: 8px;
-  /* overflow: hidden; */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
-}
-
-.table-responsive table {
-  min-width: 200px; /* or however wide your table needs to be */
-}
-
-@media (max-width: 768px) {
-  table {
-    font-size: 12px;
-  }
 }
 
 /* ========================
@@ -509,4 +369,52 @@ tr:hover {
   display: none;
   height: 0;
   width: 0;
+}
+
+/* ========================
+🎛️ SWITCH COMPONENT
+======================== */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-border);
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--color-white);
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--color-primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
 }
