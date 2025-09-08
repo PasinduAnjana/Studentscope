@@ -114,3 +114,49 @@ exports.getAttendance = async (req, res) => {
     res.end(JSON.stringify({ error: "Failed to fetch attendance" }));
   }
 };
+
+exports.deleteAttendance = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user || user.role !== "teacher") {
+      res.writeHead(403, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Unauthorized" }));
+      return;
+    }
+
+    if (!user.class_id) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({ error: "No class is assigned to the teacher account" })
+      );
+      return;
+    }
+
+    const parsed = url.parse(req.url, true);
+    let date = parsed.query.date;
+    if (!date) {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      date = `${yyyy}-${mm}-${dd}`;
+    }
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Invalid date (YYYY-MM-DD)" }));
+      return;
+    }
+
+    const result = await teacherService.clearClassAttendance(
+      user.class_id,
+      date
+    );
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ success: true, deleted: result.deleted }));
+  } catch (err) {
+    console.error("Error deleting attendance:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to delete attendance" }));
+  }
+};

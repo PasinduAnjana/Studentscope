@@ -396,3 +396,12 @@ exports.getClassAttendanceByDate = async (classId, dateStr) => {
     status: r.status,
   }));
 };
+
+// Clear attendance for a class on a given date
+exports.clearClassAttendance = async (classId, dateStr) => {
+  const result = await pool.query(
+    `DELETE FROM attendance WHERE class_id = $1 AND date = $2`,
+    [classId, dateStr]
+  );
+  return { deleted: result.rowCount };
+};

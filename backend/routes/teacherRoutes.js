@@ -193,6 +193,15 @@ module.exports = (req, res) => {
     );
   }
 
+  if (
+    req.method === "DELETE" &&
+    req.url.startsWith("/api/teacher/attendance")
+  ) {
+    return protect("teacher")(req, res, () =>
+      attendanceController.deleteAttendance(req, res)
+    );
+  }
+
   // 404 - Route not found
   res.writeHead(404, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Route not found" }));
