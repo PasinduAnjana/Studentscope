@@ -11,7 +11,14 @@ function makeSearchableDropdown(selectId, onSelect) {
   display.classList.add("dropdown-display");
 
   const selectedText = document.createElement("span");
-  selectedText.textContent = select.options[0].text;
+  // Use currently selected option if available; otherwise fall back to first non-empty or the first option
+  const initialSelectedOption =
+    select.options[select.selectedIndex] ||
+    Array.from(select.options).find((o) => o.value) ||
+    select.options[0];
+  selectedText.textContent = initialSelectedOption
+    ? initialSelectedOption.text
+    : "";
 
   const arrow = document.createElement("i");
   arrow.classList.add("fas", "fa-chevron-down", "dropdown-arrow");

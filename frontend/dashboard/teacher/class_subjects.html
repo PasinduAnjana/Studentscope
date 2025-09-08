@@ -65,11 +65,8 @@
 </div>
 
 <div class="actions">
-  <button class="btn btn-secondary" onclick="saveDraft()">
-    <i class="fas fa-save"></i> Save Draft
-  </button>
   <button class="btn btn-primary" onclick="submitSubjects()">
-    <i class="fas fa-check"></i> Submit
+    <i class="fas fa-paper-plane"></i> Submit
   </button>
 </div>
 
@@ -103,6 +100,11 @@
     padding: 10px;
     border-radius: 4px;
     margin: 10px 0;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
   }
 </style>
 
@@ -242,6 +244,11 @@
 
       renderTable(allStudents);
       addInputHighlighting();
+      // Apply initial class subjects visibility based on toggle state
+      const toggle = document.getElementById("toggle-class-subjects");
+      if (toggle) {
+        setClassSubjectsVisibility(toggle.checked);
+      }
     } catch (error) {
       console.error("Failed to load class data:", error);
       showError(
@@ -272,9 +279,7 @@
       .getElementById("toggle-class-subjects")
       .addEventListener("change", (e) => {
         const show = e.target.checked;
-        document.querySelectorAll(".class-subject-cell").forEach((cell) => {
-          cell.style.display = show ? "" : "none";
-        });
+        setClassSubjectsVisibility(show);
       });
   }
 
@@ -391,6 +396,12 @@
           if (nameCell) nameCell.classList.add("highlight-student");
         }
       });
+  }
+
+  function setClassSubjectsVisibility(show) {
+    document.querySelectorAll(".class-subject-cell").forEach((cell) => {
+      cell.style.display = show ? "" : "none";
+    });
   }
 
   function collectStudentSubjects() {

@@ -102,3 +102,24 @@ input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+/* Global search input with embedded icon */
+.search-group {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+}
+
+.search-group .search-input {
+  padding-right: 36px;
+  margin-bottom: 0;
+}
+
+.search-group .search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-primary);
+  pointer-events: none;
+}
