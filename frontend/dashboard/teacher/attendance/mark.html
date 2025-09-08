@@ -12,16 +12,89 @@
 </div>
 
 <script>
-  // Example students
-  const students = Array.from({ length: 23 }, (_, i) => ({
-    id: i + 1,
-    name: `Student ${i + 1}`,
-    index: `S${1000 + i + 1}`,
-    status: null, // present/absent/null
-  }));
-
+  let students = [];
   const studentsPerPage = 10;
   let currentPage = 1;
+  let currentClassId = null;
+  let selectedDate = null; // YYYY-MM-DD
+
+  function getSelectedDate() {
+    const params = new URLSearchParams(window.location.search);
+    const dateParam = params.get("date");
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+    if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) return dateParam;
+    return todayStr;
+  }
+
+  async function loadTeacherAndStudents() {
+    try {
+      // 1) Get logged-in user (teacher) info
+      const meRes = await fetch("/api/auth/me", { credentials: "include" });
+      if (meRes.status === 401) {
+        alert("Your session has expired. Please log in again.");
+        window.location.href = "/login.html";
+        return;
+      }
+      if (!meRes.ok) throw new Error("Failed to load user info");
+
+      const me = await meRes.json();
+      if (me.role !== "teacher") {
+        renderMessage(
+          "Only teachers can mark attendance. Please log in as a teacher."
+        );
+        return;
+      }
+
+      if (!me.class_id) {
+        renderMessage(
+          "No class is assigned to your account. Contact the administrator."
+        );
+        return;
+      }
+
+      currentClassId = me.class_id;
+
+      // 2) Load students for the teacher's class
+      const stuRes = await fetch(
+        `/api/teacher/students/class/${currentClassId}`,
+        { credentials: "include" }
+      );
+      if (!stuRes.ok) throw new Error("Failed to load students for class");
+
+      const data = await stuRes.json();
+      students = (Array.isArray(data) ? data : []).map((s) => ({
+        id: s.id,
+        name: s.name,
+        index: s.index_number || `STU${String(s.id).padStart(4, "0")}`,
+        status: null,
+      }));
+
+      if (students.length === 0) {
+        renderMessage("No students found for your class.");
+        return;
+      }
+
+      // Determine date to load and then preload existing attendance
+      selectedDate = getSelectedDate();
+      await preloadAttendance(selectedDate);
+      renderStudents();
+    } catch (err) {
+      console.error(err);
+      renderMessage("An error occurred while loading data.");
+    }
+  }
+
+  function renderMessage(message) {
+    const container = document.getElementById("attendanceContainer");
+    container.innerHTML = `<div class="card">${message}</div>`;
+    // Disable Next if there are no students
+    const nextBtn = document.getElementById("nextBtn");
+    nextBtn.disabled = true;
+  }
 
   function renderStudents() {
     const container = document.getElementById("attendanceContainer");
@@ -85,6 +158,29 @@
     }
   }
 
+  async function preloadAttendance(dateStr) {
+    try {
+      const res = await fetch(
+        `/api/teacher/attendance?date=${encodeURIComponent(dateStr)}`,
+        {
+          credentials: "include",
+        }
+      );
+      if (!res.ok) return; // silently skip if none
+      const records = await res.json();
+      const map = new Map(records.map((r) => [r.student_id, r.status]));
+      students = students.map((s) => {
+        if (map.has(s.id)) {
+          const isPresent = !!map.get(s.id);
+          return { ...s, status: isPresent ? "present" : "absent" };
+        }
+        return s;
+      });
+    } catch (e) {
+      console.error("Failed to preload attendance:", e);
+    }
+  }
+
   function prevPage() {
     if (currentPage > 1) {
       currentPage--;
@@ -100,12 +196,35 @@
   }
 
   function submitAttendance() {
-    console.log("Attendance submitted:", students);
-    localStorage.setItem("attendanceMarked", "true");
+    // Prepare payload: selected date and records
+    const dateStr = selectedDate || getSelectedDate();
 
-    alert("Attendance submitted");
-    window.location.href = "layout.html?role=teacher&page=attendance";
+    const records = students.map((s) => ({
+      student_id: s.id,
+      status: s.status === "present" ? true : false,
+    }));
+
+    fetch("/api/teacher/attendance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ date: dateStr, records }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to save attendance");
+        return res.json();
+      })
+      .then(() => {
+        localStorage.setItem("attendanceMarked", "true");
+        alert("Attendance submitted");
+        window.location.href = "layout.html?role=teacher&page=attendance";
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Error saving attendance. Please try again.");
+      });
   }
 
-  renderStudents();
+  // Kick off loading from backend
+  loadTeacherAndStudents();
 </script>

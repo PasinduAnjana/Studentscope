@@ -328,3 +328,71 @@ exports.getTeacherClasses = async (teacherId) => {
 
   return result.rows;
 };
+
+// Save attendance for a class on a given date
+exports.saveClassAttendance = async (classId, dateStr, records) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // Keep only valid students from this class
+    const validRes = await client.query(
+      `
+        SELECT id FROM users
+        WHERE class_id = $1
+          AND role_id = (SELECT id FROM roles WHERE name = 'student')
+      `,
+      [classId]
+    );
+    const validIds = new Set(validRes.rows.map((r) => r.id));
+    const filtered = (records || []).filter((r) => validIds.has(r.student_id));
+
+    // Clear existing attendance entries for the class and date
+    await client.query(
+      `DELETE FROM attendance WHERE class_id = $1 AND date = $2`,
+      [classId, dateStr]
+    );
+
+    if (filtered.length > 0) {
+      const values = [];
+      const placeholders = filtered
+        .map((r, i) => {
+          const base = i * 4;
+          values.push(r.student_id, classId, dateStr, !!r.status);
+          return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4})`;
+        })
+        .join(", ");
+
+      const insertQuery = `
+        INSERT INTO attendance (student_id, class_id, date, status)
+        VALUES ${placeholders}
+      `;
+      await client.query(insertQuery, values);
+    }
+
+    await client.query("COMMIT");
+    return { success: true, inserted: (records || []).length };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+// Get attendance for a class on a given date
+exports.getClassAttendanceByDate = async (classId, dateStr) => {
+  const result = await pool.query(
+    `
+    SELECT a.student_id, a.status
+    FROM attendance a
+    WHERE a.class_id = $1 AND a.date = $2
+  `,
+    [classId, dateStr]
+  );
+  // Map to { student_id, status }
+  return result.rows.map((r) => ({
+    student_id: r.student_id,
+    status: r.status,
+  }));
+};

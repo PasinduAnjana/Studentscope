@@ -1,5 +1,6 @@
 const studentController = require("../controllers/teacher/studentsController");
 const timetableController = require("../controllers/teacher/timetableController");
+const attendanceController = require("../controllers/teacher/attendanceController");
 const subjectAssignmentController = require("../controllers/teacher/subjectAssignmentController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -176,6 +177,19 @@ module.exports = (req, res) => {
         { ...req, params: { teacherId } },
         res
       )
+    );
+  }
+
+  // Attendance routes
+  if (req.method === "POST" && req.url === "/api/teacher/attendance") {
+    return protect("teacher")(req, res, () =>
+      attendanceController.saveAttendance(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url.startsWith("/api/teacher/attendance")) {
+    return protect("teacher")(req, res, () =>
+      attendanceController.getAttendance(req, res)
     );
   }
 
