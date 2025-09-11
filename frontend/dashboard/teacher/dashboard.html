@@ -43,23 +43,13 @@
   </div>
 
   <!-- Attendance Status -->
-  <div class="card dashboard-tile">
+  <div class="card dashboard-tile" id="dashboard-attendance-card">
     <div class="icon-title">
       <i class="fas fa-clipboard-check icon"></i>
       <p class="tile-label" data="teacher.attendance"></p>
     </div>
-    <div>
-      <h3
-        class="tile-value text-error"
-        data="teacher.attendance_not_marked"
-      ></h3>
-      <button
-        class="btn"
-        onclick="window.location.href = 'layout.html?role=teacher&page=attendance'"
-      >
-        <i class="fas fa-user-check"></i>
-        <span data="teacher.mark_attendance"></span>
-      </button>
+    <div id="dashboard-attendance-content">
+      <!-- Content will be injected by JS -->
     </div>
   </div>
 
@@ -91,8 +81,6 @@
         `/api/teacher/timetable/today/${teacherId}`
       );
       const timetable = await timetableRes.json();
-
-      console.log("Timetable:", timetable);
 
       const timeRes = await fetch("/data/time.json");
       const timeSlots = await timeRes.json();
@@ -161,6 +149,138 @@
     }
   }
 
+  // Attendance card logic
+  async function loadDashboardAttendance() {
+    const dateStr = (() => {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    })();
+    let presentCount = 0;
+    let absentCount = 0;
+    let totalCount = 0;
+    let totalStudents = 0;
+    let attendanceMarked = false;
+    let classId = null;
+    try {
+      const res = await fetch(`/api/teacher/attendance?date=${dateStr}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          attendanceMarked = true;
+          presentCount = data.filter(
+            (r) => r.status === true || r.status === "present" || r.status === 1
+          ).length;
+          absentCount = data.filter(
+            (r) => r.status === false || r.status === "absent" || r.status === 0
+          ).length;
+          totalCount = data.length;
+          if (data[0].class_id) classId = data[0].class_id;
+        }
+      }
+      if (!classId) {
+        const userRes = await fetch("/api/auth/me");
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          if (userData && userData.class_id) classId = userData.class_id;
+        }
+      }
+      if (classId) {
+        const studentsRes = await fetch(
+          `/api/teacher/students/class/${classId}`
+        );
+        if (studentsRes.ok) {
+          const studentsData = await studentsRes.json();
+          if (Array.isArray(studentsData)) {
+            totalStudents = studentsData.length;
+          }
+        }
+      }
+    } catch (err) {
+      // ignore error
+    }
+
+    const container = document.getElementById("dashboard-attendance-content");
+    container.innerHTML = "";
+    if (!attendanceMarked) {
+      // Show mark attendance button
+      container.innerHTML = `
+        <h3 class="tile-value text-error" data="teacher.attendance_not_marked"></h3>
+        <button class="btn" onclick="window.location.href = 'layout.html?role=teacher&page=attendance'">
+          <i class="fas fa-user-check"></i>
+          <span data="teacher.mark_attendance"></span>
+        </button>
+      `;
+    } else {
+      // Show today's attendance graph
+      container.innerHTML = `<canvas id="dashboardAttendanceChart" height="120"></canvas>`;
+      // Render chart
+      setTimeout(() => {
+        const rootStyles = getComputedStyle(document.documentElement);
+        const primaryColor = rootStyles
+          .getPropertyValue("--color-primary")
+          .trim();
+        // Center text plugin for doughnut chart
+        const centerTextPlugin = {
+          id: "centerText",
+          beforeDraw(chart, args, options) {
+            if (chart.config.type !== "doughnut") return;
+            const { ctx, width, height } = chart;
+            ctx.save();
+            const fontSize = (height / 160).toFixed(2);
+            ctx.font = `${fontSize}em sans-serif`;
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center";
+            ctx.fillStyle = options.color || primaryColor;
+            const text = options.text || "";
+            ctx.fillText(
+              text,
+              width / 2,
+              chart.getDatasetMeta(0).data[0]?.y || height / 2
+            );
+            ctx.restore();
+          },
+        };
+        const chartData = {
+          labels: ["Present", "Absent"],
+          datasets: [
+            {
+              data: [presentCount, absentCount],
+              backgroundColor: [primaryColor, primaryColor + "40"],
+              borderRadius: 20,
+            },
+          ],
+        };
+        new Chart(document.getElementById("dashboardAttendanceChart"), {
+          type: "doughnut",
+          data: chartData,
+          options: {
+            responsive: true,
+            cutout: "80%",
+            borderColor: "transparent",
+            plugins: {
+              legend: { display: false },
+              title: {
+                display: true,
+                text: `Attendance: ${presentCount}/${totalCount}`,
+                font: { size: 16, weight: "bold" },
+                position: "bottom",
+              },
+              centerText: {
+                text: `${presentCount}/${totalCount}`,
+                color: primaryColor,
+              },
+            },
+          },
+          plugins: [centerTextPlugin],
+        });
+      }, 100);
+    }
+  }
+
   // Load for teacher with ID 1 (replace as needed)
   loadTodaysTimetable(3);
+  loadDashboardAttendance();
 </script>
