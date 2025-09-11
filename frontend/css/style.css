@@ -1,3 +1,4 @@
+
 @import url("https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 @import url("inputs.css");
 @import url("tables.css");
@@ -417,4 +418,30 @@ input:checked + .slider {
 
 input:checked + .slider:before {
   transform: translateX(20px);
+}
+
+
+
+/* Minimal scrollbar styling globally */
+/* Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-primary-rgb), 0.25); /* semi-transparent primary */
+  border-radius: 6px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--color-primary-rgb), 0.45); /* more visible on hover */
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--color-primary-rgb), 0.25) transparent;
 }
