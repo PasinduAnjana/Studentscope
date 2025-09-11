@@ -357,9 +357,12 @@
         `);
       }
 
+      // Use full_name if available, fallback to name or index_number
+      const displayName =
+        student.full_name || student.name || student.index_number || "Unnamed";
       row.innerHTML = `
         <td>${student.index_number}</td>
-        <td class="student-name">${student.name}</td>
+        <td class="student-name">${displayName}</td>
         ${subjectCells.join("")}
       `;
       table.appendChild(row);

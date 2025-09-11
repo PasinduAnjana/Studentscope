@@ -71,7 +71,7 @@
       const data = await stuRes.json();
       students = (Array.isArray(data) ? data : []).map((s) => ({
         id: s.id,
-        name: s.name,
+        name: s.full_name,
         index: s.index_number || `STU${String(s.id).padStart(4, "0")}`,
         status: null,
       }));
@@ -112,9 +112,20 @@
       row.classList.add("student-row", "slot-card");
       if (student.status) row.classList.add(student.status);
 
+      console.log(student);
+
       const info = document.createElement("div");
       info.classList.add("student-info");
-      info.innerHTML = `<strong>${student.name}</strong> <small>(${student.index})</small>`;
+      // Use full_name if available, fallback to name or index_number
+      const displayName =
+        student.full_name ||
+        student.name ||
+        student.index ||
+        student.index_number ||
+        "Unnamed";
+      info.innerHTML = `<strong>${displayName}</strong> <small>(${
+        student.index || student.index_number || ""
+      })</small>`;
 
       const actions = document.createElement("div");
       actions.classList.add("attendance-actions");

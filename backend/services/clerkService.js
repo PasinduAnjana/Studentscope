@@ -27,21 +27,28 @@ async function createStudent({ index_number, name, class_id }) {
   const userResult = await pool.query(
     `INSERT INTO users (username, password, salt, role_id, class_id)
      VALUES ($1, $2, $3, $4, $5)
-     RETURNING id, username AS name, class_id`,
+     RETURNING id, username, class_id`,
     [index_number, hashedPassword, salt, roleId, class_id]
   );
-
   const user = userResult.rows[0];
 
-  // Map to previous returning format
+  // Insert into students table
+  await pool.query(
+    `INSERT INTO students (user_id, full_name, birthday, address, gender, nationality, parent_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [user.id, full_name, birthday, address, gender, nationality, parent_id]
+  );
+
   return {
     id: user.id,
-    name: name || user.name, // optional: override username with real name
-    email: null, // no email in new schema
-    age: null, // no age in new schema
+    index_number: user.username,
+    full_name,
+    birthday,
+    address,
+    gender,
+    nationality,
+    parent_id,
     class_id: user.class_id,
-    class_name: null, // you can populate this if needed
-    grade: null,
   };
 }
 

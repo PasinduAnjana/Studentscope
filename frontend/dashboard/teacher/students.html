@@ -33,8 +33,14 @@
         <thead>
           <tr>
             <th data="table.name">Name</th>
-            <th data="table.class">Index</th>
-            <th data="table.grade">Grade</th>
+            <th>Index No</th>
+            <th>Grade</th>
+            <th>Birthday</th>
+            <th>Address</th>
+            <th>Gender</th>
+            <th>Nationality</th>
+            <th>Parent Name</th>
+            <th>Parent Address</th>
           </tr>
         </thead>
         <tbody>
@@ -54,15 +60,31 @@
     const tbody = document.querySelector("#student-table tbody");
     tbody.innerHTML = "";
     if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="3" class="text-error">No students found</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" class="text-error">No students found</td></tr>`;
       return;
+    }
+    function formatDate(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
     }
     filtered.forEach((student) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${student.name}</td>
-        <td>${student.index_number}</td>
-        <td>${student.grade ?? ""} -  ${student.class_name ?? ""}</td>
+        <td>${student.full_name || student.name || ""}</td>
+        <td>${student.index_number || ""}</td>
+        <td>${student.grade ?? ""} - ${student.class_name ?? ""}</td>
+        <td>${formatDate(student.birthday)}</td>
+        <td>${student.address || ""}</td>
+        <td>${student.gender || ""}</td>
+        <td>${student.nationality || ""}</td>
+        <td>${student.parent?.name || ""}</td>
+        <td>${student.parent?.address || ""}</td>
       `;
       tbody.appendChild(row);
     });
@@ -80,7 +102,7 @@
     if (q) {
       filtered = filtered.filter((student) => {
         return (
-          (student.name && student.name.toLowerCase().includes(q)) ||
+          (student.full_name && student.full_name.toLowerCase().includes(q)) ||
           (student.index_number &&
             student.index_number.toLowerCase().includes(q)) ||
           (student.grade && String(student.grade).toLowerCase().includes(q)) ||

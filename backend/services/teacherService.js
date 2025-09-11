@@ -35,25 +35,37 @@ exports.getStudents = async () => {
   const result = await pool.query(`
     SELECT 
       u.id,
-      u.username,
+      u.username AS index_number,
       u.class_id,
-      u.is_class_teacher,
       c.grade,
-      c.name AS class_name
+      c.name AS class_name,
+      s.full_name,
+      s.birthday,
+      s.address,
+      s.gender,
+      s.nationality,
+      p.name AS parent_name,
+      p.address AS parent_address
     FROM users u
-    LEFT JOIN classes c 
-      ON u.class_id = c.id
+    LEFT JOIN classes c ON u.class_id = c.id
+    LEFT JOIN students s ON s.user_id = u.id
+    LEFT JOIN parents p ON s.parent_id = p.id
     WHERE u.role_id = (SELECT id FROM roles WHERE name = 'student')
     ORDER BY u.id
   `);
 
-  // Map to previous returning format
   return result.rows.map((row) => ({
     id: row.id,
-    name: row.username, // old "name" field maps to username
-    index_number: `STU${String(row.id).padStart(4, "0")}`, // Generate index number from ID
-    email: null, // email is no longer in DB
-    age: null, // age is no longer in DB
+    index_number: row.index_number,
+    full_name: row.full_name,
+    birthday: row.birthday,
+    address: row.address,
+    gender: row.gender,
+    nationality: row.nationality,
+    parent: {
+      name: row.parent_name,
+      address: row.parent_address,
+    },
     class_id: row.class_id,
     class_name: row.class_name,
     grade: row.grade,
@@ -66,14 +78,21 @@ exports.getStudentsByClass = async (classId) => {
     `
     SELECT 
       u.id,
-      u.username,
+      u.username AS index_number,
       u.class_id,
-      u.is_class_teacher,
       c.grade,
-      c.name AS class_name
+      c.name AS class_name,
+      s.full_name,
+      s.birthday,
+      s.address,
+      s.gender,
+      s.nationality,
+      p.name AS parent_name,
+      p.address AS parent_address
     FROM users u
-    LEFT JOIN classes c 
-      ON u.class_id = c.id
+    LEFT JOIN classes c ON u.class_id = c.id
+    LEFT JOIN students s ON s.user_id = u.id
+    LEFT JOIN parents p ON s.parent_id = p.id
     WHERE u.role_id = (SELECT id FROM roles WHERE name = 'student')
       AND u.class_id = $1
     ORDER BY u.username
@@ -81,13 +100,18 @@ exports.getStudentsByClass = async (classId) => {
     [classId]
   );
 
-  // Map to previous returning format
   return result.rows.map((row) => ({
     id: row.id,
-    name: row.username,
-    index_number: `STU${String(row.id).padStart(4, "0")}`,
-    email: null,
-    age: null,
+    index_number: row.index_number,
+    full_name: row.full_name,
+    birthday: row.birthday,
+    address: row.address,
+    gender: row.gender,
+    nationality: row.nationality,
+    parent: {
+      name: row.parent_name,
+      address: row.parent_address,
+    },
     class_id: row.class_id,
     class_name: row.class_name,
     grade: row.grade,

@@ -24,8 +24,9 @@ END $$;
     await pool.query(`
       CREATE TABLE IF NOT EXISTS classes (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-        name TEXT NOT NULL UNIQUE,
-        grade INTEGER NOT NULL
+        name TEXT NOT NULL,
+        grade INTEGER NOT NULL,
+        UNIQUE (grade, name)
       );
     `);
 
@@ -39,12 +40,33 @@ END $$;
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-        username TEXT NOT NULL UNIQUE,
+        username TEXT NOT NULL UNIQUE, -- index number for students
         password TEXT NOT NULL,
         salt TEXT NOT NULL,
         role_id BIGINT REFERENCES roles(id),
         class_id BIGINT REFERENCES classes(id),
         is_class_teacher BOOLEAN DEFAULT FALSE
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS parents (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        name TEXT NOT NULL,
+        address TEXT
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS students (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        user_id BIGINT REFERENCES users(id) UNIQUE,
+        full_name TEXT NOT NULL,
+        birthday DATE,
+        address TEXT,
+        gender TEXT,
+        nationality TEXT,
+        parent_id BIGINT REFERENCES parents(id)
       );
     `);
 
