@@ -207,10 +207,10 @@
     if (!attendanceMarked) {
       // Show mark attendance button
       container.innerHTML = `
-        <h3 class="tile-value text-error" data="teacher.attendance_not_marked"></h3>
-        <button class="btn" onclick="window.location.href = 'layout.html?role=teacher&page=attendance'">
+        <h3 class="tile-value text-error">Attendance not marked</h3>
+        <button class="btn" onclick="window.location.href = 'layout.html?role=teacher&page=attendance/mark'">
           <i class="fas fa-user-check"></i>
-          <span data="teacher.mark_attendance"></span>
+          <span>Mark Attendance</span>
         </button>
       `;
     } else {
