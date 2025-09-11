@@ -40,7 +40,10 @@ function loadPage(role, page) {
       // Check session before rendering content
       const userData = await checkSessionValidity();
       if (!userData) {
-        alert("Session expired. Please login again.");
+        toast(
+          "Session expired. Please login again.",
+          "fa-solid fa-circle-exclamation"
+        );
         sessionStorage.clear();
         localStorage.removeItem("role");
         window.location.href = "/login.html";
@@ -102,7 +105,10 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   // 🛑 Not logged in or session expired
   if (!userData) {
-    alert("Session expired. Please login again.");
+    toast(
+      "Session expired. Please login again.",
+      "fa-solid fa-circle-exclamation"
+    );
     sessionStorage.clear();
     localStorage.removeItem("role");
     window.location.href = "/login.html";

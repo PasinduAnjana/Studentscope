@@ -437,30 +437,48 @@
       return;
     }
 
-    try {
-      showLoading(true);
-
-      const assignments = collectStudentSubjects();
-      console.log("Submitting assignments:", assignments);
-
-      const result = await apiCall("/api/teacher/students/subjects/batch", {
-        method: "POST",
-        body: JSON.stringify({ assignments }),
-      });
-
-      if (result.success) {
-        showSuccess("Subject assignments submitted successfully!");
-        // Reload data to reflect changes
-        await loadClassData(currentClassId);
-      } else {
-        showError("Failed to submit assignments");
+    // Confirmation toast before submitting
+    toast(
+      "Are you sure you want to submit subject assignments?",
+      "fa-solid fa-paper-plane",
+      {
+        confirm: true,
+        confirmText: "Submit",
+        cancelText: "Cancel",
+        onConfirm: async function () {
+          try {
+            showLoading(true);
+            const assignments = collectStudentSubjects();
+            console.log("Submitting assignments:", assignments);
+            const result = await apiCall(
+              "/api/teacher/students/subjects/batch",
+              {
+                method: "POST",
+                body: JSON.stringify({ assignments }),
+              }
+            );
+            if (result.success) {
+              toast(
+                "Subject assignments submitted successfully!",
+                "fa-solid fa-check-circle"
+              );
+              // Reload data to reflect changes
+              await loadClassData(currentClassId);
+            } else {
+              showError("Failed to submit assignments");
+            }
+          } catch (error) {
+            console.error("Submit error:", error);
+            showError(`Failed to submit assignments: ${error.message}`);
+          } finally {
+            showLoading(false);
+          }
+        },
+        onCancel: function () {
+          // Do nothing, just close toast
+        },
       }
-    } catch (error) {
-      console.error("Submit error:", error);
-      showError(`Failed to submit assignments: ${error.message}`);
-    } finally {
-      showLoading(false);
-    }
+    );
   }
 
   async function saveDraft() {

@@ -16,7 +16,10 @@ function setupLogoutButton() {
       window.location.href = "/login.html"; // 🔁 Redirect
     } catch (err) {
       console.error("Logout failed:", err);
-      alert("Logout failed. Please try again.");
+      toast(
+        "Logout failed. Please try again.",
+        "fa-solid fa-circle-exclamation"
+      );
     }
   });
 }

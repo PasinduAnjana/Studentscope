@@ -35,7 +35,10 @@
       // 1) Get logged-in user (teacher) info
       const meRes = await fetch("/api/auth/me", { credentials: "include" });
       if (meRes.status === 401) {
-        alert("Your session has expired. Please log in again.");
+        toast(
+          "Your session has expired. Please log in again.",
+          "fa-solid fa-circle-exclamation"
+        );
         window.location.href = "/login.html";
         return;
       }
@@ -198,31 +201,46 @@
   function submitAttendance() {
     // Prepare payload: selected date and records
     const dateStr = selectedDate || getSelectedDate();
-
     const records = students.map((s) => ({
       student_id: s.id,
       status: s.status === "present" ? true : false,
     }));
 
-    fetch("/api/teacher/attendance", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ date: dateStr, records }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to save attendance");
-        return res.json();
-      })
-      .then(() => {
-        localStorage.setItem("attendanceMarked", "true");
-        alert("Attendance submitted");
-        window.location.href = "layout.html?role=teacher&page=attendance";
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("Error saving attendance. Please try again.");
-      });
+    // Show confirmation toast before submitting
+    toast("Are you sure you want to submit attendance?", "fa-solid fa-upload", {
+      confirm: true,
+      confirmText: "Submit",
+      cancelText: "Cancel",
+      onConfirm: function () {
+        fetch("/api/teacher/attendance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ date: dateStr, records }),
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error("Failed to save attendance");
+            return res.json();
+          })
+          .then(() => {
+            localStorage.setItem("attendanceMarked", "true");
+            toast("Attendance submitted", "fa-solid fa-check-circle");
+            setTimeout(function () {
+              window.location.href = "layout.html?role=teacher&page=attendance";
+            }, 2000);
+          })
+          .catch((err) => {
+            console.error(err);
+            toast(
+              "Error saving attendance. Please try again.",
+              "fa-solid fa-circle-exclamation"
+            );
+          });
+      },
+      onCancel: function () {
+        // Do nothing, just close toast
+      },
+    });
   }
 
   // Kick off loading from backend
