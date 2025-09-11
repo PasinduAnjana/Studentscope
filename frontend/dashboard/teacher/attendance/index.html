@@ -138,15 +138,23 @@
 
     // --- Attendance Action Card ---
     if (!attendanceMarked) {
+      actionText.setAttribute("data", "teacher.attendance_not_marked_today");
       actionText.innerText = "You have not marked attendance today";
+      actionBtnText.setAttribute("data", "teacher.mark_attendance");
       actionBtnText.innerText = "Mark Attendance";
     } else {
+      actionText.setAttribute(
+        "data",
+        "teacher.attendance_already_marked_today"
+      );
       actionText.innerText = "Attendance already marked today";
+      actionBtnText.setAttribute("data", "teacher.editAttendanceBtn");
       actionBtnText.innerText = "Edit Attendance";
     }
     actionBtn.onclick = () => {
       window.location.href = "layout.html?role=teacher&page=attendance/mark";
     };
+    if (typeof applyTranslations === "function") applyTranslations();
 
     // --- Custom plugin to draw center text in doughnut ---
     const centerTextPlugin = {

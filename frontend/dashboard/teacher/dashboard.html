@@ -207,12 +207,13 @@
     if (!attendanceMarked) {
       // Show mark attendance button
       container.innerHTML = `
-        <h3 class="tile-value text-error">Attendance not marked</h3>
-        <button class="btn" onclick="window.location.href = 'layout.html?role=teacher&page=attendance/mark'">
-          <i class="fas fa-user-check"></i>
-          <span>Mark Attendance</span>
-        </button>
-      `;
+          <h3 class="tile-value text-error" data="teacher.attendance_not_marked"></h3>
+          <button class="btn" onclick="window.location.href = 'layout.html?role=teacher&page=attendance'">
+            <i class="fas fa-user-check"></i>
+            <span data="teacher.mark_attendance"></span>
+          </button>
+        `;
+      if (typeof applyTranslations === "function") applyTranslations();
     } else {
       // Show today's attendance graph
       container.innerHTML = `<canvas id="dashboardAttendanceChart" height="120"></canvas>`;
