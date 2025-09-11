@@ -1,3 +1,33 @@
+// Get weekly timetable for a teacher
+exports.getTeacherWeeklyTimetable = async (teacherId) => {
+  const result = await pool.query(
+    `
+    SELECT 
+      t.day_of_week,
+      t.slot AS period_number,
+      s.name AS subject,
+      c.name AS class_name,
+      c.grade
+    FROM timetables t
+    JOIN subjects s 
+      ON t.subject_id = s.id
+    JOIN classes c 
+      ON t.class_id = c.id
+    WHERE t.teacher_id = $1
+    ORDER BY t.day_of_week, t.slot
+    `,
+    [teacherId]
+  );
+
+  // Map to frontend format
+  return result.rows.map((row) => ({
+    day_of_week: row.day_of_week,
+    period_number: row.period_number,
+    subject: row.subject,
+    class_name: row.class_name,
+    grade: row.grade,
+  }));
+};
 const pool = require("../db");
 
 // Get all students with class info

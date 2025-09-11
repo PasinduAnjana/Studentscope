@@ -180,6 +180,20 @@ module.exports = (req, res) => {
     );
   }
 
+  // Weekly Timetable route
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/teacher/timetable/week/")
+  ) {
+    const teacherId = req.url.split("/").pop();
+    return protect("teacher")(req, res, () =>
+      timetableController.getTeacherWeeklyTimetable(
+        { ...req, params: { teacherId } },
+        res
+      )
+    );
+  }
+
   // Attendance routes
   if (req.method === "POST" && req.url === "/api/teacher/attendance") {
     return protect("teacher")(req, res, () =>
@@ -203,6 +217,7 @@ module.exports = (req, res) => {
   }
 
   // 404 - Route not found
+
   res.writeHead(404, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Route not found" }));
 };

@@ -5,7 +5,7 @@
 
 <div class="timetable" id="timetable">
   <!-- Header row -->
-  <div class="timetable-row header-row">
+  <div class="timetable-row header-row" id="timetable-header-row">
     <div class="timetable-cell header-cell">Time</div>
     <div class="timetable-cell header-cell">Monday</div>
     <div class="timetable-cell header-cell">Tuesday</div>
@@ -17,12 +17,58 @@
 
 <script>
   async function loadTimetable() {
+    // Get teacherId from backend
+    let teacherId = null;
+    try {
+      const userRes = await fetch("/api/auth/me");
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        teacherId = userData && userData.userId ? userData.userId : null;
+      }
+    } catch (err) {}
+    if (!teacherId) {
+      document.getElementById("timetable").innerHTML +=
+        '<div class="error">Unable to load timetable: No teacher ID</div>';
+      return;
+    }
+
+    // Fetch time slots and teacher's weekly timetable from backend
     const [timeData, timetableData] = await Promise.all([
       fetch("../../data/time.json").then((res) => res.json()),
-      fetch("../../data/timetable.json").then((res) => res.json()),
+      fetch(`/api/teacher/timetable/week/${teacherId}`).then((res) =>
+        res.json()
+      ),
     ]);
 
+    // Build a lookup: { day_of_week: { slot: entry } }
+    const timetableLookup = {};
+    timetableData.forEach((entry) => {
+      if (!timetableLookup[entry.day_of_week])
+        timetableLookup[entry.day_of_week] = {};
+      timetableLookup[entry.day_of_week][entry.period_number] = entry;
+    });
+
     const timetableContainer = document.getElementById("timetable");
+    timetableContainer.innerHTML = "";
+
+    // Render header row dynamically to ensure it always appears
+    const headerRow = document.createElement("div");
+    headerRow.classList.add("timetable-row", "header-row");
+    const headers = [
+      "Time",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+    ];
+    headers.forEach((day) => {
+      const cell = document.createElement("div");
+      cell.classList.add("timetable-cell", "header-cell");
+      cell.textContent = day;
+      headerRow.appendChild(cell);
+    });
+    timetableContainer.appendChild(headerRow);
 
     timeData.forEach((slot, index) => {
       const row = document.createElement("div");
@@ -39,22 +85,20 @@
         const cell = document.createElement("div");
         cell.classList.add("timetable-cell");
 
-        const entry = timetableData.find(
-          (item) => item.day_of_week === day && item.period_number === slot.slot
-        );
+        // Use backend data if available
+        const entry = timetableLookup[day] && timetableLookup[day][slot.slot];
 
-        // Always create a card
         const card = document.createElement("div");
         card.classList.add("card", "slot-card");
 
         if (entry) {
           const subjectDiv = document.createElement("div");
           subjectDiv.classList.add("subject");
-          subjectDiv.textContent = entry.subject.name;
+          subjectDiv.textContent = entry.subject;
 
           const classNameDiv = document.createElement("div");
           classNameDiv.classList.add("class-name");
-          classNameDiv.textContent = `Grade ${entry.class.grade}${entry.class.name}`;
+          classNameDiv.textContent = `Grade ${entry.grade} ${entry.class_name}`;
 
           card.appendChild(subjectDiv);
           card.appendChild(classNameDiv);
