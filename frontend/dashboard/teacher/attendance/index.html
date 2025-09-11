@@ -14,7 +14,7 @@
   </div>
 
   <!-- Mark/Edit Attendance Card -->
-  <div class="card w-1 dashboard-tile" id="attendanceActionCard">
+  <div class="card w-1 h-1 dashboard-tile" id="attendanceActionCard">
     <div class="icon-title">
       <i class="fas fa-user-check icon"></i>
       <p class="tile-label" data="teacher.attendanceAction"></p>
@@ -38,7 +38,7 @@
   </div>
 
   <!-- Weekly Attendance -->
-  <div class="card w-1 dashboard-tile">
+  <div class="card w-1 h-1 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-calendar-week icon"></i>
       <p class="tile-label" data="teacher.weeklyAttendance"></p>
@@ -61,148 +61,230 @@
   const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
   const secondaryColor = rootStyles.getPropertyValue("--color-border").trim();
 
-  // Example student data
-  const students = Array.from({ length: 44 }, (_, i) => ({
-    id: i + 1,
-    name: `Student ${i + 1}`,
-    status: i % 4 === 0 ? "absent" : "present",
-  }));
-
-  const presentCount = students.filter((s) => s.status === "present").length;
-  const absentCount = students.filter((s) => s.status === "absent").length;
-
-  // Check if attendance already marked today
-  let attendanceMarked = localStorage.getItem("attendanceMarked") === "true";
-
   // --- Attendance Action Card ---
   const actionText = document.getElementById("attendanceActionText");
   const actionBtn = document.getElementById("attendanceActionBtn");
   const actionBtnText = document.getElementById("attendanceActionBtnText");
 
-  if (!attendanceMarked) {
-    actionText.innerText = "You have not marked attendance today";
-    actionBtnText.innerText = "Mark Attendance";
-  } else {
-    actionText.innerText = "Attendance already marked today";
-    actionBtnText.innerText = "Edit Attendance";
+  // Get today's date in YYYY-MM-DD
+  function getTodayStr() {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
   }
 
-  actionBtn.onclick = () => {
-    window.location.href = "layout.html?role=teacher&page=attendance/mark";
-  };
+  async function loadTodayAttendance() {
+    const dateStr = getTodayStr();
+    let presentCount = 0;
+    let absentCount = 0;
+    let totalCount = 0;
+    let totalStudents = 0;
+    let attendanceMarked = false;
+    let attendanceRecords = [];
+    // Get current class ID from backend (using attendance API response)
+    let classId = null;
+    try {
+      // Try to get classId from attendance records if available
+      const res = await fetch(`/api/teacher/attendance?date=${dateStr}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          attendanceMarked = true;
+          attendanceRecords = data;
+          presentCount = data.filter(
+            (r) => r.status === true || r.status === "present" || r.status === 1
+          ).length;
+          absentCount = data.filter(
+            (r) => r.status === false || r.status === "absent" || r.status === 0
+          ).length;
+          totalCount = data.length;
+          // Try to get classId from first record
+          if (data[0].class_id) classId = data[0].class_id;
+        }
+      }
+      // If attendance not marked, get classId from user info endpoint
+      if (!classId) {
+        try {
+          const userRes = await fetch("/api/auth/me");
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            if (userData && userData.class_id) classId = userData.class_id;
+          }
+        } catch (err) {
+          // ignore error
+        }
+      }
+      // Get students for the current class
+      if (classId) {
+        try {
+          const studentsRes = await fetch(
+            `/api/teacher/students/class/${classId}`
+          );
+          if (studentsRes.ok) {
+            const studentsData = await studentsRes.json();
+            if (Array.isArray(studentsData)) {
+              totalStudents = studentsData.length;
+            }
+          }
+        } catch (err) {
+          // ignore error
+        }
+      }
+    } catch (err) {
+      // ignore error, treat as not marked
+    }
 
-  // --- Custom plugin to draw center text in doughnut ---
-  const centerTextPlugin = {
-    id: "centerText",
-    beforeDraw(chart, args, options) {
-      if (chart.config.type !== "doughnut") return;
-      const { ctx, width, height } = chart;
-      ctx.save();
-      const fontSize = (height / 114).toFixed(2);
-      ctx.font = `${fontSize}em sans-serif`;
-      ctx.textBaseline = "middle";
-      ctx.textAlign = "center";
-      ctx.fillStyle = options.color || primaryColor;
-      const text = options.text || "";
-      ctx.fillText(text, width / 2, chart.getDatasetMeta(0).data[0].y);
-      ctx.restore();
-    },
-  };
+    // --- Attendance Action Card ---
+    if (!attendanceMarked) {
+      actionText.innerText = "You have not marked attendance today";
+      actionBtnText.innerText = "Mark Attendance";
+    } else {
+      actionText.innerText = "Attendance already marked today";
+      actionBtnText.innerText = "Edit Attendance";
+    }
+    actionBtn.onclick = () => {
+      window.location.href = "layout.html?role=teacher&page=attendance/mark";
+    };
 
-  // --- Today's Attendance Doughnut Chart ---
-  new Chart(document.getElementById("attendanceChart"), {
-    type: "doughnut",
-    data: {
-      labels: ["Present", "Absent"],
+    // --- Custom plugin to draw center text in doughnut ---
+    const centerTextPlugin = {
+      id: "centerText",
+      beforeDraw(chart, args, options) {
+        if (chart.config.type !== "doughnut") return;
+        const { ctx, width, height } = chart;
+        ctx.save();
+        const fontSize = (height / 160).toFixed(2);
+        ctx.font = `${fontSize}em sans-serif`;
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+        ctx.fillStyle = options.color || primaryColor;
+        const text = options.text || "";
+        ctx.fillText(
+          text,
+          width / 2,
+          chart.getDatasetMeta(0).data[0]?.y || height / 2
+        );
+        ctx.restore();
+      },
+    };
+
+    // --- Today's Attendance Doughnut Chart ---
+    let chartData, chartText;
+    if (!attendanceMarked) {
+      chartData = {
+        labels: ["Present", "Absent"],
+        datasets: [
+          {
+            data: [0, totalStudents],
+            backgroundColor: [primaryColor, primaryColor + "40"],
+            borderRadius: 20,
+          },
+        ],
+      };
+      chartText = "Not Marked";
+    } else {
+      chartData = {
+        labels: ["Present", "Absent"],
+        datasets: [
+          {
+            data: [presentCount, absentCount],
+            backgroundColor: [primaryColor, primaryColor + "40"],
+            borderRadius: 20,
+          },
+        ],
+      };
+      chartText = `${presentCount}/${totalCount}`;
+    }
+    new Chart(document.getElementById("attendanceChart"), {
+      type: "doughnut",
+      data: chartData,
+      options: {
+        responsive: true,
+        cutout: "85%",
+        borderColor: "transparent",
+        plugins: {
+          legend: { position: "bottom" },
+          title: {
+            display: true,
+            text: "Today's Attendance",
+            font: { size: 20, weight: "bold" },
+            position: "bottom",
+          },
+          centerText: {
+            text: chartText,
+            color: primaryColor,
+          },
+        },
+      },
+      plugins: [centerTextPlugin],
+    });
+
+    // --- Weekly Attendance Bar Chart ---
+    // If attendance is not marked, show 0s for today
+    const weeklyData = {
+      labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
       datasets: [
         {
-          data: [presentCount, absentCount],
-          backgroundColor: [primaryColor, primaryColor + "40"],
-          borderRadius: 20,
+          label: "Present",
+          data: attendanceMarked ? [presentCount, 0, 0, 0, 0] : [0, 0, 0, 0, 0],
+          backgroundColor: primaryColor,
+        },
+        {
+          label: "Absent",
+          data: attendanceMarked ? [absentCount, 0, 0, 0, 0] : [0, 0, 0, 0, 0],
+          backgroundColor: primaryColor + "40",
         },
       ],
-    },
-    options: {
-      responsive: true,
-      cutout: "85%",
-      borderColor: "transparent",
-      plugins: {
-        legend: { position: "bottom" },
-        title: {
-          display: true,
-          text: "Today's Attendance",
-          font: { size: 20, weight: "bold" },
-          position: "bottom",
+    };
+    new Chart(document.getElementById("weeklyChart"), {
+      type: "bar",
+      data: weeklyData,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: "top" },
+          title: { display: true, text: "Weekly Attendance" },
         },
+        scales: { y: { beginAtZero: true } },
+      },
+    });
 
-        centerText: {
-          text: `${presentCount}/${presentCount + absentCount}`,
-          color: primaryColor,
+    // --- Monthly Attendance Line Chart ---
+    // If attendance is not marked, show 0s for today
+    const monthlyLabels = Array.from({ length: 30 }, (_, i) => `Sep ${i + 1}`);
+    const monthlyData = {
+      labels: monthlyLabels,
+      datasets: [
+        {
+          label: "Present",
+          data: attendanceMarked
+            ? [presentCount, ...Array(29).fill(0)]
+            : Array(30).fill(0),
+          borderColor: primaryColor,
+          backgroundColor: primaryColor + "33",
+          tension: 0.4,
+          fill: true,
         },
+      ],
+    };
+    new Chart(document.getElementById("monthlyChart"), {
+      type: "line",
+      data: monthlyData,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: "top" },
+          title: { display: true, text: "Monthly Attendance" },
+        },
+        scales: { y: { beginAtZero: true } },
       },
-    },
-    plugins: [centerTextPlugin],
-  });
+    });
+  }
 
-  // --- Weekly Attendance Bar Chart ---
-  const weeklyData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
-    datasets: [
-      {
-        label: "Present",
-        data: [40, 42, 38, 44, 41],
-        backgroundColor: primaryColor,
-      },
-      {
-        label: "Absent",
-        data: [4, 2, 6, 0, 3],
-        backgroundColor: primaryColor + "40",
-      },
-    ],
-  };
-
-  new Chart(document.getElementById("weeklyChart"), {
-    type: "bar",
-    data: weeklyData,
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: "top" },
-        title: { display: true, text: "Weekly Attendance" },
-      },
-      scales: { y: { beginAtZero: true } },
-    },
-  });
-
-  // --- Monthly Attendance Line Chart ---
-  const monthlyData = {
-    labels: Array.from({ length: 30 }, (_, i) => `Sep ${i + 1}`),
-    datasets: [
-      {
-        label: "Present",
-        data: Array.from({ length: 30 }, () =>
-          Math.floor(Math.random() * 20 + 25)
-        ),
-        borderColor: primaryColor,
-        backgroundColor: primaryColor + "33",
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  };
-
-  new Chart(document.getElementById("monthlyChart"), {
-    type: "line",
-    data: monthlyData,
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: "top" },
-        title: { display: true, text: "Monthly Attendance" },
-      },
-      scales: { y: { beginAtZero: true } },
-    },
-  });
+  // Load attendance on page load
+  loadTodayAttendance();
 
   function deleteAttendance() {
     toast(
