@@ -620,10 +620,32 @@ async function run() {
       // Extract grade from classKey
       const grade = parseInt(classKey.split("-")[0]);
       const subjects = classSubjectsMapping[grade];
+      // Assign all compulsory subjects in their own class
       for (const subName of subjects) {
         await pool.query(
           `INSERT INTO teacher_subjects (teacher_id, subject_id, class_id) VALUES ($1,$2,$3)`,
           [tId, subjectIdsMap[subName], classId]
+        );
+      }
+
+      // Assign teacher to teach one subject in 2-3 other classes
+      const otherClassKeys = Object.keys(classIds).filter(
+        (k) => k !== classKey
+      );
+      // Shuffle and pick 2 or 3 other classes
+      const shuffled = otherClassKeys.sort(() => Math.random() - 0.5);
+      const numOtherClasses = Math.floor(Math.random() * 2) + 2; // 2 or 3
+      for (let i = 0; i < numOtherClasses && i < shuffled.length; i++) {
+        const otherClassKey = shuffled[i];
+        const otherClassId = classIds[otherClassKey];
+        const otherGrade = parseInt(otherClassKey.split("-")[0]);
+        const otherSubjects = classSubjectsMapping[otherGrade];
+        // Pick a random subject from compulsory subjects
+        const randomSub =
+          otherSubjects[Math.floor(Math.random() * otherSubjects.length)];
+        await pool.query(
+          `INSERT INTO teacher_subjects (teacher_id, subject_id, class_id) VALUES ($1,$2,$3)`,
+          [tId, subjectIdsMap[randomSub], otherClassId]
         );
       }
     }
@@ -655,6 +677,7 @@ async function run() {
     }
 
     // 1️⃣2️⃣ Timetable
+    // For each class, subject, teacher, find teacher_subject_id and use it for timetable
     for (const grade of grades) {
       for (const name of classNames) {
         const classKey = `${grade}-${name}`;
@@ -667,10 +690,21 @@ async function run() {
         for (let day = 1; day <= 5; day++) {
           for (let slot = 1; slot <= 8; slot++) {
             const subId = subjects[idx % subjects.length];
+            // Find teacher_subject_id for this teacher, subject, class
+            const tsRes = await pool.query(
+              `SELECT id FROM teacher_subjects WHERE teacher_id = $1 AND subject_id = $2 AND class_id = $3 LIMIT 1`,
+              [tId, subId, classId]
+            );
+            if (!tsRes.rows.length) {
+              throw new Error(
+                `teacher_subjects not found for teacher ${tId}, subject ${subId}, class ${classId}`
+              );
+            }
+            const teacherSubjectId = tsRes.rows[0].id;
             await pool.query(
-              `INSERT INTO timetables (class_id, subject_id, teacher_id, day_of_week, slot)
-               VALUES ($1,$2,$3,$4,$5)`,
-              [classId, subId, tId, day, slot]
+              `INSERT INTO timetables (teacher_subject_id, day_of_week, slot)
+               VALUES ($1,$2,$3)`,
+              [teacherSubjectId, day, slot]
             );
             idx++;
           }

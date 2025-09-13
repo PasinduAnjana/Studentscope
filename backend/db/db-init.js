@@ -123,11 +123,18 @@ END $$;
     `);
 
     await pool.query(`
+      CREATE TABLE IF NOT EXISTS teacher_subjects (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        teacher_id BIGINT REFERENCES users(id),
+        subject_id BIGINT REFERENCES subjects(id),
+        class_id BIGINT REFERENCES classes(id)
+      );
+    `);
+
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS timetables (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-        class_id BIGINT REFERENCES classes(id),
-        subject_id BIGINT REFERENCES subjects(id),
-        teacher_id BIGINT REFERENCES users(id),
+        teacher_subject_id BIGINT REFERENCES teacher_subjects(id),
         day_of_week INTEGER NOT NULL,
         slot INTEGER NOT NULL
       );

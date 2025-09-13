@@ -9,11 +9,10 @@ exports.getTeacherWeeklyTimetable = async (teacherId) => {
       c.name AS class_name,
       c.grade
     FROM timetables t
-    JOIN subjects s 
-      ON t.subject_id = s.id
-    JOIN classes c 
-      ON t.class_id = c.id
-    WHERE t.teacher_id = $1
+    JOIN teacher_subjects ts ON t.teacher_subject_id = ts.id
+    JOIN subjects s ON ts.subject_id = s.id
+    JOIN classes c ON ts.class_id = c.id
+    WHERE ts.teacher_id = $1
     ORDER BY t.day_of_week, t.slot
     `,
     [teacherId]
@@ -344,11 +343,10 @@ exports.getTeacherTodayTimetable = async (teacherId) => {
       c.name AS class_name,
       c.grade
     FROM timetables t
-    JOIN subjects s 
-      ON t.subject_id = s.id
-    JOIN classes c 
-      ON t.class_id = c.id
-    WHERE t.teacher_id = $1
+    JOIN teacher_subjects ts ON t.teacher_subject_id = ts.id
+    JOIN subjects s ON ts.subject_id = s.id
+    JOIN classes c ON ts.class_id = c.id
+    WHERE ts.teacher_id = $1
       AND t.day_of_week = EXTRACT(ISODOW FROM CURRENT_DATE) -- Monday=1
     ORDER BY t.slot
     `,
