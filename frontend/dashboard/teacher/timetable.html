@@ -17,31 +17,22 @@
 
 <script>
   async function loadTimetable() {
-    // Get teacherId from backend
-    let teacherId = null;
-    try {
-      const userRes = await fetch("/api/auth/me");
-      if (userRes.ok) {
-        const userData = await userRes.json();
-        teacherId = userData && userData.userId ? userData.userId : null;
-      }
-    } catch (err) {}
-    if (!teacherId) {
-      document.getElementById("timetable").innerHTML +=
-        '<div class="error">Unable to load timetable: No teacher ID</div>';
-      return;
-    }
-
     // Fetch time slots and teacher's weekly timetable from backend
     const [timeData, timetableData] = await Promise.all([
       fetch("../../data/time.json").then((res) => res.json()),
-      fetch(`/api/teacher/timetable/week/${teacherId}`).then((res) =>
-        res.json()
-      ),
+      fetch("/api/teacher/timetable/week").then((res) => res.json()),
     ]);
 
     // Build a lookup: { day_of_week: { slot: entry } }
     const timetableLookup = {};
+    if (!Array.isArray(timetableData)) {
+      const timetableContainer = document.getElementById("timetable");
+      timetableContainer.innerHTML +=
+        '<div class="error">Unable to load timetable: ' +
+        (timetableData.error || "Unknown error") +
+        "</div>";
+      return;
+    }
     timetableData.forEach((entry) => {
       if (!timetableLookup[entry.day_of_week])
         timetableLookup[entry.day_of_week] = {};

@@ -180,17 +180,10 @@ module.exports = (req, res) => {
     );
   }
 
-  // Weekly Timetable route
-  if (
-    req.method === "GET" &&
-    req.url.startsWith("/api/teacher/timetable/week/")
-  ) {
-    const teacherId = req.url.split("/").pop();
+  // Weekly Timetable route (no teacherId in URL)
+  if (req.method === "GET" && req.url === "/api/teacher/timetable/week") {
     return protect("teacher")(req, res, () =>
-      timetableController.getTeacherWeeklyTimetable(
-        { ...req, params: { teacherId } },
-        res
-      )
+      timetableController.getTeacherWeeklyTimetable(req, res)
     );
   }
 
