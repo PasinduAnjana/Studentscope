@@ -71,15 +71,13 @@
 </div>
 
 <script>
-  async function loadTodaysTimetable(teacherId) {
+  async function loadTodaysTimetable() {
     try {
       // Hardcoded current time (24-hour format)
       const currentTime = "09:15";
 
       // Fetch timetable & time slots
-      const timetableRes = await fetch(
-        `/api/teacher/timetable/today/${teacherId}`
-      );
+      const timetableRes = await fetch(`/api/teacher/timetable/today`);
       const timetable = await timetableRes.json();
 
       const timeRes = await fetch("/data/time.json");
@@ -283,22 +281,7 @@
 
   // Get teacherId from backend and load timetable
   async function initDashboard() {
-    try {
-      const userRes = await fetch("/api/auth/me");
-      if (userRes.ok) {
-        const userData = await userRes.json();
-        const teacherId = userData && userData.userId ? userData.userId : null;
-        if (teacherId) {
-          await loadTodaysTimetable(teacherId);
-        } else {
-          await loadTodaysTimetable(null);
-        }
-      } else {
-        await loadTodaysTimetable(null);
-      }
-    } catch (err) {
-      await loadTodaysTimetable(null);
-    }
+    await loadTodaysTimetable();
     loadDashboardAttendance();
   }
   initDashboard();

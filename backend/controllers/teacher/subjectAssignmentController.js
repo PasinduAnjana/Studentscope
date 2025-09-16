@@ -171,15 +171,13 @@ exports.getElectiveSubjects = async (req, res) => {
 // Get teacher's assigned classes
 exports.getTeacherClasses = async (req, res) => {
   try {
-    const teacherId = parseInt(req.params.teacherId, 10);
-
-    if (isNaN(teacherId)) {
+    const teacherId =
+      req.user && req.user.userId ? parseInt(req.user.userId, 10) : null;
+    if (!teacherId || isNaN(teacherId)) {
       res.writeHead(400, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Invalid teacher ID" }));
     }
-
     const classes = await teacherService.getTeacherClasses(teacherId);
-
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(classes));
   } catch (err) {

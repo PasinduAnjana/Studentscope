@@ -25,15 +25,13 @@ exports.getTeacherWeeklyTimetable = async (req, res) => {
 
 exports.getTeacherTodayTimetable = async (req, res) => {
   try {
-    const teacherId = parseInt(req.params.teacherId, 10);
-
-    if (isNaN(teacherId)) {
+    const teacherId =
+      req.user && req.user.userId ? parseInt(req.user.userId, 10) : null;
+    if (!teacherId || isNaN(teacherId)) {
       res.writeHead(400, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Invalid teacher ID" }));
     }
-
     const timetable = await teacherService.getTeacherTodayTimetable(teacherId);
-
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(timetable));
   } catch (err) {

@@ -82,16 +82,10 @@ module.exports = (req, res) => {
     );
   }
 
-  if (
-    req.method === "GET" &&
-    req.url.startsWith("/api/teacher/classes/teacher/")
-  ) {
-    const teacherId = req.url.split("/").pop();
+  // Get classes assigned to the authenticated teacher (no teacherId in URL)
+  if (req.method === "GET" && req.url === "/api/teacher/classes/teacher") {
     return protect("teacher")(req, res, () =>
-      subjectAssignmentController.getTeacherClasses(
-        { ...req, params: { teacherId } },
-        res
-      )
+      subjectAssignmentController.getTeacherClasses(req, res)
     );
   }
 
@@ -167,16 +161,10 @@ module.exports = (req, res) => {
   }
 
   // Timetable routes
-  if (
-    req.method === "GET" &&
-    req.url.startsWith("/api/teacher/timetable/today/")
-  ) {
-    const teacherId = req.url.split("/").pop();
+  // Get today's timetable for the authenticated teacher (no teacherId in URL)
+  if (req.method === "GET" && req.url === "/api/teacher/timetable/today") {
     return protect("teacher")(req, res, () =>
-      timetableController.getTeacherTodayTimetable(
-        { ...req, params: { teacherId } },
-        res
-      )
+      timetableController.getTeacherTodayTimetable(req, res)
     );
   }
 
