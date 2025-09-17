@@ -458,3 +458,119 @@ exports.clearClassAttendance = async (classId, dateStr) => {
   );
   return { deleted: result.rowCount };
 };
+
+// Get teacher data for marks dashboard
+exports.getTeacherMarksData = async (teacherId) => {
+  // Get subject assignments
+  const assignmentsResult = await pool.query(
+    `
+    SELECT 
+      CONCAT(c.grade, c.name) AS class,
+      s.name AS subject
+    FROM teacher_subjects ts
+    JOIN classes c ON ts.class_id = c.id
+    JOIN subjects s ON ts.subject_id = s.id
+    WHERE ts.teacher_id = $1
+    ORDER BY c.grade, c.name, s.name
+    `,
+    [teacherId]
+  );
+
+  const subjectAssignments = assignmentsResult.rows;
+
+  // Determine class teacher - for now, the class with the most subjects assigned
+  // If tie, pick the first alphabetically
+  const classCounts = {};
+  subjectAssignments.forEach((assignment) => {
+    const className = assignment.class;
+    classCounts[className] = (classCounts[className] || 0) + 1;
+  });
+
+  let classTeacherOf = null;
+  let maxCount = 0;
+  for (const [className, count] of Object.entries(classCounts)) {
+    if (
+      count > maxCount ||
+      (count === maxCount && (!classTeacherOf || className < classTeacherOf))
+    ) {
+      maxCount = count;
+      classTeacherOf = className;
+    }
+  }
+
+  return {
+    id: teacherId,
+    classTeacherOf,
+    subjectAssignments,
+  };
+};
+
+// Get subjects that a teacher teaches for a specific class
+exports.getTeacherClassSubjects = async (teacherId, classId) => {
+  const result = await pool.query(
+    `
+    SELECT DISTINCT
+      s.id,
+      s.name
+    FROM teacher_subjects ts
+    JOIN subjects s ON ts.subject_id = s.id
+    WHERE ts.teacher_id = $1 AND ts.class_id = $2
+    ORDER BY s.name
+    `,
+    [teacherId, classId]
+  );
+
+  return result.rows;
+};
+
+// Get all subjects taught in a specific class (by any teacher)
+exports.getAllClassSubjects = async (classId) => {
+  const result = await pool.query(
+    `
+    SELECT DISTINCT
+      s.id,
+      s.name
+    FROM teacher_subjects ts
+    JOIN subjects s ON ts.subject_id = s.id
+    WHERE ts.class_id = $1
+    ORDER BY s.name
+    `,
+    [classId]
+  );
+
+  return result.rows;
+};
+
+// Save marks for students
+exports.saveMarks = async (marksData) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    for (const mark of marksData) {
+      const { student_id, subject_id, mark: markValue, exam_type } = mark;
+
+      if (markValue !== null && markValue !== undefined) {
+        // Insert or update mark
+        await client.query(
+          `
+          INSERT INTO marks (student_id, subject_id, marks, exam_type, year)
+          VALUES ($1, $2, $3, $4, EXTRACT(YEAR FROM CURRENT_DATE))
+          ON CONFLICT (student_id, subject_id, exam_type, year)
+          DO UPDATE SET marks = EXCLUDED.marks
+          `,
+          [student_id, subject_id, markValue, exam_type]
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+    return { success: true, message: "Marks saved successfully" };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};

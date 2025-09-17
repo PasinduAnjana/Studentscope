@@ -90,26 +90,67 @@
 
 <script>
   const urlParams = new URLSearchParams(window.location.search);
-  const classId = urlParams.get("class");
+  const className = urlParams.get("class");
   const subject = urlParams.get("subject");
   const type = urlParams.get("type");
   let students = [],
     subjects = [],
-    classInfo = {};
+    classInfo = {},
+    classId = null;
+
+  async function getClassId(className) {
+    try {
+      const response = await fetch("/api/teacher/classes");
+      const classes = await response.json();
+      const classObj = classes.find((c) => `${c.grade}${c.name}` === className);
+      return classObj ? classObj.id : null;
+    } catch (err) {
+      console.error("Error getting class ID:", err);
+      return null;
+    }
+  }
 
   async function loadData() {
     try {
+      // Get class ID from class name
+      classId = await getClassId(className);
+      if (!classId) {
+        console.error("Class not found:", className);
+        return;
+      }
+
+      // Helper function to handle API responses
+      const handleResponse = async (response) => {
+        if (!response.ok) {
+          throw new Error(
+            `API error: ${response.status} ${response.statusText}`
+          );
+        }
+        return response.json();
+      };
+
+      // Get subjects based on teacher type
+      let subjectsUrl;
+      if (type === "class_teacher") {
+        subjectsUrl = `/api/teacher/classes/${classId}/subjects/all`;
+      } else {
+        subjectsUrl = `/api/teacher/classes/${classId}/subjects/teacher`;
+      }
+
       [students, subjects, classInfo] = await Promise.all([
-        fetch("../../../data/students.json").then((res) => res.json()),
-        fetch("../../../data/subjects.json").then((res) => res.json()),
-        fetch("../../../data/class_info.json").then((res) => res.json()),
+        fetch(`/api/teacher/students/class/${classId}`).then(handleResponse),
+        fetch(subjectsUrl).then(handleResponse),
+        fetch(`/api/teacher/classes/${classId}/info`).then(handleResponse),
       ]);
 
       setupPage();
       renderTable();
     } catch (err) {
       console.error("Error loading data:", err);
-      console.error("Students path:", "../../../data/students.json");
+      // Set default empty values to prevent further errors
+      students = [];
+      subjects = [];
+      classInfo = {};
     }
   }
 
@@ -118,15 +159,15 @@
     const pageTitle = document.getElementById("pageTitle");
 
     if (type === "class_teacher") {
-      pageTitle.textContent = `Enter Marks - Class ${classId}`;
+      pageTitle.textContent = `Enter Marks - Class ${className}`;
       infoDiv.innerHTML = `
-        <h3>Class ${classId}</h3>
+        <h3>Class ${className}</h3>
         <p>Class Teacher - All Subjects</p>
       `;
     } else {
-      pageTitle.textContent = `Enter Marks - Class ${classId} ${subject}`;
+      pageTitle.textContent = `Enter Marks - Class ${className} ${subject}`;
       infoDiv.innerHTML = `
-        <h3>Class ${classId}</h3>
+        <h3>Class ${className}</h3>
         <p>Subject Teacher - ${subject}</p>
       `;
     }
@@ -134,15 +175,11 @@
 
   function renderTable() {
     const table = document.querySelector(".marks-table");
-    const classStudents = students.filter((s) => s.class === classId);
-    console.log("Class ID:", classId);
-    console.log("Found students:", classStudents);
-    console.log("All students:", students);
+    // Students are already filtered by class from the API
+    const classStudents = students;
 
-    const tableSubjects =
-      type === "class_teacher"
-        ? subjects
-        : subjects.filter((s) => s.name === subject);
+    // Subjects are already filtered based on teacher type in loadData
+    const tableSubjects = subjects;
 
     // Create header row
     const headerRow = document.createElement("tr");
@@ -159,7 +196,7 @@
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${student.index_number}</td>
-        <td class="student-name">${student.name}</td>
+        <td class="student-name">${student.full_name}</td>
         ${tableSubjects
           .map(
             (s) => `
@@ -310,8 +347,28 @@
       exam_type: examType,
     }));
 
-    console.log("Draft saved:", data);
-    showStatus("Draft Saved", "draft");
+    // Send to backend
+    fetch("/api/teacher/marks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((result) => {
+        console.log("Draft saved:", result);
+        showStatus("Draft Saved", "draft");
+      })
+      .catch((err) => {
+        console.error("Error saving draft:", err);
+        showStatus("Error saving draft", "error");
+      });
   }
 
   function submitMarks() {
@@ -331,8 +388,28 @@
       exam_type: examType,
     }));
 
-    console.log("Submitted marks:", data);
-    showStatus("Submitted", "submitted");
+    // Send to backend
+    fetch("/api/teacher/marks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((result) => {
+        console.log("Marks submitted:", result);
+        showStatus("Submitted", "submitted");
+      })
+      .catch((err) => {
+        console.error("Error submitting marks:", err);
+        showStatus("Error submitting marks", "error");
+      });
   }
 
   function showStatus(text, type) {

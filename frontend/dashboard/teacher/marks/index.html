@@ -10,26 +10,28 @@
   // Fetch all required data
   async function loadClasses() {
     try {
-      // Mock data - replace with API call
-      const teacherData = {
-        id: "T1",
-        classTeacherOf: "10A", // As class teacher, can enter marks for all subjects
-        subjectAssignments: [
-          // Mathematics classes
-          { class: "10B", subject: "Mathematics" },
-          { class: "11A", subject: "Mathematics" },
-          { class: "10C", subject: "Mathematics" },
-          // Physics classes
-          { class: "10A", subject: "Physics" },
-          { class: "10B", subject: "Physics" },
-          // Chemistry class
-          { class: "10A", subject: "Chemistry" },
-        ],
-      };
-
+      const response = await fetch("/api/teacher/marks/data");
+      if (!response.ok) {
+        throw new Error("Failed to fetch teacher data");
+      }
+      const teacherData = await response.json();
       renderCards(teacherData);
     } catch (err) {
       console.error("Error loading data:", err);
+      // Fallback to mock data if API fails
+      const mockData = {
+        id: "T1",
+        classTeacherOf: "10A",
+        subjectAssignments: [
+          { class: "10B", subject: "Mathematics" },
+          { class: "11A", subject: "Mathematics" },
+          { class: "10C", subject: "Mathematics" },
+          { class: "10A", subject: "Physics" },
+          { class: "10B", subject: "Physics" },
+          { class: "10A", subject: "Chemistry" },
+        ],
+      };
+      renderCards(mockData);
     }
   }
 

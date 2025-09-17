@@ -70,16 +70,44 @@ module.exports = (req, res) => {
   if (
     req.method === "GET" &&
     req.url.startsWith("/api/teacher/classes/") &&
-    req.url.endsWith("/subjects")
+    req.url.endsWith("/subjects/teacher")
   ) {
     const urlParts = req.url.split("/");
-    const classId = urlParts[urlParts.length - 2]; // Get class ID before "/subjects"
-    return protect("teacher")(req, res, () =>
-      subjectAssignmentController.getClassSubjects(
-        { ...req, params: { classId } },
-        res
-      )
-    );
+    const classId = urlParts[urlParts.length - 3]; // Get class ID before "/subjects/teacher"
+    return protect("teacher")(req, res, async () => {
+      try {
+        const teacherService = require("../services/teacherService");
+        const subjects = await teacherService.getTeacherClassSubjects(
+          req.user.userId,
+          classId
+        );
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(subjects));
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/teacher/classes/") &&
+    req.url.endsWith("/subjects/all")
+  ) {
+    const urlParts = req.url.split("/");
+    const classId = urlParts[urlParts.length - 3]; // Get class ID before "/subjects/all"
+    return protect("teacher")(req, res, async () => {
+      try {
+        const teacherService = require("../services/teacherService");
+        const subjects = await teacherService.getAllClassSubjects(classId);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(subjects));
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
   }
 
   // Get classes assigned to the authenticated teacher (no teacherId in URL)
@@ -87,6 +115,21 @@ module.exports = (req, res) => {
     return protect("teacher")(req, res, () =>
       subjectAssignmentController.getTeacherClasses(req, res)
     );
+  }
+
+  // Get teacher data for marks dashboard
+  if (req.method === "GET" && req.url === "/api/teacher/marks/data") {
+    return protect("teacher")(req, res, async () => {
+      try {
+        const teacherService = require("../services/teacherService");
+        const data = await teacherService.getTeacherMarksData(req.user.userId);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(data));
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
   }
 
   // Grade rules routes
@@ -195,6 +238,26 @@ module.exports = (req, res) => {
     return protect("teacher")(req, res, () =>
       attendanceController.deleteAttendance(req, res)
     );
+  }
+
+  // Marks routes
+  if (req.method === "POST" && req.url === "/api/teacher/marks") {
+    return protect("teacher")(req, res, async () => {
+      try {
+        let body = "";
+        req.on("data", (chunk) => (body += chunk));
+        req.on("end", async () => {
+          const marksData = JSON.parse(body);
+          const teacherService = require("../services/teacherService");
+          const result = await teacherService.saveMarks(marksData);
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify(result));
+        });
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
   }
 
   // 404 - Route not found
