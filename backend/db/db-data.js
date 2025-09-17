@@ -712,8 +712,27 @@ async function run() {
       }
     }
 
+    // 1️⃣3️⃣ Attendance for last 10 days
+    const today = new Date();
+    for (let i = 9; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dateStr = date.toISOString().split("T")[0]; // YYYY-MM-DD
+      for (const classKey in studentIds) {
+        const classId = classIds[classKey];
+        const students = studentIds[classKey];
+        for (const studentId of students) {
+          const status = Math.random() > 0.1; // 90% present
+          await pool.query(
+            `INSERT INTO attendance (student_id, class_id, date, status) VALUES ($1, $2, $3, $4)`,
+            [studentId, classId, dateStr, status]
+          );
+        }
+      }
+    }
+
     console.log(
-      "🎉 Database seeded successfully with electives and all subjects!"
+      "🎉 Database seeded successfully with electives, subjects, timetable, and attendance!"
     );
   } catch (err) {
     console.error("❌ Seeding error:", err);

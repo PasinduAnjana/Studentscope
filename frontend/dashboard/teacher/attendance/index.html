@@ -75,6 +75,34 @@
     return `${yyyy}-${mm}-${dd}`;
   }
 
+  // Get the dates for the current week (Mon-Fri)
+  function getWeekDates() {
+    const today = new Date();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - today.getDay() + 1); // Monday
+    const dates = [];
+    for (let i = 0; i < 5; i++) {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+      dates.push(date.toISOString().split("T")[0]);
+    }
+    return dates;
+  }
+
+  // Get the dates for the current month
+  function getMonthDates() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const dates = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      dates.push(date.toISOString().split("T")[0]);
+    }
+    return dates;
+  }
+
   async function loadTodayAttendance() {
     const dateStr = getTodayStr();
     let presentCount = 0;
@@ -156,6 +184,65 @@
     };
     if (typeof applyTranslations === "function") applyTranslations();
 
+    // --- Load Weekly Attendance Data ---
+    const dates = getWeekDates();
+    const weeklyPresent = [];
+    const weeklyAbsent = [];
+    for (const date of dates) {
+      try {
+        const res = await fetch(`/api/teacher/attendance?date=${date}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const present = data.filter(
+              (r) =>
+                r.status === true || r.status === "present" || r.status === 1
+            ).length;
+            const absent = data.filter(
+              (r) =>
+                r.status === false || r.status === "absent" || r.status === 0
+            ).length;
+            weeklyPresent.push(present);
+            weeklyAbsent.push(absent);
+          } else {
+            weeklyPresent.push(0);
+            weeklyAbsent.push(0);
+          }
+        } else {
+          weeklyPresent.push(0);
+          weeklyAbsent.push(0);
+        }
+      } catch (err) {
+        weeklyPresent.push(0);
+        weeklyAbsent.push(0);
+      }
+    }
+
+    // --- Load Monthly Attendance Data ---
+    const monthDates = getMonthDates();
+    const monthlyPresent = [];
+    for (const date of monthDates) {
+      try {
+        const res = await fetch(`/api/teacher/attendance?date=${date}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const present = data.filter(
+              (r) =>
+                r.status === true || r.status === "present" || r.status === 1
+            ).length;
+            monthlyPresent.push(present);
+          } else {
+            monthlyPresent.push(0);
+          }
+        } else {
+          monthlyPresent.push(0);
+        }
+      } catch (err) {
+        monthlyPresent.push(0);
+      }
+    }
+
     // --- Custom plugin to draw center text in doughnut ---
     const centerTextPlugin = {
       id: "centerText",
@@ -230,18 +317,17 @@
     });
 
     // --- Weekly Attendance Bar Chart ---
-    // If attendance is not marked, show 0s for today
     const weeklyData = {
       labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
       datasets: [
         {
           label: "Present",
-          data: attendanceMarked ? [presentCount, 0, 0, 0, 0] : [0, 0, 0, 0, 0],
+          data: weeklyPresent,
           backgroundColor: primaryColor,
         },
         {
           label: "Absent",
-          data: attendanceMarked ? [absentCount, 0, 0, 0, 0] : [0, 0, 0, 0, 0],
+          data: weeklyAbsent,
           backgroundColor: primaryColor + "40",
         },
       ],
@@ -260,16 +346,16 @@
     });
 
     // --- Monthly Attendance Line Chart ---
-    // If attendance is not marked, show 0s for today
-    const monthlyLabels = Array.from({ length: 30 }, (_, i) => `Sep ${i + 1}`);
+    const monthlyLabels = Array.from({ length: monthDates.length }, (_, i) => {
+      const date = new Date(monthDates[i]);
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    });
     const monthlyData = {
       labels: monthlyLabels,
       datasets: [
         {
           label: "Present",
-          data: attendanceMarked
-            ? [presentCount, ...Array(29).fill(0)]
-            : Array(30).fill(0),
+          data: monthlyPresent,
           borderColor: primaryColor,
           backgroundColor: primaryColor + "33",
           tension: 0.4,
