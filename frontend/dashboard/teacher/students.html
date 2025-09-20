@@ -131,7 +131,7 @@
     <!-- Search Bar and Class Dropdown -->
     <div
       class="flex mb-2"
-      style="gap: 16px; align-items: flex-end; flex-wrap: wrap"
+      style="gap: 16px; align-items: center; flex-wrap: wrap"
     >
       <div class="search-group" style="max-width: 350px">
         <input
@@ -147,9 +147,14 @@
           >Class: <span id="class-name"></span
         ></span>
       </div>
-      <button id="export-btn" class="btn btn-primary" style="margin-left: auto">
-        <i class="fas fa-download"></i> Export CSV
-      </button>
+      <div style="display: flex; gap: 10px; margin-left: auto;">
+        <button id="export-pdf-btn" class="btn btn-primary">
+          <i class="fas fa-file-pdf"></i> Export PDF
+        </button>
+        <button id="export-btn" class="btn btn-primary">
+          <i class="fas fa-download"></i> Export CSV
+        </button>
+      </div>
     </div>
     <div class="table-responsive">
       <table id="student-table">
@@ -234,6 +239,86 @@
     <div class="modal-footer">
       <button id="export-cancel" class="btn btn-secondary">Cancel</button>
       <button id="export-confirm" class="btn btn-primary">Export</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export PDF Modal -->
+<div id="export-pdf-modal" class="modal" style="display: none">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Export Students to PDF</h3>
+      <span class="modal-close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="input-group" style="margin-bottom: 15px">
+        <label for="pdf-heading">Heading:</label>
+        <input type="text" id="pdf-heading" class="input" placeholder="Enter heading..." />
+      </div>
+      <div class="input-group" style="margin-bottom: 15px">
+        <label for="pdf-subheading">Subheading:</label>
+        <input type="text" id="pdf-subheading" class="input" placeholder="Enter subheading..." />
+      </div>
+      <div class="input-group" style="margin-bottom: 15px">
+        <label for="pdf-empty-columns">Number of Empty Columns (for signatures, etc.):</label>
+        <input type="number" id="pdf-empty-columns" class="input" placeholder="0" min="0" max="10" />
+      </div>
+      <div class="input-group" style="margin-bottom: 15px">
+        <label for="pdf-empty-titles">Empty Column Titles (comma-separated, e.g., Signature, Date, Notes):</label>
+        <input type="text" id="pdf-empty-titles" class="input" placeholder="Signature, Date, Notes" />
+      </div>
+      <p>Select the fields you want to include in the PDF export:</p>
+      <div class="export-fields">
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-name" checked />
+          <span class="checkmark"></span>
+          Name
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-index" checked />
+          <span class="checkmark"></span>
+          Index Number
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-grade" checked />
+          <span class="checkmark"></span>
+          Grade
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-birthday" />
+          <span class="checkmark"></span>
+          Birthday
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-address" />
+          <span class="checkmark"></span>
+          Address
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-gender" />
+          <span class="checkmark"></span>
+          Gender
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-nationality" />
+          <span class="checkmark"></span>
+          Nationality
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-parent-name" />
+          <span class="checkmark"></span>
+          Parent Name
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-parent-address" />
+          <span class="checkmark"></span>
+          Parent Address
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="export-pdf-cancel" class="btn btn-secondary">Cancel</button>
+      <button id="export-pdf-confirm" class="btn btn-primary">Export PDF</button>
     </div>
   </div>
 </div>
@@ -328,7 +413,7 @@
   function setupExport() {
     const exportBtn = document.getElementById("export-btn");
     const modal = document.getElementById("export-modal");
-    const closeBtn = document.querySelector(".modal-close");
+    const closeBtn = document.querySelector("#export-modal .modal-close");
     const cancelBtn = document.getElementById("export-cancel");
     const confirmBtn = document.getElementById("export-confirm");
 
@@ -366,6 +451,51 @@
     });
   }
 
+  // Setup PDF export functionality
+  function setupExportPDF() {
+    const exportPdfBtn = document.getElementById("export-pdf-btn");
+    const modal = document.getElementById("export-pdf-modal");
+    const closeBtn = document.querySelector("#export-pdf-modal .modal-close");
+    const cancelBtn = document.getElementById("export-pdf-cancel");
+    const confirmBtn = document.getElementById("export-pdf-confirm");
+
+    // Show modal
+    exportPdfBtn.addEventListener("click", () => {
+      modal.style.display = "flex";
+    });
+
+    // Hide modal
+    const closeModal = () => {
+      modal.style.display = "none";
+    };
+
+    closeBtn.addEventListener("click", closeModal);
+    cancelBtn.addEventListener("click", closeModal);
+
+    // Close modal when clicking outside
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Export PDF functionality
+    confirmBtn.addEventListener("click", () => {
+      const heading = document.getElementById("pdf-heading").value.trim();
+      const subheading = document.getElementById("pdf-subheading").value.trim();
+      const emptyColumns = parseInt(document.getElementById("pdf-empty-columns").value) || 0;
+      const emptyTitles = document.getElementById("pdf-empty-titles").value.split(',').map(t => t.trim()).filter(t => t);
+      const selectedFields = getSelectedPDFFields();
+      if (selectedFields.length === 0) {
+        alert("Please select at least one field to export.");
+        return;
+      }
+      const filteredStudents = getFilteredStudents();
+      exportToPDF(filteredStudents, selectedFields, heading, subheading, emptyColumns, emptyTitles);
+      closeModal();
+    });
+  }
+
   // Get selected fields from checkboxes
   function getSelectedFields() {
     const fields = [];
@@ -376,6 +506,23 @@
     checkboxes.forEach((checkbox) => {
       if (checkbox.checked) {
         const fieldId = checkbox.id.replace("export-", "");
+        fields.push(fieldId);
+      }
+    });
+
+    return fields;
+  }
+
+  // Get selected fields from PDF checkboxes
+  function getSelectedPDFFields() {
+    const fields = [];
+    const checkboxes = document.querySelectorAll(
+      "#export-pdf-modal input[type='checkbox']"
+    );
+
+    checkboxes.forEach((checkbox) => {
+      if (checkbox.checked) {
+        const fieldId = checkbox.id.replace("pdf-export-", "");
         fields.push(fieldId);
       }
     });
@@ -455,6 +602,88 @@
     }
   }
 
+  // Export to PDF
+  function exportToPDF(students, fields, heading, subheading, emptyColumns, emptyTitles) {
+    if (students.length === 0) {
+      alert("No students to export.");
+      return;
+    }
+
+    // Create HTML content
+    let htmlContent = `
+      <html>
+        <head>
+          <title>Students Export</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { text-align: center; }
+            h2 { text-align: center; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+    `;
+
+    if (heading) {
+      htmlContent += `<h1>${heading}</h1>`;
+    }
+    if (subheading) {
+      htmlContent += `<h2>${subheading}</h2>`;
+    }
+
+    htmlContent += `
+          <table>
+            <thead>
+              <tr>
+    `;
+
+    // Add headers based on selected fields
+    fields.forEach((field) => {
+      htmlContent += `<th>${getFieldDisplayName(field)}</th>`;
+    });
+
+    // Add empty column headers with titles
+    for (let i = 0; i < emptyColumns; i++) {
+      const title = emptyTitles[i] || '';
+      htmlContent += `<th>${title}</th>`;
+    }
+
+    htmlContent += `
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
+    // Add data rows
+    students.forEach((student) => {
+      htmlContent += `<tr>`;
+      fields.forEach((field) => {
+        const value = getFieldValue(student, field);
+        htmlContent += `<td>${value}</td>`;
+      });
+      // Add empty cells
+      for (let i = 0; i < emptyColumns; i++) {
+        htmlContent += `<td></td>`;
+      }
+      htmlContent += `</tr>`;
+    });
+
+    htmlContent += `
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+
+    // Open new window and print
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.print();
+  }
+
   // Get display name for field
   function getFieldDisplayName(field) {
     const fieldNames = {
@@ -520,10 +749,12 @@
       fetchStudents();
       setupSearchInput();
       setupExport();
+      setupExportPDF();
     })
     .catch(() => {
       fetchStudents();
       setupSearchInput();
       setupExport();
+      setupExportPDF();
     });
 </script>
