@@ -1,3 +1,126 @@
+<style>
+  /* Modal Styles */
+  .modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-content {
+    background-color: var(--color-card);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    color: var(--color-text);
+  }
+
+  .modal-close {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--color-subtext);
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .modal-close:hover {
+    color: var(--color-text);
+  }
+
+  .modal-body {
+    padding: 20px;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* Checkbox Styles */
+  .checkbox-label {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    user-select: none;
+    color: var(--color-text);
+  }
+
+  .checkbox-label input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: var(--color-bg);
+    border: 2px solid var(--color-border);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .checkbox-label:hover input ~ .checkmark {
+    background-color: var(--color-primary-light);
+  }
+
+  .checkbox-label input:checked ~ .checkmark {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .checkbox-label input:checked ~ .checkmark:after {
+    content: "";
+    position: absolute;
+    display: block;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 10px;
+    border: solid var(--color-white);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .export-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+</style>
+
 <section class="section">
   <h2 class="heading">
     <i class="fas fa-users"></i>
@@ -27,6 +150,9 @@
           <option value="">All Classes</option>
         </select>
       </div>
+      <button id="export-btn" class="btn btn-primary" style="margin-left: auto">
+        <i class="fas fa-download"></i> Export CSV
+      </button>
     </div>
     <div class="table-responsive">
       <table id="student-table">
@@ -50,6 +176,70 @@
     </div>
   </div>
 </section>
+
+<!-- Export Modal -->
+<div id="export-modal" class="modal" style="display: none">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Export Students to CSV</h3>
+      <span class="modal-close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <p>Select the fields you want to include in the CSV export:</p>
+      <div class="export-fields">
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-name" checked />
+          <span class="checkmark"></span>
+          Name
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-index" checked />
+          <span class="checkmark"></span>
+          Index Number
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-grade" checked />
+          <span class="checkmark"></span>
+          Grade
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-birthday" />
+          <span class="checkmark"></span>
+          Birthday
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-address" />
+          <span class="checkmark"></span>
+          Address
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-gender" />
+          <span class="checkmark"></span>
+          Gender
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-nationality" />
+          <span class="checkmark"></span>
+          Nationality
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-parent-name" />
+          <span class="checkmark"></span>
+          Parent Name
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-parent-address" />
+          <span class="checkmark"></span>
+          Parent Address
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="export-cancel" class="btn btn-secondary">Cancel</button>
+      <button id="export-confirm" class="btn btn-primary">Export</button>
+    </div>
+  </div>
+</div>
 
 <script>
   let allStudents = [];
@@ -167,7 +357,190 @@
     }
   }
 
-  // On page load (after DOM inserted)
+  // Setup export functionality
+  function setupExport() {
+    const exportBtn = document.getElementById("export-btn");
+    const modal = document.getElementById("export-modal");
+    const closeBtn = document.querySelector(".modal-close");
+    const cancelBtn = document.getElementById("export-cancel");
+    const confirmBtn = document.getElementById("export-confirm");
+
+    // Show modal
+    exportBtn.addEventListener("click", () => {
+      modal.style.display = "flex";
+    });
+
+    // Hide modal
+    const closeModal = () => {
+      modal.style.display = "none";
+    };
+
+    closeBtn.addEventListener("click", closeModal);
+    cancelBtn.addEventListener("click", closeModal);
+
+    // Close modal when clicking outside
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Export functionality
+    confirmBtn.addEventListener("click", () => {
+      const selectedFields = getSelectedFields();
+      if (selectedFields.length === 0) {
+        alert("Please select at least one field to export.");
+        return;
+      }
+
+      const filteredStudents = getFilteredStudents();
+      exportToCSV(filteredStudents, selectedFields);
+      closeModal();
+    });
+  }
+
+  // Get selected fields from checkboxes
+  function getSelectedFields() {
+    const fields = [];
+    const checkboxes = document.querySelectorAll(
+      "#export-modal input[type='checkbox']"
+    );
+
+    checkboxes.forEach((checkbox) => {
+      if (checkbox.checked) {
+        const fieldId = checkbox.id.replace("export-", "");
+        fields.push(fieldId);
+      }
+    });
+
+    return fields;
+  }
+
+  // Get currently filtered students
+  function getFilteredStudents() {
+    const q = (document.getElementById("student-search")?.value || "")
+      .trim()
+      .toLowerCase();
+    const classId = selectedClassId;
+    let filtered = allStudents;
+
+    if (classId) {
+      filtered = filtered.filter((s) => String(s.class_id) === String(classId));
+    }
+
+    if (q) {
+      filtered = filtered.filter((student) => {
+        return (
+          (student.full_name && student.full_name.toLowerCase().includes(q)) ||
+          (student.index_number &&
+            student.index_number.toLowerCase().includes(q)) ||
+          (student.grade && String(student.grade).toLowerCase().includes(q)) ||
+          (student.class_name && student.class_name.toLowerCase().includes(q))
+        );
+      });
+    }
+
+    return filtered;
+  }
+
+  // Export to CSV
+  function exportToCSV(students, fields) {
+    if (students.length === 0) {
+      alert("No students to export.");
+      return;
+    }
+
+    // Create CSV header
+    const headers = fields.map((field) => getFieldDisplayName(field));
+    let csvContent = headers.join(",") + "\n";
+
+    // Add data rows
+    students.forEach((student) => {
+      const row = fields.map((field) => {
+        let value = getFieldValue(student, field);
+        // Escape commas and quotes in CSV
+        if (
+          typeof value === "string" &&
+          (value.includes(",") || value.includes('"') || value.includes("\n"))
+        ) {
+          value = '"' + value.replace(/"/g, '""') + '"';
+        }
+        return value;
+      });
+      csvContent += row.join(",") + "\n";
+    });
+
+    // Download the file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `students_export_${new Date().toISOString().split("T")[0]}.csv`
+      );
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+
+  // Get display name for field
+  function getFieldDisplayName(field) {
+    const fieldNames = {
+      name: "Name",
+      index: "Index Number",
+      grade: "Grade",
+      birthday: "Birthday",
+      address: "Address",
+      gender: "Gender",
+      nationality: "Nationality",
+      "parent-name": "Parent Name",
+      "parent-address": "Parent Address",
+    };
+    return fieldNames[field] || field;
+  }
+
+  // Get field value from student object
+  function getFieldValue(student, field) {
+    switch (field) {
+      case "name":
+        return student.full_name || student.name || "";
+      case "index":
+        return student.index_number || "";
+      case "grade":
+        return `${student.grade ?? ""} - ${student.class_name ?? ""}`.trim();
+      case "birthday":
+        if (student.birthday) {
+          const d = new Date(student.birthday);
+          if (!isNaN(d)) {
+            return d.toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "2-digit",
+            });
+          }
+        }
+        return "";
+      case "address":
+        return student.address || "";
+      case "gender":
+        return student.gender || "";
+      case "nationality":
+        return student.nationality || "";
+      case "parent-name":
+        return student.parent?.name || "";
+      case "parent-address":
+        return student.parent?.address || "";
+      default:
+        return "";
+    }
+  }
+
+  // Initialize
   fetch("/api/auth/me")
     .then((res) => res.json())
     .then((user) => {
@@ -177,6 +550,7 @@
       fetchClasses();
       fetchStudents();
       setupSearchInput();
+      setupExport();
       // After classes are loaded, select the teacher's class if set
       const interval = setInterval(() => {
         const classSelect = document.getElementById("class-select");
@@ -198,5 +572,6 @@
       fetchClasses();
       fetchStudents();
       setupSearchInput();
+      setupExport();
     });
 </script>
