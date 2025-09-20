@@ -142,13 +142,10 @@
         />
         <span class="search-icon"><i class="fas fa-search"></i></span>
       </div>
-      <div class="input-group" style="min-width: 200px">
-        <label for="class-select" style="margin-right: 8px; font-weight: 500"
-          >Class:</label
-        >
-        <select id="class-select" class="dropdown-select">
-          <option value="">All Classes</option>
-        </select>
+      <div class="input-group">
+        <span style="font-weight: 500"
+          >Class: <span id="class-name"></span
+        ></span>
       </div>
       <button id="export-btn" class="btn btn-primary" style="margin-left: auto">
         <i class="fas fa-download"></i> Export CSV
@@ -243,7 +240,6 @@
 
 <script>
   let allStudents = [];
-  let allClasses = [];
   let selectedClassId = "";
 
   function renderStudents(filtered) {
@@ -317,35 +313,6 @@
         console.error(err);
         const tbody = document.querySelector("#student-table tbody");
         tbody.innerHTML = `<tr><td colspan="3" class="text-error">Error loading students</td></tr>`;
-      });
-  }
-
-  function fetchClasses() {
-    fetch("/api/teacher/classes")
-      .then((res) => res.json())
-      .then((classes) => {
-        allClasses = classes;
-        const classSelect = document.getElementById("class-select");
-        classSelect.innerHTML = '<option value="">All Classes</option>';
-        classes.forEach((cls) => {
-          const option = document.createElement("option");
-          option.value = cls.id;
-          option.textContent = `${cls.name} (Grade ${cls.grade})`;
-          classSelect.appendChild(option);
-        });
-        // Initialize searchable dropdown
-        if (window.makeSearchableDropdown) {
-          makeSearchableDropdown("class-select", (val) => {
-            selectedClassId = val;
-            filterAndRender();
-          });
-        } else {
-          // fallback: normal select
-          classSelect.addEventListener("change", function () {
-            selectedClassId = this.value;
-            filterAndRender();
-          });
-        }
       });
   }
 
@@ -546,30 +513,15 @@
     .then((user) => {
       if (user && user.is_class_teacher && user.class_id) {
         selectedClassId = String(user.class_id);
+        document.getElementById("class-name").textContent = user.class_name
+          ? `${user.class_name} (Grade ${user.class_grade})`
+          : "";
       }
-      fetchClasses();
       fetchStudents();
       setupSearchInput();
       setupExport();
-      // After classes are loaded, select the teacher's class if set
-      const interval = setInterval(() => {
-        const classSelect = document.getElementById("class-select");
-        if (classSelect && selectedClassId && allClasses.length > 0) {
-          classSelect.value = selectedClassId;
-          filterAndRender();
-          // Find the class object
-          const myClass = allClasses.find(
-            (c) => String(c.id) === String(selectedClassId)
-          );
-
-          // Optionally disable dropdown to prevent changing
-          classSelect.disabled = true;
-          clearInterval(interval);
-        }
-      }, 100);
     })
     .catch(() => {
-      fetchClasses();
       fetchStudents();
       setupSearchInput();
       setupExport();

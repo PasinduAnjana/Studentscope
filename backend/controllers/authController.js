@@ -119,6 +119,8 @@ exports.getCurrentUser = async (req, res) => {
         userId: session.userId,
         class_id: session.class_id,
         is_class_teacher: session.is_class_teacher,
+        class_name: session.class_name,
+        class_grade: session.class_grade,
       })
     );
   } catch (err) {

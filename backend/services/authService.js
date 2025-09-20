@@ -67,10 +67,11 @@ exports.getSession = async (sessionToken) => {
   try {
     const result = await pool.query(
       `
-      SELECT s.token, s.user_id, s.expires_at, u.username, r.name AS role, u.class_id, u.is_class_teacher
+      SELECT s.token, s.user_id, s.expires_at, u.username, r.name AS role, u.class_id, u.is_class_teacher, c.name AS class_name, c.grade AS class_grade
       FROM sessions s
       JOIN users u ON s.user_id = u.id
       JOIN roles r ON u.role_id = r.id
+      LEFT JOIN classes c ON u.class_id = c.id
       WHERE s.token = $1 AND s.expires_at > NOW()
       `,
       [sessionToken]
@@ -89,6 +90,8 @@ exports.getSession = async (sessionToken) => {
       role: session.role,
       class_id: session.class_id,
       is_class_teacher: session.is_class_teacher,
+      class_name: session.class_name,
+      class_grade: session.class_grade,
       expiresAt: session.expires_at,
     };
   } catch (err) {
