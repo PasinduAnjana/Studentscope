@@ -17,12 +17,28 @@
 
   "sidebar": {
     "dashboard": "ඩෑෂ්බෝර්ඩ්",
+    "profile": "පැතිකඩ",
     "attendance": "පැමිණීම",
     "timeTable": "කාලසටහන",
     "marks": "ලකුණු ",
     "students": "ශිෂ්‍යයන්",
     "class_subjects": "පන්ති විෂයයන්",
     "announcements": "නිවේදන"
+  },
+  "profile": {
+    "quickStats": "ඉක්මන් සංඛ්‍යාලේඛන",
+    "teachingClasses": "ඉගැන්වීමේ පන්ති",
+    "loadingClasses": "පන්ති පූරණය වෙමින්...",
+    "noClassesAssigned": "පන්ති කිසිවක් පවරා නොමැත",
+    "username": "පරිශීලක නාමය:",
+    "class": "පන්තිය:",
+    "classTeacher": "පන්ති ගුරුවරයා:",
+    "teacher": "ගුරුවරයා",
+    "notAssigned": "පවරා නොමැත",
+    "yes": "ඔව්",
+    "no": "නැත",
+    "classes": "පන්ති",
+    "students": "ශිෂ්‍යයන්"
   },
 
   "teacher": {

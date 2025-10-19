@@ -8,12 +8,28 @@
   },
   "sidebar": {
     "dashboard": "டாஷ்போர்டு",
+    "profile": "சுயவிவரம்",
     "attendance": "வருகை குறி",
     "timeTable": "நேர அட்டவணை",
     "marks": "மதிப்பெண்கள் உள்ளிடுக",
     "students": "மாணவர்கள்",
     "class_subjects": "வகுப்பு பாடங்கள்",
     "announcements": "அறிவிப்புகள்"
+  },
+  "profile": {
+    "quickStats": "விரைவு புள்ளியியல்",
+    "teachingClasses": "கற்பித்தல் வகுப்புகள்",
+    "loadingClasses": "வகுப்புகள் ஏற்றப்படுகின்றன...",
+    "noClassesAssigned": "வகுப்புகள் ஒதுக்கப்படவில்லை",
+    "username": "பயனர் பெயர்:",
+    "class": "வகுப்பு:",
+    "classTeacher": "வகுப்பு ஆசிரியர்:",
+    "teacher": "ஆசிரியர்",
+    "notAssigned": "ஒதுக்கப்படவில்லை",
+    "yes": "ஆம்",
+    "no": "இல்லை",
+    "classes": "வகுப்புகள்",
+    "students": "மாணவர்கள்"
   },
   "teacher": {
     "greeting": "StudentScope-க்கு வரவேற்கிறோம்!",

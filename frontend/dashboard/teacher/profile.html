@@ -1,0 +1,175 @@
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-user"></i>
+    <span data="sidebar.profile"></span>
+  </h2>
+
+  <div class="card-grid">
+    <!-- Profile Information -->
+    <div class="card w-2 h-2 profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="profile-info">
+          <h3 id="teacher-name">Loading...</h3>
+          <p id="teacher-role" class="text-sm">Teacher</p>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="detail-label" data="profile.username"></span>
+          <span id="teacher-username">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.class"></span>
+          <span id="teacher-class">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.classTeacher"></span>
+          <span id="is-class-teacher">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-chart-bar icon"></i>
+        <p class="tile-label" data="profile.quickStats"></p>
+      </div>
+      <div class="stats-content">
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i class="fas fa-chalkboard-teacher"></i>
+          </div>
+          <span class="stat-number" id="total-classes">-</span>
+          <span class="stat-label" data="profile.classes"></span>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <span class="stat-number" id="total-students">-</span>
+          <span class="stat-label" data="profile.students"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teaching Classes -->
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-chalkboard icon"></i>
+        <p class="tile-label" data="profile.teachingClasses"></p>
+      </div>
+      <div id="classes-list">
+        <p class="text-sm" data="profile.loadingClasses"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  async function loadProfile() {
+    try {
+      const response = await fetch("/api/teacher/profile");
+      if (!response.ok) throw new Error("Failed to fetch profile");
+
+      const profile = await response.json();
+
+      // Update profile information
+      document.getElementById("teacher-name").textContent = profile.username;
+      document.getElementById("teacher-username").textContent =
+        profile.username;
+      document.getElementById("teacher-role").textContent =
+        getNestedValue(window.currentTranslations, "profile.teacher") ||
+        "Teacher";
+
+      if (profile.class_name && profile.class_grade) {
+        document.getElementById(
+          "teacher-class"
+        ).textContent = `Grade ${profile.class_grade} - ${profile.class_name}`;
+      } else {
+        document.getElementById("teacher-class").textContent =
+          getNestedValue(window.currentTranslations, "profile.notAssigned") ||
+          "Not assigned";
+      }
+
+      document.getElementById("is-class-teacher").textContent =
+        profile.is_class_teacher
+          ? getNestedValue(window.currentTranslations, "profile.yes") || "Yes"
+          : getNestedValue(window.currentTranslations, "profile.no") || "No";
+
+      // Load additional stats
+      await loadProfileStats(profile);
+    } catch (error) {
+      console.error("Error loading profile:", error);
+      document.getElementById("teacher-name").textContent =
+        "Error loading profile";
+    }
+  }
+
+  async function loadProfileStats(profile) {
+    try {
+      // Load teaching classes
+      const classesResponse = await fetch("/api/teacher/profile/classes");
+      if (classesResponse.ok) {
+        const classes = await classesResponse.json();
+        const classesList = document.getElementById("classes-list");
+
+        if (classes && classes.length > 0) {
+          classesList.innerHTML = `
+            <ul class="tile-list">
+              ${classes
+                .map(
+                  (classItem) => `
+                  <li>
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Grade ${classItem.grade} - ${classItem.name}</span>
+                  </li>
+                `
+                )
+                .join("")}
+            </ul>
+          `;
+        } else {
+          classesList.innerHTML =
+            '<p class="text-sm">' +
+            (getNestedValue(
+              window.currentTranslations,
+              "profile.noClassesAssigned"
+            ) || "No classes assigned") +
+            "</p>";
+        }
+
+        // Load classes count
+        document.getElementById("total-classes").textContent = classes
+          ? classes.length
+          : "0";
+      } else {
+        // Load classes count if API fails
+        document.getElementById("total-classes").textContent = "0";
+      }
+
+      // Load students count for the class
+      if (profile.class_id) {
+        const studentsResponse = await fetch(
+          `/api/teacher/students/class/${profile.class_id}`
+        );
+        if (studentsResponse.ok) {
+          const students = await studentsResponse.json();
+          document.getElementById("total-students").textContent =
+            students.length;
+        }
+      } else {
+        document.getElementById("total-students").textContent = "0";
+      }
+    } catch (error) {
+      console.error("Error loading profile stats:", error);
+    }
+  }
+
+  // Initialize
+  loadProfile();
+</script>

@@ -17,12 +17,28 @@
 
   "sidebar": {
     "dashboard": "Dashboard",
+    "profile": "Profile",
     "attendance": "Mark Attendance",
     "timeTable": "Time Table",
     "marks": "Enter Marks",
     "students": "Students",
     "class_subjects": "Class Subjects",
     "announcements": "Announcements"
+  },
+  "profile": {
+    "quickStats": "Quick Stats",
+    "teachingClasses": "Teaching Classes",
+    "loadingClasses": "Loading classes...",
+    "noClassesAssigned": "No classes assigned",
+    "username": "Username:",
+    "class": "Class:",
+    "classTeacher": "Class Teacher:",
+    "teacher": "Teacher",
+    "notAssigned": "Not assigned",
+    "yes": "Yes",
+    "no": "No",
+    "classes": "Classes",
+    "students": "Students"
   },
   "teacher": {
     "greeting": "Welcome to StudentScope!",

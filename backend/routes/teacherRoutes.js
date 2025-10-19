@@ -3,6 +3,7 @@ const timetableController = require("../controllers/teacher/timetableController"
 const attendanceController = require("../controllers/teacher/attendanceController");
 const subjectAssignmentController = require("../controllers/teacher/subjectAssignmentController");
 const announcementsController = require("../controllers/teacher/announcementsController");
+const profileController = require("../controllers/teacher/profileController");
 const { protect } = require("../middleware/authMiddleware");
 
 module.exports = (req, res) => {
@@ -23,6 +24,20 @@ module.exports = (req, res) => {
         { ...req, params: { classId } },
         res
       )
+    );
+  }
+
+  // Profile route
+  if (req.method === "GET" && req.url === "/api/teacher/profile") {
+    return protect("teacher")(req, res, () =>
+      profileController.getProfile(req, res)
+    );
+  }
+
+  // Teacher classes route
+  if (req.method === "GET" && req.url === "/api/teacher/profile/classes") {
+    return protect("teacher")(req, res, () =>
+      profileController.getTeacherClasses(req, res)
     );
   }
 
