@@ -1,11 +1,6 @@
 [
   { "label": "sidebar.dashboard", "page": "dashboard", "icon": "fas fa-home" },
   { "label": "sidebar.students", "page": "students", "icon": "fas fa-users" },
-  {
-    "label": "clerk.add_student",
-    "page": "addStudent",
-    "icon": "fas fa-user-plus"
-  },
   { "label": "Post Notices", "page": "notices", "icon": "fas fa-bullhorn" },
   { "label": "Achievements", "page": "achievements", "icon": "fas fa-trophy" }
 ]

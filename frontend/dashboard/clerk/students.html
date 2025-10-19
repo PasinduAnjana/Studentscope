@@ -1,75 +1,808 @@
-<section class="section">
-  <div class="flex-between">
-    <h2 class="heading" data="sidebar.students"></h2>
-    <button
-      class="btn btn-primary"
-      onclick="window.location.href = 'layout.html?role=clerk&page=addStudent'""
-    >
-      <i class="fas fa-user-plus"></i> Add Student
-    </button>
-  </div>
+<style>
+  /* Modal Styles */
+  .modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
+  .modal-content {
+    background-color: var(--color-card);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    color: var(--color-text);
+  }
+
+  .modal-close {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--color-subtext);
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .modal-close:hover {
+    color: var(--color-text);
+  }
+
+  .modal-body {
+    padding: 20px;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .input-group {
+    margin-bottom: 15px;
+  }
+
+  .input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .input-group input,
+  .input-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  .input-group input:focus,
+  .input-group select:focus {
+    border-color: var(--color-primary);
+    outline: none;
+  }
+
+  /* Action buttons styling */
+  .action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+  }
+
+  /* Form grid styling */
+  .student-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  .student-form-grid .input-group {
+    margin-bottom: 0;
+  }
+</style>
+</style>
+</style>
+</style>
+
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-users"></i>
+    <span>Student Management</span>
+  </h2>
   <div class="card">
-    <h1 class="title" data="sidebar.students"></h1>
+    <div class="flex-between mb-2">
+      <h1 class="title">Students</h1>
+      <button
+        id="add-student-btn"
+        class="btn btn-primary"
+        onclick="openAddStudentModal()"
+      >
+        <i class="fas fa-user-plus"></i> Add Student
+      </button>
+    </div>
+    <!-- Search Bar and Class Dropdown -->
+    <div
+      class="flex mb-2 filter-controls"
+      style="gap: 16px; align-items: baseline; flex-wrap: wrap"
+    >
+      <div class="search-group" style="max-width: 350px">
+        <input
+          type="text"
+          id="student-search"
+          class="search-input"
+          placeholder="Search students..."
+        />
+        <span class="search-icon"><i class="fas fa-search"></i></span>
+      </div>
+      <div class="input-group">
+        <select id="class-filter">
+          <option value="">All Classes</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <select id="page-size">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
     <div class="table-responsive">
       <table id="student-table">
-<thead>
-  <tr>
-    <th data="table.name">Name</th>
-    <th data="table.class">Index</th>
-    <th data="table.email">Email</th>
-    <th data="table.grade">Grade</th>
-    <th data="table.actions"></th>
-  </tr>
-</thead>
-
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Index Number</th>
+            <th>Class</th>
+            <th>Birthday</th>
+            <th>Gender</th>
+            <th>Parent</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
         <tbody>
-          <!-- Students will be loaded here dynamically -->
+          <!-- Students will be loaded here -->
         </tbody>
       </table>
+    </div>
+    <!-- Pagination Controls -->
+    <div
+      class="pagination-controls"
+      style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+      "
+    >
+      <button id="prev-page" class="btn btn-secondary" disabled>
+        <i class="fas fa-chevron-left"></i> Previous
+      </button>
+      <div id="page-numbers" style="display: flex; gap: 5px"></div>
+      <button id="next-page" class="btn btn-secondary" disabled>
+        Next <i class="fas fa-chevron-right"></i>
+      </button>
+      <span
+        id="page-info"
+        style="margin-left: 20px; color: var(--color-subtext)"
+      ></span>
     </div>
   </div>
 </section>
 
+<!-- Add/Edit Student Modal -->
+<div id="student-modal" class="modal" style="display: none">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modal-title">Add Student</h3>
+      <span class="modal-close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="student-form-grid">
+        <div class="input-group">
+          <label for="student-full-name">Full Name:</label>
+          <input
+            type="text"
+            id="student-full-name"
+            placeholder="Enter full name"
+          />
+        </div>
+        <div class="input-group">
+          <label for="student-username">Index Number (Username):</label>
+          <input
+            type="text"
+            id="student-username"
+            placeholder="Enter index number"
+          />
+        </div>
+        <div class="input-group">
+          <label for="student-birthday">Birthday:</label>
+          <input type="date" id="student-birthday" />
+        </div>
+        <div class="input-group">
+          <label for="student-gender">Gender:</label>
+          <select id="student-gender">
+            <option value="">Select Gender</option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="student-address">Address:</label>
+          <input type="text" id="student-address" placeholder="Enter address" />
+        </div>
+        <div class="input-group">
+          <label for="student-class">Class:</label>
+          <select id="student-class">
+            <option value="">Select Class</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="student-nationality">Nationality:</label>
+          <input
+            type="text"
+            id="student-nationality"
+            placeholder="Enter nationality"
+          />
+        </div>
+        <div class="input-group">
+          <label for="parent-name">Parent Name:</label>
+          <input type="text" id="parent-name" placeholder="Enter parent name" />
+        </div>
+        <div class="input-group" style="grid-column: span 2;">
+          <label for="parent-address">Parent Address:</label>
+          <input
+            type="text"
+            id="parent-address"
+            placeholder="Enter parent address"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
+      <button id="modal-save" class="btn btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  function fetchStudents() {
-    fetch("/api/clerk/students")
-      .then((res) => {
-        if (!res.ok) throw new Error(res.body || "Failed to fetch students");
-        return res.json();
-      })
-      .then((data) => {
-        const tbody = document.querySelector("#student-table tbody");
-        tbody.innerHTML = ""; // Clear previous data
+  let allStudents = [];
+  let allClasses = [];
+  let editingStudent = null;
+  // Pagination variables
+  let currentPage = 1;
+  let pageSize = 25;
+  let totalPages = 1;
+  // references to searchable dropdown wrappers so we can destroy/recreate when class lists change
+  let searchableClassFilter = null;
+  let searchableClassSelect = null;
+  let searchableGenderSelect = null;
+  let searchablePageSize = null;
 
-        data.forEach((student) => {
-          const row = document.createElement("tr");
-
-row.innerHTML = `
-  <td>${student.name}</td>
-  <td>${student.index_number}</td>
-  <td>${student.email}</td>
-  <td>${student.grade} - ${student.class_name}</td>
-  <td class="action-buttons">
-    <button class="icon-btn text-primary" title="Edit" onclick="editStudent('${student.id}')">
-      <i class="fas fa-edit"></i>
-    </button>
-    <button class="icon-btn text-danger" title="Delete" onclick="deleteStudent('${student.id}')">
-      <i class="fas fa-trash-alt"></i>
-    </button>
-  </td>
-`;
-
-
-          tbody.appendChild(row);
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        const tbody = document.querySelector("#student-table tbody");
-        tbody.innerHTML = `<tr><td colspan="3" class="text-error">Error loading students</td></tr>`;
-      });
+  function updateSearchableDisplay(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const wrapper = select.previousElementSibling;
+    if (wrapper && wrapper.classList.contains("searchable-select")) {
+      const displaySpan = wrapper.querySelector(".dropdown-display span");
+      const opt =
+        select.options[select.selectedIndex] ||
+        Array.from(select.options).find((o) => o.value);
+      if (displaySpan) displaySpan.textContent = opt ? opt.text : "";
+    }
   }
 
+  // Global helper so inline onclick fallback can open the modal reliably
+  function openAddStudentModal() {
+    editingStudent = null;
+    const titleEl = document.getElementById("modal-title");
+    if (titleEl) titleEl.textContent = "Add Student";
+    clearModal();
+    const modal = document.getElementById("student-modal");
+    if (modal) modal.style.display = "flex";
+  }
+
+  function renderStudents(filtered) {
+    const tbody = document.querySelector("#student-table tbody");
+    tbody.innerHTML = "";
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center">No students found</td></tr>`;
+      updatePaginationControls(0);
+      return;
+    }
+
+    // Calculate pagination
+    totalPages = Math.ceil(filtered.length / pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const studentsToShow = filtered.slice(startIndex, endIndex);
+
+    studentsToShow.forEach((student) => {
+      const row = document.createElement("tr");
+      const className =
+        allClasses.find((c) => c.id == student.class_id)?.name || "";
+      const grade =
+        allClasses.find((c) => c.id == student.class_id)?.grade || "";
+      row.innerHTML = `
+        <td>${student.full_name}</td>
+        <td>${student.username}</td>
+        <td>${grade} - ${className}</td>
+        <td>${
+          student.birthday
+            ? new Date(student.birthday).toLocaleDateString()
+            : ""
+        }</td>
+        <td>${student.gender}</td>
+        <td>${student.parent?.name || ""}</td>
+        <td>
+          <div class="action-buttons">
+            <button class="btn-icon btn-edit" onclick="editStudent(${
+              student.id
+            })" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon btn-delete" onclick="deleteStudent(${
+              student.id
+            })" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    updatePaginationControls(filtered.length);
+  }
+
+  function updatePaginationControls(totalItems) {
+    const prevBtn = document.getElementById("prev-page");
+    const nextBtn = document.getElementById("next-page");
+    const pageNumbers = document.getElementById("page-numbers");
+    const pageInfo = document.getElementById("page-info");
+
+    // Update button states
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= totalPages;
+
+    // Update page info
+    const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+    const endItem = Math.min(currentPage * pageSize, totalItems);
+    pageInfo.textContent = `Showing ${startItem}-${endItem} of ${totalItems} students`;
+
+    // Generate page number buttons
+    pageNumbers.innerHTML = "";
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    // Add first page button if not in range
+    if (startPage > 1) {
+      const firstBtn = document.createElement("button");
+      firstBtn.className = "btn btn-secondary";
+      firstBtn.textContent = "1";
+      firstBtn.onclick = () => goToPage(1);
+      pageNumbers.appendChild(firstBtn);
+
+      if (startPage > 2) {
+        const ellipsis = document.createElement("span");
+        ellipsis.textContent = "...";
+        ellipsis.style.margin = "0 5px";
+        pageNumbers.appendChild(ellipsis);
+      }
+    }
+
+    // Add page number buttons
+    for (let i = startPage; i <= endPage; i++) {
+      const pageBtn = document.createElement("button");
+      pageBtn.className = `btn ${
+        i === currentPage ? "btn-primary" : "btn-secondary"
+      }`;
+      pageBtn.textContent = i;
+      pageBtn.onclick = () => goToPage(i);
+      pageNumbers.appendChild(pageBtn);
+    }
+
+    // Add last page button if not in range
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        const ellipsis = document.createElement("span");
+        ellipsis.textContent = "...";
+        ellipsis.style.margin = "0 5px";
+        pageNumbers.appendChild(ellipsis);
+      }
+
+      const lastBtn = document.createElement("button");
+      lastBtn.className = "btn btn-secondary";
+      lastBtn.textContent = totalPages;
+      lastBtn.onclick = () => goToPage(totalPages);
+      pageNumbers.appendChild(lastBtn);
+    }
+  }
+
+  function goToPage(page) {
+    if (page >= 1 && page <= totalPages) {
+      currentPage = page;
+      filterAndRender();
+    }
+  }
+
+  function filterAndRender(resetPage = false) {
+    const q = document
+      .getElementById("student-search")
+      .value.trim()
+      .toLowerCase();
+    const classId = document.getElementById("class-filter").value;
+    let filtered = allStudents;
+    if (classId) {
+      filtered = filtered.filter((s) => s.class_id == classId);
+    }
+    if (q) {
+      filtered = filtered.filter(
+        (student) =>
+          student.full_name.toLowerCase().includes(q) ||
+          student.username.toLowerCase().includes(q)
+      );
+    }
+    // Reset to page 1 only when filters actually change, not on every render
+    if (resetPage) {
+      currentPage = 1;
+    }
+    renderStudents(filtered);
+  }
+
+  async function fetchStudents() {
+    try {
+      const res = await fetch("/api/clerk/students");
+      if (!res.ok) throw new Error("Failed to fetch students");
+      allStudents = await res.json();
+      filterAndRender();
+    } catch (err) {
+      console.error(err);
+      const tbody = document.querySelector("#student-table tbody");
+      tbody.innerHTML = `<tr><td colspan="7" class="text-error">Error loading students</td></tr>`;
+    }
+  }
+
+  async function fetchClasses() {
+    try {
+      const res = await fetch("/api/clerk/classes");
+      if (!res.ok) throw new Error("Failed to fetch classes");
+      allClasses = await res.json();
+      populateClassFilter();
+      populateClassSelect();
+      populateGenderSelect();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function populateClassFilter() {
+    const select = document.getElementById("class-filter");
+    // destroy previous searchable instance if any
+    if (
+      searchableClassFilter &&
+      typeof searchableClassFilter.destroy === "function"
+    ) {
+      searchableClassFilter.destroy();
+      searchableClassFilter = null;
+    }
+    select.innerHTML = '<option value="">All Classes</option>';
+    allClasses.forEach((cls) => {
+      const option = document.createElement("option");
+      option.value = cls.id;
+      option.textContent = `${cls.grade} - ${cls.name}`;
+      select.appendChild(option);
+    });
+    // transform into searchable dropdown
+    if (typeof makeSearchableDropdown === "function") {
+      searchableClassFilter = makeSearchableDropdown(
+        "class-filter",
+        (val, text) => {
+          // ensure the underlying select value is set and trigger filtering
+          const sel = document.getElementById("class-filter");
+          if (sel) sel.value = val;
+          filterAndRender(true);
+        }
+      );
+    }
+  }
+
+  function setupSearch() {
+    document
+      .getElementById("student-search")
+      .addEventListener("input", () => filterAndRender(true));
+    document.getElementById("page-size").addEventListener("change", (e) => {
+      pageSize = parseInt(e.target.value);
+      currentPage = 1; // Reset to first page when page size changes
+      filterAndRender();
+    });
+    document
+      .getElementById("prev-page")
+      .addEventListener("click", () => goToPage(currentPage - 1));
+    document
+      .getElementById("next-page")
+      .addEventListener("click", () => goToPage(currentPage + 1));
+  }
+
+  function populateClassSelect() {
+    const select = document.getElementById("student-class");
+    // destroy previous searchable instance if any
+    if (
+      searchableClassSelect &&
+      typeof searchableClassSelect.destroy === "function"
+    ) {
+      searchableClassSelect.destroy();
+      searchableClassSelect = null;
+    }
+    select.innerHTML = '<option value="">Select Class</option>';
+    allClasses.forEach((cls) => {
+      const option = document.createElement("option");
+      option.value = cls.id;
+      option.textContent = `${cls.grade} - ${cls.name}`;
+      select.appendChild(option);
+    });
+    // transform into searchable dropdown
+    if (typeof makeSearchableDropdown === "function") {
+      searchableClassSelect = makeSearchableDropdown(
+        "student-class",
+        (val, text) => {
+          // nothing extra needed; makeSearchableDropdown will set select.value
+        }
+      );
+    }
+  }
+
+  function populateGenderSelect() {
+    const select = document.getElementById("student-gender");
+    // destroy previous searchable instance if any
+    if (
+      searchableGenderSelect &&
+      typeof searchableGenderSelect.destroy === "function"
+    ) {
+      searchableGenderSelect.destroy();
+      searchableGenderSelect = null;
+    }
+    select.innerHTML = '<option value="">Select Gender</option>';
+    const genderOptions = [
+      { value: "M", text: "Male" },
+      { value: "F", text: "Female" }
+    ];
+    genderOptions.forEach((option) => {
+      const opt = document.createElement("option");
+      opt.value = option.value;
+      opt.textContent = option.text;
+      select.appendChild(opt);
+    });
+    // transform into searchable dropdown
+    if (typeof makeSearchableDropdown === "function") {
+      searchableGenderSelect = makeSearchableDropdown(
+        "student-gender",
+        (val, text) => {
+          // nothing extra needed; makeSearchableDropdown will set select.value
+        }
+      );
+    }
+  }
+
+  function populatePageSizeSelect() {
+    const select = document.getElementById("page-size");
+    // destroy previous searchable instance if any
+    if (
+      searchablePageSize &&
+      typeof searchablePageSize.destroy === "function"
+    ) {
+      searchablePageSize.destroy();
+      searchablePageSize = null;
+    }
+    select.innerHTML = "";
+    const pageSizeOptions = [
+      { value: "5", text: "5" },
+      { value: "10", text: "10" },
+      { value: "25", text: "25" },
+      { value: "50", text: "50" },
+      { value: "100", text: "100" }
+    ];
+    pageSizeOptions.forEach((option) => {
+      const opt = document.createElement("option");
+      opt.value = option.value;
+      opt.textContent = option.text;
+      if (option.value === "25") opt.selected = true; // Default to 25
+      select.appendChild(opt);
+    });
+    // transform into searchable dropdown
+    if (typeof makeSearchableDropdown === "function") {
+      searchablePageSize = makeSearchableDropdown(
+        "page-size",
+        (val, text) => {
+          // Update pageSize and refresh display
+          pageSize = parseInt(val);
+          currentPage = 1; // Reset to first page when page size changes
+          filterAndRender();
+        }
+      );
+    }
+  }
+
+  function setupSearch() {
+    document
+      .getElementById("student-search")
+      .addEventListener("input", () => filterAndRender(true));
+    document
+      .getElementById("prev-page")
+      .addEventListener("click", () => goToPage(currentPage - 1));
+    document
+      .getElementById("next-page")
+      .addEventListener("click", () => goToPage(currentPage + 1));
+  }
+
+  function setupAddButton() {
+    const modal = document.getElementById("student-modal");
+    const saveBtn = document.getElementById("modal-save");
+
+    // helper to open modal
+    function openAddModal() {
+      editingStudent = null;
+      const titleEl = document.getElementById("modal-title");
+      if (titleEl) titleEl.textContent = "Add Student";
+      clearModal();
+      if (modal) modal.style.display = "flex";
+    }
+
+    // If the button exists at setup time, attach directly. Otherwise use delegation (works when page is injected later).
+    const addBtn = document.getElementById("add-student-btn");
+    if (addBtn) {
+      addBtn.addEventListener("click", openAddModal);
+    } else {
+      // delegation fallback
+      document.addEventListener("click", function delegationHandler(e) {
+        const target = e.target.closest && e.target.closest("#add-student-btn");
+        if (target) openAddModal();
+      });
+    }
+
+    const closeBtn = document.querySelector("#student-modal .modal-close");
+    const cancelBtn = document.getElementById("modal-cancel");
+
+    const closeModal = () => {
+      if (modal) modal.style.display = "none";
+    };
+
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+    if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+
+    if (saveBtn) saveBtn.addEventListener("click", saveStudent);
+  }
+
+  function clearModal() {
+    document.getElementById("student-full-name").value = "";
+    document.getElementById("student-username").value = "";
+    document.getElementById("student-birthday").value = "";
+    document.getElementById("student-address").value = "";
+    document.getElementById("student-gender").value = "";
+    document.getElementById("student-nationality").value = "";
+    document.getElementById("student-class").value = "";
+    // update searchable display if present
+    updateSearchableDisplay("student-class");
+    updateSearchableDisplay("student-gender");
+    document.getElementById("parent-name").value = "";
+    document.getElementById("parent-address").value = "";
+  }
+
+  async function saveStudent() {
+    const data = {
+      full_name: document.getElementById("student-full-name").value.trim(),
+      username: document.getElementById("student-username").value.trim(),
+      birthday: document.getElementById("student-birthday").value,
+      address: document.getElementById("student-address").value.trim(),
+      gender: document.getElementById("student-gender").value,
+      nationality: document.getElementById("student-nationality").value.trim(),
+      class_id: document.getElementById("student-class").value,
+      parent_name: document.getElementById("parent-name").value.trim(),
+      parent_address: document.getElementById("parent-address").value.trim(),
+    };
+
+    if (!data.full_name || !data.username || !data.class_id) {
+      toast(
+        "Please fill in all required fields.",
+        "fa-solid fa-circle-exclamation"
+      );
+      return;
+    }
+
+    try {
+      const method = editingStudent ? "PUT" : "POST";
+      const url = editingStudent
+        ? `/api/clerk/students/${editingStudent.id}`
+        : "/api/clerk/students";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to save student");
+      document.getElementById("student-modal").style.display = "none";
+      toast("Student saved successfully", "fa-solid fa-check-circle");
+      fetchStudents();
+    } catch (err) {
+      console.error(err);
+      toast("Error saving student", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  function editStudent(id) {
+    const student = allStudents.find((s) => s.id == id);
+    if (!student) {
+      toast("Student not found", "fa-solid fa-circle-exclamation");
+      return;
+    }
+    editingStudent = student;
+    document.getElementById("modal-title").textContent = "Edit Student";
+    document.getElementById("student-full-name").value = student.full_name;
+    document.getElementById("student-username").value = student.username;
+    document.getElementById("student-birthday").value = student.birthday;
+    document.getElementById("student-address").value = student.address;
+    document.getElementById("student-gender").value = student.gender;
+    document.getElementById("student-nationality").value = student.nationality;
+    document.getElementById("student-class").value = student.class_id;
+    // update searchable display to reflect selected class and gender
+    updateSearchableDisplay("student-class");
+    updateSearchableDisplay("student-gender");
+    document.getElementById("parent-name").value = student.parent?.name || "";
+    document.getElementById("parent-address").value =
+      student.parent?.address || "";
+    document.getElementById("student-modal").style.display = "flex";
+  }
+
+  function deleteStudent(id) {
+    toast(
+      "Are you sure you want to delete this student?",
+      "fa-solid fa-trash",
+      {
+        confirm: true,
+        confirmText: "Delete",
+        cancelText: "Cancel",
+        onConfirm: async () => {
+          try {
+            const res = await fetch(`/api/clerk/students/${id}`, {
+              method: "DELETE",
+            });
+            if (!res.ok) throw new Error("Failed to delete student");
+            toast("Student deleted successfully", "fa-solid fa-check-circle");
+            fetchStudents();
+          } catch (err) {
+            console.error(err);
+            toast("Error deleting student", "fa-solid fa-circle-exclamation");
+          }
+        },
+      }
+    );
+  }
+
+  // Initialize
+  populatePageSizeSelect();
+  pageSize = parseInt(document.getElementById("page-size").value);
+  fetchClasses();
   fetchStudents();
+  setupSearch();
+  setupAddButton();
 </script>

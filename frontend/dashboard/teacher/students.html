@@ -147,7 +147,7 @@
           >Class: <span id="class-name"></span
         ></span>
       </div>
-      <div style="display: flex; gap: 10px; margin-left: auto;">
+      <div style="display: flex; gap: 10px; margin-left: auto">
         <button id="export-pdf-btn" class="btn btn-primary">
           <i class="fas fa-file-pdf"></i> Export PDF
         </button>
@@ -253,19 +253,46 @@
     <div class="modal-body">
       <div class="input-group" style="margin-bottom: 15px">
         <label for="pdf-heading">Heading:</label>
-        <input type="text" id="pdf-heading" class="input" placeholder="Enter heading..." />
+        <input
+          type="text"
+          id="pdf-heading"
+          class="input"
+          placeholder="Enter heading..."
+        />
       </div>
       <div class="input-group" style="margin-bottom: 15px">
         <label for="pdf-subheading">Subheading:</label>
-        <input type="text" id="pdf-subheading" class="input" placeholder="Enter subheading..." />
+        <input
+          type="text"
+          id="pdf-subheading"
+          class="input"
+          placeholder="Enter subheading..."
+        />
       </div>
       <div class="input-group" style="margin-bottom: 15px">
-        <label for="pdf-empty-columns">Number of Empty Columns (for signatures, etc.):</label>
-        <input type="number" id="pdf-empty-columns" class="input" placeholder="0" min="0" max="10" />
+        <label for="pdf-empty-columns"
+          >Number of Empty Columns (for signatures, etc.):</label
+        >
+        <input
+          type="number"
+          id="pdf-empty-columns"
+          class="input"
+          placeholder="0"
+          min="0"
+          max="10"
+        />
       </div>
       <div class="input-group" style="margin-bottom: 15px">
-        <label for="pdf-empty-titles">Empty Column Titles (comma-separated, e.g., Signature, Date, Notes):</label>
-        <input type="text" id="pdf-empty-titles" class="input" placeholder="Signature, Date, Notes" />
+        <label for="pdf-empty-titles"
+          >Empty Column Titles (comma-separated, e.g., Signature, Date,
+          Notes):</label
+        >
+        <input
+          type="text"
+          id="pdf-empty-titles"
+          class="input"
+          placeholder="Signature, Date, Notes"
+        />
       </div>
       <p>Select the fields you want to include in the PDF export:</p>
       <div class="export-fields">
@@ -318,7 +345,9 @@
     </div>
     <div class="modal-footer">
       <button id="export-pdf-cancel" class="btn btn-secondary">Cancel</button>
-      <button id="export-pdf-confirm" class="btn btn-primary">Export PDF</button>
+      <button id="export-pdf-confirm" class="btn btn-primary">
+        Export PDF
+      </button>
     </div>
   </div>
 </div>
@@ -483,15 +512,27 @@
     confirmBtn.addEventListener("click", () => {
       const heading = document.getElementById("pdf-heading").value.trim();
       const subheading = document.getElementById("pdf-subheading").value.trim();
-      const emptyColumns = parseInt(document.getElementById("pdf-empty-columns").value) || 0;
-      const emptyTitles = document.getElementById("pdf-empty-titles").value.split(',').map(t => t.trim()).filter(t => t);
+      const emptyColumns =
+        parseInt(document.getElementById("pdf-empty-columns").value) || 0;
+      const emptyTitles = document
+        .getElementById("pdf-empty-titles")
+        .value.split(",")
+        .map((t) => t.trim())
+        .filter((t) => t);
       const selectedFields = getSelectedPDFFields();
       if (selectedFields.length === 0) {
         alert("Please select at least one field to export.");
         return;
       }
       const filteredStudents = getFilteredStudents();
-      exportToPDF(filteredStudents, selectedFields, heading, subheading, emptyColumns, emptyTitles);
+      exportToPDF(
+        filteredStudents,
+        selectedFields,
+        heading,
+        subheading,
+        emptyColumns,
+        emptyTitles
+      );
       closeModal();
     });
   }
@@ -603,7 +644,14 @@
   }
 
   // Export to PDF
-  function exportToPDF(students, fields, heading, subheading, emptyColumns, emptyTitles) {
+  function exportToPDF(
+    students,
+    fields,
+    heading,
+    subheading,
+    emptyColumns,
+    emptyTitles
+  ) {
     if (students.length === 0) {
       alert("No students to export.");
       return;
@@ -646,7 +694,7 @@
 
     // Add empty column headers with titles
     for (let i = 0; i < emptyColumns; i++) {
-      const title = emptyTitles[i] || '';
+      const title = emptyTitles[i] || "";
       htmlContent += `<th>${title}</th>`;
     }
 
