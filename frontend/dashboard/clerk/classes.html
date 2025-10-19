@@ -15,9 +15,9 @@
       <button class="modal-close" onclick="closeModal()">&times;</button>
     </div>
     <div class="modal-body">
-      <div class="form-group" id="classNameGroup" style="display: none;">
+      <div class="form-group" id="classNameGroup" style="display: none">
         <label for="classNameInput">Class Name:</label>
-        <input type="text" id="classNameInput" placeholder="Enter class name">
+        <input type="text" id="classNameInput" placeholder="Enter class name" />
       </div>
       <div class="form-group">
         <label for="teacherSelect">Select Teacher:</label>
@@ -28,7 +28,14 @@
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-danger" id="deleteBtn" onclick="deleteClass()" style="display: none;">Delete Class</button>
+      <button
+        class="btn-danger"
+        id="deleteBtn"
+        onclick="deleteClass()"
+        style="display: none"
+      >
+        Delete Class
+      </button>
       <button class="btn-primary" onclick="saveTeacherAssignment()">
         Save
       </button>
@@ -49,7 +56,10 @@
       ]);
 
       if (classesResponse.error) {
-        toast("Unable to load classes: " + classesResponse.error, "fa-solid fa-exclamation-triangle");
+        toast(
+          "Unable to load classes: " + classesResponse.error,
+          "fa-solid fa-exclamation-triangle"
+        );
         return;
       }
 
@@ -101,7 +111,10 @@
       });
     } catch (error) {
       console.error("Error loading classes:", error);
-      toast("An error occurred while loading classes", "fa-solid fa-exclamation-triangle");
+      toast(
+        "An error occurred while loading classes",
+        "fa-solid fa-exclamation-triangle"
+      );
     }
   }
 
@@ -207,9 +220,14 @@
       };
 
       if (!currentClassData.class_name) {
-        const className = document.getElementById("classNameInput").value.trim();
+        const className = document
+          .getElementById("classNameInput")
+          .value.trim();
         if (!className) {
-          toast("Please enter a class name", "fa-solid fa-exclamation-triangle");
+          toast(
+            "Please enter a class name",
+            "fa-solid fa-exclamation-triangle"
+          );
           return;
         }
         payload.class_name = className;
@@ -237,7 +255,10 @@
       loadClasses();
     } catch (error) {
       console.error("Error saving teacher assignment:", error);
-      toast("An error occurred while saving", "fa-solid fa-exclamation-triangle");
+      toast(
+        "An error occurred while saving",
+        "fa-solid fa-exclamation-triangle"
+      );
     }
   }
 
@@ -251,9 +272,12 @@
       confirm: true,
       onConfirm: async () => {
         try {
-          const response = await fetch(`/api/clerk/classes/${currentClassData.id}`, {
-            method: "DELETE",
-          });
+          const response = await fetch(
+            `/api/clerk/classes/${currentClassData.id}`,
+            {
+              method: "DELETE",
+            }
+          );
 
           const data = await response.json();
 
@@ -267,9 +291,12 @@
           loadClasses();
         } catch (error) {
           console.error("Error deleting class:", error);
-          toast("An error occurred while deleting", "fa-solid fa-exclamation-triangle");
+          toast(
+            "An error occurred while deleting",
+            "fa-solid fa-exclamation-triangle"
+          );
         }
-      }
+      },
     });
   }
 
