@@ -249,6 +249,122 @@ async function run() {
       }
     }
 
+    // 🔹 Teacher Details
+    const teacherDetailsData = [
+      {
+        full_name: "Mr. Jayasuriya Perera",
+        nic: "123456789V",
+        address: "456 Palm Street, Colombo",
+        phone_number: "+94-71-234-5678",
+        past_schools: "Royal College, Colombo",
+        appointment_date: "2018-06-15",
+        first_appointment_date: "2015-01-10",
+        level: 2,
+        birthday: "1980-03-20",
+      },
+      {
+        full_name: "Mrs. Kumari Silva",
+        nic: "987654321V",
+        address: "789 Hill Road, Kandy",
+        phone_number: "+94-81-234-5678",
+        past_schools: "Kandy High School",
+        appointment_date: "2019-08-20",
+        first_appointment_date: "2016-05-15",
+        level: 2,
+        birthday: "1982-07-14",
+      },
+      {
+        full_name: "Mr. Ruwan Fernando",
+        nic: "456789123V",
+        address: "321 Beach Lane, Galle",
+        phone_number: "+94-91-234-5678",
+        past_schools: "Galle Central College",
+        appointment_date: "2017-02-10",
+        first_appointment_date: "2014-09-01",
+        level: 3,
+        birthday: "1978-11-25",
+      },
+      {
+        full_name: "Miss. Nimal Jayasuriya",
+        nic: "789456123V",
+        address: "654 Temple Road, Matara",
+        phone_number: "+94-41-234-5678",
+        past_schools: "Matara Convent",
+        appointment_date: "2020-01-15",
+        first_appointment_date: "2017-07-20",
+        level: 1,
+        birthday: "1985-09-08",
+      },
+      {
+        full_name: "Dr. Anusha Wijesinghe",
+        nic: "321789456V",
+        address: "987 Garden Avenue, Kurunegala",
+        phone_number: "+94-37-234-5678",
+        past_schools: "Kurunegala National School",
+        appointment_date: "2016-11-20",
+        first_appointment_date: "2013-03-10",
+        level: 3,
+        birthday: "1976-05-12",
+      },
+      {
+        full_name: "Mr. Saman Gunawardena",
+        nic: "654123789V",
+        address: "147 Sunset Drive, Negombo",
+        phone_number: "+94-31-234-5678",
+        past_schools: "Negombo High School",
+        appointment_date: "2019-03-25",
+        first_appointment_date: "2015-10-05",
+        level: 2,
+        birthday: "1981-12-30",
+      },
+      {
+        full_name: "Miss. Dilani Rajapaksha",
+        nic: "159357852V",
+        address: "369 North Street, Jaffna",
+        phone_number: "+94-21-234-5678",
+        past_schools: "Jaffna Central College",
+        appointment_date: "2021-06-10",
+        first_appointment_date: "2018-02-14",
+        level: 1,
+        birthday: "1987-04-22",
+      },
+      {
+        full_name: "Mr. Chathura Dissanayake",
+        nic: "258369147V",
+        address: "741 Mountain View, Badulla",
+        phone_number: "+94-55-234-5678",
+        past_schools: "Badulla National School",
+        appointment_date: "2018-09-05",
+        first_appointment_date: "2015-12-01",
+        level: 2,
+        birthday: "1979-08-17",
+      },
+    ];
+
+    let teacherDetailIdx = 0;
+    for (const classKey in teacherIds) {
+      const tId = teacherIds[classKey];
+      const detailData =
+        teacherDetailsData[teacherDetailIdx % teacherDetailsData.length];
+      await pool.query(
+        `INSERT INTO teacher_details (teacher_id, full_name, nic, address, phone_number, past_schools, appointment_date, first_appointment_date, level, birthday)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        [
+          tId,
+          detailData.full_name,
+          detailData.nic,
+          detailData.address,
+          detailData.phone_number,
+          detailData.past_schools,
+          detailData.appointment_date,
+          detailData.first_appointment_date,
+          detailData.level,
+          detailData.birthday,
+        ]
+      );
+      teacherDetailIdx++;
+    }
+
     // 9️⃣ Parents
     const parentList = [
       { name: "Sunil Perera", address: "Colombo" },

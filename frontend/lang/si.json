@@ -38,7 +38,20 @@
     "yes": "ඔව්",
     "no": "නැත",
     "classes": "පන්ති",
-    "students": "ශිෂ්‍යයන්"
+    "students": "ශිෂ්‍යයන්",
+    "personalDetails": "පුද්ගලික විස්තර",
+    "informationContact": "තොරතුරු සහ සම්බන්ධතා",
+    "fullName": "සම්පූර්ණ නම",
+    "nic": "ජාතික හැඳුනුම් අංකය",
+    "birthday": "උපන් දිනය",
+    "address": "ලිපිනය",
+    "phoneNumber": "දුරකතන අංකය",
+    "professionalDetails": "වෘත්තීය විස්තර",
+    "experienceAppointment": "අත්දැකීම සහ පත්තමිකිරීම",
+    "level": "ස්තරය",
+    "firstAppointmentDate": "පළමු පත්තමිකිරීම් දිනය",
+    "appointmentDate": "පත්තමිකිරීම් දිනය",
+    "pastSchools": "පෙර පාසල්"
   },
 
   "teacher": {

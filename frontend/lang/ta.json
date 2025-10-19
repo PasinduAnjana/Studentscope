@@ -29,7 +29,20 @@
     "yes": "ஆம்",
     "no": "இல்லை",
     "classes": "வகுப்புகள்",
-    "students": "மாணவர்கள்"
+    "students": "மாணவர்கள்",
+    "personalDetails": "ব্যক্তিগত বিবরণ",
+    "informationContact": "তথ্য এবং যোগাযোগ",
+    "fullName": "সম্পূর্ণ নাম",
+    "nic": "জাতীয় পরিচয় সংখ্যা",
+    "birthday": "জন্মদিন",
+    "address": "ঠিকানা",
+    "phoneNumber": "ফোন নম্বর",
+    "professionalDetails": "পেশাদার বিবরণ",
+    "experienceAppointment": "অভিজ্ঞতা এবং নিয়োগ",
+    "level": "স্তর",
+    "firstAppointmentDate": "প্রথম নিয়োগ তারিখ",
+    "appointmentDate": "নিয়োগ তারিখ",
+    "pastSchools": "পূর্ববর্তী স্কুল"
   },
   "teacher": {
     "greeting": "StudentScope-க்கு வரவேற்கிறோம்!",

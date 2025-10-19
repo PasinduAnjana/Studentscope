@@ -209,6 +209,22 @@ END $$;
     `);
 
     await pool.query(`
+      CREATE TABLE IF NOT EXISTS teacher_details (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        teacher_id BIGINT REFERENCES users(id) UNIQUE,
+        full_name TEXT NOT NULL,
+        nic TEXT,
+        address TEXT,
+        phone_number TEXT,
+        past_schools TEXT,
+        appointment_date DATE,
+        first_appointment_date DATE,
+        level INTEGER CHECK (level IN (1, 2, 3)),
+        birthday DATE
+      );
+    `);
+
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS sessions (
         token TEXT PRIMARY KEY,
         user_id BIGINT REFERENCES users(id),

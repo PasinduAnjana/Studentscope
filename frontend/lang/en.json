@@ -38,7 +38,20 @@
     "yes": "Yes",
     "no": "No",
     "classes": "Classes",
-    "students": "Students"
+    "students": "Students",
+    "personalDetails": "Personal Details",
+    "informationContact": "Information & Contact",
+    "fullName": "Full Name",
+    "nic": "NIC",
+    "birthday": "Birthday",
+    "address": "Address",
+    "phoneNumber": "Phone Number",
+    "professionalDetails": "Professional Details",
+    "experienceAppointment": "Experience & Appointment",
+    "level": "Level",
+    "firstAppointmentDate": "First Appointment Date",
+    "appointmentDate": "Appointment Date",
+    "pastSchools": "Past Schools"
   },
   "teacher": {
     "greeting": "Welcome to StudentScope!",

@@ -33,6 +33,74 @@
       </div>
     </div>
 
+    <!-- Teacher Personal Details -->
+    <div class="card w-2 h-2 profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="fas fa-id-card"></i>
+        </div>
+        <div class="profile-info">
+          <h3 data="profile.personalDetails"></h3>
+          <p class="text-sm" data="profile.informationContact"></p>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="detail-label" data="profile.fullName"></span>
+          <span id="teacher-full-name">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.nic"></span>
+          <span id="teacher-nic">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.birthday"></span>
+          <span id="teacher-birthday">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.address"></span>
+          <span id="teacher-address">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.phoneNumber"></span>
+          <span id="teacher-phone">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teacher Professional Details -->
+    <div class="card w-2 h-2 profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="fas fa-briefcase"></i>
+        </div>
+        <div class="profile-info">
+          <h3 data="profile.professionalDetails"></h3>
+          <p class="text-sm" data="profile.experienceAppointment"></p>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="detail-label" data="profile.level"></span>
+          <span id="teacher-level">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.firstAppointmentDate"></span>
+          <span id="teacher-first-appointment">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.appointmentDate"></span>
+          <span id="teacher-appointment">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.pastSchools"></span>
+          <span id="teacher-past-schools">-</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Quick Stats -->
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
@@ -100,6 +168,38 @@
         profile.is_class_teacher
           ? getNestedValue(window.currentTranslations, "profile.yes") || "Yes"
           : getNestedValue(window.currentTranslations, "profile.no") || "No";
+
+      // Update teacher details if available
+      if (profile.details) {
+        const details = profile.details;
+
+        // Personal Details
+        document.getElementById("teacher-full-name").textContent =
+          details.full_name || "-";
+        document.getElementById("teacher-nic").textContent = details.nic || "-";
+        document.getElementById("teacher-birthday").textContent =
+          details.birthday
+            ? new Date(details.birthday).toLocaleDateString()
+            : "-";
+        document.getElementById("teacher-address").textContent =
+          details.address || "-";
+        document.getElementById("teacher-phone").textContent =
+          details.phone_number || "-";
+
+        // Professional Details
+        document.getElementById("teacher-level").textContent =
+          details.level || "-";
+        document.getElementById("teacher-first-appointment").textContent =
+          details.first_appointment_date
+            ? new Date(details.first_appointment_date).toLocaleDateString()
+            : "-";
+        document.getElementById("teacher-appointment").textContent =
+          details.appointment_date
+            ? new Date(details.appointment_date).toLocaleDateString()
+            : "-";
+        document.getElementById("teacher-past-schools").textContent =
+          details.past_schools || "-";
+      }
 
       // Load additional stats
       await loadProfileStats(profile);
