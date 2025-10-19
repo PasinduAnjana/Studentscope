@@ -574,3 +574,46 @@ exports.saveMarks = async (marksData) => {
     client.release();
   }
 };
+
+// Announcement functions
+exports.getAnnouncementsByClass = async (classId) => {
+  const result = await pool.query(
+    "SELECT id, title, description, created_at FROM announcements WHERE class_id = $1 ORDER BY created_at DESC",
+    [classId]
+  );
+  return result.rows;
+};
+
+exports.createAnnouncement = async ({
+  title,
+  description,
+  class_id,
+  teacher_id,
+}) => {
+  const result = await pool.query(
+    "INSERT INTO announcements (title, description, class_id, teacher_id, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *",
+    [title, description, class_id, teacher_id]
+  );
+  return result.rows[0];
+};
+
+exports.updateAnnouncement = async (
+  announcementId,
+  { title, description },
+  classId,
+  teacherId
+) => {
+  const result = await pool.query(
+    "UPDATE announcements SET title = $1, description = $2 WHERE id = $3 AND class_id = $4 AND teacher_id = $5 RETURNING *",
+    [title, description, announcementId, classId, teacherId]
+  );
+  return result.rows[0];
+};
+
+exports.deleteAnnouncement = async (announcementId, classId, teacherId) => {
+  const result = await pool.query(
+    "DELETE FROM announcements WHERE id = $1 AND class_id = $2 AND teacher_id = $3",
+    [announcementId, classId, teacherId]
+  );
+  return result.rowCount > 0;
+};

@@ -1,45 +1,47 @@
- {
-    "common": {
-      "welcome": "StudentScope-க்கு வரவேற்கிறோம்",
-      "dashboard": "டாஷ்போர்டு",
-      "profile": "சுயவிவரம்",
-      "settings": "அமைப்புகள்",
-      "logout": "வெளியேறு"
-    },
-    "sidebar": {
-      "dashboard": "டாஷ்போர்டு",
-      "attendance": "வருகை குறி",
-      "timeTable": "நேர அட்டவணை",
-      "marks": "மதிப்பெண்கள் உள்ளிடுக",
-      "students": "மாணவர்கள்"
-    },
-    "teacher": {
-      "greeting": "StudentScope-க்கு வரவேற்கிறோம்!",
-      "greeting_2": "நீங்கள் ஆசிரியராக உள்நுழைந்துள்ளீர்கள்",
-      "attendance": "வருகை",
-  "attendance_not_marked": "குறிக்கப்படவில்லை",
-  "attendance_not_marked_today": "நீங்கள் இன்று வருகை பதிவு செய்யவில்லை",
-  "attendance_already_marked_today": "இன்று வருகை பதிவு செய்யப்பட்டுள்ளது",
-      "mark_attendance": "வருகை குறி",
-      "timetable": "இன்றைய நேர அட்டவணை",
-      "current_class": "தற்போதைய வகுப்பு",
-      "marks": "மதிப்பெண்கள் உள்ளிடுக",
-      "students": "மாணவர்கள்"
-    },
-    "buttons": {
-      "save": "சேமிக்க",
-      "cancel": "ரத்து செய்ய",
-      "submit": "சமர்ப்பிக்க",
-      "edit": "திருத்த",
-      "delete": "அழி"
-    },
-    "errors": {
-      "pageNotFound": "பக்கம் கிடைக்கவில்லை",
-      "pageNotFoundDescription": "கோரிய பக்கத்தை ஏற்ற முடியவில்லை."
-    },
-    "languages": {
-      "en": "English",
-      "si": "සිංහල",
-      "ta": "தமிழ்"
-    }
+{
+  "common": {
+    "welcome": "StudentScope-க்கு வரவேற்கிறோம்",
+    "dashboard": "டாஷ்போர்டு",
+    "profile": "சுயவிவரம்",
+    "settings": "அமைப்புகள்",
+    "logout": "வெளியேறு"
+  },
+  "sidebar": {
+    "dashboard": "டாஷ்போர்டு",
+    "attendance": "வருகை குறி",
+    "timeTable": "நேர அட்டவணை",
+    "marks": "மதிப்பெண்கள் உள்ளிடுக",
+    "students": "மாணவர்கள்",
+    "class_subjects": "வகுப்பு பாடங்கள்",
+    "announcements": "அறிவிப்புகள்"
+  },
+  "teacher": {
+    "greeting": "StudentScope-க்கு வரவேற்கிறோம்!",
+    "greeting_2": "நீங்கள் ஆசிரியராக உள்நுழைந்துள்ளீர்கள்",
+    "attendance": "வருகை",
+    "attendance_not_marked": "குறிக்கப்படவில்லை",
+    "attendance_not_marked_today": "நீங்கள் இன்று வருகை பதிவு செய்யவில்லை",
+    "attendance_already_marked_today": "இன்று வருகை பதிவு செய்யப்பட்டுள்ளது",
+    "mark_attendance": "வருகை குறி",
+    "timetable": "இன்றைய நேர அட்டவணை",
+    "current_class": "தற்போதைய வகுப்பு",
+    "marks": "மதிப்பெண்கள் உள்ளிடுக",
+    "students": "மாணவர்கள்"
+  },
+  "buttons": {
+    "save": "சேமிக்க",
+    "cancel": "ரத்து செய்ய",
+    "submit": "சமர்ப்பிக்க",
+    "edit": "திருத்த",
+    "delete": "அழி"
+  },
+  "errors": {
+    "pageNotFound": "பக்கம் கிடைக்கவில்லை",
+    "pageNotFoundDescription": "கோரிய பக்கத்தை ஏற்ற முடியவில்லை."
+  },
+  "languages": {
+    "en": "English",
+    "si": "සිංහල",
+    "ta": "தமிழ்"
   }
+}

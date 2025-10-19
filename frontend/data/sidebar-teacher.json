@@ -16,5 +16,10 @@
     "page": "class_subjects",
     "icon": "fas fa-book"
   },
-  { "label": "sidebar.students", "page": "students", "icon": "fas fa-users" }
+  { "label": "sidebar.students", "page": "students", "icon": "fas fa-users" },
+  {
+    "label": "sidebar.announcements",
+    "page": "announcements",
+    "icon": "fas fa-bullhorn"
+  }
 ]

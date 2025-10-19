@@ -189,6 +189,17 @@ END $$;
     `);
 
     await pool.query(`
+      CREATE TABLE IF NOT EXISTS announcements (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        class_id BIGINT REFERENCES classes(id),
+        teacher_id BIGINT REFERENCES users(id),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `);
+
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS achievements (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         student_id BIGINT REFERENCES users(id),

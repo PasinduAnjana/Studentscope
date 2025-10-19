@@ -21,16 +21,17 @@
     "timeTable": "කාලසටහන",
     "marks": "ලකුණු ",
     "students": "ශිෂ්‍යයන්",
-    "class_subjects": "පන්ති විෂයයන්"
+    "class_subjects": "පන්ති විෂයයන්",
+    "announcements": "නිවේදන"
   },
 
   "teacher": {
     "greeting": "StudentScope වෙත සාදරයෙන් පිළිගනිමු!",
     "greeting_2": "ඔබ ගුරුවරයෙකු ලෙස ලොග් වී ඇත",
     "attendance": "පැමිණීම",
-  "attendance_not_marked": "සලකුණු කර නැත",
-  "attendance_not_marked_today": "ඔබ අද පැමිණීම සලකුණු කර නොමැත",
-  "attendance_already_marked_today": "අද දින පැමිණීම සලකුණු කර ඇත",
+    "attendance_not_marked": "සලකුණු කර නැත",
+    "attendance_not_marked_today": "ඔබ අද පැමිණීම සලකුණු කර නොමැත",
+    "attendance_already_marked_today": "අද දින පැමිණීම සලකුණු කර ඇත",
     "mark_attendance": "පැමිණීම සලකුණු කරන්න",
     "timetable": "අද කාලසටහන",
     "current_class": "වර්තමාන පන්තිය",

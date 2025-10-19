@@ -1,0 +1,294 @@
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-bullhorn"></i>
+    <span data="sidebar.announcements"></span>
+  </h2>
+  <div class="card">
+    <div class="flex-between mb-2">
+      <h1 class="title" data="sidebar.announcements"></h1>
+      <button id="add-announcement-btn" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Announcement
+      </button>
+    </div>
+    <div class="announcements-container" id="announcements-container">
+      <!-- Announcements will be loaded here dynamically -->
+    </div>
+  </div>
+</section>
+
+<!-- Add/Edit Announcement Modal -->
+<div id="announcement-modal" class="modal" style="display: none">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modal-title">Add Announcement</h3>
+      <span class="modal-close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="mb-2">
+        <label for="announcement-title">Title:</label>
+        <input
+          type="text"
+          id="announcement-title"
+          placeholder="Enter announcement title..."
+          class="mt-1"
+        />
+      </div>
+      <div class="mb-2">
+        <label for="announcement-description">Description:</label>
+        <textarea
+          id="announcement-description"
+          placeholder="Enter announcement description..."
+          class="mt-1"
+        ></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
+      <button id="modal-save" class="btn btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let announcements = [];
+  let editingAnnouncement = null;
+
+  function renderAnnouncements() {
+    const container = document.querySelector("#announcements-container");
+    container.innerHTML = "";
+    if (!announcements.length) {
+      container.innerHTML = `<div class="no-announcements text-center">No announcements found</div>`;
+      return;
+    }
+
+    announcements.forEach((announcement) => {
+      const card = document.createElement("div");
+      card.className = "announcement-card";
+
+      const createdDate = new Date(
+        announcement.created_at
+      ).toLocaleDateString();
+
+      card.innerHTML = `
+        <div class="announcement-title flex-between">
+          <span>${announcement.title}</span>
+          <div class="announcement-actions">
+            <button class="btn-icon btn-edit" onclick="editAnnouncement(${announcement.id})" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon btn-delete" onclick="deleteAnnouncement(${announcement.id})" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="announcement-description-container">
+          <div class="announcement-description collapsed" id="desc-${announcement.id}">${announcement.description}</div>
+          <button class="expand-btn" id="expand-${announcement.id}" style="display: none;" onclick="toggleDescription(${announcement.id})">
+            <span>Show more</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+        <div class="announcement-meta flex-end">
+          <span class="text-sm">Created: ${createdDate}</span>
+        </div>
+      `;
+
+      container.appendChild(card);
+
+      // Check if description needs expand button
+      setTimeout(() => {
+        const descElement = card.querySelector(`#desc-${announcement.id}`);
+        const expandBtn = card.querySelector(`#expand-${announcement.id}`);
+
+        // Check if text is truncated
+        if (descElement.scrollHeight > descElement.clientHeight) {
+          expandBtn.style.display = "inline-flex";
+        }
+      }, 0);
+    });
+  }
+
+  function fetchAnnouncements() {
+    console.log("Fetching announcements...");
+    fetch("/api/teacher/announcements")
+      .then((res) => {
+        console.log("API response status:", res.status);
+        if (!res.ok) throw new Error("Failed to fetch announcements");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Received announcements data:", data);
+        announcements = data;
+        console.log("Announcements array after assignment:", announcements);
+        renderAnnouncements();
+      })
+      .catch((err) => {
+        console.error("Error fetching announcements:", err);
+        const container = document.querySelector("#announcements-container");
+        container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
+      });
+  }
+
+  function setupAddButton() {
+    const addBtn = document.getElementById("add-announcement-btn");
+    const modal = document.getElementById("announcement-modal");
+    const closeBtn = document.querySelector("#announcement-modal .modal-close");
+    const cancelBtn = document.getElementById("modal-cancel");
+    const saveBtn = document.getElementById("modal-save");
+
+    addBtn.addEventListener("click", () => {
+      editingAnnouncement = null;
+      document.getElementById("modal-title").textContent = "Add Announcement";
+      document.getElementById("announcement-title").value = "";
+      document.getElementById("announcement-description").value = "";
+      modal.style.display = "flex";
+    });
+
+    const closeModal = () => {
+      modal.style.display = "none";
+    };
+
+    closeBtn.addEventListener("click", closeModal);
+    cancelBtn.addEventListener("click", closeModal);
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    saveBtn.addEventListener("click", saveAnnouncement);
+  }
+
+  function saveAnnouncement() {
+    const title = document.getElementById("announcement-title").value.trim();
+    const description = document
+      .getElementById("announcement-description")
+      .value.trim();
+
+    if (!title || !description) {
+      toast("Please fill in all fields.", "fa-solid fa-circle-exclamation");
+      return;
+    }
+
+    const method = editingAnnouncement ? "PUT" : "POST";
+    const url = editingAnnouncement
+      ? `/api/teacher/announcements/${editingAnnouncement.id}`
+      : "/api/teacher/announcements";
+
+    const body = { title, description };
+
+    fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to save announcement");
+        return res.json();
+      })
+      .then(() => {
+        document.getElementById("announcement-modal").style.display = "none";
+        toast("Announcement saved successfully", "fa-solid fa-check-circle");
+        fetchAnnouncements();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast("Error saving announcement", "fa-solid fa-circle-exclamation");
+      });
+  }
+
+  function editAnnouncement(id) {
+    console.log(
+      "Edit button clicked for announcement ID:",
+      id,
+      "type:",
+      typeof id
+    );
+    console.log(
+      "Available announcement IDs:",
+      announcements.map((a) => ({ id: a.id, type: typeof a.id }))
+    );
+    const announcement = announcements.find((a) => a.id == id); // Use == for type coercion
+    console.log("Found announcement:", announcement);
+    if (!announcement) {
+      console.error("Announcement not found with ID:", id);
+      toast(
+        `Announcement with ID ${id} not found.`,
+        "fa-solid fa-circle-exclamation"
+      );
+      return;
+    }
+
+    editingAnnouncement = announcement;
+    document.getElementById("modal-title").textContent = "Edit Announcement";
+    document.getElementById("announcement-title").value = announcement.title;
+    document.getElementById("announcement-description").value =
+      announcement.description;
+    document.getElementById("announcement-modal").style.display = "flex";
+    console.log("Modal should now be visible");
+  }
+
+  function deleteAnnouncement(id) {
+    toast(
+      "Are you sure you want to delete this announcement?",
+      "fa-solid fa-trash",
+      {
+        confirm: true,
+        confirmText: "Delete",
+        cancelText: "Cancel",
+        onConfirm: function () {
+          fetch(`/api/teacher/announcements/${id}`, {
+            method: "DELETE",
+          })
+            .then((res) => {
+              if (!res.ok) throw new Error("Failed to delete announcement");
+              return res.json();
+            })
+            .then(() => {
+              toast(
+                "Announcement deleted successfully",
+                "fa-solid fa-check-circle"
+              );
+              fetchAnnouncements(); // Refresh the list
+            })
+            .catch((err) => {
+              console.error("Error deleting announcement:", err);
+              toast(
+                "Error deleting announcement",
+                "fa-solid fa-circle-exclamation"
+              );
+            });
+        },
+        onCancel: function () {
+          // Do nothing, just close toast
+        },
+      }
+    );
+  }
+
+  function toggleDescription(id) {
+    const descElement = document.getElementById(`desc-${id}`);
+    const expandBtn = document.getElementById(`expand-${id}`);
+    const btnText = expandBtn.querySelector("span");
+    const btnIcon = expandBtn.querySelector("i");
+
+    if (descElement.classList.contains("collapsed")) {
+      // Expand
+      descElement.classList.remove("collapsed");
+      descElement.classList.add("expanded");
+      btnText.textContent = "Show less";
+      expandBtn.classList.add("expanded");
+    } else {
+      // Collapse
+      descElement.classList.remove("expanded");
+      descElement.classList.add("collapsed");
+      btnText.textContent = "Show more";
+      expandBtn.classList.remove("expanded");
+    }
+  }
+
+  // Initialize
+  fetchAnnouncements();
+  setupAddButton();
+</script>

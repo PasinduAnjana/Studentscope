@@ -2,6 +2,7 @@ const studentController = require("../controllers/teacher/studentsController");
 const timetableController = require("../controllers/teacher/timetableController");
 const attendanceController = require("../controllers/teacher/attendanceController");
 const subjectAssignmentController = require("../controllers/teacher/subjectAssignmentController");
+const announcementsController = require("../controllers/teacher/announcementsController");
 const { protect } = require("../middleware/authMiddleware");
 
 module.exports = (req, res) => {
@@ -258,6 +259,37 @@ module.exports = (req, res) => {
         res.end(JSON.stringify({ error: err.message }));
       }
     });
+  }
+
+  // Announcements routes
+  if (req.method === "GET" && req.url === "/api/teacher/announcements") {
+    return protect("teacher")(req, res, () =>
+      announcementsController.getAllAnnouncements(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url === "/api/teacher/announcements") {
+    return protect("teacher")(req, res, () =>
+      announcementsController.createAnnouncement(req, res)
+    );
+  }
+
+  if (
+    req.method === "PUT" &&
+    req.url.startsWith("/api/teacher/announcements/")
+  ) {
+    return protect("teacher")(req, res, () =>
+      announcementsController.updateAnnouncement(req, res)
+    );
+  }
+
+  if (
+    req.method === "DELETE" &&
+    req.url.startsWith("/api/teacher/announcements/")
+  ) {
+    return protect("teacher")(req, res, () =>
+      announcementsController.deleteAnnouncement(req, res)
+    );
   }
 
   // 404 - Route not found
