@@ -1,9 +1,10 @@
 <div class="card-grid">
-  <!-- Greeting Tile -->
   <div class="card greeting-tile w-2">
     <div class="greeting-content">
-      <h2 class="greeting-heading" data="clerk.greeting"></h2>
-      <p class="greeting-subtext" data="clerk.greeting_2"></p>
+      <h2 class="greeting-heading" data="clerk.greeting">Welcome, Clerk</h2>
+      <p class="greeting-subtext" data="clerk.greeting_2">
+        Manage school records efficiently.
+      </p>
     </div>
     <img
       src="/assets/images/clerk-clipart.svg"
@@ -12,59 +13,147 @@
     />
   </div>
 
-  <!-- Today's Timetable -->
-  <div class="card dashboard-tile w-1 h-2">
-    <div class="icon-title">
-      <i class="fas fa-users icon"></i>
-      <p class="tile-label" data="teacher.students"></p>
-    </div>
-  </div>
-
-  <!-- Current Class -->
-  <div class="card dashboard-tile" id="current-class">
-    <div class="icon-title">
-      <i class="fas fa-chalkboard icon"></i>
-      <p class="tile-label" data="teacher.current_class"></p>
-    </div>
-    <div>
-      <p class="title-primary" style="font-size: 32px" id="current-class-name">
-        Grade 10-A
-      </p>
-      <h1 class="tile-value" style="font-size: 24px" id="current-subject-name">
-        Math
-      </h1>
-      <p class="tile-subtext" id="current-time-range">08:00 AM – 08:45 AM</p>
-    </div>
-  </div>
-
-  <!-- Attendance Status -->
   <div class="card dashboard-tile">
     <div class="icon-title">
-      <i class="fas fa-clipboard-check icon"></i>
-      <p class="tile-label" data="teacher.attendance"></p>
+      <p class="tile-label">Total Students</p>
+      <i class="fas fa-graduation-cap icon"></i>
     </div>
     <div>
-      <h3
-        class="tile-value text-error"
-        data="teacher.attendance_not_marked"
-      ></h3>
-      <!-- mark attendance button -->
+      <p class="tile-value">3</p>
+    </div>
+  </div>
+
+  <div class="card dashboard-tile">
+    <div class="icon-title">
+      <p class="tile-label">Pending Certificates</p>
+      <i class="fas fa-file-alt icon"></i>
+    </div>
+    <div>
+      <p class="tile-value">1</p>
+    </div>
+  </div>
+
+  <div class="card dashboard-tile">
+    <div class="icon-title">
+      <p class="tile-label">Unread Notifications</p>
+      <i class="fas fa-bell icon"></i>
+    </div>
+    <div>
+      <p class="tile-value">1</p>
+    </div>
+  </div>
+
+  <div class="card dashboard-tile">
+    <div class="icon-title">
+      <p class="tile-label">Monthly Absences</p>
+      <i class="fas fa-user-times icon"></i>
+    </div>
+    <div>
+      <p class="tile-value">1</p>
+    </div>
+  </div>
+
+  <div class="card dashboard-tile flex-column h-2">
+    <div class="icon-title">
+      <i class="fas fa-bell icon"></i>
+      <p class="tile-label">Notifications</p>
+    </div>
+    <div>
+      <ul class="tile-list">
+        <li>
+          <div>
+            <strong>New certificate request</strong>
+            <span>Kasun Perera • 1/12/2024</span>
+          </div>
+          <button class="icon-btn" title="Delete">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </li>
+        <li>
+          <div>
+            <strong>Profile updated</strong>
+            <span>Nimali Silva • 1/11/2024</span>
+          </div>
+          <button class="icon-btn" title="Delete">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </li>
+        <li>
+          <div>
+            <strong>Parents meeting reminder</strong>
+            <span>All Parents • 1/10/2024</span>
+          </div>
+          <button class="icon-btn" title="Delete">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </li>
+        <li>
+          <div>
+            <strong>Exam results released</strong>
+            <span>All Students • 1/09/2024</span>
+          </div>
+          <button class="icon-btn" title="Delete">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card dashboard-tile flex-column h-2">
+    <div class="icon-title">
+      <i class="fas fa-calendar-alt icon"></i>
+      <p class="tile-label">Upcoming Events</p>
+    </div>
+    <div>
+      <ul class="tile-list">
+        <li>
+          <div>
+            <strong>Sports Day</strong>
+            <span>1/20/2024 • 8:00 AM</span>
+          </div>
+          <div>
+            <button class="icon-btn" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="icon-btn" title="Delete">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Parents Meeting</strong>
+            <span>1/15/2024 • 2:00 PM</span>
+          </div>
+          <div>
+            <button class="icon-btn" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="icon-btn" title="Delete">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Exam Results Release</strong>
+            <span>1/18/2024 • 10:00 AM</span>
+          </div>
+          <div>
+            <button class="icon-btn" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="icon-btn" title="Delete">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        </li>
+      </ul>
       <button class="btn">
-        <i class="fas fa-user-check"></i>
-        <span data="teacher.mark_attendance"></span>
+        <i class="fas fa-plus"></i>
+        <span>Add Events</span>
       </button>
     </div>
-  </div>
-
-  <!-- Tasks -->
-  <div class="card dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-tasks icon"></i>
-      <p class="tile-label">Pending Tasks</p>
-    </div>
-    <ul class="tile-list">
-      <li>Upload results</li>
-      <li>Mark attendance</li>
-    </ul>
   </div>
 </div>

@@ -1,0 +1,187 @@
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-bullhorn"></i>
+    <span>Notice Management</span>
+  </h2>
+  <div class="card">
+    <div class="flex-between mb-2">
+      <h1 class="title">Notices</h1>
+      <button id="add-notice-btn" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Notice
+      </button>
+    </div>
+    <div class="announcements-container" id="notices-container">
+      <div class="announcement-card">
+        <div class="announcement-title flex-between">
+          <span
+            >Annual Sports Meet 2024
+            <span
+              class="badge event"
+              style="
+                background-color: orange;
+                font-size: 12px;
+                padding: 2px 6px;
+                border-radius: 10px;
+              "
+            >
+              >Event</span
+            ></span
+          >
+          <div class="announcement-actions">
+            <button class="btn-icon btn-edit" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon btn-delete" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="announcement-description-container">
+          <div class="announcement-description collapsed" id="desc-1">
+            The annual sports meet will be held on March 20th, 2024. All
+            students are encouraged to participate in various events.
+            Registration forms are available at the office.
+          </div>
+          <button
+            class="expand-btn"
+            id="expand-1"
+            style="display: none"
+            onclick="toggleDescription(1)"
+          >
+            <span>Show more</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+        <div class="announcement-meta flex-end">
+          <span class="text-sm">Created: 1/15/2024 • By Admin</span>
+        </div>
+      </div>
+
+      <div class="announcement-card">
+        <div class="announcement-title flex-between">
+          <span
+            >Term 1 Examination Schedule
+            <span
+              class="badge academic"
+              style="
+                background-color: #007bff;
+                font-size: 12px;
+                padding: 2px 6px;
+                border-radius: 10px;
+              "
+            >
+              >Academic</span
+            ></span
+          >
+          <div class="announcement-actions">
+            <button class="btn-icon btn-edit" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon btn-delete" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="announcement-description-container">
+          <div class="announcement-description collapsed" id="desc-2">
+            Term 1 examinations will commence from February 15th, 2024. Detailed
+            timetable will be distributed to all students by February 1st.
+          </div>
+          <button
+            class="expand-btn"
+            id="expand-2"
+            style="display: none"
+            onclick="toggleDescription(2)"
+          >
+            <span>Show more</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+        <div class="announcement-meta flex-end">
+          <span class="text-sm">Created: 1/12/2024 • By Academic Office</span>
+        </div>
+      </div>
+
+      <div class="announcement-card">
+        <div class="announcement-title flex-between">
+          <span
+            >School Closure Notice
+            <span
+              class="badge urgent"
+              style="
+                background-color: red;
+                font-size: 12px;
+                padding: 2px 6px;
+                border-radius: 10px;
+              "
+            >
+              >Urgent</span
+            ></span
+          >
+          <div class="announcement-actions">
+            <button class="btn-icon btn-edit" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon btn-delete" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="announcement-description-container">
+          <div class="announcement-description collapsed" id="desc-3">
+            School will remain closed on January 25th due to maintenance work.
+            Classes will resume on January 26th as per normal schedule.
+          </div>
+          <button
+            class="expand-btn"
+            id="expand-3"
+            style="display: none"
+            onclick="toggleDescription(3)"
+          >
+            <span>Show more</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+        <div class="announcement-meta flex-end">
+          <span class="text-sm">Created: 1/20/2024 • By Principal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function toggleDescription(id) {
+    const descElement = document.getElementById(`desc-${id}`);
+    const expandBtn = document.getElementById(`expand-${id}`);
+    const btnText = expandBtn.querySelector("span");
+    const btnIcon = expandBtn.querySelector("i");
+
+    if (descElement.classList.contains("collapsed")) {
+      descElement.classList.remove("collapsed");
+      descElement.classList.add("expanded");
+      btnText.textContent = "Show less";
+      expandBtn.classList.add("expanded");
+    } else {
+      descElement.classList.remove("expanded");
+      descElement.classList.add("collapsed");
+      btnText.textContent = "Show more";
+      expandBtn.classList.remove("expanded");
+    }
+  }
+
+  // Check if descriptions need expand buttons
+  document.addEventListener("DOMContentLoaded", () => {
+    [1, 2, 3].forEach((id) => {
+      const descElement = document.getElementById(`desc-${id}`);
+      const expandBtn = document.getElementById(`expand-${id}`);
+      if (
+        descElement &&
+        expandBtn &&
+        descElement.scrollHeight > descElement.clientHeight
+      ) {
+        expandBtn.style.display = "inline-flex";
+      }
+    });
+  });
+</script>

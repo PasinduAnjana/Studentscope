@@ -1,0 +1,70 @@
+<div class="card-grid">
+  <!-- Greeting Tile -->
+  <div class="card greeting-tile w-2">
+    <div class="greeting-content">
+      <h2 class="greeting-heading" data="clerk.greeting"></h2>
+      <p class="greeting-subtext" data="clerk.greeting_2"></p>
+    </div>
+    <img
+      src="/assets/images/clerk-clipart.svg"
+      alt="Illustration"
+      class="greeting-img"
+    />
+  </div>
+
+  <!-- Today's Timetable -->
+  <div class="card dashboard-tile w-1 h-2">
+    <div class="icon-title">
+      <i class="fas fa-users icon"></i>
+      <p class="tile-label" data="teacher.students"></p>
+    </div>
+  </div>
+
+  <!-- Current Class -->
+  <div class="card dashboard-tile" id="current-class">
+    <div class="icon-title">
+      <i class="fas fa-chalkboard icon"></i>
+      <p class="tile-label" data="teacher.current_class"></p>
+    </div>
+    <div>
+      <p class="title-primary" style="font-size: 32px" id="current-class-name">
+        Grade 10-A
+      </p>
+      <h1 class="tile-value" style="font-size: 24px" id="current-subject-name">
+        Math
+      </h1>
+      <p class="tile-subtext" id="current-time-range">08:00 AM – 08:45 AM</p>
+    </div>
+  </div>
+
+  <!-- Attendance Status -->
+  <div class="card dashboard-tile">
+    <div class="icon-title">
+      <i class="fas fa-clipboard-check icon"></i>
+      <p class="tile-label" data="teacher.attendance"></p>
+    </div>
+    <div>
+      <h3
+        class="tile-value text-error"
+        data="teacher.attendance_not_marked"
+      ></h3>
+      <!-- mark attendance button -->
+      <button class="btn">
+        <i class="fas fa-user-check"></i>
+        <span data="teacher.mark_attendance"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tasks -->
+  <div class="card dashboard-tile">
+    <div class="icon-title">
+      <i class="fas fa-tasks icon"></i>
+      <p class="tile-label">Pending Tasks</p>
+    </div>
+    <ul class="tile-list">
+      <li>Upload results</li>
+      <li>Mark attendance</li>
+    </ul>
+  </div>
+</div>
