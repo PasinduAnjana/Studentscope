@@ -1,0 +1,260 @@
+<h2 class="heading">
+  <i class="fas fa-chalkboard"></i>
+  <span data="sidebar.classes"></span>
+</h2>
+
+<div class="classes-container" id="classesContainer">
+  <!-- Classes grid will be loaded here -->
+</div>
+
+<!-- Modal for assigning class teacher -->
+<div class="modal" id="assignTeacherModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">Assign Class Teacher</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="modalMessage"></div>
+      <div class="form-group">
+        <label for="teacherSelect">Select Teacher:</label>
+        <select id="teacherSelect">
+          <option value="">-- Select a teacher --</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveTeacherAssignment()">
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentClassData = null;
+  let allTeachers = [];
+
+  async function loadClasses() {
+    try {
+      // Fetch classes data and teachers list
+      const [classesResponse, teachersResponse] = await Promise.all([
+        fetch("/api/clerk/classes").then((res) => res.json()),
+        fetch("/api/clerk/teachers").then((res) => res.json()),
+      ]);
+
+      if (classesResponse.error) {
+        showError("Unable to load classes: " + classesResponse.error);
+        return;
+      }
+
+      allTeachers = Array.isArray(teachersResponse) ? teachersResponse : [];
+
+      // Group classes by grade
+      const classesByGrade = {};
+      if (Array.isArray(classesResponse)) {
+        classesResponse.forEach((classItem) => {
+          if (!classesByGrade[classItem.grade]) {
+            classesByGrade[classItem.grade] = [];
+          }
+          classesByGrade[classItem.grade].push(classItem);
+        });
+      }
+
+      // Sort grades numerically and render
+      const sortedGrades = Object.keys(classesByGrade)
+        .map((g) => parseInt(g))
+        .sort((a, b) => a - b);
+
+      const container = document.getElementById("classesContainer");
+      container.innerHTML = "";
+
+      sortedGrades.forEach((grade) => {
+        const gradeSection = document.createElement("div");
+        gradeSection.classList.add("grade-section");
+
+        const gradeHeader = document.createElement("div");
+        gradeHeader.classList.add("grade-header");
+        gradeHeader.textContent = `Grade ${grade}`;
+
+        const classesGrid = document.createElement("div");
+        classesGrid.classList.add("classes-grid");
+
+        // Render class tiles
+        classesByGrade[grade].forEach((classItem) => {
+          const classCard = createClassCard(classItem);
+          classesGrid.appendChild(classCard);
+        });
+
+        // Add button to add new class
+        const addClassCard = createAddClassCard(grade);
+        classesGrid.appendChild(addClassCard);
+
+        gradeSection.appendChild(gradeHeader);
+        gradeSection.appendChild(classesGrid);
+        container.appendChild(gradeSection);
+      });
+    } catch (error) {
+      console.error("Error loading classes:", error);
+      showError("An error occurred while loading classes");
+    }
+  }
+
+  function createClassCard(classItem) {
+    const card = document.createElement("div");
+    card.classList.add("class-card");
+
+    const classNameDiv = document.createElement("div");
+    classNameDiv.classList.add("class-name");
+    classNameDiv.textContent = classItem.class_name || "N/A";
+
+    const teacherDiv = document.createElement("div");
+    teacherDiv.classList.add("class-teacher");
+    teacherDiv.textContent = classItem.teacher_name || "No teacher assigned";
+
+    card.appendChild(classNameDiv);
+    card.appendChild(teacherDiv);
+
+    card.addEventListener("click", () => {
+      currentClassData = classItem;
+      openModal(classItem);
+    });
+
+    return card;
+  }
+
+  function createAddClassCard(grade) {
+    const card = document.createElement("div");
+    card.classList.add("class-card", "empty");
+
+    const addBtn = document.createElement("button");
+    addBtn.classList.add("add-class-btn");
+    addBtn.innerHTML = '<i class="fas fa-plus"></i>';
+    addBtn.onclick = (e) => {
+      e.stopPropagation();
+      currentClassData = { grade: grade, class_name: null };
+      openModal({ grade: grade, class_name: null });
+    };
+
+    card.appendChild(addBtn);
+    return card;
+  }
+
+  function openModal(classItem) {
+    const modal = document.getElementById("assignTeacherModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalMessage = document.getElementById("modalMessage");
+    const teacherSelect = document.getElementById("teacherSelect");
+
+    // Clear previous message
+    modalMessage.innerHTML = "";
+
+    if (classItem.class_name) {
+      modalTitle.textContent = `Assign Teacher - Grade ${classItem.grade} ${classItem.class_name}`;
+    } else {
+      modalTitle.textContent = `Add New Class - Grade ${classItem.grade}`;
+    }
+
+    // Populate teacher dropdown
+    teacherSelect.innerHTML =
+      '<option value="">-- Select a teacher --</option>';
+    allTeachers.forEach((teacher) => {
+      const option = document.createElement("option");
+      option.value = teacher.id || teacher.teacher_id;
+      option.textContent = teacher.name || teacher.teacher_name;
+      if (
+        classItem.teacher_id === teacher.id ||
+        classItem.teacher_id === teacher.teacher_id
+      ) {
+        option.selected = true;
+      }
+      teacherSelect.appendChild(option);
+    });
+
+    modal.classList.add("active");
+  }
+
+  function closeModal() {
+    const modal = document.getElementById("assignTeacherModal");
+    modal.classList.remove("active");
+    currentClassData = null;
+  }
+
+  async function saveTeacherAssignment() {
+    const teacherSelect = document.getElementById("teacherSelect");
+    const selectedTeacherId = teacherSelect.value;
+
+    if (!selectedTeacherId) {
+      alert("Please select a teacher");
+      return;
+    }
+
+    if (!currentClassData) {
+      alert("No class selected");
+      return;
+    }
+
+    try {
+      const payload = {
+        grade: currentClassData.grade,
+        class_name: currentClassData.class_name,
+        teacher_id: selectedTeacherId,
+      };
+
+      const response = await fetch("/api/clerk/classes/assign-teacher", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        alert("Error: " + data.error);
+        return;
+      }
+
+      showSuccess("Teacher assigned successfully!");
+      closeModal();
+      loadClasses();
+    } catch (error) {
+      console.error("Error saving teacher assignment:", error);
+      alert("An error occurred while saving");
+    }
+  }
+
+  function showError(message) {
+    const container = document.getElementById("classesContainer");
+    const errorDiv = document.createElement("div");
+    errorDiv.classList.add("error");
+    errorDiv.textContent = message;
+    container.innerHTML = "";
+    container.appendChild(errorDiv);
+  }
+
+  function showSuccess(message) {
+    const modal = document.getElementById("assignTeacherModal");
+    const modalMessage = document.getElementById("modalMessage");
+    const successDiv = document.createElement("div");
+    successDiv.classList.add("success");
+    successDiv.textContent = message;
+    modalMessage.innerHTML = "";
+    modalMessage.appendChild(successDiv);
+    setTimeout(() => {
+      modalMessage.innerHTML = "";
+    }, 2000);
+  }
+
+  // Close modal when clicking outside
+  window.addEventListener("click", (event) => {
+    const modal = document.getElementById("assignTeacherModal");
+    if (event.target === modal) {
+      closeModal();
+    }
+  });
+
+  loadClasses();
+</script>

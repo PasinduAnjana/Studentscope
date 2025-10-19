@@ -1,6 +1,11 @@
 [
   { "label": "sidebar.dashboard", "page": "dashboard", "icon": "fas fa-home" },
   { "label": "sidebar.students", "page": "students", "icon": "fas fa-users" },
+  {
+    "label": "sidebar.classes",
+    "page": "classes",
+    "icon": "fas fa-chalkboard"
+  },
   { "label": "Post Notices", "page": "notices", "icon": "fas fa-bullhorn" },
   { "label": "Achievements", "page": "achievements", "icon": "fas fa-trophy" }
 ]
