@@ -335,10 +335,60 @@ async function deleteStudent(id) {
 
 // Get all classes
 async function getAllClasses() {
-  const result = await pool.query(
-    "SELECT id, name, grade FROM classes ORDER BY grade, name"
-  );
+  const result = await pool.query(`
+    SELECT 
+      c.id, 
+      c.name, 
+      c.grade,
+      ct.teacher_id,
+      td.full_name AS teacher_name
+    FROM classes c
+    LEFT JOIN class_teachers ct ON c.id = ct.class_id
+    LEFT JOIN teacher_details td ON ct.teacher_id = td.teacher_id
+    ORDER BY c.grade, c.name
+  `);
+  return result.rows.map((row) => ({
+    id: row.id,
+    class_name: row.name,
+    grade: row.grade,
+    teacher_id: row.teacher_id,
+    teacher_name: row.teacher_name || null,
+  }));
+}
+
+async function getTeachers() {
+  const result = await pool.query(`
+    SELECT 
+      u.id,
+      td.full_name AS name
+    FROM users u
+    JOIN roles r ON u.role_id = r.id
+    LEFT JOIN teacher_details td ON u.id = td.teacher_id
+    WHERE r.name = 'teacher'
+    ORDER BY td.full_name
+  `);
   return result.rows;
+}
+
+async function assignClassTeacher(classId, teacherId) {
+  // First, remove any existing class teacher for this class
+  await pool.query("DELETE FROM class_teachers WHERE class_id = $1", [classId]);
+
+  // If teacherId is provided, assign the new teacher
+  if (teacherId) {
+    await pool.query(
+      "INSERT INTO class_teachers (class_id, teacher_id) VALUES ($1, $2)",
+      [classId, teacherId]
+    );
+  }
+}
+
+async function createClass(grade, className) {
+  const result = await pool.query(
+    "INSERT INTO classes (grade, name) VALUES ($1, $2) RETURNING id",
+    [grade, className]
+  );
+  return result.rows[0].id;
 }
 
 module.exports = {
@@ -348,4 +398,7 @@ module.exports = {
   updateStudent,
   deleteStudent,
   getAllClasses,
+  getTeachers,
+  assignClassTeacher,
+  createClass,
 };

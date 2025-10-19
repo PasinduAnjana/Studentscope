@@ -44,6 +44,30 @@ module.exports = async (req, res) => {
     );
   }
 
+  // Teachers route
+  if (req.method === "GET" && req.url === "/api/clerk/teachers") {
+    return protect("clerk")(req, res, () =>
+      classesController.getTeachers(req, res)
+    );
+  }
+
+  // Assign teacher to class route
+  if (
+    req.method === "POST" &&
+    req.url === "/api/clerk/classes/assign-teacher"
+  ) {
+    return protect("clerk")(req, res, () =>
+      classesController.assignTeacher(req, res)
+    );
+  }
+
+  // Delete class route
+  if (req.method === "DELETE" && req.url.match(/^\/api\/clerk\/classes\/\d+$/)) {
+    return protect("clerk")(req, res, () =>
+      classesController.deleteClass(req, res)
+    );
+  }
+
   // Legacy route for backward compatibility
   if (req.method === "POST" && req.url === "/api/clerk/student/add") {
     return protect("clerk")(req, res, () =>
