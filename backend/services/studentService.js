@@ -175,3 +175,27 @@ exports.getProfile = async (studentId) => {
 
   return result.rows[0];
 };
+
+exports.getAnnouncementsForStudent = async (studentId) => {
+  const result = await pool.query(
+    `
+    SELECT
+      a.id,
+      a.title,
+      a.description,
+      a.created_at,
+      a.audience_type,
+      u.username as posted_by_name,
+      c.name as class_name
+    FROM announcements a
+    LEFT JOIN users u ON a.posted_by = u.id
+    LEFT JOIN announcement_classes ac ON a.id = ac.announcement_id
+    LEFT JOIN classes c ON ac.class_id = c.id
+    WHERE a.audience_type = 'students'
+      AND ac.class_id = (SELECT class_id FROM users WHERE id = $1)
+    ORDER BY a.created_at DESC
+    `,
+    [studentId]
+  );
+  return result.rows;
+};

@@ -1,0 +1,206 @@
+<h2 class="heading">
+  <i class="fas fa-user-check"></i>
+  <span data="sidebar.attendance"></span>
+</h2>
+
+<div class="card-grid">
+  <!-- Overall Attendance Percentage -->
+  <div class="card w-1 h-2 dashboard-tile" id="attendanceSummary">
+    <div class="icon-title">
+      <i class="fas fa-chart-pie icon"></i>
+      <p class="tile-label">Attendance Percentage</p>
+    </div>
+    <canvas id="attendanceChart" height="150"></canvas>
+  </div>
+
+  <!-- Present Days This Month -->
+  <div class="card w-1 h-1 dashboard-tile" id="presentDaysCard">
+    <div class="icon-title">
+      <i class="fas fa-calendar-check icon"></i>
+      <p class="tile-label">Present Days</p>
+    </div>
+    <div class="stats-content">
+      <div class="stat-item">
+        <div class="stat-icon">
+          <i class="fas fa-calendar-day"></i>
+        </div>
+        <span class="stat-number" id="presentDaysCount">-</span>
+        <span class="stat-label">This Month</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance Stats -->
+  <div class="card w-1 h-1 dashboard-tile" id="attendanceStats">
+    <div class="icon-title">
+      <i class="fas fa-chart-bar icon"></i>
+      <p class="tile-label">Attendance Stats</p>
+    </div>
+    <div class="stats-content">
+      <div class="stat-item">
+        <div class="stat-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <span class="stat-number" id="totalPresent">-</span>
+        <span class="stat-label">Total Present</span>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        <span class="stat-number" id="totalDays">-</span>
+        <span class="stat-label">Total Days</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly Overview -->
+  <div class="card w-2 h-1 dashboard-tile">
+    <div class="icon-title">
+      <i class="fas fa-chart-line icon"></i>
+      <p class="tile-label">Monthly Overview</p>
+    </div>
+    <div id="monthlyOverview">
+      <p class="text-sm">Monthly attendance data will be displayed here</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const rootStyles = getComputedStyle(document.documentElement);
+  const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
+  const secondaryColor = rootStyles.getPropertyValue("--color-border").trim();
+
+  async function loadAttendanceData() {
+    try {
+      // Load overall attendance percentage
+      const percentageRes = await fetch("/api/student/attendance/percentage");
+      let attendanceData = { totalDays: 0, presentDays: 0 };
+
+      if (percentageRes.ok) {
+        attendanceData = await percentageRes.json();
+      }
+
+      // Load present days this month
+      const presentDaysRes = await fetch(
+        "/api/student/attendance/present-days"
+      );
+      let presentDaysThisMonth = 0;
+
+      if (presentDaysRes.ok) {
+        const presentDaysData = await presentDaysRes.json();
+        presentDaysThisMonth = presentDaysData.presentDays || 0;
+      }
+
+      // Update stats
+      document.getElementById("totalPresent").textContent =
+        attendanceData.presentDays;
+      document.getElementById("totalDays").textContent =
+        attendanceData.totalDays;
+      document.getElementById("presentDaysCount").textContent =
+        presentDaysThisMonth;
+
+      // Calculate percentage
+      const totalDays = attendanceData.totalDays;
+      const presentDays = attendanceData.presentDays;
+      const percentage =
+        totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
+
+      // --- Custom plugin to draw center text in doughnut ---
+      const centerTextPlugin = {
+        id: "centerText",
+        beforeDraw(chart, args, options) {
+          if (chart.config.type !== "doughnut") return;
+          const { ctx, width, height } = chart;
+          ctx.save();
+          const fontSize = (height / 160).toFixed(2);
+          ctx.font = `${fontSize}em sans-serif`;
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "center";
+          ctx.fillStyle = options.color || primaryColor;
+          const text = options.text || "";
+          ctx.fillText(
+            text,
+            width / 2,
+            chart.getDatasetMeta(0).data[0]?.y || height / 2
+          );
+          ctx.restore();
+        },
+      };
+
+      // --- Attendance Doughnut Chart ---
+      const chartData = {
+        labels: ["Present", "Absent"],
+        datasets: [
+          {
+            data: [presentDays, totalDays - presentDays],
+            backgroundColor: [primaryColor, primaryColor + "40"],
+            borderRadius: 20,
+          },
+        ],
+      };
+
+      const chartText = totalDays > 0 ? `${percentage}%` : "No Data";
+
+      new Chart(document.getElementById("attendanceChart"), {
+        type: "doughnut",
+        data: chartData,
+        options: {
+          responsive: true,
+          cutout: "85%",
+          borderColor: "transparent",
+          plugins: {
+            legend: { position: "bottom" },
+            title: {
+              display: true,
+              text: "Overall Attendance",
+              font: { size: 16, weight: "bold" },
+              position: "bottom",
+            },
+            centerText: {
+              text: chartText,
+              color: primaryColor,
+            },
+          },
+        },
+        plugins: [centerTextPlugin],
+      });
+
+      // --- Monthly Overview ---
+      const monthlyOverview = document.getElementById("monthlyOverview");
+      if (totalDays > 0) {
+        monthlyOverview.innerHTML = `
+          <div style="display: flex; justify-content: space-around; align-items: center; height: 100%;">
+            <div style="text-align: center;">
+              <div style="font-size: 24px; font-weight: bold; color: ${primaryColor};">${percentage}%</div>
+              <div style="font-size: 12px; color: var(--color-text-secondary);">Attendance Rate</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 24px; font-weight: bold; color: ${primaryColor};">${presentDaysThisMonth}</div>
+              <div style="font-size: 12px; color: var(--color-text-secondary);">This Month</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 24px; font-weight: bold; color: ${primaryColor};">${totalDays}</div>
+              <div style="font-size: 12px; color: var(--color-text-secondary);">Total Days</div>
+            </div>
+          </div>
+        `;
+      } else {
+        monthlyOverview.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+            <p class="text-sm">No attendance data available</p>
+          </div>
+        `;
+      }
+    } catch (error) {
+      console.error("Error loading attendance data:", error);
+      // Show error state
+      document.getElementById("totalPresent").textContent = "Error";
+      document.getElementById("totalDays").textContent = "Error";
+      document.getElementById("presentDaysCount").textContent = "Error";
+    }
+  }
+
+  // Load attendance data on page load
+  loadAttendanceData();
+</script>

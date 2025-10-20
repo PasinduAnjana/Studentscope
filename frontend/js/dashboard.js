@@ -27,7 +27,7 @@ function loadPage(role, page) {
   if (page.includes("/")) {
     // For subfolder pages like marks/entry or attendance/mark
     path = `dashboard/${role}/${page}.html`;
-  } else if (["attendance", "marks"].includes(page)) {
+  } else if ([].includes(page)) {
     // For folders that use index.html
     path = `dashboard/${role}/${page}/index.html`;
   } else {

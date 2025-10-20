@@ -90,6 +90,8 @@
     "greeting": "Welcome to StudentScope!",
     "greeting_2": "You are logged in as a Student",
     "timetable": "Today's Timetable",
+    "attendance": "Attendance",
+    "marks": "Marks",
     "attendance_percentage": "Attendance Percentage",
     "average_marks": "Average Marks",
     "present_days": "Present Days",

@@ -92,6 +92,8 @@
     "greeting": "StudentScope වෙත සාදරයෙන් පිළිගනිමු!",
     "greeting_2": "ඔබ ශිෂ්‍යයෙකු වශයෙන් ලොග් වී ඇත",
     "timetable": "අද කාලසටහන",
+    "attendance": "පැමිණීම",
+    "marks": "ලකුණු",
     "attendance_percentage": "පැමිණීමේ ප්‍රතිශතය",
     "average_marks": "සාමාන්‍ය ලකුණු",
     "present_days": "පැමිණි දින",

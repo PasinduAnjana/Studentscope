@@ -1,11 +1,11 @@
 [
   { "label": "sidebar.dashboard", "page": "dashboard", "icon": "fas fa-home" },
   {
-    "label": "sidebar.attendance",
+    "label": "student.attendance",
     "page": "attendance",
     "icon": "fas fa-user-check"
   },
-  { "label": "sidebar.marks", "page": "marks", "icon": "fas fa-chart-bar" },
+  { "label": "student.marks", "page": "marks", "icon": "fas fa-chart-bar" },
   {
     "label": "sidebar.timeTable",
     "page": "timetable",

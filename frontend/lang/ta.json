@@ -65,6 +65,8 @@
     "greeting": "StudentScope-க்கு வரவேற்கிறோம்!",
     "greeting_2": "நீங்கள் மாணவராக உள்நுழைந்துள்ளீர்கள்",
     "timetable": "இன்றைய நேர அட்டவணை",
+    "attendance": "வருகை",
+    "marks": "மதிப்பெண்கள்",
     "attendance_percentage": "வருகை சதவீதம்",
     "average_marks": "சராசரி மதிப்பெண்கள்",
     "present_days": "வருகை நாட்கள்",

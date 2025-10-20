@@ -1,0 +1,168 @@
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-bullhorn"></i>
+    <span data="sidebar.announcements"></span>
+  </h2>
+  <style>
+    .checkbox-item {
+      margin-bottom: 8px;
+    }
+    .checkbox-item label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    .checkbox-item label:hover {
+      background-color: var(--color-hover);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title i {
+      color: var(--color-primary);
+    }
+  </style>
+  <div class="card-grid">
+    <!-- Announcements Card -->
+    <div class="card h-2">
+      <h3 class="section-title">
+        <i class="fas fa-inbox"></i>
+        My Announcements
+      </h3>
+      <div class="announcements-container" id="announcements-container">
+        <!-- Announcements will be loaded here dynamically -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  let announcements = [];
+
+  function renderAnnouncements(announcements, containerId) {
+    const container = document.querySelector(`#${containerId}`);
+    container.innerHTML = "";
+    if (!announcements.length) {
+      container.innerHTML = `<div class="no-announcements text-center">No announcements found</div>`;
+      return;
+    }
+
+    announcements.forEach((announcement) => {
+      const card = document.createElement("div");
+      card.className = "announcement-card";
+
+      const createdDate = new Date(
+        announcement.created_at
+      ).toLocaleDateString();
+
+      // Format audience display
+      let audienceDisplay = "";
+      switch (announcement.audience_type) {
+        case "all":
+          audienceDisplay = "All Students";
+          break;
+        case "students":
+          audienceDisplay = `Class ${announcement.class_name || "Assigned"}`;
+          break;
+      }
+
+      card.innerHTML = `
+        <div class="announcement-title">
+          <span>${announcement.title}</span>
+        </div>
+        <div class="announcement-description-container">
+          <div class="announcement-description collapsed" id="desc-${containerId}-${
+        announcement.id
+      }">${announcement.description}</div>
+          <button class="expand-btn" id="expand-${containerId}-${
+        announcement.id
+      }" style="display: none;" onclick="toggleDescription('${containerId}', ${
+        announcement.id
+      })">
+            <span>Show more</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+        <div class="announcement-meta flex-between">
+          <span class="text-sm">Audience: ${audienceDisplay}</span>
+          <span class="text-sm">Posted: ${createdDate} ${
+        announcement.posted_by_name ? `• By ${announcement.posted_by_name}` : ""
+      }</span>
+        </div>
+      `;
+
+      container.appendChild(card);
+
+      // Check if description needs expand button
+      setTimeout(() => {
+        const descElement = card.querySelector(
+          `#desc-${containerId}-${announcement.id}`
+        );
+        const expandBtn = card.querySelector(
+          `#expand-${containerId}-${announcement.id}`
+        );
+
+        // Check if text is truncated
+        if (descElement.scrollHeight > descElement.clientHeight) {
+          expandBtn.style.display = "inline-flex";
+        }
+      }, 0);
+    });
+  }
+
+  function fetchAnnouncements() {
+    console.log("Fetching announcements...");
+    fetch("/api/student/announcements")
+      .then((res) => {
+        console.log("API response status:", res.status);
+        if (!res.ok) throw new Error("Failed to fetch announcements");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Received announcements data:", data);
+        announcements = data;
+        renderAnnouncements(announcements, "announcements-container");
+      })
+      .catch((err) => {
+        console.error("Error fetching announcements:", err);
+        const container = document.querySelector("#announcements-container");
+        container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
+      });
+  }
+
+  function toggleDescription(containerId, id) {
+    const descElement = document.getElementById(`desc-${containerId}-${id}`);
+    const expandBtn = document.getElementById(`expand-${containerId}-${id}`);
+    const btnText = expandBtn.querySelector("span");
+    const btnIcon = expandBtn.querySelector("i");
+
+    if (descElement.classList.contains("collapsed")) {
+      // Expand
+      descElement.classList.remove("collapsed");
+      descElement.classList.add("expanded");
+      btnText.textContent = "Show less";
+      expandBtn.classList.add("expanded");
+    } else {
+      // Collapse
+      descElement.classList.remove("expanded");
+      descElement.classList.add("collapsed");
+      btnText.textContent = "Show more";
+      expandBtn.classList.remove("expanded");
+    }
+  }
+
+  // Initialize
+  fetchAnnouncements();
+</script>
