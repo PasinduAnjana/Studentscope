@@ -3,6 +3,7 @@ const studentsController = require("../controllers/clerk/studentsController");
 const classesController = require("../controllers/clerk/classesController");
 const teachersController = require("../controllers/clerk/teachersController");
 const timetableController = require("../controllers/clerk/timetableController");
+const profileController = require("../controllers/clerk/profileController");
 const clerkService = require("../services/clerkService");
 
 module.exports = async (req, res) => {
@@ -44,6 +45,13 @@ module.exports = async (req, res) => {
   if (req.method === "GET" && req.url === "/api/clerk/classes") {
     return protect("clerk")(req, res, () =>
       classesController.getClasses(req, res)
+    );
+  }
+
+  // Profile route
+  if (req.method === "GET" && req.url === "/api/clerk/profile") {
+    return protect("clerk")(req, res, () =>
+      profileController.getProfile(req, res)
     );
   }
 

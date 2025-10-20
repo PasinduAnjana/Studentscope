@@ -1,0 +1,221 @@
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-user"></i>
+    <span data="sidebar.profile"></span>
+  </h2>
+
+  <div class="card-grid">
+    <!-- Profile Information -->
+    <div class="card w-2 h-2 profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="profile-info">
+          <h3 id="clerk-name">Loading...</h3>
+          <p id="clerk-role" class="text-sm">Clerk</p>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="detail-label" data="profile.username"></span>
+          <span id="clerk-username">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.role"></span>
+          <span id="clerk-role-display">Clerk</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clerk Personal Details -->
+    <div class="card w-2 h-2 profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="fas fa-id-card"></i>
+        </div>
+        <div class="profile-info">
+          <h3 data="profile.personalDetails"></h3>
+          <p class="text-sm" data="profile.informationContact"></p>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="detail-label" data="profile.fullName"></span>
+          <span id="clerk-full-name">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.nic"></span>
+          <span id="clerk-nic">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.birthday"></span>
+          <span id="clerk-birthday">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.address"></span>
+          <span id="clerk-address">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.phoneNumber"></span>
+          <span id="clerk-phone">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clerk Professional Details -->
+    <div class="card w-2 h-2 profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="fas fa-briefcase"></i>
+        </div>
+        <div class="profile-info">
+          <h3 data="profile.professionalDetails"></h3>
+          <p class="text-sm" data="profile.experienceAppointment"></p>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="detail-label" data="profile.firstAppointmentDate"></span>
+          <span id="clerk-first-appointment">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.appointmentDate"></span>
+          <span id="clerk-appointment">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data="profile.pastSchools"></span>
+          <span id="clerk-past-schools">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-chart-bar icon"></i>
+        <p class="tile-label" data="profile.quickStats"></p>
+      </div>
+      <div class="stats-content">
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <span class="stat-number" id="total-students">0</span>
+          <span class="stat-label" data="profile.students"></span>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i class="fas fa-user-graduate"></i>
+          </div>
+          <span class="stat-number" id="total-teachers">0</span>
+          <span class="stat-label" data="profile.teachers"></span>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i class="fas fa-chalkboard"></i>
+          </div>
+          <span class="stat-number" id="total-classes">0</span>
+          <span class="stat-label" data="profile.classes"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-clock icon"></i>
+        <p class="tile-label">Recent Activities</p>
+      </div>
+      <div id="recent-activities">
+        <p class="text-sm">No recent activities</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  async function loadProfile() {
+    try {
+      const response = await fetch("/api/clerk/profile");
+      if (!response.ok) throw new Error("Failed to fetch profile");
+
+      const profile = await response.json();
+
+      // Update profile information
+      document.getElementById("clerk-name").textContent = profile.username;
+      document.getElementById("clerk-username").textContent = profile.username;
+      document.getElementById("clerk-role").textContent =
+        getNestedValue(window.currentTranslations, "profile.clerk") || "Clerk";
+
+      // Update clerk details if available
+      if (profile.details) {
+        const details = profile.details;
+
+        // Personal Details
+        document.getElementById("clerk-full-name").textContent =
+          details.full_name || "-";
+        document.getElementById("clerk-nic").textContent = details.nic || "-";
+        document.getElementById("clerk-birthday").textContent = details.birthday
+          ? new Date(details.birthday).toLocaleDateString()
+          : "-";
+        document.getElementById("clerk-address").textContent =
+          details.address || "-";
+        document.getElementById("clerk-phone").textContent =
+          details.phone_number || "-";
+
+        // Professional Details
+        document.getElementById("clerk-first-appointment").textContent =
+          details.first_appointment_date
+            ? new Date(details.first_appointment_date).toLocaleDateString()
+            : "-";
+        document.getElementById("clerk-appointment").textContent =
+          details.appointment_date
+            ? new Date(details.appointment_date).toLocaleDateString()
+            : "-";
+        document.getElementById("clerk-past-schools").textContent =
+          details.past_schools || "-";
+      }
+
+      // Load additional stats
+      await loadProfileStats();
+    } catch (error) {
+      console.error("Error loading profile:", error);
+      document.getElementById("clerk-name").textContent =
+        "Error loading profile";
+    }
+  }
+
+  async function loadProfileStats() {
+    try {
+      // Load total students
+      const studentsResponse = await fetch("/api/clerk/students");
+      if (studentsResponse.ok) {
+        const students = await studentsResponse.json();
+        document.getElementById("total-students").textContent = students.length;
+      }
+
+      // Load total teachers
+      const teachersResponse = await fetch("/api/clerk/teachers");
+      if (teachersResponse.ok) {
+        const teachers = await teachersResponse.json();
+        document.getElementById("total-teachers").textContent = teachers.length;
+      }
+
+      // Load total classes
+      const classesResponse = await fetch("/api/clerk/classes");
+      if (classesResponse.ok) {
+        const classes = await classesResponse.json();
+        document.getElementById("total-classes").textContent = classes.length;
+      }
+    } catch (error) {
+      console.error("Error loading profile stats:", error);
+    }
+  }
+
+  // Initialize
+  loadProfile();
+</script>

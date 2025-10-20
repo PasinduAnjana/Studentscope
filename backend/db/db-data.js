@@ -365,6 +365,34 @@ async function run() {
       teacherDetailIdx++;
     }
 
+    // 8.5️⃣ Clerk Details
+    const clerkDetailsData = {
+      full_name: "Chaminda Fernando",
+      nic: "850123456V",
+      address: "45 Main Street, Colombo 05",
+      phone_number: "077-1234567",
+      past_schools: "Royal College Colombo, Ananda College Colombo",
+      appointment_date: "2015-03-15",
+      first_appointment_date: "2010-01-10",
+      birthday: "1985-05-20",
+    };
+
+    await pool.query(
+      `INSERT INTO clerk_details (clerk_id, full_name, nic, address, phone_number, past_schools, appointment_date, first_appointment_date, birthday)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        clerkId,
+        clerkDetailsData.full_name,
+        clerkDetailsData.nic,
+        clerkDetailsData.address,
+        clerkDetailsData.phone_number,
+        clerkDetailsData.past_schools,
+        clerkDetailsData.appointment_date,
+        clerkDetailsData.first_appointment_date,
+        clerkDetailsData.birthday,
+      ]
+    );
+
     // 9️⃣ Parents
     const parentList = [
       { name: "Sunil Perera", address: "Colombo" },
