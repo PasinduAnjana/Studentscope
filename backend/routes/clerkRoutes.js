@@ -4,6 +4,7 @@ const classesController = require("../controllers/clerk/classesController");
 const teachersController = require("../controllers/clerk/teachersController");
 const timetableController = require("../controllers/clerk/timetableController");
 const profileController = require("../controllers/clerk/profileController");
+const announcementsController = require("../controllers/clerk/announcementsController");
 const clerkService = require("../services/clerkService");
 
 module.exports = async (req, res) => {
@@ -152,6 +153,37 @@ module.exports = async (req, res) => {
         res.end(JSON.stringify({ error: "Failed to fetch subjects" }));
       }
     });
+  }
+
+  // Announcements routes
+  if (req.method === "GET" && req.url === "/api/clerk/announcements") {
+    return protect("clerk")(req, res, () =>
+      announcementsController.getAllAnnouncements(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url === "/api/clerk/announcements") {
+    return protect("clerk")(req, res, () =>
+      announcementsController.createAnnouncement(req, res)
+    );
+  }
+
+  if (
+    req.method === "PUT" &&
+    req.url.match(/^\/api\/clerk\/announcements\/\d+$/)
+  ) {
+    return protect("clerk")(req, res, () =>
+      announcementsController.updateAnnouncement(req, res)
+    );
+  }
+
+  if (
+    req.method === "DELETE" &&
+    req.url.match(/^\/api\/clerk\/announcements\/\d+$/)
+  ) {
+    return protect("clerk")(req, res, () =>
+      announcementsController.deleteAnnouncement(req, res)
+    );
   }
 
   res.writeHead(404);

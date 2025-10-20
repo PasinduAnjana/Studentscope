@@ -578,7 +578,23 @@ exports.saveMarks = async (marksData) => {
 // Announcement functions
 exports.getAnnouncementsByClass = async (classId) => {
   const result = await pool.query(
-    "SELECT id, title, description, created_at FROM announcements WHERE class_id = $1 ORDER BY created_at DESC",
+    `
+    SELECT 
+      a.id, 
+      a.title, 
+      a.description, 
+      a.created_at,
+      a.audience_type,
+      u.username as posted_by_name
+    FROM announcements a
+    LEFT JOIN users u ON a.posted_by = u.id
+    WHERE a.audience_type = 'students' 
+      AND EXISTS (
+        SELECT 1 FROM announcement_classes ac 
+        WHERE ac.announcement_id = a.id AND ac.class_id = $1
+      )
+    ORDER BY a.created_at DESC
+    `,
     [classId]
   );
   return result.rows;
@@ -587,33 +603,130 @@ exports.getAnnouncementsByClass = async (classId) => {
 exports.createAnnouncement = async ({
   title,
   description,
-  class_id,
+  audience_type,
+  class_ids,
   teacher_id,
 }) => {
+  // For teachers, always set audience_type to 'students' and use their class
   const result = await pool.query(
-    "INSERT INTO announcements (title, description, class_id, teacher_id, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *",
-    [title, description, class_id, teacher_id]
+    "INSERT INTO announcements (title, description, posted_by, audience_type, created_at) VALUES ($1, $2, $3, 'students', NOW()) RETURNING *",
+    [title, description, teacher_id]
   );
-  return result.rows[0];
+  const announcement = result.rows[0];
+
+  // Get teacher's class
+  const classResult = await pool.query(
+    "SELECT class_id FROM users WHERE id = $1",
+    [teacher_id]
+  );
+  const teacherClassId = classResult.rows[0].class_id;
+
+  // Insert into announcement_classes
+  await pool.query(
+    "INSERT INTO announcement_classes (announcement_id, class_id) VALUES ($1, $2)",
+    [announcement.id, teacherClassId]
+  );
+
+  return announcement;
 };
 
 exports.updateAnnouncement = async (
   announcementId,
   { title, description },
-  classId,
   teacherId
 ) => {
+  // Verify the teacher owns this announcement
+  const checkResult = await pool.query(
+    "SELECT id FROM announcements WHERE id = $1 AND posted_by = $2",
+    [announcementId, teacherId]
+  );
+  if (checkResult.rows.length === 0) {
+    throw new Error("Announcement not found or access denied");
+  }
+
   const result = await pool.query(
-    "UPDATE announcements SET title = $1, description = $2 WHERE id = $3 AND class_id = $4 AND teacher_id = $5 RETURNING *",
-    [title, description, announcementId, classId, teacherId]
+    "UPDATE announcements SET title = $1, description = $2 WHERE id = $3 AND posted_by = $4 RETURNING *",
+    [title, description, announcementId, teacherId]
   );
   return result.rows[0];
 };
 
-exports.deleteAnnouncement = async (announcementId, classId, teacherId) => {
+exports.deleteAnnouncement = async (announcementId, teacherId) => {
+  // Verify the teacher owns this announcement
+  const checkResult = await pool.query(
+    "SELECT id FROM announcements WHERE id = $1 AND posted_by = $2",
+    [announcementId, teacherId]
+  );
+  if (checkResult.rows.length === 0) {
+    throw new Error("Announcement not found or access denied");
+  }
+
+  // Delete from link tables first (cascade should handle this, but being explicit)
+  await pool.query(
+    "DELETE FROM announcement_classes WHERE announcement_id = $1",
+    [announcementId]
+  );
+  await pool.query(
+    "DELETE FROM announcement_teachers WHERE announcement_id = $1",
+    [announcementId]
+  );
+
+  // Delete the announcement
   const result = await pool.query(
-    "DELETE FROM announcements WHERE id = $1 AND class_id = $2 AND teacher_id = $3",
-    [announcementId, classId, teacherId]
+    "DELETE FROM announcements WHERE id = $1 AND posted_by = $2",
+    [announcementId, teacherId]
   );
   return result.rowCount > 0;
+};
+
+exports.getAnnouncementsForTeacher = async (teacherId) => {
+  const result = await pool.query(
+    `
+    SELECT DISTINCT
+      a.id,
+      a.title,
+      a.description,
+      a.created_at,
+      a.audience_type,
+      u.username as posted_by_name,
+      CASE
+        WHEN a.audience_type = 'all' THEN 'All (Teachers & Students)'
+        WHEN a.audience_type = 'teachers' THEN 'Teachers'
+        WHEN a.audience_type = 'students' THEN 'Students'
+      END as audience_display
+    FROM announcements a
+    LEFT JOIN users u ON a.posted_by = u.id
+    LEFT JOIN announcement_teachers at ON a.id = at.announcement_id
+    WHERE a.audience_type = 'all'
+       OR (a.audience_type = 'teachers' AND at.teacher_id = $1)
+    ORDER BY a.created_at DESC
+    `,
+    [teacherId]
+  );
+  return result.rows;
+};
+
+exports.getAnnouncementsByTeacher = async (teacherId) => {
+  const result = await pool.query(
+    `
+    SELECT
+      a.id,
+      a.title,
+      a.description,
+      a.created_at,
+      a.audience_type,
+      u.username as posted_by_name,
+      CASE
+        WHEN a.audience_type = 'all' THEN 'All (Teachers & Students)'
+        WHEN a.audience_type = 'teachers' THEN 'Teachers'
+        WHEN a.audience_type = 'students' THEN 'Students'
+      END as audience_display
+    FROM announcements a
+    LEFT JOIN users u ON a.posted_by = u.id
+    WHERE a.posted_by = $1
+    ORDER BY a.created_at DESC
+    `,
+    [teacherId]
+  );
+  return result.rows;
 };

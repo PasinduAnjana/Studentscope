@@ -3,15 +3,66 @@
     <i class="fas fa-bullhorn"></i>
     <span data="sidebar.announcements"></span>
   </h2>
-  <div class="card">
-    <div class="flex-between mb-2">
-      <h1 class="title" data="sidebar.announcements"></h1>
-      <button id="add-announcement-btn" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Add Announcement
-      </button>
+  <style>
+    .checkbox-item {
+      margin-bottom: 8px;
+    }
+    .checkbox-item label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    .checkbox-item label:hover {
+      background-color: var(--color-hover);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title i {
+      color: var(--color-primary);
+    }
+  </style>
+  <div class="card-grid">
+    <!-- My Announcements Card -->
+    <div class="card h-2">
+      <div class="flex-between mb-2">
+        <h3 class="section-title">
+          <i class="fas fa-bullhorn"></i>
+          My Announcements
+        </h3>
+        <button id="add-announcement-btn" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Add Announcement
+        </button>
+      </div>
+      <div class="announcements-container" id="my-announcements-container">
+        <!-- My announcements will be loaded here dynamically -->
+      </div>
     </div>
-    <div class="announcements-container" id="announcements-container">
-      <!-- Announcements will be loaded here dynamically -->
+
+    <!-- Received Announcements Card -->
+    <div class="card h-2">
+      <h3 class="section-title">
+        <i class="fas fa-inbox"></i>
+        Announcements for Me
+      </h3>
+      <div
+        class="announcements-container"
+        id="received-announcements-container"
+      >
+        <!-- Received announcements will be loaded here dynamically -->
+      </div>
     </div>
   </div>
 </section>
@@ -41,6 +92,12 @@
           class="mt-1"
         ></textarea>
       </div>
+      <div class="mb-2">
+        <p class="text-sm" style="color: var(--color-subtext)">
+          <i class="fas fa-info-circle"></i>
+          This announcement will be sent to all students in your class.
+        </p>
+      </div>
     </div>
     <div class="modal-footer">
       <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
@@ -50,11 +107,12 @@
 </div>
 
 <script>
-  let announcements = [];
+  let myAnnouncements = [];
+  let receivedAnnouncements = [];
   let editingAnnouncement = null;
 
-  function renderAnnouncements() {
-    const container = document.querySelector("#announcements-container");
+  function renderAnnouncements(announcements, containerId) {
+    const container = document.querySelector(`#${containerId}`);
     container.innerHTML = "";
     if (!announcements.length) {
       container.innerHTML = `<div class="no-announcements text-center">No announcements found</div>`;
@@ -69,27 +127,56 @@
         announcement.created_at
       ).toLocaleDateString();
 
+      // Format audience display
+      let audienceDisplay = "";
+      switch (announcement.audience_type) {
+        case "all":
+          audienceDisplay = "All (Teachers & Students)";
+          break;
+        case "teachers":
+          audienceDisplay = `Teachers (${announcement.target_count || 0})`;
+          break;
+        case "students":
+          audienceDisplay = `Classes (${announcement.target_count || 0})`;
+          break;
+      }
+
       card.innerHTML = `
         <div class="announcement-title flex-between">
           <span>${announcement.title}</span>
           <div class="announcement-actions">
-            <button class="btn-icon btn-edit" onclick="editAnnouncement(${announcement.id})" title="Edit">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn-icon btn-delete" onclick="deleteAnnouncement(${announcement.id})" title="Delete">
-              <i class="fas fa-trash"></i>
-            </button>
+            ${
+              containerId === "my-announcements-container"
+                ? `
+              <button class="btn-icon btn-edit" onclick="editAnnouncement(${announcement.id})" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn-icon btn-delete" onclick="deleteAnnouncement(${announcement.id})" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            `
+                : ""
+            }
           </div>
         </div>
         <div class="announcement-description-container">
-          <div class="announcement-description collapsed" id="desc-${announcement.id}">${announcement.description}</div>
-          <button class="expand-btn" id="expand-${announcement.id}" style="display: none;" onclick="toggleDescription(${announcement.id})">
+          <div class="announcement-description collapsed" id="desc-${containerId}-${
+        announcement.id
+      }">${announcement.description}</div>
+          <button class="expand-btn" id="expand-${containerId}-${
+        announcement.id
+      }" style="display: none;" onclick="toggleDescription('${containerId}', ${
+        announcement.id
+      })">
             <span>Show more</span>
             <i class="fas fa-chevron-down"></i>
           </button>
         </div>
-        <div class="announcement-meta flex-end">
-          <span class="text-sm">Created: ${createdDate}</span>
+        <div class="announcement-meta flex-between">
+          <span class="text-sm">Audience: ${audienceDisplay}</span>
+          <span class="text-sm">Created: ${createdDate} ${
+        announcement.posted_by_name ? `• By ${announcement.posted_by_name}` : ""
+      }</span>
         </div>
       `;
 
@@ -97,8 +184,12 @@
 
       // Check if description needs expand button
       setTimeout(() => {
-        const descElement = card.querySelector(`#desc-${announcement.id}`);
-        const expandBtn = card.querySelector(`#expand-${announcement.id}`);
+        const descElement = card.querySelector(
+          `#desc-${containerId}-${announcement.id}`
+        );
+        const expandBtn = card.querySelector(
+          `#expand-${containerId}-${announcement.id}`
+        );
 
         // Check if text is truncated
         if (descElement.scrollHeight > descElement.clientHeight) {
@@ -108,8 +199,8 @@
     });
   }
 
-  function fetchAnnouncements() {
-    console.log("Fetching announcements...");
+  function fetchMyAnnouncements() {
+    console.log("Fetching my announcements...");
     fetch("/api/teacher/announcements")
       .then((res) => {
         console.log("API response status:", res.status);
@@ -117,14 +208,38 @@
         return res.json();
       })
       .then((data) => {
-        console.log("Received announcements data:", data);
-        announcements = data;
-        console.log("Announcements array after assignment:", announcements);
-        renderAnnouncements();
+        console.log("Received my announcements data:", data);
+        myAnnouncements = data;
+        renderAnnouncements(myAnnouncements, "my-announcements-container");
       })
       .catch((err) => {
-        console.error("Error fetching announcements:", err);
-        const container = document.querySelector("#announcements-container");
+        console.error("Error fetching my announcements:", err);
+        const container = document.querySelector("#my-announcements-container");
+        container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
+      });
+  }
+
+  function fetchReceivedAnnouncements() {
+    console.log("Fetching received announcements...");
+    fetch("/api/teacher/announcements/received")
+      .then((res) => {
+        console.log("API response status:", res.status);
+        if (!res.ok) throw new Error("Failed to fetch received announcements");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Received announcements data:", data);
+        receivedAnnouncements = data;
+        renderAnnouncements(
+          receivedAnnouncements,
+          "received-announcements-container"
+        );
+      })
+      .catch((err) => {
+        console.error("Error fetching received announcements:", err);
+        const container = document.querySelector(
+          "#received-announcements-container"
+        );
         container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
       });
   }
@@ -139,8 +254,7 @@
     addBtn.addEventListener("click", () => {
       editingAnnouncement = null;
       document.getElementById("modal-title").textContent = "Add Announcement";
-      document.getElementById("announcement-title").value = "";
-      document.getElementById("announcement-description").value = "";
+      clearModal();
       modal.style.display = "flex";
     });
 
@@ -171,12 +285,18 @@
       return;
     }
 
+    // Teachers can only send to their own class
     const method = editingAnnouncement ? "PUT" : "POST";
     const url = editingAnnouncement
       ? `/api/teacher/announcements/${editingAnnouncement.id}`
       : "/api/teacher/announcements";
 
-    const body = { title, description };
+    const body = {
+      title,
+      description,
+      audience_type: "students",
+      class_ids: [], // Will be set by backend based on teacher's class
+    };
 
     fetch(url, {
       method,
@@ -190,12 +310,17 @@
       .then(() => {
         document.getElementById("announcement-modal").style.display = "none";
         toast("Announcement saved successfully", "fa-solid fa-check-circle");
-        fetchAnnouncements();
+        fetchMyAnnouncements();
       })
       .catch((err) => {
         console.error(err);
         toast("Error saving announcement", "fa-solid fa-circle-exclamation");
       });
+  }
+
+  function clearModal() {
+    document.getElementById("announcement-title").value = "";
+    document.getElementById("announcement-description").value = "";
   }
 
   function editAnnouncement(id) {
@@ -207,9 +332,9 @@
     );
     console.log(
       "Available announcement IDs:",
-      announcements.map((a) => ({ id: a.id, type: typeof a.id }))
+      myAnnouncements.map((a) => ({ id: a.id, type: typeof a.id }))
     );
-    const announcement = announcements.find((a) => a.id == id); // Use == for type coercion
+    const announcement = myAnnouncements.find((a) => a.id == id); // Use == for type coercion
     console.log("Found announcement:", announcement);
     if (!announcement) {
       console.error("Announcement not found with ID:", id);
@@ -225,6 +350,7 @@
     document.getElementById("announcement-title").value = announcement.title;
     document.getElementById("announcement-description").value =
       announcement.description;
+
     document.getElementById("announcement-modal").style.display = "flex";
     console.log("Modal should now be visible");
   }
@@ -250,7 +376,7 @@
                 "Announcement deleted successfully",
                 "fa-solid fa-check-circle"
               );
-              fetchAnnouncements(); // Refresh the list
+              fetchMyAnnouncements(); // Refresh the list
             })
             .catch((err) => {
               console.error("Error deleting announcement:", err);
@@ -267,9 +393,9 @@
     );
   }
 
-  function toggleDescription(id) {
-    const descElement = document.getElementById(`desc-${id}`);
-    const expandBtn = document.getElementById(`expand-${id}`);
+  function toggleDescription(containerId, id) {
+    const descElement = document.getElementById(`desc-${containerId}-${id}`);
+    const expandBtn = document.getElementById(`expand-${containerId}-${id}`);
     const btnText = expandBtn.querySelector("span");
     const btnIcon = expandBtn.querySelector("i");
 
@@ -288,7 +414,13 @@
     }
   }
 
+  function setupTabs() {
+    // No longer needed - both sections are always visible
+  }
+
   // Initialize
-  fetchAnnouncements();
+  setupTabs();
+  fetchMyAnnouncements();
+  fetchReceivedAnnouncements();
   setupAddButton();
 </script>

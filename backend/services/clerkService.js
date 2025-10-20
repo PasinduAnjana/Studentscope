@@ -684,6 +684,177 @@ const getSubjects = async () => {
   return result.rows;
 };
 
+// Announcement functions
+const getAllAnnouncements = async (clerkId) => {
+  const result = await pool.query(
+    `
+    SELECT
+      a.id,
+      a.title,
+      a.description,
+      a.created_at,
+      a.audience_type,
+      u.username as posted_by_name,
+      CASE
+        WHEN a.audience_type = 'all' THEN 'All (Teachers & Students)'
+        WHEN a.audience_type = 'teachers' THEN 'Teachers'
+        WHEN a.audience_type = 'students' THEN 'Students'
+      END as audience_display
+    FROM announcements a
+    LEFT JOIN users u ON a.posted_by = u.id
+    WHERE a.posted_by = $1
+    ORDER BY a.created_at DESC
+    `,
+    [clerkId]
+  );
+  return result.rows;
+};
+
+const createAnnouncement = async ({
+  title,
+  description,
+  audience_type,
+  teacher_ids = [],
+  class_ids = [],
+  clerk_id,
+}) => {
+  const result = await pool.query(
+    "INSERT INTO announcements (title, description, posted_by, audience_type, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *",
+    [title, description, clerk_id, audience_type]
+  );
+  const announcement = result.rows[0];
+
+  // Insert into link tables based on audience type
+  if (audience_type === "teachers" && teacher_ids.length > 0) {
+    for (const teacherId of teacher_ids) {
+      await pool.query(
+        "INSERT INTO announcement_teachers (announcement_id, teacher_id) VALUES ($1, $2)",
+        [announcement.id, teacherId]
+      );
+    }
+  } else if (audience_type === "students" && class_ids.length > 0) {
+    for (const classId of class_ids) {
+      await pool.query(
+        "INSERT INTO announcement_classes (announcement_id, class_id) VALUES ($1, $2)",
+        [announcement.id, classId]
+      );
+    }
+  }
+  // For 'all', no need to insert into link tables
+
+  return announcement;
+};
+
+const updateAnnouncement = async (
+  announcementId,
+  { title, description, audience_type, teacher_ids = [], class_ids = [] },
+  clerkId
+) => {
+  // Verify the clerk has access (clerks can edit any announcement they created)
+  const checkResult = await pool.query(
+    "SELECT id FROM announcements WHERE id = $1 AND posted_by = $2",
+    [announcementId, clerkId]
+  );
+  if (checkResult.rows.length === 0) {
+    throw new Error("Announcement not found or access denied");
+  }
+
+  // Update the announcement
+  const result = await pool.query(
+    "UPDATE announcements SET title = $1, description = $2, audience_type = $3 WHERE id = $4 AND posted_by = $5 RETURNING *",
+    [title, description, audience_type, announcementId, clerkId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Announcement not found");
+  }
+
+  // Delete existing links
+  await pool.query(
+    "DELETE FROM announcement_teachers WHERE announcement_id = $1",
+    [announcementId]
+  );
+  await pool.query(
+    "DELETE FROM announcement_classes WHERE announcement_id = $1",
+    [announcementId]
+  );
+
+  // Insert new links based on audience type
+  if (audience_type === "teachers" && teacher_ids.length > 0) {
+    for (const teacherId of teacher_ids) {
+      await pool.query(
+        "INSERT INTO announcement_teachers (announcement_id, teacher_id) VALUES ($1, $2)",
+        [announcementId, teacherId]
+      );
+    }
+  } else if (audience_type === "students" && class_ids.length > 0) {
+    for (const classId of class_ids) {
+      await pool.query(
+        "INSERT INTO announcement_classes (announcement_id, class_id) VALUES ($1, $2)",
+        [announcementId, classId]
+      );
+    }
+  }
+
+  return result.rows[0];
+};
+
+const deleteAnnouncement = async (announcementId, clerkId) => {
+  // Verify the clerk has access
+  const checkResult = await pool.query(
+    "SELECT id FROM announcements WHERE id = $1 AND posted_by = $2",
+    [announcementId, clerkId]
+  );
+  if (checkResult.rows.length === 0) {
+    throw new Error("Announcement not found or access denied");
+  }
+
+  // Delete from link tables first (cascade should handle this, but being explicit)
+  await pool.query(
+    "DELETE FROM announcement_classes WHERE announcement_id = $1",
+    [announcementId]
+  );
+  await pool.query(
+    "DELETE FROM announcement_teachers WHERE announcement_id = $1",
+    [announcementId]
+  );
+
+  // Delete the announcement
+  const result = await pool.query(
+    "DELETE FROM announcements WHERE id = $1 AND posted_by = $2",
+    [announcementId, clerkId]
+  );
+  return result.rowCount > 0;
+};
+
+const getAnnouncementWithDetails = async (announcementId) => {
+  const result = await pool.query(
+    `
+    SELECT
+      a.*,
+      u.username as posted_by_name,
+      COALESCE(
+        json_agg(DISTINCT jsonb_build_object('id', t.id, 'full_name', t.full_name, 'username', t.username)) FILTER (WHERE t.id IS NOT NULL),
+        '[]'
+      ) as teachers,
+      COALESCE(
+        json_agg(DISTINCT jsonb_build_object('id', c.id, 'grade', c.grade, 'name', c.name)) FILTER (WHERE c.id IS NOT NULL),
+        '[]'
+      ) as classes
+    FROM announcements a
+    LEFT JOIN users u ON a.posted_by = u.id
+    LEFT JOIN announcement_teachers at ON a.id = at.announcement_id
+    LEFT JOIN users t ON at.teacher_id = t.id
+    LEFT JOIN announcement_classes ac ON a.id = ac.announcement_id
+    LEFT JOIN classes c ON ac.class_id = c.id
+    WHERE a.id = $1
+    GROUP BY a.id, u.username
+    `,
+    [announcementId]
+  );
+  return result.rows[0];
+};
+
 module.exports = {
   createStudent,
   getAllStudents,
@@ -702,4 +873,10 @@ module.exports = {
   getTimetableForClass,
   assignTimetableSlot,
   getSubjects,
+  // Announcement functions
+  getAllAnnouncements,
+  createAnnouncement,
+  updateAnnouncement,
+  deleteAnnouncement,
+  getAnnouncementWithDetails,
 };

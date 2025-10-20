@@ -193,9 +193,27 @@ END $$;
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
-        class_id BIGINT REFERENCES classes(id),
-        teacher_id BIGINT REFERENCES users(id),
+        posted_by BIGINT REFERENCES users(id),
+        audience_type TEXT NOT NULL CHECK (audience_type IN ('teachers', 'students', 'all')),
         created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS announcement_classes (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        announcement_id BIGINT REFERENCES announcements(id) ON DELETE CASCADE,
+        class_id BIGINT REFERENCES classes(id) ON DELETE CASCADE,
+        UNIQUE(announcement_id, class_id)
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS announcement_teachers (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        announcement_id BIGINT REFERENCES announcements(id) ON DELETE CASCADE,
+        teacher_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE(announcement_id, teacher_id)
       );
     `);
 

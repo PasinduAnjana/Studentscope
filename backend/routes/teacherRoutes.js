@@ -307,6 +307,16 @@ module.exports = (req, res) => {
     );
   }
 
+  // Get announcements sent to teacher
+  if (
+    req.method === "GET" &&
+    req.url === "/api/teacher/announcements/received"
+  ) {
+    return protect("teacher")(req, res, () =>
+      announcementsController.getAnnouncementsForTeacher(req, res)
+    );
+  }
+
   // 404 - Route not found
 
   res.writeHead(404, { "Content-Type": "application/json" });
