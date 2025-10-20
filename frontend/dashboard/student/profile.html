@@ -1,0 +1,254 @@
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-user"></i>
+    <span data="sidebar.profile"></span>
+  </h2>
+
+  <div class="card-grid">
+    <!-- Profile Information -->
+    <div class="card w-2 h-2 profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="profile-info">
+          <h3 id="student-name">Loading...</h3>
+          <p id="student-role" class="text-sm">Student</p>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="detail-label">Index Number:</span>
+          <span id="student-username">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Class:</span>
+          <span id="student-class">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Grade:</span>
+          <span id="student-grade">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Personal Details -->
+    <div class="card w-2 h-2 profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="fas fa-id-card"></i>
+        </div>
+        <div class="profile-info">
+          <h3>Personal Details</h3>
+          <p class="text-sm">Student Information</p>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="detail-label">Full Name:</span>
+          <span id="student-full-name">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Birthday:</span>
+          <span id="student-birthday">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Gender:</span>
+          <span id="student-gender">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Nationality:</span>
+          <span id="student-nationality">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Address:</span>
+          <span id="student-address">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parent Information -->
+    <div class="card w-2 h-2 profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="profile-info">
+          <h3>Parent Information</h3>
+          <p class="text-sm">Guardian Details</p>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="detail-label">Parent Name:</span>
+          <span id="parent-name">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Parent Address:</span>
+          <span id="parent-address">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-chart-bar icon"></i>
+        <p class="tile-label">Quick Stats</p>
+      </div>
+      <div class="stats-content">
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i class="fas fa-percentage"></i>
+          </div>
+          <span class="stat-number" id="attendance-percentage">-</span>
+          <span class="stat-label">Attendance</span>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <span class="stat-number" id="average-marks">-</span>
+          <span class="stat-label">Avg Marks</span>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <span class="stat-number" id="present-days">-</span>
+          <span class="stat-label">Present Days</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Class Information -->
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-school icon"></i>
+        <p class="tile-label">Class Details</p>
+      </div>
+      <div id="class-info">
+        <p class="text-sm">Loading class information...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  async function loadProfile() {
+    try {
+      const response = await fetch("/api/student/profile");
+      if (!response.ok) throw new Error("Failed to fetch profile");
+
+      const profile = await response.json();
+
+      // Update profile information
+      document.getElementById("student-name").textContent =
+        profile.full_name || profile.username;
+      document.getElementById("student-username").textContent =
+        profile.username;
+
+      if (profile.class_name && profile.class_grade) {
+        document.getElementById(
+          "student-class"
+        ).textContent = `${profile.class_name}`;
+        document.getElementById(
+          "student-grade"
+        ).textContent = `Grade ${profile.class_grade}`;
+      } else {
+        document.getElementById("student-class").textContent = "Not assigned";
+        document.getElementById("student-grade").textContent = "Not assigned";
+      }
+
+      // Update personal details
+      document.getElementById("student-full-name").textContent =
+        profile.full_name || "-";
+      document.getElementById("student-birthday").textContent = profile.birthday
+        ? new Date(profile.birthday).toLocaleDateString()
+        : "-";
+      document.getElementById("student-gender").textContent =
+        profile.gender || "-";
+      document.getElementById("student-nationality").textContent =
+        profile.nationality || "-";
+      document.getElementById("student-address").textContent =
+        profile.address || "-";
+
+      // Update parent information
+      document.getElementById("parent-name").textContent =
+        profile.parent_name || "-";
+      document.getElementById("parent-address").textContent =
+        profile.parent_address || "-";
+
+      // Load additional stats
+      await loadProfileStats();
+    } catch (error) {
+      console.error("Error loading profile:", error);
+      document.getElementById("student-name").textContent =
+        "Error loading profile";
+    }
+  }
+
+  async function loadProfileStats() {
+    try {
+      // Load attendance percentage
+      const attendanceResponse = await fetch(
+        "/api/student/attendance/percentage"
+      );
+      if (attendanceResponse.ok) {
+        const attendance = await attendanceResponse.json();
+        const percentage =
+          attendance.totalDays > 0
+            ? Math.round((attendance.presentDays / attendance.totalDays) * 100)
+            : 0;
+        document.getElementById(
+          "attendance-percentage"
+        ).textContent = `${percentage}%`;
+      }
+
+      // Load average marks
+      const marksResponse = await fetch("/api/student/marks/average");
+      if (marksResponse.ok) {
+        const marks = await marksResponse.json();
+        const average = marks.average
+          ? Math.round(marks.average * 100) / 100
+          : "N/A";
+        document.getElementById("average-marks").textContent = average;
+      }
+
+      // Load present days
+      const presentDaysResponse = await fetch(
+        "/api/student/attendance/present-days"
+      );
+      if (presentDaysResponse.ok) {
+        const presentDays = await presentDaysResponse.json();
+        document.getElementById("present-days").textContent =
+          presentDays.presentDays || 0;
+      }
+
+      // Load class information
+      const classInfo = document.getElementById("class-info");
+      const profileResponse = await fetch("/api/student/profile");
+      if (profileResponse.ok) {
+        const profile = await profileResponse.json();
+        if (profile.class_name && profile.class_grade) {
+          classInfo.innerHTML = `
+            <div class="text-sm">
+              <p><strong>Class:</strong> ${profile.class_name}</p>
+              <p><strong>Grade:</strong> ${profile.class_grade}</p>
+            </div>
+          `;
+        } else {
+          classInfo.innerHTML = '<p class="text-sm">No class assigned</p>';
+        }
+      }
+    } catch (error) {
+      console.error("Error loading profile stats:", error);
+    }
+  }
+
+  // Initialize
+  loadProfile();
+</script>

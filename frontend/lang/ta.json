@@ -61,6 +61,15 @@
     "marks": "மதிப்பெண்கள் உள்ளிடுக",
     "students": "மாணவர்கள்"
   },
+  "student": {
+    "greeting": "StudentScope-க்கு வரவேற்கிறோம்!",
+    "greeting_2": "நீங்கள் மாணவராக உள்நுழைந்துள்ளீர்கள்",
+    "timetable": "இன்றைய நேர அட்டவணை",
+    "attendance_percentage": "வருகை சதவீதம்",
+    "average_marks": "சராசரி மதிப்பெண்கள்",
+    "present_days": "வருகை நாட்கள்",
+    "achievements": "சாதனைகள்"
+  },
   "buttons": {
     "save": "சேமிக்க",
     "cancel": "ரத்து செய்ய",

@@ -1,0 +1,20 @@
+[
+  { "label": "sidebar.dashboard", "page": "dashboard", "icon": "fas fa-home" },
+  {
+    "label": "sidebar.attendance",
+    "page": "attendance",
+    "icon": "fas fa-user-check"
+  },
+  { "label": "sidebar.marks", "page": "marks", "icon": "fas fa-chart-bar" },
+  {
+    "label": "sidebar.timeTable",
+    "page": "timetable",
+    "icon": "fas fa-calendar-alt"
+  },
+  {
+    "label": "sidebar.announcements",
+    "page": "announcements",
+    "icon": "fas fa-bullhorn"
+  },
+  { "label": "sidebar.profile", "page": "profile", "icon": "fas fa-user" }
+]

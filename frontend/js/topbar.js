@@ -9,6 +9,7 @@ function loadTopbar() {
       setupLanguageDropdown();
       setupSidebarToggle();
       setupLogoutButton();
+      initializeLanguage();
       applyTranslations();
       fetchUsername();
       setupDarkModeToggle();
@@ -135,4 +136,9 @@ function setupDarkModeToggle() {
     document.documentElement.classList.toggle("dark-mode", toggle.checked);
     localStorage.setItem("darkmode", toggle.checked);
   });
+}
+
+function initializeLanguage() {
+  const savedLang = localStorage.getItem("lang") || "en";
+  updateLanguage(savedLang);
 }

@@ -1,0 +1,369 @@
+<div class="card-grid">
+  <!-- Greeting Tile -->
+  <div class="card greeting-tile w-2">
+    <div class="greeting-content">
+      <h2 class="greeting-heading" data="student.greeting"></h2>
+      <p class="greeting-subtext" data="student.greeting_2"></p>
+    </div>
+    <img
+      src="/assets/images/login.svg"
+      alt="Illustration"
+      class="greeting-img"
+    />
+  </div>
+
+  <!-- Today's Timetable -->
+  <div class="card dashboard-tile w-1 h-2" id="todays-timetable">
+    <div class="icon-title">
+      <i class="fas fa-calendar-day icon"></i>
+      <p class="tile-label" data="student.timetable"></p>
+    </div>
+    <div>
+      <ul class="tile-list">
+        <!-- Dynamic timetable entries will appear here -->
+      </ul>
+    </div>
+  </div>
+
+  <!-- Attendance Percentage -->
+  <div class="card dashboard-tile" id="attendance-percentage">
+    <div class="icon-title">
+      <i class="fas fa-chart-pie icon"></i>
+      <p class="tile-label" data="student.attendance_percentage"></p>
+    </div>
+    <div id="attendance-percentage-content">
+      <!-- Attendance percentage chart will appear here -->
+    </div>
+  </div>
+
+  <!-- Average Marks -->
+  <div class="card dashboard-tile" id="average-marks">
+    <div class="icon-title">
+      <i class="fas fa-chart-bar icon"></i>
+      <p class="tile-label" data="student.average_marks"></p>
+    </div>
+    <div id="average-marks-content">
+      <!-- Average marks will appear here -->
+    </div>
+  </div>
+
+  <!-- Present Days -->
+  <div class="card dashboard-tile" id="present-days">
+    <div class="icon-title">
+      <i class="fas fa-calendar-check icon"></i>
+      <p class="tile-label" data="student.present_days"></p>
+    </div>
+    <div id="present-days-content">
+      <!-- Present days count will appear here -->
+    </div>
+  </div>
+
+  <!-- Achievements -->
+  <div class="card dashboard-tile" id="achievements">
+    <div class="icon-title">
+      <i class="fas fa-trophy icon"></i>
+      <p class="tile-label" data="student.achievements"></p>
+    </div>
+    <div id="achievements-content">
+      <!-- Achievements will appear here -->
+    </div>
+  </div>
+
+  <!-- Recent Announcements -->
+  <div class="card dashboard-tile flex-column">
+    <div class="icon-title">
+      <i class="fas fa-bullhorn icon"></i>
+      <p class="tile-label" data="sidebar.announcements"></p>
+    </div>
+    <div>
+      <ul class="tile-list" id="announcements-list">
+        <!-- Announcements will be loaded here -->
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function loadTodaysTimetable() {
+    try {
+      // Check if today is weekend (Saturday = 6, Sunday = 0)
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+      let timetable;
+      if (isWeekend) {
+        // On weekends, show Monday's timetable
+        const weeklyRes = await fetch(`/api/student/timetable/week`);
+        const weeklyTimetable = await weeklyRes.json();
+        timetable = weeklyTimetable
+          .filter((entry) => entry.day_of_week === 1)
+          .map((entry) => ({
+            slot: entry.period_number,
+            subject: entry.subject,
+            teacher: entry.teacher_name,
+          }));
+      } else {
+        // Fetch today's timetable
+        const timetableRes = await fetch(`/api/student/timetable/today`);
+        timetable = await timetableRes.json();
+      }
+
+      const timeRes = await fetch("/data/time.json");
+      const timeSlots = await timeRes.json();
+
+      const timetableList = document.querySelector(
+        "#todays-timetable .tile-list"
+      );
+      timetableList.innerHTML = "";
+
+      // Update tile label to show which day's timetable is being displayed
+      const tileLabel = document.querySelector("#todays-timetable .tile-label");
+      if (tileLabel) {
+        tileLabel.textContent = isWeekend
+          ? "Monday's Timetable"
+          : "Today's Timetable";
+      }
+
+      timetable.forEach((entry) => {
+        const slotInfo = timeSlots.find((s) => s.slot === entry.slot);
+        if (!slotInfo) return;
+
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span class="slot-time">${slotInfo.start}</span>
+          <span class="subject-name">${entry.subject}</span>
+          <span class="class-name">${entry.teacher}</span>
+        `;
+
+        timetableList.appendChild(li);
+      });
+    } catch (err) {
+      console.error("Error loading timetable:", err);
+    }
+  }
+
+  // Attendance percentage logic
+  async function loadAttendancePercentage() {
+    try {
+      const res = await fetch("/api/student/attendance/percentage");
+      if (!res.ok) throw new Error("Failed to fetch attendance percentage");
+
+      const data = await res.json();
+      const container = document.getElementById(
+        "attendance-percentage-content"
+      );
+
+      if (!data || data.totalDays === 0) {
+        container.innerHTML = `
+          <p class="tile-value">No attendance data</p>
+          <p class="tile-subtext">Attendance will appear here</p>
+        `;
+        return;
+      }
+
+      const percentage = Math.round((data.presentDays / data.totalDays) * 100);
+
+      container.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="flex: 1;">
+            <canvas id="attendanceChart" width="80" height="80"></canvas>
+          </div>
+          <div>
+            <p class="tile-value" style="font-size: 24px;">${percentage}%</p>
+            <p class="tile-subtext">${data.presentDays}/${data.totalDays} days</p>
+          </div>
+        </div>
+      `;
+
+      // Render mini doughnut chart
+      setTimeout(() => {
+        const rootStyles = getComputedStyle(document.documentElement);
+        const primaryColor = rootStyles
+          .getPropertyValue("--color-primary")
+          .trim();
+
+        new Chart(document.getElementById("attendanceChart"), {
+          type: "doughnut",
+          data: {
+            datasets: [
+              {
+                data: [data.presentDays, data.totalDays - data.presentDays],
+                backgroundColor: [primaryColor, primaryColor + "20"],
+                borderWidth: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: false,
+            cutout: "70%",
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: false },
+            },
+          },
+        });
+      }, 100);
+    } catch (err) {
+      console.error("Error loading attendance percentage:", err);
+      const container = document.getElementById(
+        "attendance-percentage-content"
+      );
+      container.innerHTML = `<p class="text-error">Error loading attendance</p>`;
+    }
+  }
+
+  // Average marks logic
+  async function loadAverageMarks() {
+    try {
+      const res = await fetch("/api/student/marks/average");
+      if (!res.ok) throw new Error("Failed to fetch average marks");
+
+      const data = await res.json();
+      const container = document.getElementById("average-marks-content");
+
+      if (!data || data.average === null) {
+        container.innerHTML = `
+          <p class="tile-value">No marks yet</p>
+          <p class="tile-subtext">Marks will appear here</p>
+        `;
+        return;
+      }
+
+      const average = Math.round(data.average * 100) / 100;
+
+      container.innerHTML = `
+        <p class="tile-value" style="font-size: 32px;">${average}</p>
+        <p class="tile-subtext">Average Grade</p>
+        <div style="margin-top: 8px;">
+          <small class="text-sm">${data.subjectCount} subjects</small>
+        </div>
+      `;
+    } catch (err) {
+      console.error("Error loading average marks:", err);
+      const container = document.getElementById("average-marks-content");
+      container.innerHTML = `<p class="text-error">Error loading marks</p>`;
+    }
+  }
+
+  // Present days logic
+  async function loadPresentDays() {
+    try {
+      const res = await fetch("/api/student/attendance/present-days");
+      if (!res.ok) throw new Error("Failed to fetch present days");
+
+      const data = await res.json();
+      const container = document.getElementById("present-days-content");
+
+      container.innerHTML = `
+        <p class="tile-value" style="font-size: 32px;">${
+          data.presentDays || 0
+        }</p>
+        <p class="tile-subtext">Present Days</p>
+        <div style="margin-top: 8px;">
+          <small class="text-sm">This month</small>
+        </div>
+      `;
+    } catch (err) {
+      console.error("Error loading present days:", err);
+      const container = document.getElementById("present-days-content");
+      container.innerHTML = `<p class="text-error">Error loading data</p>`;
+    }
+  }
+
+  // Achievements logic
+  async function loadAchievements() {
+    try {
+      const res = await fetch("/api/student/achievements");
+      if (!res.ok) throw new Error("Failed to fetch achievements");
+
+      const achievements = await res.json();
+      const container = document.getElementById("achievements-content");
+
+      if (!achievements || achievements.length === 0) {
+        container.innerHTML = `
+          <p class="tile-value">No achievements yet</p>
+          <p class="tile-subtext">Keep up the good work!</p>
+        `;
+        return;
+      }
+
+      // Show latest 3 achievements
+      const recentAchievements = achievements.slice(0, 3);
+
+      container.innerHTML = `
+        <ul class="tile-list">
+          ${recentAchievements
+            .map(
+              (achievement) => `
+            <li>
+              <span class="subject-name">${achievement.title}</span>
+              <small class="text-sm">${achievement.date}</small>
+            </li>
+          `
+            )
+            .join("")}
+        </ul>
+      `;
+    } catch (err) {
+      console.error("Error loading achievements:", err);
+      const container = document.getElementById("achievements-content");
+      container.innerHTML = `<p class="text-error">Error loading achievements</p>`;
+    }
+  }
+
+  // Load recent announcements for dashboard tile
+  async function loadDashboardAnnouncements() {
+    try {
+      const res = await fetch("/api/student/announcements");
+      if (!res.ok) throw new Error("Failed to fetch announcements");
+
+      const announcements = await res.json();
+      const announcementsList = document.getElementById("announcements-list");
+
+      if (!announcements || announcements.length === 0) {
+        announcementsList.innerHTML =
+          '<li class="text-sm">No announcements</li>';
+        return;
+      }
+
+      // Show only the first 4 announcements
+      const recentAnnouncements = announcements.slice(0, 4);
+
+      announcementsList.innerHTML = recentAnnouncements
+        .map(
+          (announcement) => `
+            <li onclick="window.location.href='layout.html?role=student&page=announcements'" style="cursor: pointer;">
+              <span class="subject-name">${announcement.title}</span>
+            </li>
+          `
+        )
+        .join("");
+
+      // If there are more than 4 announcements, add a "View all" item
+      if (announcements.length > 4) {
+        announcementsList.innerHTML += `
+          <li onclick="window.location.href='layout.html?role=student&page=announcements'" style="cursor: pointer; border-top: 1px solid var(--color-border); margin-top: 8px; padding-top: 8px;">
+            <span class="subject-name text-sm">View all announcements...</span>
+          </li>
+        `;
+      }
+    } catch (err) {
+      console.error("Error loading announcements:", err);
+      const announcementsList = document.getElementById("announcements-list");
+      announcementsList.innerHTML =
+        '<li class="text-sm">Error loading announcements</li>';
+    }
+  }
+
+  // Initialize dashboard
+  async function initDashboard() {
+    await loadTodaysTimetable();
+    loadAttendancePercentage();
+    loadAverageMarks();
+    loadPresentDays();
+    loadAchievements();
+    loadDashboardAnnouncements();
+  }
+  initDashboard();
+</script>
