@@ -1,6 +1,7 @@
 const { protect } = require("../middleware/authMiddleware");
 const studentsController = require("../controllers/clerk/studentsController");
 const classesController = require("../controllers/clerk/classesController");
+const teachersController = require("../controllers/clerk/teachersController");
 
 module.exports = async (req, res) => {
   // Students CRUD routes
@@ -47,7 +48,7 @@ module.exports = async (req, res) => {
   // Teachers route
   if (req.method === "GET" && req.url === "/api/clerk/teachers") {
     return protect("clerk")(req, res, () =>
-      classesController.getTeachers(req, res)
+      teachersController.getTeachers(req, res)
     );
   }
 
@@ -62,9 +63,46 @@ module.exports = async (req, res) => {
   }
 
   // Delete class route
-  if (req.method === "DELETE" && req.url.match(/^\/api\/clerk\/classes\/\d+$/)) {
+  if (
+    req.method === "DELETE" &&
+    req.url.match(/^\/api\/clerk\/classes\/\d+$/)
+  ) {
     return protect("clerk")(req, res, () =>
       classesController.deleteClass(req, res)
+    );
+  }
+
+  // Teachers routes
+  if (req.method === "GET" && req.url === "/api/clerk/teachers") {
+    return protect("clerk")(req, res, () =>
+      teachersController.getTeachers(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url.match(/^\/api\/clerk\/teachers\/\d+$/)) {
+    return protect("clerk")(req, res, () =>
+      teachersController.getTeacherById(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url === "/api/clerk/teachers") {
+    return protect("clerk")(req, res, () =>
+      teachersController.createTeacher(req, res)
+    );
+  }
+
+  if (req.method === "PUT" && req.url.match(/^\/api\/clerk\/teachers\/\d+$/)) {
+    return protect("clerk")(req, res, () =>
+      teachersController.updateTeacher(req, res)
+    );
+  }
+
+  if (
+    req.method === "DELETE" &&
+    req.url.match(/^\/api\/clerk\/teachers\/\d+$/)
+  ) {
+    return protect("clerk")(req, res, () =>
+      teachersController.deleteTeacher(req, res)
     );
   }
 

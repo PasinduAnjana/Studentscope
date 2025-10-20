@@ -2,6 +2,11 @@
   { "label": "sidebar.dashboard", "page": "dashboard", "icon": "fas fa-home" },
   { "label": "sidebar.students", "page": "students", "icon": "fas fa-users" },
   {
+    "label": "sidebar.teachers",
+    "page": "teachers",
+    "icon": "fas fa-user-graduate"
+  },
+  {
     "label": "sidebar.classes",
     "page": "classes",
     "icon": "fas fa-chalkboard"

@@ -46,6 +46,21 @@
 <script>
   let currentClassData = null;
   let allTeachers = [];
+  // reference to searchable dropdown wrapper
+  let searchableTeacherSelect = null;
+
+  function updateSearchableDisplay(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const wrapper = select.previousElementSibling;
+    if (wrapper && wrapper.classList.contains("searchable-select")) {
+      const displaySpan = wrapper.querySelector(".dropdown-display span");
+      const opt =
+        select.options[select.selectedIndex] ||
+        Array.from(select.options).find((o) => o.value);
+      if (displaySpan) displaySpan.textContent = opt ? opt.text : "";
+    }
+  }
 
   async function loadClasses() {
     try {
@@ -179,16 +194,34 @@
       '<option value="">-- Select a teacher --</option>';
     allTeachers.forEach((teacher) => {
       const option = document.createElement("option");
-      option.value = teacher.id || teacher.teacher_id;
-      option.textContent = teacher.name || teacher.teacher_name;
-      if (
-        classItem.teacher_id === teacher.id ||
-        classItem.teacher_id === teacher.teacher_id
-      ) {
+      option.value = teacher.teacher_id;
+      option.textContent = teacher.full_name;
+      if (classItem.teacher_id === teacher.teacher_id) {
         option.selected = true;
       }
       teacherSelect.appendChild(option);
     });
+
+    // destroy previous searchable instance if any
+    if (
+      searchableTeacherSelect &&
+      typeof searchableTeacherSelect.destroy === "function"
+    ) {
+      searchableTeacherSelect.destroy();
+      searchableTeacherSelect = null;
+    }
+
+    // transform into searchable dropdown
+    if (typeof makeSearchableDropdown === "function") {
+      searchableTeacherSelect = makeSearchableDropdown(
+        "teacherSelect",
+        (val, text) => {
+          // nothing extra needed; makeSearchableDropdown will set select.value
+        }
+      );
+      // update display to reflect selected option
+      updateSearchableDisplay("teacherSelect");
+    }
 
     modal.classList.add("active");
   }

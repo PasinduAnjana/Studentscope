@@ -359,7 +359,7 @@ async function getAllClasses() {
 async function getTeachers() {
   const result = await pool.query(`
     SELECT 
-      u.id,
+      u.id AS teacher_id,
       td.full_name AS name
     FROM users u
     JOIN roles r ON u.role_id = r.id
@@ -371,7 +371,15 @@ async function getTeachers() {
 }
 
 async function assignClassTeacher(classId, teacherId) {
-  // First, remove any existing class teacher for this class
+  // Find current teacher for this class
+  const current = await pool.query("SELECT teacher_id FROM class_teachers WHERE class_id = $1", [classId]);
+  if (current.rows.length > 0) {
+    const oldTeacherId = current.rows[0].teacher_id;
+    // Set old teacher's class_id to null
+    await pool.query("UPDATE users SET class_id = NULL WHERE id = $1", [oldTeacherId]);
+  }
+
+  // Remove existing assignment
   await pool.query("DELETE FROM class_teachers WHERE class_id = $1", [classId]);
 
   // If teacherId is provided, assign the new teacher
@@ -380,6 +388,8 @@ async function assignClassTeacher(classId, teacherId) {
       "INSERT INTO class_teachers (class_id, teacher_id) VALUES ($1, $2)",
       [classId, teacherId]
     );
+    // Set new teacher's class_id
+    await pool.query("UPDATE users SET class_id = $1 WHERE id = $2", [classId, teacherId]);
   }
 }
 
@@ -389,6 +399,181 @@ async function createClass(grade, className) {
     [grade, className]
   );
   return result.rows[0].id;
+}
+
+async function getAllTeachers() {
+  const result = await pool.query(`
+    SELECT 
+      td.teacher_id,
+      td.full_name,
+      td.nic,
+      td.address,
+      td.phone_number,
+      td.past_schools,
+      td.appointment_date,
+      td.first_appointment_date,
+      td.level,
+      td.birthday
+    FROM teacher_details td
+    ORDER BY td.full_name
+  `);
+  return result.rows;
+}
+
+async function getTeacherById(teacherId) {
+  const result = await pool.query(
+    `
+    SELECT 
+      td.teacher_id,
+      td.full_name,
+      td.nic,
+      td.address,
+      td.phone_number,
+      td.past_schools,
+      td.appointment_date,
+      td.first_appointment_date,
+      td.level,
+      td.birthday
+    FROM teacher_details td
+    WHERE td.teacher_id = $1
+  `,
+    [teacherId]
+  );
+  return result.rows[0] || null;
+}
+
+async function createTeacher({
+  full_name,
+  nic,
+  birthday,
+  level,
+  address,
+  phone_number,
+  past_schools,
+  appointment_date,
+  first_appointment_date,
+}) {
+  // Get role_id for teacher
+  const roleRes = await pool.query(
+    "SELECT id FROM roles WHERE name = 'teacher'"
+  );
+  if (!roleRes.rows.length) throw new Error("Role 'teacher' not found");
+  const roleId = roleRes.rows[0].id;
+
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hashedPassword = hashPassword(nic, salt); // Use NIC as password
+
+  // Insert into users table
+  const userResult = await pool.query(
+    `INSERT INTO users (username, password, salt, role_id)
+     VALUES ($1, $2, $3, $4)
+     RETURNING id`,
+    [nic, hashedPassword, salt, roleId]
+  );
+  const userId = userResult.rows[0].id;
+
+  // Insert into teacher_details table
+  await pool.query(
+    `INSERT INTO teacher_details (teacher_id, full_name, nic, address, phone_number, past_schools, appointment_date, first_appointment_date, level, birthday)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+    [
+      userId,
+      full_name,
+      nic,
+      address,
+      phone_number,
+      past_schools,
+      appointment_date,
+      first_appointment_date,
+      level,
+      birthday,
+    ]
+  );
+
+  return {
+    teacher_id: userId,
+    full_name,
+    nic,
+    birthday,
+    level,
+    address,
+    phone_number,
+    past_schools,
+    appointment_date,
+    first_appointment_date,
+  };
+}
+
+async function updateTeacher(
+  teacherId,
+  {
+    full_name,
+    nic,
+    birthday,
+    level,
+    address,
+    phone_number,
+    past_schools,
+    appointment_date,
+    first_appointment_date,
+  }
+) {
+  // Update teacher_details
+  const result = await pool.query(
+    `UPDATE teacher_details SET
+      full_name = $1,
+      nic = $2,
+      birthday = $3,
+      level = $4,
+      address = $5,
+      phone_number = $6,
+      past_schools = $7,
+      appointment_date = $8,
+      first_appointment_date = $9
+     WHERE teacher_id = $10
+     RETURNING *`,
+    [
+      full_name,
+      nic,
+      birthday,
+      level,
+      address,
+      phone_number,
+      past_schools,
+      appointment_date,
+      first_appointment_date,
+      teacherId,
+    ]
+  );
+
+  if (result.rows.length === 0) {
+    return null;
+  }
+
+  // Update username in users table if NIC changed
+  await pool.query("UPDATE users SET username = $1 WHERE id = $2", [
+    nic,
+    teacherId,
+  ]);
+
+  return result.rows[0];
+}
+
+async function deleteTeacher(teacherId) {
+  // Delete from teacher_details
+  const result = await pool.query(
+    "DELETE FROM teacher_details WHERE teacher_id = $1 RETURNING teacher_id",
+    [teacherId]
+  );
+
+  if (result.rows.length === 0) {
+    return false;
+  }
+
+  // Delete from users table
+  await pool.query("DELETE FROM users WHERE id = $1", [teacherId]);
+
+  return true;
 }
 
 module.exports = {
@@ -401,4 +586,9 @@ module.exports = {
   getTeachers,
   assignClassTeacher,
   createClass,
+  getAllTeachers,
+  getTeacherById,
+  createTeacher,
+  updateTeacher,
+  deleteTeacher,
 };

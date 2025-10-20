@@ -131,7 +131,10 @@ exports.deleteClass = async (req, res) => {
 
     // Check if class exists
     const pool = require("../../db");
-    const classResult = await pool.query("SELECT id FROM classes WHERE id = $1", [classId]);
+    const classResult = await pool.query(
+      "SELECT id FROM classes WHERE id = $1",
+      [classId]
+    );
     if (classResult.rows.length === 0) {
       const errorJson = JSON.stringify({ error: "Class not found" });
       res.writeHead(404, {
@@ -143,9 +146,14 @@ exports.deleteClass = async (req, res) => {
     }
 
     // Check if there are students in the class
-    const studentCount = await pool.query("SELECT COUNT(*) FROM users WHERE class_id = $1", [classId]);
+    const studentCount = await pool.query(
+      "SELECT COUNT(*) FROM users WHERE class_id = $1",
+      [classId]
+    );
     if (parseInt(studentCount.rows[0].count) > 0) {
-      const errorJson = JSON.stringify({ error: "Cannot delete class with students assigned" });
+      const errorJson = JSON.stringify({
+        error: "Cannot delete class with students assigned",
+      });
       res.writeHead(400, {
         "Content-Type": "application/json",
         "Content-Length": Buffer.byteLength(errorJson),
@@ -155,12 +163,16 @@ exports.deleteClass = async (req, res) => {
     }
 
     // Delete class teacher assignments first
-    await pool.query("DELETE FROM class_teachers WHERE class_id = $1", [classId]);
+    await pool.query("DELETE FROM class_teachers WHERE class_id = $1", [
+      classId,
+    ]);
 
     // Delete the class
     await pool.query("DELETE FROM classes WHERE id = $1", [classId]);
 
-    const successJson = JSON.stringify({ message: "Class deleted successfully" });
+    const successJson = JSON.stringify({
+      message: "Class deleted successfully",
+    });
     res.writeHead(200, {
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(successJson),
