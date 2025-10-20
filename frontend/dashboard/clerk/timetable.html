@@ -1,0 +1,344 @@
+<h2 class="heading">
+  <i class="fas fa-calendar-day"></i>
+  <span>Timetable Assignment</span>
+</h2>
+
+<div
+  class="flex mb-2"
+  style="gap: 16px; align-items: baseline; flex-wrap: wrap"
+>
+  <div class="input-group">
+    <label for="class-select">Select Class:</label>
+    <select id="class-select">
+      <option value="">Select Class</option>
+    </select>
+  </div>
+</div>
+
+<div class="timetable" id="timetable">
+  <!-- Header row -->
+  <div class="timetable-row header-row" id="timetable-header-row">
+    <div class="timetable-cell header-cell">Time</div>
+    <div class="timetable-cell header-cell">Monday</div>
+    <div class="timetable-cell header-cell">Tuesday</div>
+    <div class="timetable-cell header-cell">Wednesday</div>
+    <div class="timetable-cell header-cell">Thursday</div>
+    <div class="timetable-cell header-cell">Friday</div>
+  </div>
+</div>
+
+<!-- Assignment Modal -->
+<div id="assignment-modal" class="modal" style="display: none">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Assign to Slot</h3>
+      <span class="modal-close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label for="assign-subject">Subject:</label>
+        <select id="assign-subject">
+          <option value="">Select Subject</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="assign-teacher">Teacher:</label>
+        <select id="assign-teacher">
+          <option value="">Select Teacher</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
+      <button id="modal-save" class="btn btn-primary">Assign</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentClass = null;
+  let currentSlot = null;
+  let searchableClassSelect = null;
+  let searchableSubjectSelect = null;
+  let searchableTeacherSelect = null;
+
+  function updateSearchableDisplay(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const wrapper = select.previousElementSibling;
+    if (wrapper && wrapper.classList.contains("searchable-select")) {
+      const displaySpan = wrapper.querySelector(".dropdown-display span");
+      const opt =
+        select.options[select.selectedIndex] ||
+        Array.from(select.options).find((o) => o.value);
+      if (displaySpan) displaySpan.textContent = opt ? opt.text : "";
+    }
+  }
+
+  async function loadClasses() {
+    try {
+      const res = await fetch("/api/clerk/classes");
+      if (!res.ok) throw new Error("Failed to fetch classes");
+      const classes = await res.json();
+      const select = document.getElementById("class-select");
+      select.innerHTML = '<option value="">Select Class</option>';
+      classes.forEach((cls) => {
+        const opt = document.createElement("option");
+        opt.value = cls.id;
+        opt.textContent = `Grade ${cls.grade} ${cls.class_name}`;
+        select.appendChild(opt);
+      });
+      if (typeof makeSearchableDropdown === "function") {
+        if (
+          searchableClassSelect &&
+          typeof searchableClassSelect.destroy === "function"
+        ) {
+          searchableClassSelect.destroy();
+        }
+        searchableClassSelect = makeSearchableDropdown(
+          "class-select",
+          (val, text) => {
+            currentClass = val;
+            if (val) {
+              loadTimetable();
+            } else {
+              // Clear timetable when no class is selected
+              const timetableContainer = document.getElementById("timetable");
+              timetableContainer.innerHTML =
+                '<div class="timetable-row"><div class="timetable-cell">Please select a class</div></div>';
+            }
+          }
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function loadSubjects() {
+    try {
+      const res = await fetch("/api/clerk/subjects");
+      if (!res.ok) throw new Error("Failed to fetch subjects");
+      const subjects = await res.json();
+      const select = document.getElementById("assign-subject");
+      select.innerHTML = '<option value="">Select Subject</option>';
+      subjects.forEach((sub) => {
+        const opt = document.createElement("option");
+        opt.value = sub.subject_id;
+        opt.textContent = sub.subject_name;
+        select.appendChild(opt);
+      });
+      if (typeof makeSearchableDropdown === "function") {
+        if (
+          searchableSubjectSelect &&
+          typeof searchableSubjectSelect.destroy === "function"
+        ) {
+          searchableSubjectSelect.destroy();
+        }
+        searchableSubjectSelect = makeSearchableDropdown("assign-subject");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function loadTeachers() {
+    try {
+      const res = await fetch("/api/clerk/teachers");
+      if (!res.ok) throw new Error("Failed to fetch teachers");
+      const teachers = await res.json();
+      const select = document.getElementById("assign-teacher");
+      select.innerHTML = '<option value="">Select Teacher</option>';
+      teachers.forEach((teacher) => {
+        const opt = document.createElement("option");
+        opt.value = teacher.teacher_id;
+        opt.textContent = teacher.full_name;
+        select.appendChild(opt);
+      });
+      if (typeof makeSearchableDropdown === "function") {
+        if (
+          searchableTeacherSelect &&
+          typeof searchableTeacherSelect.destroy === "function"
+        ) {
+          searchableTeacherSelect.destroy();
+        }
+        searchableTeacherSelect = makeSearchableDropdown("assign-teacher");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function loadTimetable() {
+    if (!currentClass) {
+      const timetableContainer = document.getElementById("timetable");
+      timetableContainer.innerHTML =
+        '<div class="timetable-row"><div class="timetable-cell">Please select a class</div></div>';
+      return;
+    }
+
+    try {
+      const [timeData, timetableData] = await Promise.all([
+        fetch("../../data/time.json").then((res) => res.json()),
+        fetch(`/api/clerk/timetable/class/${currentClass}`).then((res) =>
+          res.json()
+        ),
+      ]);
+
+      const timetableLookup = {};
+      if (Array.isArray(timetableData)) {
+        timetableData.forEach((entry) => {
+          if (!timetableLookup[entry.day_of_week])
+            timetableLookup[entry.day_of_week] = {};
+          timetableLookup[entry.day_of_week][entry.period_number] = entry;
+        });
+      }
+
+      const timetableContainer = document.getElementById("timetable");
+      timetableContainer.innerHTML = "";
+
+      const headerRow = document.createElement("div");
+      headerRow.classList.add("timetable-row", "header-row");
+      const headers = [
+        "Time",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+      ];
+      headers.forEach((day) => {
+        const cell = document.createElement("div");
+        cell.classList.add("timetable-cell", "header-cell");
+        cell.textContent = day;
+        headerRow.appendChild(cell);
+      });
+      timetableContainer.appendChild(headerRow);
+
+      timeData.forEach((slot, index) => {
+        const row = document.createElement("div");
+        row.classList.add("timetable-row");
+
+        const timeCell = document.createElement("div");
+        timeCell.classList.add("timetable-cell", "time-cell");
+        timeCell.textContent = `${slot.start}`;
+        row.appendChild(timeCell);
+
+        for (let day = 1; day <= 5; day++) {
+          const cell = document.createElement("div");
+          cell.classList.add("timetable-cell");
+
+          const card = document.createElement("div");
+          card.classList.add("card", "slot-card");
+          card.style.cursor = "pointer";
+          card.onclick = () => openAssignmentModal(day, slot.slot);
+
+          const entry = timetableLookup[day] && timetableLookup[day][slot.slot];
+
+          if (entry) {
+            const subjectDiv = document.createElement("div");
+            subjectDiv.classList.add("subject");
+            subjectDiv.textContent = entry.subject;
+
+            const teacherDiv = document.createElement("div");
+            teacherDiv.classList.add("class-name");
+            teacherDiv.textContent = entry.teacher_name || "Assigned";
+
+            card.appendChild(subjectDiv);
+            card.appendChild(teacherDiv);
+          } else {
+            const emptyDiv = document.createElement("div");
+            emptyDiv.classList.add("empty-slot");
+            emptyDiv.textContent = "Click to assign";
+            card.appendChild(emptyDiv);
+          }
+
+          cell.appendChild(card);
+          row.appendChild(cell);
+        }
+
+        timetableContainer.appendChild(row);
+
+        if (slot.slot === 4) {
+          const breakRow = document.createElement("div");
+          breakRow.classList.add("timetable-row", "interval-row");
+
+          const breakCell = document.createElement("h3");
+          breakCell.classList.add("timetable-cell", "interval-cell");
+          breakCell.style.color = "var(--color-primary)";
+          breakCell.textContent = "INTERVAL";
+          breakCell.style.gridColumn = "1 / span 6";
+
+          breakRow.appendChild(breakCell);
+          timetableContainer.appendChild(breakRow);
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      const timetableContainer = document.getElementById("timetable");
+      timetableContainer.innerHTML =
+        '<div class="error">Unable to load timetable</div>';
+    }
+  }
+
+  function openAssignmentModal(day, period) {
+    currentSlot = { day, period };
+    document.getElementById("assignment-modal").style.display = "flex";
+  }
+
+  function closeModal() {
+    document.getElementById("assignment-modal").style.display = "none";
+    currentSlot = null;
+  }
+
+  async function saveAssignment() {
+    const subject = document.getElementById("assign-subject").value;
+    const teacher = document.getElementById("assign-teacher").value;
+
+    if (!subject || !teacher) {
+      toast(
+        "Please select subject and teacher",
+        "fa-solid fa-circle-exclamation"
+      );
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/clerk/timetable/assign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          class_id: currentClass,
+          day_of_week: currentSlot.day,
+          period_number: currentSlot.period,
+          subject_id: subject,
+          teacher_id: teacher,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to assign");
+      toast("Assignment saved successfully", "fa-solid fa-check-circle");
+      closeModal();
+      loadTimetable();
+    } catch (err) {
+      console.error(err);
+      toast("Error saving assignment", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  // Initialize
+  loadClasses();
+  loadSubjects();
+  loadTeachers();
+
+  // Modal event listeners
+  document
+    .querySelector("#assignment-modal .modal-close")
+    .addEventListener("click", closeModal);
+  document.getElementById("modal-cancel").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-save")
+    .addEventListener("click", saveAssignment);
+  document.getElementById("assignment-modal").addEventListener("click", (e) => {
+    if (e.target === document.getElementById("assignment-modal")) closeModal();
+  });
+</script>

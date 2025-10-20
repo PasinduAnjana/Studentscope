@@ -372,11 +372,16 @@ async function getTeachers() {
 
 async function assignClassTeacher(classId, teacherId) {
   // Find current teacher for this class
-  const current = await pool.query("SELECT teacher_id FROM class_teachers WHERE class_id = $1", [classId]);
+  const current = await pool.query(
+    "SELECT teacher_id FROM class_teachers WHERE class_id = $1",
+    [classId]
+  );
   if (current.rows.length > 0) {
     const oldTeacherId = current.rows[0].teacher_id;
     // Set old teacher's class_id to null
-    await pool.query("UPDATE users SET class_id = NULL WHERE id = $1", [oldTeacherId]);
+    await pool.query("UPDATE users SET class_id = NULL WHERE id = $1", [
+      oldTeacherId,
+    ]);
   }
 
   // Remove existing assignment
@@ -389,7 +394,10 @@ async function assignClassTeacher(classId, teacherId) {
       [classId, teacherId]
     );
     // Set new teacher's class_id
-    await pool.query("UPDATE users SET class_id = $1 WHERE id = $2", [classId, teacherId]);
+    await pool.query("UPDATE users SET class_id = $1 WHERE id = $2", [
+      classId,
+      teacherId,
+    ]);
   }
 }
 
@@ -560,6 +568,33 @@ async function updateTeacher(
 }
 
 async function deleteTeacher(teacherId) {
+  // Delete from timetables (via teacher_subjects)
+  await pool.query(
+    "DELETE FROM timetables WHERE teacher_subject_id IN (SELECT id FROM teacher_subjects WHERE teacher_id = $1)",
+    [teacherId]
+  );
+
+  // Delete from teacher_subjects
+  await pool.query("DELETE FROM teacher_subjects WHERE teacher_id = $1", [
+    teacherId,
+  ]);
+
+  // Delete from class_teachers
+  await pool.query("DELETE FROM class_teachers WHERE teacher_id = $1", [
+    teacherId,
+  ]);
+
+  // Delete from announcements
+  await pool.query("DELETE FROM announcements WHERE teacher_id = $1", [
+    teacherId,
+  ]);
+
+  // Delete from notices
+  await pool.query("DELETE FROM notices WHERE posted_by = $1", [teacherId]);
+
+  // Delete from sessions
+  await pool.query("DELETE FROM sessions WHERE user_id = $1", [teacherId]);
+
   // Delete from teacher_details
   const result = await pool.query(
     "DELETE FROM teacher_details WHERE teacher_id = $1 RETURNING teacher_id",
@@ -576,6 +611,79 @@ async function deleteTeacher(teacherId) {
   return true;
 }
 
+// Get timetable for a class
+const getTimetableForClass = async (classId) => {
+  const result = await pool.query(
+    `
+    SELECT 
+      t.day_of_week,
+      t.slot AS period_number,
+      s.name AS subject,
+      td.full_name AS teacher_name
+    FROM timetables t
+    JOIN teacher_subjects ts ON t.teacher_subject_id = ts.id
+    JOIN subjects s ON ts.subject_id = s.id
+    JOIN teacher_details td ON ts.teacher_id = td.teacher_id
+    WHERE ts.class_id = $1
+    ORDER BY t.day_of_week, t.slot
+    `,
+    [classId]
+  );
+
+  return result.rows.map((row) => ({
+    day_of_week: row.day_of_week,
+    period_number: row.period_number,
+    subject: row.subject,
+    teacher_name: row.teacher_name,
+  }));
+};
+
+// Assign timetable slot
+const assignTimetableSlot = async (
+  class_id,
+  day_of_week,
+  period_number,
+  subject_id,
+  teacher_id
+) => {
+  // First, get or create teacher_subject
+  let teacherSubjectResult = await pool.query(
+    "SELECT id FROM teacher_subjects WHERE teacher_id = $1 AND subject_id = $2 AND class_id = $3",
+    [teacher_id, subject_id, class_id]
+  );
+
+  let teacherSubjectId;
+  if (teacherSubjectResult.rows.length > 0) {
+    teacherSubjectId = teacherSubjectResult.rows[0].id;
+  } else {
+    const insertResult = await pool.query(
+      "INSERT INTO teacher_subjects (teacher_id, subject_id, class_id) VALUES ($1, $2, $3) RETURNING id",
+      [teacher_id, subject_id, class_id]
+    );
+    teacherSubjectId = insertResult.rows[0].id;
+  }
+
+  // Delete existing assignment for this slot and class
+  await pool.query(
+    "DELETE FROM timetables WHERE teacher_subject_id IN (SELECT id FROM teacher_subjects WHERE class_id = $1) AND day_of_week = $2 AND slot = $3",
+    [class_id, day_of_week, period_number]
+  );
+
+  // Insert new assignment
+  await pool.query(
+    "INSERT INTO timetables (teacher_subject_id, day_of_week, slot) VALUES ($1, $2, $3)",
+    [teacherSubjectId, day_of_week, period_number]
+  );
+};
+
+// Get all subjects
+const getSubjects = async () => {
+  const result = await pool.query(
+    "SELECT id AS subject_id, name AS subject_name FROM subjects ORDER BY name"
+  );
+  return result.rows;
+};
+
 module.exports = {
   createStudent,
   getAllStudents,
@@ -591,4 +699,7 @@ module.exports = {
   createTeacher,
   updateTeacher,
   deleteTeacher,
+  getTimetableForClass,
+  assignTimetableSlot,
+  getSubjects,
 };

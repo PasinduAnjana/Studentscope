@@ -2,6 +2,8 @@ const { protect } = require("../middleware/authMiddleware");
 const studentsController = require("../controllers/clerk/studentsController");
 const classesController = require("../controllers/clerk/classesController");
 const teachersController = require("../controllers/clerk/teachersController");
+const timetableController = require("../controllers/clerk/timetableController");
+const clerkService = require("../services/clerkService");
 
 module.exports = async (req, res) => {
   // Students CRUD routes
@@ -111,6 +113,37 @@ module.exports = async (req, res) => {
     return protect("clerk")(req, res, () =>
       studentsController.createStudent(req, res)
     );
+  }
+
+  // Timetable routes
+  if (
+    req.method === "GET" &&
+    req.url.match(/^\/api\/clerk\/timetable\/class\/\d+$/)
+  ) {
+    return protect("clerk")(req, res, () =>
+      timetableController.getTimetableForClass(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url === "/api/clerk/timetable/assign") {
+    return protect("clerk")(req, res, () =>
+      timetableController.assignTimetableSlot(req, res)
+    );
+  }
+
+  // Subjects route
+  if (req.method === "GET" && req.url === "/api/clerk/subjects") {
+    return protect("clerk")(req, res, async () => {
+      try {
+        const subjects = await clerkService.getSubjects();
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(subjects));
+      } catch (err) {
+        console.error(err);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Failed to fetch subjects" }));
+      }
+    });
   }
 
   res.writeHead(404);

@@ -11,6 +11,11 @@
     "page": "classes",
     "icon": "fas fa-chalkboard"
   },
+  {
+    "label": "sidebar.timetableAssignment",
+    "page": "timetable",
+    "icon": "fas fa-calendar-alt"
+  },
   { "label": "Post Notices", "page": "notices", "icon": "fas fa-bullhorn" },
   { "label": "Achievements", "page": "achievements", "icon": "fas fa-trophy" }
 ]
