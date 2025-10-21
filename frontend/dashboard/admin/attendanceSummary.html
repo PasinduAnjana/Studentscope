@@ -156,12 +156,12 @@
     <div class="flex-between mb-2">
       <h1 class="title">Today's Attendance</h1>
       <div class="flex gap-2">
-        <input
-          type="date"
-          id="attendance-date"
-          class="input"
-          style="width: auto"
-        />
+        <button id="export-pdf-btn" class="btn btn-primary">
+          <i class="fas fa-file-pdf"></i> Export PDF
+        </button>
+        <button id="export-btn" class="btn btn-primary">
+          <i class="fas fa-download"></i> Export CSV
+        </button>
       </div>
     </div>
 
@@ -198,6 +198,14 @@
           <option value="50">50</option>
           <option value="100">100</option>
         </select>
+      </div>
+      <div class="input-group">
+        <input
+          type="date"
+          id="attendance-date"
+          class="input"
+          style="width: auto"
+        />
       </div>
     </div>
 
@@ -244,6 +252,139 @@
     </div>
   </div>
 </section>
+
+<!-- Export Modal -->
+<div id="export-modal" class="modal" style="display: none">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Export Attendance to CSV</h3>
+      <span class="modal-close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <p>Select the fields you want to include in the CSV export:</p>
+      <div class="export-fields">
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-name" checked />
+          <span class="checkmark"></span>
+          Student Name
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-index" checked />
+          <span class="checkmark"></span>
+          Index Number
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-class" checked />
+          <span class="checkmark"></span>
+          Class
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-status" checked />
+          <span class="checkmark"></span>
+          Status
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="export-time" />
+          <span class="checkmark"></span>
+          Time
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="export-cancel" class="btn btn-secondary">Cancel</button>
+      <button id="export-confirm" class="btn btn-primary">Export</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export PDF Modal -->
+<div id="export-pdf-modal" class="modal" style="display: none">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Export Attendance to PDF</h3>
+      <span class="modal-close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="input-group" style="margin-bottom: 15px">
+        <label for="pdf-heading">Heading:</label>
+        <input
+          type="text"
+          id="pdf-heading"
+          class="input"
+          placeholder="Enter heading..."
+        />
+      </div>
+      <div class="input-group" style="margin-bottom: 15px">
+        <label for="pdf-subheading">Subheading:</label>
+        <input
+          type="text"
+          id="pdf-subheading"
+          class="input"
+          placeholder="Enter subheading..."
+        />
+      </div>
+      <div class="input-group" style="margin-bottom: 15px">
+        <label for="pdf-empty-columns"
+          >Number of Empty Columns (for signatures, etc.):</label
+        >
+        <input
+          type="number"
+          id="pdf-empty-columns"
+          class="input"
+          placeholder="0"
+          min="0"
+          max="10"
+        />
+      </div>
+      <div class="input-group" style="margin-bottom: 15px">
+        <label for="pdf-empty-titles"
+          >Empty Column Titles (comma-separated, e.g., Signature, Date,
+          Notes):</label
+        >
+        <input
+          type="text"
+          id="pdf-empty-titles"
+          class="input"
+          placeholder="Signature, Date, Notes"
+        />
+      </div>
+      <p>Select the fields you want to include in the PDF export:</p>
+      <div class="export-fields">
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-name" checked />
+          <span class="checkmark"></span>
+          Student Name
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-index" checked />
+          <span class="checkmark"></span>
+          Index Number
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-class" checked />
+          <span class="checkmark"></span>
+          Class
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-status" checked />
+          <span class="checkmark"></span>
+          Status
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="pdf-export-time" />
+          <span class="checkmark"></span>
+          Time
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="export-pdf-cancel" class="btn btn-secondary">Cancel</button>
+      <button id="export-pdf-confirm" class="btn btn-primary">
+        Export PDF
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- Mark Attendance Modal -->
 <div id="mark-attendance-modal" class="modal" style="display: none">
@@ -866,12 +1007,344 @@
     fetchAttendanceRecords();
   }
 
+  // Setup export functionality
+  function setupExport() {
+    const exportBtn = document.getElementById("export-btn");
+    const modal = document.getElementById("export-modal");
+    const closeBtn = document.querySelector("#export-modal .modal-close");
+    const cancelBtn = document.getElementById("export-cancel");
+    const confirmBtn = document.getElementById("export-confirm");
+
+    // Show modal
+    exportBtn.addEventListener("click", () => {
+      modal.style.display = "flex";
+    });
+
+    // Hide modal
+    const closeModal = () => {
+      modal.style.display = "none";
+    };
+
+    closeBtn.addEventListener("click", closeModal);
+    cancelBtn.addEventListener("click", closeModal);
+
+    // Close modal when clicking outside
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Export functionality
+    confirmBtn.addEventListener("click", () => {
+      const selectedFields = getSelectedFields();
+      if (selectedFields.length === 0) {
+        alert("Please select at least one field to export.");
+        return;
+      }
+
+      const filteredRecords = getFilteredAttendanceRecords();
+      exportToCSV(filteredRecords, selectedFields);
+      closeModal();
+    });
+  }
+
+  // Setup PDF export functionality
+  function setupExportPDF() {
+    const exportPdfBtn = document.getElementById("export-pdf-btn");
+    const modal = document.getElementById("export-pdf-modal");
+    const closeBtn = document.querySelector("#export-pdf-modal .modal-close");
+    const cancelBtn = document.getElementById("export-pdf-cancel");
+    const confirmBtn = document.getElementById("export-pdf-confirm");
+
+    // Show modal
+    exportPdfBtn.addEventListener("click", () => {
+      modal.style.display = "flex";
+    });
+
+    // Hide modal
+    const closeModal = () => {
+      modal.style.display = "none";
+    };
+
+    closeBtn.addEventListener("click", closeModal);
+    cancelBtn.addEventListener("click", closeModal);
+
+    // Close modal when clicking outside
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Export PDF functionality
+    confirmBtn.addEventListener("click", () => {
+      const heading = document.getElementById("pdf-heading").value.trim();
+      const subheading = document.getElementById("pdf-subheading").value.trim();
+      const emptyColumns =
+        parseInt(document.getElementById("pdf-empty-columns").value) || 0;
+      const emptyTitles = document
+        .getElementById("pdf-empty-titles")
+        .value.split(",")
+        .map((t) => t.trim())
+        .filter((t) => t);
+      const selectedFields = getSelectedPDFFields();
+      if (selectedFields.length === 0) {
+        alert("Please select at least one field to export.");
+        return;
+      }
+      const filteredRecords = getFilteredAttendanceRecords();
+      exportToPDF(
+        filteredRecords,
+        selectedFields,
+        heading,
+        subheading,
+        emptyColumns,
+        emptyTitles
+      );
+      closeModal();
+    });
+  }
+
+  // Get selected fields from checkboxes
+  function getSelectedFields() {
+    const fields = [];
+    const checkboxes = document.querySelectorAll(
+      "#export-modal input[type='checkbox']"
+    );
+
+    checkboxes.forEach((checkbox) => {
+      if (checkbox.checked) {
+        const fieldId = checkbox.id.replace("export-", "");
+        fields.push(fieldId);
+      }
+    });
+
+    return fields;
+  }
+
+  // Get selected fields from PDF checkboxes
+  function getSelectedPDFFields() {
+    const fields = [];
+    const checkboxes = document.querySelectorAll(
+      "#export-pdf-modal input[type='checkbox']"
+    );
+
+    checkboxes.forEach((checkbox) => {
+      if (checkbox.checked) {
+        const fieldId = checkbox.id.replace("pdf-export-", "");
+        fields.push(fieldId);
+      }
+    });
+
+    return fields;
+  }
+
+  // Get currently filtered attendance records
+  function getFilteredAttendanceRecords() {
+    const q = (document.getElementById("attendance-search")?.value || "")
+      .trim()
+      .toLowerCase();
+    const classId = document.getElementById("class-filter").value;
+    const status = document.getElementById("status-filter").value;
+    let filtered = allAttendanceRecords;
+
+    if (classId) {
+      filtered = filtered.filter((r) => String(r.class_id) === String(classId));
+    }
+
+    if (status) {
+      filtered = filtered.filter((r) => r.status === status);
+    }
+
+    if (q) {
+      filtered = filtered.filter((record) => {
+        return (
+          (record.student_name &&
+            record.student_name.toLowerCase().includes(q)) ||
+          (record.username && record.username.toLowerCase().includes(q)) ||
+          (record.class_name && record.class_name.toLowerCase().includes(q))
+        );
+      });
+    }
+
+    return filtered;
+  }
+
+  // Export to CSV
+  function exportToCSV(records, fields) {
+    if (records.length === 0) {
+      alert("No attendance records to export.");
+      return;
+    }
+
+    // Create CSV header
+    const headers = fields.map((field) => getAttendanceFieldDisplayName(field));
+    let csvContent = headers.join(",") + "\n";
+
+    // Add data rows
+    records.forEach((record) => {
+      const row = fields.map((field) => {
+        let value = getAttendanceFieldValue(record, field);
+        // Escape commas and quotes in CSV
+        if (
+          typeof value === "string" &&
+          (value.includes(",") || value.includes('"') || value.includes("\n"))
+        ) {
+          value = '"' + value.replace(/"/g, '""') + '"';
+        }
+        return value;
+      });
+      csvContent += row.join(",") + "\n";
+    });
+
+    // Download the file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `attendance_export_${new Date().toISOString().split("T")[0]}.csv`
+      );
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+
+  // Export to PDF
+  function exportToPDF(
+    records,
+    fields,
+    heading,
+    subheading,
+    emptyColumns,
+    emptyTitles
+  ) {
+    if (records.length === 0) {
+      alert("No attendance records to export.");
+      return;
+    }
+
+    // Create HTML content
+    let htmlContent = `
+      <html>
+        <head>
+          <title>Attendance Export</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { text-align: center; }
+            h2 { text-align: center; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+    `;
+
+    if (heading) {
+      htmlContent += `<h1>${heading}</h1>`;
+    }
+    if (subheading) {
+      htmlContent += `<h2>${subheading}</h2>`;
+    }
+
+    htmlContent += `
+          <table>
+            <thead>
+              <tr>
+    `;
+
+    // Add headers based on selected fields
+    fields.forEach((field) => {
+      htmlContent += `<th>${getAttendanceFieldDisplayName(field)}</th>`;
+    });
+
+    // Add empty column headers with titles
+    for (let i = 0; i < emptyColumns; i++) {
+      const title = emptyTitles[i] || "";
+      htmlContent += `<th>${title}</th>`;
+    }
+
+    htmlContent += `
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
+    // Add data rows
+    records.forEach((record) => {
+      htmlContent += `<tr>`;
+      fields.forEach((field) => {
+        const value = getAttendanceFieldValue(record, field);
+        htmlContent += `<td>${value}</td>`;
+      });
+      // Add empty cells
+      for (let i = 0; i < emptyColumns; i++) {
+        htmlContent += `<td></td>`;
+      }
+      htmlContent += `</tr>`;
+    });
+
+    htmlContent += `
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+
+    // Open new window and print
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.print();
+  }
+
+  // Get display name for attendance field
+  function getAttendanceFieldDisplayName(field) {
+    const fieldNames = {
+      name: "Student Name",
+      index: "Index Number",
+      class: "Class",
+      status: "Status",
+      time: "Time",
+    };
+    return fieldNames[field] || field;
+  }
+
+  // Get field value from attendance record
+  function getAttendanceFieldValue(record, field) {
+    switch (field) {
+      case "name":
+        return record.student_name || "Unknown Student";
+      case "index":
+        return record.username || "N/A";
+      case "class":
+        return record.class_name || "N/A";
+      case "status":
+        return record.status
+          ? record.status.charAt(0).toUpperCase() + record.status.slice(1)
+          : "N/A";
+      case "time":
+        return record.time || "N/A";
+      default:
+        return "";
+    }
+  }
+
   // Initialize
   populatePageSizeSelect();
   pageSize = parseInt(document.getElementById("page-size").value);
   setupDatePicker();
   setupSearch();
   setupModal();
+  setupExport();
+  setupExportPDF();
   fetchClasses();
   fetchStudents();
   refreshAttendance();

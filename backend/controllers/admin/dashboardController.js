@@ -122,3 +122,15 @@ exports.getPerformanceDistribution = async (req, res) => {
     );
   }
 };
+
+exports.getAllTeachers = async (req, res) => {
+  try {
+    const teachers = await adminService.getAllTeachers();
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(teachers));
+  } catch (err) {
+    console.error("Error fetching teachers:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch teachers" }));
+  }
+};

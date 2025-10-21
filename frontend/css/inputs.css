@@ -2,11 +2,12 @@
   📝 INPUT ELEMENTS
 ======================== */
 
-/* Text Inputs, Email, Password, Number, Select, Textarea */
+/* Text Inputs, Email, Password, Number, Date, Select, Textarea */
 input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="number"],
+input[type="date"],
 select,
 textarea {
   width: 100%;
@@ -50,7 +51,7 @@ input[type="checkbox"]:checked {
 }
 
 input[type="checkbox"]:checked::after {
-  content: '✓';
+  content: "✓";
   position: absolute;
   color: white;
   font-size: 14px;
@@ -122,4 +123,28 @@ input[type="number"] {
   transform: translateY(-50%);
   color: var(--color-primary);
   pointer-events: none;
+}
+
+/* Date Input Styling */
+input[type="date"] {
+  position: relative;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  color: var(--color-primary);
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+input[type="date"]::-moz-focus-inner {
+  border: 0;
+}
+
+input[type="date"]:focus::-webkit-calendar-picker-indicator {
+  color: var(--color-primary);
 }

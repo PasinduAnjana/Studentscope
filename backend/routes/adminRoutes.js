@@ -1,5 +1,6 @@
 const adminController = require("../controllers/admin/dashboardController");
 const attendanceController = require("../controllers/admin/attendanceController");
+const announcementsController = require("../controllers/clerk/announcementsController");
 const { protect } = require("../middleware/authMiddleware");
 
 module.exports = (req, res) => {
@@ -50,6 +51,13 @@ module.exports = (req, res) => {
   if (req.method === "GET" && req.url === "/api/admin/classes") {
     return protect("admin")(req, res, () =>
       adminController.getAllClasses(req, res)
+    );
+  }
+
+  // Teachers route for announcements page
+  if (req.method === "GET" && req.url === "/api/admin/teachers") {
+    return protect("admin")(req, res, () =>
+      adminController.getAllTeachers(req, res)
     );
   }
 
@@ -114,6 +122,37 @@ module.exports = (req, res) => {
   ) {
     return protect("admin")(req, res, () =>
       adminController.getPerformanceDistribution(req, res)
+    );
+  }
+
+  // Announcements routes (identical to clerk)
+  if (req.method === "GET" && req.url === "/api/admin/announcements") {
+    return protect("admin")(req, res, () =>
+      announcementsController.getAllAnnouncements(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url === "/api/admin/announcements") {
+    return protect("admin")(req, res, () =>
+      announcementsController.createAnnouncement(req, res)
+    );
+  }
+
+  if (
+    req.method === "PUT" &&
+    req.url.match(/^\/api\/admin\/announcements\/\d+$/)
+  ) {
+    return protect("admin")(req, res, () =>
+      announcementsController.updateAnnouncement(req, res)
+    );
+  }
+
+  if (
+    req.method === "DELETE" &&
+    req.url.match(/^\/api\/admin\/announcements\/\d+$/)
+  ) {
+    return protect("admin")(req, res, () =>
+      announcementsController.deleteAnnouncement(req, res)
     );
   }
 

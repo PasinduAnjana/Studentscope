@@ -20,5 +20,10 @@
     "label": "sidebar.certificates",
     "page": "certificates",
     "icon": "fas fa-certificate"
+  },
+  {
+    "label": "sidebar.announcements",
+    "page": "announcements",
+    "icon": "fas fa-bullhorn"
   }
 ]

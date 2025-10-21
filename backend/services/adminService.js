@@ -333,3 +333,22 @@ exports.getPerformanceDistribution = async () => {
 
   return result.rows;
 };
+
+exports.getAllTeachers = async () => {
+  const result = await pool.query(`
+    SELECT 
+      td.teacher_id,
+      td.full_name,
+      td.nic,
+      td.address,
+      td.phone_number,
+      td.past_schools,
+      td.appointment_date,
+      td.first_appointment_date,
+      td.level,
+      td.birthday
+    FROM teacher_details td
+    ORDER BY td.full_name
+  `);
+  return result.rows;
+};
