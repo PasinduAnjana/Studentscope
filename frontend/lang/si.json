@@ -27,7 +27,9 @@
     "teachers": "ගුරුවරුන්",
     "classes": "පන්තිවල",
     "class_subjects": "පන්ති විෂයයන්",
-    "announcements": "නිවේදන"
+    "announcements": "නිවේදන",
+    "behavior": "ශිෂ්‍ය හැසිරීම් වාර්තා",
+    "certificates": "සහතික අනුමත කිරීම"
   },
   "profile": {
     "quickStats": "ඉක්මන් සංඛ්‍යාලේඛන",

@@ -27,7 +27,9 @@
     "teachers": "Teachers",
     "classes": "Classes",
     "class_subjects": "Class Subjects",
-    "announcements": "Announcements"
+    "announcements": "Announcements",
+    "behavior": "Behavior Reports",
+    "certificates": "Certificates"
   },
   "profile": {
     "quickStats": "Quick Stats",

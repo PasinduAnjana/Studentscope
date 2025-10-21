@@ -1,0 +1,887 @@
+<h2 class="heading">
+  <i class="fas fa-id-card"></i>
+  <span
+    data-en="Student Profiles"
+    data-si="ශිෂ්‍ය ප්‍රොෆයිල"
+    data-ta="மாணவர் சுயவிவரங்கள்">Student Profiles</span>
+</h2>
+
+<!-- ======== Split Layout: Left = List & Filters | Right = Profile ======== -->
+<div class="card-grid" style="grid-template-columns: 1.2fr 2fr; gap: 16px;">
+  <!-- =========================
+       LEFT: Filters + Result List
+     ========================= -->
+  <div class="card dashboard-tile w-1">
+    <div class="icon-title">
+      <i class="fas fa-filter icon"></i>
+      <p class="tile-label"
+         data-en="Filters"
+         data-si="පෙරහන්"
+         data-ta="வடிப்பான்கள்">Filters</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-group" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px;">
+      <div class="filter-item">
+        <label for="gradeFilter"
+               data-en="Grade"
+               data-si="ශ්‍රේණිය"
+               data-ta="தரம்">Grade</label>
+        <select id="gradeFilter" class="dropdown-select" onchange="applyFilters()">
+          <option value="all" data-en="All Grades" data-si="සියලුම ශ්‍රේණි" data-ta="அனைத்து தரங்கள்">All Grades</option>
+          <option value="1">Grade 1</option><option value="2">Grade 2</option><option value="3">Grade 3</option>
+          <option value="4">Grade 4</option><option value="5">Grade 5</option>
+          <option value="6">Grade 6</option><option value="7">Grade 7</option><option value="8">Grade 8</option>
+          <option value="9">Grade 9</option><option value="10">Grade 10</option><option value="11">Grade 11</option>
+          <option value="12">Grade 12</option><option value="13">Grade 13</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label for="classFilter"
+               data-en="Class"
+               data-si="පන්තිය"
+               data-ta="வகுப்பு">Class</label>
+        <select id="classFilter" class="dropdown-select" onchange="applyFilters()">
+          <option value="all" data-en="All Classes" data-si="සියලුම පන්ති" data-ta="அனைத்து வகுப்புகள்">All Classes</option>
+          <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+        </select>
+      </div>
+
+      <div class="filter-item" style="grid-column:span 2;">
+        <label for="nameFilter"
+               data-en="Student Name"
+               data-si="ශිෂ්‍යාගේ නම"
+               data-ta="மாணவர் பெயர்">Student Name</label>
+        <input id="nameFilter" class="dropdown-select" type="text" placeholder="Search by name…" oninput="applyFilters()" />
+      </div>
+
+      <div class="filter-item" style="grid-column:span 2;">
+        <label for="indexFilter"
+               data-en="Index/ Admission No."
+               data-si="ඇතුළත් කිරීමේ අංකය"
+               data-ta="சேர்க்கை எண்">Index / Admission No.</label>
+        <input id="indexFilter" class="dropdown-select" type="text" placeholder="e.g., 2021/0054" oninput="applyFilters(true)" />
+      </div>
+    </div>
+
+    <!-- Results / Export -->
+    <div class="table-container" style="margin-top:10px;">
+      <table id="studentListTable" class="attendance-table">
+        <thead>
+          <tr>
+            <th data-en="Index No." data-si="අංකය" data-ta="அடைக்கல் எண்">Index No.</th>
+            <th data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்">Student</th>
+            <th data-en="Grade" data-si="ශ්‍රේණිය" data-ta="தரம்">Grade</th>
+            <th data-en="Class" data-si="පන්තිය" data-ta="வகுப்பு">Class</th>
+          </tr>
+        </thead>
+        <tbody id="studentListBody"></tbody>
+      </table>
+    </div>
+
+    <div class="table-footer">
+      <p id="listInfo" class="filter-info"
+         data-en="Showing filtered list. Click a row to view profile."
+         data-si="පෙරහන් කළ ලැයිස්තුව පෙන්වයි. ප්‍රොෆයිලය බැලීමට පේළියක් ඔබන්න."
+         data-ta="வடிகட்டப்பட்ட பட்டியல் காட்டப்படுகிறது. சுயவிவரம் காண வரிசையை சொடுக்கவும்.">
+         Showing filtered list. Click a row to view profile.
+      </p>
+      <div class="export-buttons" style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" onclick="exportFilteredCSV()">
+          <i class="fas fa-file-excel"></i> <span data-en="CSV" data-si="CSV" data-ta="CSV">CSV</span>
+        </button>
+        <button class="btn btn-secondary" onclick="exportFilteredPDF()">
+          <i class="fas fa-file-pdf"></i> <span data-en="PDF" data-si="PDF" data-ta="PDF">PDF</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       RIGHT: Profile Viewer
+     ========================= -->
+  <div class="card dashboard-tile w-1" id="profilePane">
+    <div class="icon-title">
+      <i class="fas fa-user icon"></i>
+      <p class="tile-label"
+         data-en="Student Profile"
+         data-si="ශිෂ්‍ය ප්‍රොෆයිල"
+         data-ta="மாணவர் சுயவிவரம்">Student Profile</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" style="color:var(--color-subtext);padding:8px 0;"
+         data-en="Select a student from the list to view the profile."
+         data-si="ප්‍රොෆයිලය බැලීමට ලැයිස්තුවෙන් ශිෂ්‍යයෙකු තෝරන්න."
+         data-ta="சுயவிவரம் காண பட்டியலிலிருந்து மாணவரைத் தேர்ந்தெடுக்கவும்.">
+      Select a student from the list to view the profile.
+    </div>
+
+    <!-- Profile Content -->
+    <div id="profileContent" style="display:none;">
+      <!-- Top summary -->
+      <div class="summary-tiles" style="grid-template-columns: repeat(4,1fr); gap:12px; margin-bottom:10px;">
+        <div class="card dashboard-tile summary-card">
+          <div class="icon-title">
+            <i class="fas fa-id-badge icon"></i>
+            <p class="tile-label" data-en="Index No." data-si="ඇතුළත් වීමේ අංකය" data-ta="சேர்க்கை எண்">Index No.</p>
+          </div>
+          <p class="tile-value" id="pIndex">—</p>
+        </div>
+        <div class="card dashboard-tile summary-card">
+          <div class="icon-title">
+            <i class="fas fa-user-graduate icon"></i>
+            <p class="tile-label" data-en="Grade & Class" data-si="ශ්‍රේණිය හා පන්තිය" data-ta="தரம் & வகுப்பு">Grade & Class</p>
+          </div>
+          <p class="tile-value" id="pGradeClass">—</p>
+        </div>
+        <div class="card dashboard-tile summary-card">
+          <div class="icon-title">
+            <i class="fas fa-language icon"></i>
+            <p class="tile-label" data-en="Medium" data-si="මාධ්‍යය" data-ta="கற்பித்த மொழி">Medium</p>
+          </div>
+          <p class="tile-value" id="pMedium">—</p>
+        </div>
+        <div class="card dashboard-tile summary-card">
+          <div class="icon-title">
+            <i class="fas fa-stream icon"></i>
+            <p class="tile-label" data-en="Stream (A/L)" data-si="විෂය ධාරාව (උ.පෙ.)" data-ta="துறை (A/L)">Stream (A/L)</p>
+          </div>
+          <p class="tile-value" id="pStream">—</p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <button class="btn" data-tab="tabOverview" onclick="switchTab('tabOverview')">
+          <i class="fas fa-user"></i> <span data-en="Overview" data-si="දළ විශ්ලේෂණය" data-ta="கண்ணோட்டம்">Overview</span>
+        </button>
+        <button class="btn" data-tab="tabAttendance" onclick="switchTab('tabAttendance')">
+          <i class="fas fa-clipboard-check"></i> <span data-en="Attendance" data-si="පැමිණීම" data-ta="வருகை">Attendance</span>
+        </button>
+        <button class="btn" data-tab="tabAcademics" onclick="switchTab('tabAcademics')">
+          <i class="fas fa-book"></i> <span data-en="Academics" data-si="අධ්‍යයන" data-ta="கல்வி">Academics</span>
+        </button>
+        <button class="btn" data-tab="tabBehavior" onclick="switchTab('tabBehavior')">
+          <i class="fas fa-user-shield"></i> <span data-en="Behavior & Certificates" data-si="හැසිරීම සහ සහතික" data-ta="நடத்தை & சான்றிதழ்கள்">Behavior & Certificates</span>
+        </button>
+
+        <div style="flex:1"></div>
+        <button class="btn btn-secondary" onclick="printProfile()">
+          <i class="fas fa-print"></i> <span data-en="Print Profile" data-si="ප්‍රොෆයිලය මුද්‍රණය කරන්න" data-ta="சுயவிவரம் அச்சிடு">Print Profile</span>
+        </button>
+      </div>
+
+      <!-- Tab Panels -->
+      <div id="tabOverview" class="tab-panel">
+        <div class="table-container">
+          <table class="attendance-table">
+            <tbody>
+              <tr>
+                <th data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்">Student</th>
+                <td id="pName">—</td>
+              </tr>
+              <tr>
+                <th data-en="Guardian" data-si="භාරකරු" data-ta="பாதுகாவலர்">Guardian</th>
+                <td id="pGuardian">—</td>
+              </tr>
+              <tr>
+                <th data-en="Contact" data-si="සම්බන්ධතා" data-ta="தொடர்பு">Contact</th>
+                <td id="pContact">—</td>
+              </tr>
+              <tr>
+                <th data-en="Special Notes" data-si="විශේෂ සටහන්" data-ta="சிறப்பு குறிப்புகள்">Special Notes</th>
+                <td id="pNotes">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="tabAttendance" class="tab-panel" style="display:none;">
+        <div class="summary-tiles" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px;">
+          <div class="card dashboard-tile summary-card">
+            <div class="icon-title"><i class="fas fa-percentage icon"></i>
+              <p class="tile-label" data-en="Attendance %" data-si="පැමිණීම %" data-ta="வருகை %">Attendance %</p>
+            </div>
+            <p class="tile-value" id="pAttPerc">—</p>
+          </div>
+          <div class="card dashboard-tile summary-card">
+            <div class="icon-title"><i class="fas fa-calendar-check icon"></i>
+              <p class="tile-label" data-en="Days Present" data-si="පැමිණි දින" data-ta="வந்த நாட்கள்">Days Present</p>
+            </div>
+            <p class="tile-value" id="pAttPresent">—</p>
+          </div>
+          <div class="card dashboard-tile summary-card">
+            <div class="icon-title"><i class="fas fa-calendar-times icon"></i>
+              <p class="tile-label" data-en="Days Absent" data-si="නොපැමිණි දින" data-ta="வராத நாட்கள்">Days Absent</p>
+            </div>
+            <p class="tile-value" id="pAttAbsent">—</p>
+          </div>
+        </div>
+
+        <!-- Period selector (inside Attendance tab, above chart) -->
+        <div class="filter-item" style="margin:4px 0 8px 0;">
+          <label for="attPeriod" style="margin-right:6px;"><strong>Select Period:</strong></label>
+          <select id="attPeriod" class="dropdown-select" onchange="updateAttendanceView()">
+            <option value="last7" selected>Last 7 Days</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
+        </div>
+
+        <div class="chart-wrapper" style="height:220px;">
+          <canvas id="attTrendChart"></canvas>
+        </div>
+      </div>
+
+      <div id="tabAcademics" class="tab-panel" style="display:none;">
+        <!-- ▼▼▼ ADDED: Grade & Term selectors ▼▼▼ -->
+        <div class="filter-item" style="margin:4px 0 8px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <label for="gradeSelect"><strong>Select Grade:</strong></label>
+          <select id="gradeSelect" class="dropdown-select" style="min-width:120px" onchange="updateTermDropdown()"></select>
+
+          <label for="termSelect" style="margin-left:4px;"><strong>Select Term:</strong></label>
+          <select id="termSelect" class="dropdown-select" style="min-width:120px" onchange="showSelectedTermMarks()">
+            <option value="">—</option>
+            <option value="Term 1">Term 1</option>
+            <option value="Term 2">Term 2</option>
+            <option value="Term 3">Term 3</option>
+          </select>
+        </div>
+        <!-- ▲▲▲ END ADDED ▲▲▲ -->
+
+        <div class="table-container">
+          <table class="attendance-table" id="termMarksTable">
+            <thead>
+              <tr>
+                <th data-en="Term" data-si="වාරය" data-ta="காலாண்டு">Term</th>
+                <th data-en="Subject" data-si="විෂය" data-ta="பாடம்">Subject</th>
+                <th data-en="Marks" data-si="ලකුණු" data-ta="மதிப்பெண்கள்">Marks</th>
+              </tr>
+            </thead>
+            <tbody id="termMarksBody"></tbody>
+          </table>
+        </div>
+
+        <div class="chart-wrapper" style="height:220px;margin-top:10px;">
+          <canvas id="subjectAvgChart"></canvas>
+        </div>
+
+        <!-- Govt Exams (if available) -->
+        <div id="govtExamsBlock" style="margin-top:12px;display:none;">
+          <h3 class="title-primary" style="margin-bottom:6px;"
+              data-en="Government Exams"
+              data-si="රාජ්‍ය විභාග"
+              data-ta="அரசுத் தேர்வுகள்">Government Exams</h3>
+
+          <div id="scholRow" style="display:none;margin-bottom:8px;">
+            <strong data-en="Grade 5 Scholarship:"
+                    data-si="පස්වැනි ශ්‍රේණි ශිෂ්‍යත්ව විභාගය:"
+                    data-ta="தரம் 5 உதவித்தொகை:">Grade 5 Scholarship:</strong>
+            <span id="scholText">—</span>
+          </div>
+
+          <div id="olRow" style="display:none;margin-bottom:8px;">
+            <strong data-en="G.C.E. (O/L):"
+                    data-si="සා/පෙළ:"
+                    data-ta="ஓ/லெவல்:">G.C.E. (O/L):</strong>
+            <span id="olText">—</span>
+          </div>
+
+          <div id="alRow" style="display:none;">
+            <strong data-en="G.C.E. (A/L):"
+                    data-si="උ/පෙළ:"
+                    data-ta="ஏ/லெவல்:">G.C.E. (A/L):</strong>
+            <span id="alText">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="tabBehavior" class="tab-panel" style="display:none;">
+        <div class="table-container">
+          <table class="attendance-table">
+            <thead>
+              <tr>
+                <th data-en="Date" data-si="දිනය" data-ta="தேதி">Date</th>
+                <th data-en="Type" data-si="වර්ගය" data-ta="வகை">Type</th>
+                <th data-en="Severity" data-si="තීව්‍රතාව" data-ta="கடுமை">Severity</th>
+                <th data-en="Description" data-si="විස්තරය" data-ta="விளக்கம்">Description</th>
+                <th data-en="By" data-si="විසින්" data-ta="யார்">By</th>
+              </tr>
+            </thead>
+            <tbody id="behaviorBodyProfile"></tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:8px;">
+          <h4 class="title-primary" style="margin-bottom:6px;"
+              data-en="Certificates (Auto-generated)"
+              data-si="සහතික (ස්වයංක්‍රීය)"
+              data-ta="சான்றிதழ்கள் (தானியங்கி)">
+              Certificates (Auto-generated)</h4>
+          <ul id="certList" class="tile-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Back Button -->
+<div class="action-container">
+  <a href="layout.html?role=admin&page=dashboard" class="btn back-btn">
+    <i class="fas fa-arrow-left"></i>
+    <span data-en="Back to Dashboard" data-si="ඩෑෂ්බෝඩ් වෙත" data-ta="டாஷ்போர்டுக்கு திரும்ப">
+      Back to Dashboard
+    </span>
+  </a>
+</div>
+
+<!-- ============== Scripts ============== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+/* =========================
+   Sample realistic data (10 students)
+   Grades & government exams logic:
+   - Grade 5: Scholarship (score + pass/fail)
+   - Grades 6–11: Term marks; O/L at 11 (9 subjects, grade buckets)
+   - Grades 12–13: Stream; A/L at 13 (grades + Z-score + ranks)
+========================= */
+const STUDENTS = [
+  {
+    index: "2020/0001", name: "Hansa Nirmal", grade: 10, class: "A", medium: "Sinhala", stream: null,
+    guardian: "Mr. Nirmal", contact: "0771234567", notes: "Prefect; Cricket team",
+    attendance: { percent: 93, present: 168, absent: 12, last7: [1,1,0,1,1,1,1] },
+    termMarks: [
+      { term:"Term 1", subject:"Mathematics", marks:86 },
+      { term:"Term 1", subject:"Science", marks:78 },
+      { term:"Term 1", subject:"Sinhala", marks:82 },
+      { term:"Term 2", subject:"Mathematics", marks:88 },
+      { term:"Term 2", subject:"Science", marks:80 }
+    ],
+    behavior: [
+      { date:"2025-06-10", type:"Good", severity:"-", desc:"Helped organize Science Day", by:"Teacher-in-Charge" }
+    ],
+    govExams: {}
+  },
+  {
+    index: "2020/0002", name: "Yoshadhi Edirisinghe", grade: 10, class: "A", medium: "Sinhala", stream: null,
+    guardian: "Mrs. Edirisinghe", contact: "0772345678", notes: "Arts Club",
+    attendance: { percent: 88, present: 159, absent: 21, last7: [1,0,1,1,0,1,1] },
+    termMarks: [
+      { term:"Term 1", subject:"Mathematics", marks:72 },
+      { term:"Term 1", subject:"Science", marks:69 },
+      { term:"Term 1", subject:"Sinhala", marks:84 }
+    ],
+    behavior: [
+      { date:"2025-05-02", type:"Disciplinary", severity:"Minor", desc:"Late to assembly", by:"Class Teacher" }
+    ],
+    govExams: {}
+  },
+  {
+    index: "2019/0007", name: "Chandupa Silva", grade: 10, class: "B", medium: "Sinhala", stream: null,
+    guardian: "Mr. Silva", contact: "0711122334", notes: "Quiz team; Debating",
+    attendance: { percent: 95, present: 172, absent: 8, last7: [1,1,1,1,1,1,1] },
+    termMarks: [
+      { term:"Term 1", subject:"Mathematics", marks:90 },
+      { term:"Term 1", subject:"Science", marks:88 }
+    ],
+    behavior: [
+      { date:"2025-03-12", type:"Reward", severity:"-", desc:"Won Inter-school Quiz", by:"Principal" }
+    ],
+    govExams: {}
+  },
+  {
+    index: "2019/0010", name: "Pasindu Anjana", grade: 11, class: "A", medium: "Sinhala", stream: null,
+    guardian: "Mr. Anjana", contact: "0755566677", notes: "100% attendance this term",
+    attendance: { percent: 97, present: 176, absent: 4, last7: [1,1,1,1,1,1,1] },
+    termMarks: [
+      { term:"Term 1", subject:"Mathematics", marks:85 },
+      { term:"Term 1", subject:"Science", marks:83 },
+      { term:"Term 1", subject:"English", marks:79 }
+    ],
+    behavior: [],
+    govExams: {
+      ol: { year: 2025, grades: { A:5, B:3, C:1, S:0, F:0 } } // 9 subjects total
+    }
+  },
+  {
+    index: "2018/0022", name: "Nirmal Kolabage", grade: 11, class: "A", medium: "Sinhala", stream: null,
+    guardian: "Mrs. Kolabage", contact: "0779988776", notes: "",
+    attendance: { percent: 82, present: 149, absent: 31, last7: [1,0,1,0,1,1,0] },
+    termMarks: [{ term:"Term 1", subject:"Sinhala", marks:68 }],
+    behavior: [
+      { date:"2025-07-18", type:"Disciplinary", severity:"Serious", desc:"Classroom disturbance", by:"Vice Principal" }
+    ],
+    govExams: {
+      ol: { year: 2025, grades: { A:2, B:2, C:3, S:1, F:1 } }
+    }
+  },
+  {
+    index: "2016/0100", name: "Ishara Dilhani", grade: 13, class: "A", medium: "Sinhala", stream: "Science",
+    guardian: "Mr. Priyantha", contact: "0774455667", notes: "Lab assistant",
+    attendance: { percent: 91, present: 165, absent: 15, last7: [1,1,1,1,0,1,1] },
+    termMarks: [
+      { term:"Term 1", subject:"Physics", marks:78 },
+      { term:"Term 1", subject:"Chemistry", marks:81 },
+      { term:"Term 1", subject:"Combined Maths", marks:76 }
+    ],
+    behavior: [],
+    govExams: {
+      al: { year: 2025, zScore: 1.6721, districtRank: 12, islandRank: 325, grades: { A:1, B:1, C:1, S:0, F:0 }, result:"Pass" }
+    }
+  },
+  {
+    index: "2017/0054", name: "Tharindu Perera", grade: 5, class: "C", medium: "Sinhala", stream: null,
+    guardian: "Mrs. Perera", contact: "0714433221", notes: "Scholarship focus",
+    attendance: { percent: 96, present: 174, absent: 6, last7: [1,1,1,1,1,0,1] },
+    termMarks: [{ term:"Term 1", subject:"Mathematics", marks:92 }, { term:"Term 1", subject:"Sinhala", marks:88 }],
+    behavior: [],
+    govExams: {
+      scholarship: { year: 2025, score: 168, status: "Pass" } // Pass/Fail + score only
+    }
+  },
+  {
+    index: "2016/0033", name: "Dilmi Ranasinghe", grade: 12, class: "B", medium: "English", stream: "Commerce",
+    guardian: "Mr. Ranasinghe", contact: "0701234567", notes: "",
+    attendance: { percent: 89, present: 162, absent: 18, last7: [1,1,0,1,1,1,0] },
+    termMarks: [
+      { term:"Term 1", subject:"Economics", marks:74 },
+      { term:"Term 1", subject:"Accounting", marks:81 },
+      { term:"Term 1", subject:"Business Studies", marks:79 }
+    ],
+    behavior: [],
+    govExams: {}
+  },
+  {
+    index: "2018/0077", name: "Sajith Fernando", grade: 6, class: "A", medium: "Sinhala", stream: null,
+    guardian: "Ms. Fernando", contact: "0723344556", notes: "",
+    attendance: { percent: 86, present: 155, absent: 25, last7: [1,0,1,1,1,0,1] },
+    termMarks: [{ term:"Term 1", subject:"Mathematics", marks:70 }, { term:"Term 1", subject:"Science", marks:73 }],
+    behavior: [],
+    govExams: {}
+  },
+  {
+    index: "2015/0090", name: "Kalani Wijesinghe", grade: 13, class: "A", medium: "Sinhala", stream: "Arts",
+    guardian: "Mrs. Wijesinghe", contact: "0719988776", notes: "Drama society",
+    attendance: { percent: 92, present: 166, absent: 14, last7: [1,1,1,1,1,1,1] },
+    termMarks: [{ term:"Term 1", subject:"Sinhala", marks:83 }, { term:"Term 1", subject:"Logic", marks:79 }],
+    behavior: [{ date:"2025-08-10", type:"Good", severity:"-", desc:"Led school arts festival", by:"Arts Teacher" }],
+    govExams: {
+      al: { year: 2025, zScore: 1.4023, districtRank: 28, islandRank: 980, grades: { A:0, B:2, C:1, S:0, F:0 }, result:"Pass" }
+    }
+  }
+];
+
+/* ============= DOM refs ============= */
+const listBody = document.getElementById('studentListBody');
+const listInfo = document.getElementById('listInfo');
+const emptyState = document.getElementById('emptyState');
+const profileContent = document.getElementById('profileContent');
+
+/* Profile fields */
+const pIndex = document.getElementById('pIndex');
+const pGradeClass = document.getElementById('pGradeClass');
+const pMedium = document.getElementById('pMedium');
+const pStream = document.getElementById('pStream');
+const pName = document.getElementById('pName');
+const pGuardian = document.getElementById('pGuardian');
+const pContact = document.getElementById('pContact');
+const pNotes = document.getElementById('pNotes');
+const pAttPerc = document.getElementById('pAttPerc');
+const pAttPresent = document.getElementById('pAttPresent');
+const pAttAbsent = document.getElementById('pAttAbsent');
+
+/* Panels */
+const termMarksBody = document.getElementById('termMarksBody');
+const behaviorBodyProfile = document.getElementById('behaviorBodyProfile');
+const certList = document.getElementById('certList');
+
+/* Govt exam blocks */
+const govtExamsBlock = document.getElementById('govtExamsBlock');
+const scholRow = document.getElementById('scholRow');
+const olRow = document.getElementById('olRow');
+const alRow = document.getElementById('alRow');
+const scholText = document.getElementById('scholText');
+const olText = document.getElementById('olText');
+const alText = document.getElementById('alText');
+
+/* Charts */
+let attTrendChart, subjectAvgChart;
+
+/* ====== keep selected student in memory for period switching ====== */
+let CURRENT_STUDENT = null;
+
+/* ============= Render list ============= */
+function renderList(students) {
+  listBody.innerHTML = students.map(s => `
+    <tr style="cursor:pointer" onclick="selectStudent('${s.index}')">
+      <td>${s.index}</td>
+      <td>${s.name}</td>
+      <td>${s.grade}</td>
+      <td>${s.class}</td>
+    </tr>
+  `).join('');
+  listInfo.textContent = `${students.length} record${students.length===1?'':'s'} found`;
+}
+
+/* ============= Filters ============= */
+function applyFilters(focusIndex=false) {
+  const g = document.getElementById('gradeFilter').value;
+  const c = document.getElementById('classFilter').value;
+  const name = (document.getElementById('nameFilter').value || '').toLowerCase().trim();
+  const idx = (document.getElementById('indexFilter').value || '').toLowerCase().trim();
+
+  let filtered = STUDENTS.filter(s => {
+    const okGrade = (g==='all') || String(s.grade)===g;
+    const okClass = (c==='all') || s.class===c;
+    const okName = !name || s.name.toLowerCase().includes(name);
+    const okIdx  = !idx || s.index.toLowerCase().includes(idx);
+    return okGrade && okClass && okName && okIdx;
+  });
+
+  renderList(filtered);
+
+  // If exactly one result or index typed, auto-select
+  if ((idx && filtered.length) || filtered.length===1) {
+    selectStudent(filtered[0].index);
+  } else {
+    emptyState.style.display = '';
+    profileContent.style.display = 'none';
+  }
+  // Keep language text updated
+  applyLanguage(localStorage.getItem('lang') || detectDefaultLang());
+}
+
+/* ====== Attendance period handling (uses sample data heuristics) ====== */
+function computeAttendanceForPeriod(s, period) {
+  const last7 = (s.attendance.last7 || []).map(x => Number(x) ? 1 : 0);
+  const present7 = last7.reduce((a,b)=>a+b,0);
+  if (period === 'last7') {
+    const days = last7.length || 7;
+    const present = present7;
+    const absent = days - present;
+    const percent = Math.round((present/days)*100);
+    const labels = ['D-6','D-5','D-4','D-3','D-2','D-1','Today'];
+    const data = last7;
+    return { percent, present, absent, labels, data, yMax:1, step:1 };
+  }
+  if (period === 'month') {
+    const workingDays = 22;
+    const avg = (last7.length ? present7/last7.length : (s.attendance.percent||0)/100);
+    const present = Math.round(avg * workingDays);
+    const absent = workingDays - present;
+    const percent = Math.round(avg*100);
+    const data = Array.from({length:workingDays}, (_,i)=> last7[i % (last7.length||1)] || 0);
+    const labels = Array.from({length:workingDays}, (_,i)=> `D-${workingDays-1-i}`);
+    return { percent, present, absent, labels, data, yMax:1, step:1 };
+  }
+  const percent = s.attendance.percent || 0;
+  const present = s.attendance.present || 0;
+  const absent = s.attendance.absent || 0;
+  const labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const prob = Math.max(0, Math.min(1, percent/100));
+  const data = Array.from({length:12}, ()=> prob);
+  return { percent, present, absent, labels, data, yMax:1, step:1 };
+}
+
+function updateAttendanceView() {
+  if (!CURRENT_STUDENT) return;
+  const select = document.getElementById('attPeriod');
+  const period = select ? select.value : 'last7';
+  const stats = computeAttendanceForPeriod(CURRENT_STUDENT, period);
+
+  // Update tiles
+  pAttPerc.textContent = `${stats.percent}%`;
+  pAttPresent.textContent = stats.present;
+  pAttAbsent.textContent = stats.absent;
+
+  // Update chart
+  const attCtx = document.getElementById('attTrendChart').getContext('2d');
+  if (attTrendChart) attTrendChart.destroy();
+  attTrendChart = new Chart(attCtx, {
+    type: 'line',
+    data: {
+      labels: stats.labels,
+      datasets: [{
+        label: (period === 'year' ? 'Presence ratio' : 'Present (1) / Absent (0)'),
+        data: stats.data,
+        borderColor: '#4CAF50',
+        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+        fill: true,
+        tension: 0.35
+      }]
+    },
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      scales:{ y:{ beginAtZero:true, max:stats.yMax, ticks:{ stepSize:stats.step } } }
+    }
+  });
+}
+
+/* ============= Select student & fill profile ============= */
+function selectStudent(indexNo) {
+  const s = STUDENTS.find(x => x.index===indexNo);
+  if (!s) return;
+  CURRENT_STUDENT = s;
+
+  emptyState.style.display = 'none';
+  profileContent.style.display = '';
+
+  pIndex.textContent = s.index;
+  pGradeClass.textContent = `G.${s.grade} - ${s.class}`;
+  pMedium.textContent = s.medium || '—';
+  pStream.textContent = s.stream || '—';
+
+  pName.textContent = s.name;
+  pGuardian.textContent = s.guardian || '—';
+  pContact.textContent = s.contact || '—';
+  pNotes.textContent = s.notes || '—';
+
+  // Default tiles; dropdown will refine
+  pAttPerc.textContent = `${s.attendance.percent}%`;
+  pAttPresent.textContent = s.attendance.present;
+  pAttAbsent.textContent = s.attendance.absent;
+
+  // Attendance chart default then update by dropdown
+  const attCtx = document.getElementById('attTrendChart').getContext('2d');
+  if (attTrendChart) attTrendChart.destroy();
+  attTrendChart = new Chart(attCtx, {
+    type: 'line',
+    data: {
+      labels: ['D-6','D-5','D-4','D-3','D-2','D-1','Today'],
+      datasets: [{
+        label: 'Present (1) / Absent (0)',
+        data: s.attendance.last7,
+        borderColor: '#4CAF50',
+        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+        fill: true,
+        tension: 0.35
+      }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, max:1, ticks:{ stepSize:1 } } } }
+  });
+
+  /* ====== ACADEMICS (UPDATED): Grade & Term selectors ====== */
+  // Populate grade dropdown with 1..current grade (realistic progression)
+  const gradeSelect = document.getElementById('gradeSelect');
+  if (gradeSelect) {
+    gradeSelect.innerHTML = '';
+    for (let g = 1; g <= s.grade; g++) {
+      const opt = document.createElement('option');
+      opt.value = g;
+      opt.textContent = `Grade ${g}`;
+      if (g === s.grade) opt.selected = true;
+      gradeSelect.appendChild(opt);
+    }
+  }
+  // Reset term selection and table
+  const termSel = document.getElementById('termSelect');
+  if (termSel) termSel.value = '';
+  showSelectedTermMarks();
+
+  // Behavior table
+  behaviorBodyProfile.innerHTML = (s.behavior || []).map(b =>
+    `<tr><td>${b.date}</td><td>${b.type}</td><td>${b.severity}</td><td>${b.desc}</td><td>${b.by}</td></tr>`
+  ).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--color-subtext)">—</td></tr>`;
+
+  // Certificates
+  const certs = [];
+  certs.push({ key:'leaving', text:{ en:'Leaving Certificate', si:'පාසල් හැරීමේ සහතිකය', ta:'பள்ளி விலகல் சான்றிதழ்' }});
+  certs.push({ key:'character', text:{ en:'Character Certificate', si:'හුරු පුරුදු සහතිකය', ta:'நற்குணச்சான்று' }});
+  certs.push({ key:'enrollment', text:{ en:'Enrollment / Attendance Confirmation', si:'ඇතුළත් කිරීම / පැමිණීම තහවුරු කිරීම', ta:'சேர்க்கை / வருகை உறுதிப்படுத்தல்' }});
+  certList.innerHTML = certs.map(c =>
+    `<li class="tile-list"><span data-en="${c.text.en}" data-si="${c.text.si}" data-ta="${c.text.ta}">${c.text.en}</span></li>`
+  ).join('');
+
+  // Govt exams block
+  renderGovtExams(s);
+
+  // Reset to Overview tab on selection
+  switchTab('tabOverview');
+
+  // Apply current language to newly injected content
+  applyLanguage(localStorage.getItem('lang') || detectDefaultLang());
+
+  // Initialize attendance view based on current dropdown
+  updateAttendanceView();
+}
+
+/* === Academics helpers (NEW) === */
+function updateTermDropdown() {
+  const termSel = document.getElementById('termSelect');
+  if (termSel) termSel.value = '';
+  showSelectedTermMarks();
+}
+
+function showSelectedTermMarks() {
+  const gradeSel = document.getElementById('gradeSelect');
+  const termSel = document.getElementById('termSelect');
+  const tbody = document.getElementById('termMarksBody');
+  if (!CURRENT_STUDENT || !gradeSel || !termSel || !tbody) return;
+
+  const term = termSel.value;
+  tbody.innerHTML = '';
+
+  if (!term) {
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--color-subtext)">—</td></tr>`;
+    // Clear/refresh chart to empty state
+    const subjCtx = document.getElementById('subjectAvgChart').getContext('2d');
+    if (subjectAvgChart) subjectAvgChart.destroy();
+    subjectAvgChart = new Chart(subjCtx, {
+      type: 'bar',
+      data: { labels: [], datasets:[{ label:'Avg Marks', data: [], backgroundColor: '#2196F3' }] },
+      options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, max:100 } } }
+    });
+    return;
+  }
+
+  // Filter marks for selected term (sample data only has some terms)
+  const marks = (CURRENT_STUDENT.termMarks || []).filter(r => r.term === term);
+  if (!marks.length) {
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--color-subtext)">No data for ${term}</td></tr>`;
+  } else {
+    tbody.innerHTML = marks.map(r => `<tr><td>${r.term}</td><td>${r.subject}</td><td>${r.marks}</td></tr>`).join('');
+  }
+
+  // Update Subject average chart for this term
+  const subjCtx = document.getElementById('subjectAvgChart').getContext('2d');
+  if (subjectAvgChart) subjectAvgChart.destroy();
+  const labels = marks.map(m => m.subject);
+  const values = marks.map(m => m.marks);
+  subjectAvgChart = new Chart(subjCtx, {
+    type: 'bar',
+    data: { labels, datasets:[{ label: term, data: values, backgroundColor: '#2196F3' }] },
+    options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, max:100 } } }
+  });
+}
+
+/* Govt Exams renderer (unchanged behavior) */
+function renderGovtExams(s) {
+  const ge = s.govExams || {};
+  let hasAny = false;
+
+  if (ge.scholarship) {
+    scholRow.style.display = '';
+    scholText.textContent = `${ge.scholarship.year}: ${ge.scholarship.score} (${ge.scholarship.status})`;
+    hasAny = true;
+  } else {
+    scholRow.style.display = 'none';
+  }
+
+  if (ge.ol) {
+    olRow.style.display = '';
+    const g = ge.ol.grades || {};
+    const totalSubs = (g.A||0) + (g.B||0) + (g.C||0) + (g.S||0) + (g.F||0);
+    olText.textContent = `${ge.ol.year}: A:${g.A||0}  B:${g.B||0}  C:${g.C||0}  S:${g.S||0}  F:${g.F||0}  (Total ${totalSubs})`;
+    hasAny = true;
+  } else {
+    olRow.style.display = 'none';
+  }
+
+  if (ge.al) {
+    alRow.style.display = '';
+    const g = ge.al.grades || {};
+    alText.textContent =
+      `${ge.al.year}: ${ge.al.result} | Z=${ge.al.zScore} | ` +
+      `District Rank ${ge.al.districtRank}, Island Rank ${ge.al.islandRank} | ` +
+      `A:${g.A||0} B:${g.B||0} C:${g.C||0} S:${g.S||0} F:${g.F||0}`;
+    hasAny = true;
+  } else {
+    alRow.style.display = 'none';
+  }
+
+  govtExamsBlock.style.display = hasAny ? '' : 'none';
+}
+
+/* ============= Tabs ============= */
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.style.display='none');
+  document.getElementById(id).style.display = '';
+  document.querySelectorAll('.btn[data-tab]').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`.btn[data-tab="${id}"]`);
+  if (btn) btn.classList.add('active');
+}
+
+/* ============= Export (Filtered List) ============= */
+function exportFilteredCSV() {
+  const rows = Array.from(listBody.querySelectorAll('tr'));
+  const out = [['Index No.,Student,Grade,Class']];
+  rows.forEach(r => {
+    const tds = Array.from(r.cells).map(td => td.innerText);
+    out.push(tds.join(','));
+  });
+  const blob = new Blob([out.join('\n')], { type:'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `students_filtered_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+function exportFilteredPDF() {
+  const cloneTable = document.getElementById('studentListTable').cloneNode(true);
+  const win = window.open('', '', 'width=900,height=600');
+  win.document.write('<html><head><title>Students - Filtered</title></head><body>');
+  win.document.write('<h2>Students (Filtered)</h2>');
+  win.document.write(cloneTable.outerHTML);
+  win.document.write('</body></html>');
+  win.document.close();
+  win.print();
+}
+
+/* ============= Print Profile (selected) ============= */
+function printProfile() {
+  if (profileContent.style.display === 'none') return;
+  const pane = document.getElementById('profilePane').cloneNode(true);
+  // Hide buttons in print clone
+  pane.querySelectorAll('button').forEach(b => b.remove());
+  // ensure all tabs are visible when printing
+  pane.querySelectorAll('.tab-panel').forEach(p => p.style.display = '');
+  const win = window.open('', '', 'width=900,height=700');
+  win.document.write('<html><head><title>Student Profile</title></head><body>');
+  win.document.write(pane.outerHTML);
+  win.document.write('</body></html>');
+  win.document.close();
+  win.print();
+}
+
+/* ============= Language (persistent, no refresh) ============= */
+function detectDefaultLang() {
+  const n = navigator.language || navigator.userLanguage || 'en';
+  return n.startsWith('si') ? 'si' : n.startsWith('ta') ? 'ta' : 'en';
+}
+function applyLanguage(lang) {
+  document.querySelectorAll('[data-en]').forEach(el => {
+    const val = el.getAttribute(`data-${lang}`) || el.getAttribute('data-en');
+    if (val) el.textContent = val;
+  });
+}
+(function initLanguage(){
+  let lang = localStorage.getItem('lang');
+  if (!lang || !['en','si','ta'].includes(lang)) {
+    lang = detectDefaultLang();
+    localStorage.setItem('lang', lang);
+  }
+  applyLanguage(lang);
+  // react to language changes (from topbar/language.js)
+  window.addEventListener('storage', e => {
+    if (e.key === 'lang') applyLanguage(e.newValue || 'en');
+  });
+  window.addEventListener('languageChange', e => {
+    const newLang = (e.detail && e.detail.lang) ? e.detail.lang : 'en';
+    localStorage.setItem('lang', newLang);
+    applyLanguage(newLang);
+  });
+  // small failsafe polling
+  let last = lang;
+  setInterval(() => {
+    const cur = localStorage.getItem('lang') || 'en';
+    if (cur !== last) { applyLanguage(cur); last = cur; }
+  }, 600);
+})();
+
+/* ============= Init ============= */
+renderList(STUDENTS);
+applyFilters();
+</script>

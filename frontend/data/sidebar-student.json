@@ -2,10 +2,10 @@
   { "label": "sidebar.dashboard", "page": "dashboard", "icon": "fas fa-home" },
   {
     "label": "student.attendance",
-    "page": "attendance",
+    "page": "myattendance",
     "icon": "fas fa-user-check"
   },
-  { "label": "student.marks", "page": "marks", "icon": "fas fa-chart-bar" },
+  { "label": "student.marks", "page": "myMarks", "icon": "fas fa-chart-bar" },
   {
     "label": "sidebar.timeTable",
     "page": "timetable",

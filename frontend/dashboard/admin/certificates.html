@@ -1,0 +1,263 @@
+<h2 class="heading">
+  <i class="fas fa-certificate"></i>
+  <span data-en="Certificate Approvals" data-si="සහතික අනුමත කිරීම" data-ta="சான்றிதழ் ஒப்புதல்">Certificate Approvals</span>
+</h2>
+
+<!-- Summary Tiles -->
+<div class="summary-tiles">
+  <div class="card dashboard-tile summary-card">
+    <div class="icon-title">
+      <i class="fas fa-clock icon"></i>
+      <p data-en="Pending Requests" data-si="බලාපොරොත්තු ඉල්ලීම්" data-ta="நிலுவையிலுள்ள கோரிக்கைகள்">Pending Requests</p>
+    </div>
+    <p class="tile-value" id="pendingCount">0</p>
+  </div>
+  <div class="card dashboard-tile summary-card">
+    <div class="icon-title">
+      <i class="fas fa-check-circle icon"></i>
+      <p data-en="Approved Certificates" data-si="අනුමත කළ සහතික" data-ta="அங்கீகரிக்கப்பட்ட சான்றிதழ்கள்">Approved</p>
+    </div>
+    <p class="tile-value" id="approvedCount">0</p>
+  </div>
+  <div class="card dashboard-tile summary-card">
+    <div class="icon-title">
+      <i class="fas fa-times-circle icon"></i>
+      <p data-en="Rejected Certificates" data-si="ප්‍රතික්ෂේප කළ සහතික" data-ta="நிராகரிக்கப்பட்ட சான்றிதழ்கள்">Rejected</p>
+    </div>
+    <p class="tile-value" id="rejectedCount">0</p>
+  </div>
+  <div class="card dashboard-tile summary-card">
+    <div class="icon-title">
+      <i class="fas fa-file-alt icon"></i>
+      <p data-en="Total Requests" data-si="මුළු ඉල්ලීම්" data-ta="மொத்த கோரிக்கைகள்">Total Requests</p>
+    </div>
+    <p class="tile-value" id="totalRequests">0</p>
+  </div>
+</div>
+
+<!-- Filter + Table -->
+<div class="card dashboard-tile">
+  <div class="icon-title"><i class="fas fa-filter icon"></i>
+    <p data-en="Filters" data-si="පෙරහන්" data-ta="வடிப்பான்கள்">Filters</p>
+  </div>
+
+  <div class="filter-group">
+    <div>
+      <label data-en="Class" data-si="පංතිය" data-ta="வகுப்பு">Class</label>
+      <select id="classFilter" class="dropdown-select" onchange="renderCertificates()">
+        <option value="all">All Classes</option>
+        <option value="10A">Grade 10-A</option>
+        <option value="10B">Grade 10-B</option>
+        <option value="11A">Grade 11-A</option>
+      </select>
+    </div>
+
+    <div>
+      <label data-en="Certificate Type" data-si="සහතික වර්ගය" data-ta="சான்றிதழ் வகை">Type</label>
+      <select id="typeFilter" class="dropdown-select" onchange="renderCertificates()">
+        <option value="all">All</option>
+        <option value="Leaving">Leaving Certificate</option>
+        <option value="Character">Character Certificate</option>
+        <option value="Attendance">Attendance Certificate</option>
+        <option value="Enrollment">Enrollment Certificate</option>
+        <option value="Transfer">Transfer Certificate</option>
+      </select>
+    </div>
+
+    <div>
+      <label data-en="Status" data-si="තත්ත්වය" data-ta="நிலை">Status</label>
+      <select id="statusFilter" class="dropdown-select" onchange="renderCertificates()">
+        <option value="all">All</option>
+        <option value="Pending">Pending</option>
+        <option value="Approved">Approved</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Certificate Requests Table -->
+<div class="card dashboard-tile">
+  <div class="icon-title">
+    <i class="fas fa-table icon"></i>
+    <p class="tile-label" data-en="Certificate Requests" data-si="සහතික ඉල්ලීම්" data-ta="சான்றிதழ் கோரிக்கைகள்">Certificate Requests</p>
+  </div>
+
+  <div class="table-responsive">
+    <table id="certificatesTable">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Class</th>
+          <th>Type</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="certificatesBody"></tbody>
+    </table>
+  </div>
+
+  <div class="action-container export-buttons">
+    <button class="btn btn-secondary" onclick="exportCSV()"><i class="fas fa-file-excel"></i> Excel</button>
+    <button class="btn btn-secondary" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+  </div>
+</div>
+
+<!-- Back Button -->
+<div class="action-container">
+  <a href="layout.html?role=admin&page=dashboard" class="btn back-btn">
+    <i class="fas fa-arrow-left"></i>
+    <span data-en="Back to Dashboard" data-si="ඩෑෂ්බෝඩ් වෙත" data-ta="டாஷ்போர்டுக்கு திரும்பவும்">Back to Dashboard</span>
+  </a>
+</div>
+
+<!-- Modal for Preview (same logic as before) -->
+<div id="certModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 data-en="Certificate Preview" data-si="සහතික පෙරදැක්ම" data-ta="சான்றிதழ் முன்னோட்டம்">Certificate Preview</h3>
+      <button class="btn btn-secondary btn-small" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>
+    </div>
+
+    <div id="certPreview" class="certificate-preview"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="approveFromModal()"><i class="fas fa-check"></i> Approve</button>
+      <button class="btn btn-danger" onclick="rejectFromModal()"><i class="fas fa-times"></i> Reject</button>
+      <button class="btn btn-secondary" onclick="printPreview()"><i class="fas fa-print"></i> Print</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Same core logic as before (approve/reject/export/render etc.)
+  // but adds tile count updates and realistic filters.
+
+  let certificatesData = JSON.parse(localStorage.getItem('certificates')) || [
+    { id: 1, student: 'Hansa Nirmal', class: '10A', type: 'Character', date: '2025-08-29', status: 'Pending' },
+    { id: 2, student: 'Yoshadhi Edirisinghe', class: '10B', type: 'Attendance', date: '2025-08-27', status: 'Approved' },
+    { id: 3, student: 'Chandupa Silva', class: '11A', type: 'Leaving', date: '2025-08-26', status: 'Pending' },
+    { id: 4, student: 'Pasindu Anjana', class: '11A', type: 'Transfer', date: '2025-08-25', status: 'Rejected' }
+  ];
+
+  function renderCertificates() {
+    const cFilter = document.getElementById('classFilter').value;
+    const tFilter = document.getElementById('typeFilter').value;
+    const sFilter = document.getElementById('statusFilter').value;
+    const tbody = document.getElementById('certificatesBody');
+
+    const filtered = certificatesData.filter(c =>
+      (cFilter === 'all' || c.class === cFilter) &&
+      (tFilter === 'all' || c.type === tFilter) &&
+      (sFilter === 'all' || c.status === sFilter)
+    );
+
+    tbody.innerHTML = filtered.map(c => `
+      <tr>
+        <td>${c.student}</td>
+        <td>${c.class}</td>
+        <td>${c.type}</td>
+        <td>${c.date}</td>
+        <td>${c.status}</td>
+        <td>
+          <button class="btn btn-small" onclick="viewCert(${c.id})"><i class="fas fa-eye"></i> View</button>
+          <button class="btn btn-small" onclick="approveCertificate(${c.id})"><i class="fas fa-check"></i> Approve</button>
+          <button class="btn btn-danger btn-small" onclick="rejectCertificate(${c.id})"><i class="fas fa-times"></i> Reject</button>
+        </td>
+      </tr>
+    `).join('');
+
+    // Update tile counts
+    document.getElementById('pendingCount').textContent = certificatesData.filter(c => c.status === 'Pending').length;
+    document.getElementById('approvedCount').textContent = certificatesData.filter(c => c.status === 'Approved').length;
+    document.getElementById('rejectedCount').textContent = certificatesData.filter(c => c.status === 'Rejected').length;
+    document.getElementById('totalRequests').textContent = certificatesData.length;
+  }
+
+  function approveCertificate(id) {
+    const i = certificatesData.findIndex(c => c.id === id);
+    if (i !== -1) certificatesData[i].status = 'Approved';
+    localStorage.setItem('certificates', JSON.stringify(certificatesData));
+    renderCertificates();
+  }
+
+  function rejectCertificate(id) {
+    const i = certificatesData.findIndex(c => c.id === id);
+    if (i !== -1) certificatesData[i].status = 'Rejected';
+    localStorage.setItem('certificates', JSON.stringify(certificatesData));
+    renderCertificates();
+  }
+
+  function viewCert(id) {
+    const c = certificatesData.find(x => x.id === id);
+    document.getElementById('certPreview').innerHTML =
+      `<p><b>Student:</b> ${c.student}</p>
+       <p><b>Type:</b> ${c.type}</p>
+       <p><b>Status:</b> ${c.status}</p>
+       <p>Certificate preview will appear here.</p>`;
+    document.getElementById('certModal').style.display = 'flex';
+  }
+
+  function closeModal() { document.getElementById('certModal').style.display = 'none'; }
+
+  function exportCSV() {
+    const rows = [['Student,Class,Type,Date,Status'], ...certificatesData.map(c => `${c.student},${c.class},${c.type},${c.date},${c.status}`)];
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'certificates.csv';
+    a.click();
+  }
+
+  function exportPDF() {
+    const html = document.getElementById('certificatesTable').outerHTML;
+    const w = window.open();
+    w.document.write(html);
+    w.print();
+  }
+
+  // ✅ Persistent Language Logic (Fixed)
+  function updateText(lang) {
+    document.querySelectorAll('[data-en],[data-si],[data-ta]').forEach(el => {
+      el.textContent = el.getAttribute(`data-${lang}`) || el.getAttribute('data-en');
+    });
+  }
+
+  // Apply saved language or default English
+  let savedLang = localStorage.getItem('lang') || 'en';
+  updateText(savedLang);
+
+  // Watch for language changes across tabs
+  window.addEventListener('storage', e => {
+    if (e.key === 'lang') updateText(e.newValue || 'en');
+  });
+
+  // Auto-refresh texts if language manually changed in system
+  setInterval(() => {
+    const currentLang = localStorage.getItem('lang') || 'en';
+    if (currentLang !== savedLang) {
+      updateText(currentLang);
+      savedLang = currentLang;
+    }
+  }, 500);
+
+  renderCertificates();
+</script>
+
+
+<style>
+  .summary-tiles {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 15px; margin-bottom: 15px;
+  }
+  .modal-overlay {
+    position: fixed; inset: 0; display: none; justify-content: center; align-items: center;
+    background: rgba(0,0,0,0.35); z-index: 1000;
+  }
+  .modal-card {
+    background: var(--color-card); color: var(--color-text); border-radius: 12px;
+    width: 80%; max-width: 600px; padding: 20px;
+  }
+</style>

@@ -1,929 +1,1736 @@
-<section class="section">
-  <h2 class="heading">
-    <i class="fas fa-chart-line"></i>
-    <span>Academic Reports</span>
-  </h2>
+<h2 class="heading">
+  <i class="fas fa-chart-bar"></i>
+  <span
+    data-en="Academic Reports"
+    data-si="අධ්‍යාපනික වාර්තා"
+    data-ta="கல்வி அறிக்கைகள்"
+    >Academic Reports</span
+  >
+</h2>
 
-  <div class="card-grid">
-    <!-- Grade-wise Performance -->
-    <div class="card dashboard-tile w-1 h-1" id="grade-performance">
-      <div class="icon-title">
-        <i class="fas fa-chart-bar icon"></i>
-        <p class="tile-label">Grade Performance</p>
-      </div>
-      <div id="grade-performance-content">
-        <!-- Chart will be injected by JS -->
-      </div>
-    </div>
+<!-- 🔎 Filters -->
+<div class="card dashboard-tile">
+  <div class="icon-title">
+    <i class="fas fa-filter icon"></i>
+    <p
+      class="tile-label"
+      data-en="Filters"
+      data-si="පෙරහන්"
+      data-ta="வடிப்பான்கள்"
+    >
+      Filters
+    </p>
+  </div>
 
-    <!-- Subject-wise Performance -->
-    <div class="card dashboard-tile w-1 h-1" id="subject-performance">
-      <div class="icon-title">
-        <i class="fas fa-book icon"></i>
-        <p class="tile-label">Subject Performance</p>
+  <div class="filter-container">
+    <div class="filter-group">
+      <!-- Exam Type (Term Tests is primary/default) -->
+      <div class="filter-item">
+        <label
+          for="examFilter"
+          data-en="Exam Type"
+          data-si="විභාග වර්ගය"
+          data-ta="தேர்வு வகை"
+          >Exam Type</label
+        >
+        <select id="examFilter" class="dropdown-select">
+          <option
+            value="term"
+            data-en="Term Tests"
+            data-si="වාර පරීක්ෂණ"
+            data-ta="கால தேர்வுகள்"
+          >
+            Term Tests
+          </option>
+          <option
+            value="sch"
+            data-en="Grade 05 Scholarship Examination"
+            data-si="5 ශ්‍රේණිය ශිෂ්‍යත්ව විභාගය"
+            data-ta="5 ஶ்ரீஷ்ய மாணவத் தேர்வு"
+          >
+            Grade 05 Scholarship
+          </option>
+          <option
+            value="ol"
+            data-en="G.C.E. O/L Examination"
+            data-si="අ.පො.ස. සාමාන්‍ය පෙළ විභාගය"
+            data-ta="அ.பொ.ச. சாதாரண வகுப்பு தேர்வு"
+          >
+            G.C.E. O/L
+          </option>
+          <option
+            value="al"
+            data-en="G.C.E. A/L Examination"
+            data-si="අ.පො.ස. උසස් පෙළ විභාගය"
+            data-ta="அ.பொ.ச. உயர்தரப் படிப்பு"
+          >
+            G.C.E. A/L
+          </option>
+        </select>
       </div>
-      <div id="subject-performance-content">
-        <!-- Chart will be injected by JS -->
-      </div>
-    </div>
 
-    <!-- Top Performers -->
-    <div class="card dashboard-tile w-1 h-2" id="top-performers">
-      <div class="icon-title">
-        <i class="fas fa-trophy icon"></i>
-        <p class="tile-label">Top Performers</p>
+      <!-- Year -->
+      <div class="filter-item">
+        <label for="yearFilter" data-en="Year" data-si="වර්ෂය" data-ta="ஆண்டு"
+          >Year</label
+        >
+        <select id="yearFilter" class="dropdown-select">
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+        </select>
       </div>
-      <div id="top-performers-content">
-        <!-- Content will be injected by JS -->
-      </div>
-    </div>
 
-    <!-- Students Needing Attention -->
-    <div class="card dashboard-tile w-1 h-2" id="attention-needed">
-      <div class="icon-title">
-        <i class="fas fa-exclamation-triangle icon"></i>
-        <p class="tile-label">Needs Attention</p>
+      <!-- Term (Term Tests only) -->
+      <div class="filter-item" id="termWrap">
+        <label for="termFilter" data-en="Term" data-si="වාරය" data-ta="காலம்"
+          >Term</label
+        >
+        <select id="termFilter" class="dropdown-select">
+          <option
+            value="all"
+            data-en="All Terms"
+            data-si="සියලු වාර"
+            data-ta="அனைத்து காலங்கள்"
+          >
+            All Terms
+          </option>
+          <option
+            value="1"
+            data-en="Term 1"
+            data-si="1 වන වාරය"
+            data-ta="காலம் 1"
+          >
+            Term 1
+          </option>
+          <option
+            value="2"
+            data-en="Term 2"
+            data-si="2 වන වාරය"
+            data-ta="காலம் 2"
+          >
+            Term 2
+          </option>
+          <option
+            value="3"
+            data-en="Term 3"
+            data-si="3 වන වාරය"
+            data-ta="காலம் 3"
+          >
+            Term 3
+          </option>
+        </select>
       </div>
-      <div id="attention-needed-content">
-        <!-- Content will be injected by JS -->
-      </div>
-    </div>
 
-    <!-- Recent Exam Results -->
-    <div class="card dashboard-tile w-1 h-2" id="recent-exams">
-      <div class="icon-title">
-        <i class="fas fa-file-alt icon"></i>
-        <p class="tile-label">Recent Exams</p>
+      <!-- Class (Term Tests & O/L) -->
+      <div class="filter-item" id="classWrap">
+        <label
+          for="classFilter"
+          data-en="Class"
+          data-si="පන්තිය"
+          data-ta="வகுப்பு"
+          >Class</label
+        >
+        <select id="classFilter" class="dropdown-select">
+          <option
+            value="all"
+            data-en="All Classes"
+            data-si="සියලුම පන්ති"
+            data-ta="அனைத்து வகுப்புகள்"
+          >
+            All Classes
+          </option>
+          <option value="10A">10-A</option>
+          <option value="10B">10-B</option>
+          <option value="11A">11-A</option>
+          <option value="11B">11-B</option>
+          <option value="11C">11-C</option>
+        </select>
       </div>
-      <div id="recent-exams-content">
-        <!-- Content will be injected by JS -->
-      </div>
-    </div>
 
-    <!-- Performance Distribution -->
-    <div class="card dashboard-tile w-1 h-1" id="performance-distribution">
-      <div class="icon-title">
-        <i class="fas fa-chart-pie icon"></i>
-        <p class="tile-label">Grade Distribution</p>
+      <!-- Stream (A/L only) -->
+      <div class="filter-item" id="streamWrap">
+        <label
+          for="streamFilter"
+          data-en="Subject Stream"
+          data-si="විෂය ධාරාව"
+          data-ta="பொருள் அளவு"
+          >Stream</label
+        >
+        <select id="streamFilter" class="dropdown-select">
+          <option
+            value="all"
+            data-en="All Streams"
+            data-si="සියලුම විෂය ධාරා"
+            data-ta="அனைத்து பாடம் தாரா"
+          >
+            All Streams
+          </option>
+          <option
+            value="Science"
+            data-en="Science"
+            data-si="විද්‍යා"
+            data-ta="அறிவியல்"
+          >
+            Science
+          </option>
+          <option
+            value="Commerce"
+            data-en="Commerce"
+            data-si="වාණිජ"
+            data-ta="வணிக"
+          >
+            Commerce
+          </option>
+          <option value="Arts" data-en="Arts" data-si="කලා" data-ta="கலை">
+            Arts
+          </option>
+          <option
+            value="Technology"
+            data-en="Technology"
+            data-si="තාක්ෂණ"
+            data-ta="தொழில்நுட்பம்"
+          >
+            Technology
+          </option>
+        </select>
       </div>
-      <div id="performance-distribution-content">
-        <!-- Chart will be injected by JS -->
-      </div>
-    </div>
 
-    <!-- Class Average Trends -->
-    <div class="card dashboard-tile w-2 h-1" id="class-trends">
-      <div class="icon-title">
-        <i class="fas fa-chart-line icon"></i>
-        <p class="tile-label">Class Performance Trends</p>
+      <!-- Subject (Term Tests & O/L quick filter) -->
+      <div class="filter-item" id="subjectWrap">
+        <label
+          for="subjectFilter"
+          data-en="Subject"
+          data-si="විෂය"
+          data-ta="பாடம்"
+          >Subject</label
+        >
+        <select id="subjectFilter" class="dropdown-select">
+          <option
+            value="all"
+            data-en="All Subjects"
+            data-si="සියලුම විෂයන්"
+            data-ta="அனைத்து பாடங்கள்"
+          >
+            All Subjects
+          </option>
+          <option>Mathematics</option>
+          <option>Science</option>
+          <option>English</option>
+          <option>Sinhala</option>
+          <option>History</option>
+          <option>Commerce</option>
+          <option>Buddhism</option>
+          <option>ICT</option>
+          <option>Health</option>
+        </select>
       </div>
-      <div id="class-trends-content">
-        <!-- Chart will be injected by JS -->
-      </div>
-    </div>
 
-    <!-- Subject-wise Analysis -->
-    <div class="card dashboard-tile w-2 h-1" id="subject-analysis">
-      <div class="icon-title">
-        <i class="fas fa-graduation-cap icon"></i>
-        <p class="tile-label">Subject-wise Analysis</p>
-      </div>
-      <div id="subject-analysis-content">
-        <!-- Table will be injected by JS -->
+      <!-- Index No. Search -->
+      <div class="filter-item" id="indexWrap">
+        <label
+          for="indexSearch"
+          data-en="Search by Index No."
+          data-si="විභාග අංකයෙන් සොයන්න"
+          data-ta="தொகுதி எண் மூலம் தேடு"
+          >Search by Index No.</label
+        >
+        <input
+          id="indexSearch"
+          class="dropdown-select"
+          placeholder="e.g., OL250001 / AL250001 / SCH250001"
+        />
       </div>
     </div>
   </div>
-</section>
+</div>
 
+<!-- 📊 Summary Tiles (Overall for current exam/year scope) -->
+<div class="card-grid" id="overallTiles">
+  <div class="card w-1 h-1 dashboard-tile">
+    <div class="icon-title">
+      <i class="fas fa-users icon"></i>
+      <p
+        class="tile-label"
+        data-en="Candidates"
+        data-si="අයදුම්කරුවන්"
+        data-ta="தேர்வாளர்கள்"
+      >
+        Candidates
+      </p>
+    </div>
+    <p class="tile-value" id="overallTotal">--</p>
+  </div>
+
+  <div class="card w-1 h-1 dashboard-tile" id="overallTile2">
+    <div class="icon-title">
+      <i class="fas fa-poll icon"></i>
+      <p
+        class="tile-label"
+        data-en="Pass Rate"
+        data-si="සමත් අනුපාතය"
+        data-ta="தேர்ச்சி விகிதம்"
+      >
+        Pass Rate
+      </p>
+    </div>
+    <p class="tile-value" id="overallRate">--</p>
+  </div>
+
+  <div class="card w-1 h-1 dashboard-tile" id="overallTile3">
+    <div class="icon-title">
+      <i class="fas fa-signal icon"></i>
+      <p
+        class="tile-label"
+        data-en="Avg Score"
+        data-si="සාමාන්‍ය සාමාර්ථය"
+        data-ta="ஆல்ய சமர்த்தாய"
+      >
+        Avg Score / GPA / Z
+      </p>
+    </div>
+    <p class="tile-value" id="overallAvg">--</p>
+  </div>
+
+  <div class="card w-1 h-1 dashboard-tile" id="overallTile4">
+    <div class="icon-title">
+      <i class="fas fa-award icon"></i>
+      <p
+        class="tile-label"
+        data-en="Highlights"
+        data-si="ඉස්මතු කර ඇත"
+        data-ta="முக்கிய அம்சங்கள்"
+      >
+        Highlights
+      </p>
+    </div>
+    <p class="tile-value" id="overallHighlight">--</p>
+  </div>
+</div>
+
+<!-- 📋 Results Table -->
+<div class="card dashboard-tile">
+  <div class="icon-title">
+    <i class="fas fa-table icon"></i>
+    <p
+      class="tile-label"
+      data-en="Results"
+      data-si="ප්‍රතිඵල"
+      data-ta="முடிவுகள்"
+    >
+      Results
+    </p>
+  </div>
+
+  <div class="table-container">
+    <div class="table-responsive">
+      <table id="reportTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="table-footer">
+      <p
+        id="filterInfo"
+        class="filter-info"
+        data-en="Showing results based on selected filters."
+        data-si="තෝරාගත් පෙරහන් පදනම්ව ප්‍රතිඵල පෙන්වයි."
+        data-ta="தேர்ந்தெடுக்கப்பட்ட வடிகட்டிகளின் அடிப்படையில் முடிவுகள் காட்டப்படுகின்றன."
+      >
+        Showing results based on selected filters.
+      </p>
+    </div>
+  </div>
+
+  <!-- 📤 Export (filtered only) -->
+  <div class="action-container export-buttons">
+    <button class="btn btn-secondary" onclick="exportPDF()">
+      <i class="fas fa-file-pdf"></i> PDF
+    </button>
+    <button class="btn btn-secondary" onclick="exportCSV()">
+      <i class="fas fa-file-excel"></i> Excel
+    </button>
+  </div>
+</div>
+
+<!-- 📊 Filtered Summary Tiles -->
+<div class="card dashboard-tile">
+  <div class="icon-title">
+    <i class="fas fa-info-circle icon"></i>
+    <p
+      class="tile-label"
+      data-en="Filtered Summary"
+      data-si="පෙරහන් කළ සාරාංශය"
+      data-ta="வடிகட்டப்பட்ட சுருக்கம்"
+    >
+      Filtered Summary
+    </p>
+  </div>
+  <p
+    data-en="These tiles reflect the current filter selection."
+    data-si="මෙම සාරාංශය වර්තමාන පෙරහන අනුවයි."
+    data-ta="இந்த சுருக்கம் தற்போதைய வடிகட்டலின் அடிப்படையில் உள்ளது."
+  >
+    These tiles reflect the current filter selection.
+  </p>
+
+  <div class="card-grid" id="filteredTiles">
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-users icon"></i>
+        <p
+          class="tile-label"
+          data-en="Records"
+          data-si="ලේඛන"
+          data-ta="பதிவுகள்"
+        >
+          Records
+        </p>
+      </div>
+      <p class="tile-value" id="fTotal">--</p>
+    </div>
+
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-check-circle icon"></i>
+        <p class="tile-label" data-en="Pass" data-si="සමත්" data-ta="தேர்ச்சி">
+          Pass
+        </p>
+      </div>
+      <p class="tile-value" id="fPass">--</p>
+    </div>
+
+    <div class="card w-1 h-1 dashboard-tile" id="fTile3Wrap">
+      <div class="icon-title">
+        <i class="fas fa-times-circle icon"></i>
+        <p class="tile-label" data-en="Fail" data-si="අසමත්" data-ta="தோல்வி">
+          Fail
+        </p>
+      </div>
+      <p class="tile-value" id="fFail">--</p>
+    </div>
+
+    <div class="card w-1 h-1 dashboard-tile" id="fTile4Wrap">
+      <div class="icon-title">
+        <i class="fas fa-signal icon"></i>
+        <p
+          class="tile-label"
+          data-en="Avg Score"
+          data-si="සාමාන්‍ය සාමාර්ථය"
+          data-ta="ஆல்ய சமர்த்தாய"
+        >
+          Avg Score / GPA / Z
+        </p>
+      </div>
+      <p class="tile-value" id="fAvg">--</p>
+    </div>
+  </div>
+</div>
+
+<!-- 📈 Charts (2 per row) -->
+<div class="chart-container">
+  <!-- Chart A -->
+  <div class="card dashboard-tile chart-tile">
+    <div class="icon-title">
+      <i class="fas fa-chart-pie icon"></i>
+      <p
+        class="tile-label"
+        id="chartATitle"
+        data-en="Distribution"
+        data-si="ව්‍යාප්තිය"
+        data.ta="பகிர்வு"
+      >
+        Distribution
+      </p>
+    </div>
+    <div class="chart-wrapper"><canvas id="chartA"></canvas></div>
+  </div>
+
+  <!-- Chart B -->
+  <div class="card dashboard-tile chart-tile">
+    <div class="icon-title">
+      <i class="fas fa-chart-bar icon"></i>
+      <p
+        class="tile-label"
+        id="chartBTitle"
+        data-en="Performance by Category"
+        data-si="ප්‍රවර්ග අනුව කාර්ය සාධනය"
+        data-ta="வகைப்பட செயல்திறன்"
+      >
+        Performance by Category
+      </p>
+    </div>
+    <div class="chart-wrapper"><canvas id="chartB"></canvas></div>
+  </div>
+</div>
+
+<!-- 🔙 Back -->
+<div class="action-container">
+  <a href="layout.html?role=admin&page=dashboard" class="btn back-btn">
+    <i class="fas fa-arrow-left"></i>
+    <span
+      data-en="Back to Dashboard"
+      data-si="ඩෑෂ්බෝඩ් වෙත"
+      data-ta="டாஷ்போர்டுக்கு திரும்ப"
+      >Back to Dashboard</span
+    >
+  </a>
+</div>
+
+<!-- ========================= -->
+<!--       SCRIPT AREA         -->
+<!-- ========================= -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // Load grade-wise performance chart
-  async function loadGradePerformance() {
-    try {
-      const res = await fetch("/api/admin/academic/performance/grades");
-      if (res.ok) {
-        const data = await res.json();
+  /* =========================
+   Sample datasets (10–15 rows)
+   ========================= */
+  const dataSets = {
+    // ---- Term Tests (marks per subject, per student) ----
+    term: [
+      {
+        year: 2025,
+        term: "1",
+        cls: "10A",
+        name: "Hansa Nirmal",
+        subject: "Mathematics",
+        marks: 88,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "10A",
+        name: "Yoshadhi Edirisinghe",
+        subject: "Mathematics",
+        marks: 75,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "10B",
+        name: "Chandupa Silva",
+        subject: "Mathematics",
+        marks: 62,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "11A",
+        name: "Pasindu Anjana",
+        subject: "Mathematics",
+        marks: 91,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "11B",
+        name: "Nirmal Kolabage",
+        subject: "Mathematics",
+        marks: 54,
+      },
 
-        if (data.length > 0) {
-          const container = document.getElementById(
-            "grade-performance-content"
-          );
+      {
+        year: 2025,
+        term: "1",
+        cls: "10A",
+        name: "Hansa Nirmal",
+        subject: "Science",
+        marks: 82,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "10A",
+        name: "Yoshadhi Edirisinghe",
+        subject: "Science",
+        marks: 78,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "10B",
+        name: "Chandupa Silva",
+        subject: "Science",
+        marks: 71,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "11A",
+        name: "Pasindu Anjana",
+        subject: "Science",
+        marks: 89,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "11B",
+        name: "Nirmal Kolabage",
+        subject: "Science",
+        marks: 60,
+      },
 
-          container.innerHTML = `<canvas id="gradePerformanceChart" height="150"></canvas>`;
+      {
+        year: 2025,
+        term: "1",
+        cls: "10A",
+        name: "Hansa Nirmal",
+        subject: "English",
+        marks: 84,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "10A",
+        name: "Yoshadhi Edirisinghe",
+        subject: "English",
+        marks: 86,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "10B",
+        name: "Chandupa Silva",
+        subject: "English",
+        marks: 68,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "11A",
+        name: "Pasindu Anjana",
+        subject: "English",
+        marks: 90,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "11B",
+        name: "Nirmal Kolabage",
+        subject: "English",
+        marks: 74,
+      },
 
-          setTimeout(() => {
-            const rootStyles = getComputedStyle(document.documentElement);
-            const primaryColor = rootStyles
-              .getPropertyValue("--color-primary")
-              .trim();
+      {
+        year: 2025,
+        term: "1",
+        cls: "10A",
+        name: "Hansa Nirmal",
+        subject: "Sinhala",
+        marks: 87,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "10A",
+        name: "Yoshadhi Edirisinghe",
+        subject: "Sinhala",
+        marks: 79,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "10B",
+        name: "Chandupa Silva",
+        subject: "Sinhala",
+        marks: 70,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "11A",
+        name: "Pasindu Anjana",
+        subject: "Sinhala",
+        marks: 92,
+      },
+      {
+        year: 2025,
+        term: "1",
+        cls: "11B",
+        name: "Nirmal Kolabage",
+        subject: "Sinhala",
+        marks: 66,
+      },
+    ],
 
-            const chartData = {
-              labels: data.map((item) => `Grade ${item.grade}`),
-              datasets: [
-                {
-                  label: "Average Marks (%)",
-                  data: data.map((item) => parseFloat(item.average_marks)),
-                  backgroundColor: primaryColor,
-                  borderColor: primaryColor,
-                  borderWidth: 2,
-                  borderRadius: 4,
-                },
-              ],
-            };
+    // ---- Scholarship (Pass/Fail + numeric marks) ----
+    sch: [
+      {
+        year: 2025,
+        name: "Hansa Nirmal",
+        index: "SCH250001",
+        marks: 168,
+        result: "Pass",
+      },
+      {
+        year: 2025,
+        name: "Yoshadhi Edirisinghe",
+        index: "SCH250002",
+        marks: 142,
+        result: "Pass",
+      },
+      {
+        year: 2025,
+        name: "Chandupa Silva",
+        index: "SCH250003",
+        marks: 98,
+        result: "Fail",
+      },
+      {
+        year: 2025,
+        name: "Pasindu Anjana",
+        index: "SCH250004",
+        marks: 120,
+        result: "Pass",
+      },
+      {
+        year: 2024,
+        name: "Nirmal Kolabage",
+        index: "SCH240001",
+        marks: 132,
+        result: "Pass",
+      },
+      {
+        year: 2024,
+        name: "Tharushi Senarath",
+        index: "SCH240002",
+        marks: 76,
+        result: "Fail",
+      },
+      {
+        year: 2023,
+        name: "Isuru Fernando",
+        index: "SCH230001",
+        marks: 154,
+        result: "Pass",
+      },
+      {
+        year: 2023,
+        name: "Dinithi Jayawardena",
+        index: "SCH230002",
+        marks: 91,
+        result: "Fail",
+      },
+    ],
 
-            new Chart(document.getElementById("gradePerformanceChart"), {
-              type: "bar",
-              data: chartData,
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                      callback: function (value) {
-                        return value + "%";
-                      },
-                    },
-                  },
-                },
-                plugins: {
-                  legend: { display: false },
-                },
-              },
-            });
-          }, 100);
-        } else {
-          document.getElementById("grade-performance-content").innerHTML = `
-            <p class="text-sm text-center">No academic data available</p>
-          `;
-        }
-      } else {
-        // Fallback to mock data
-        const mockData = [
-          { grade: 6, average_marks: 78.5 },
-          { grade: 7, average_marks: 82.3 },
-          { grade: 8, average_marks: 75.8 },
-          { grade: 9, average_marks: 79.2 },
-          { grade: 10, average_marks: 84.1 },
-          { grade: 11, average_marks: 81.7 },
-        ];
+    // ---- O/L (per-subject rows; count candidates by unique index) ----
+    ol: [
+      // 2025 - 11A
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Hansa Nirmal",
+        index: "OL250001",
+        subject: "Mathematics",
+        grade: "A",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Hansa Nirmal",
+        index: "OL250001",
+        subject: "Science",
+        grade: "A",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Hansa Nirmal",
+        index: "OL250001",
+        subject: "Sinhala",
+        grade: "B",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Hansa Nirmal",
+        index: "OL250001",
+        subject: "English",
+        grade: "A",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Hansa Nirmal",
+        index: "OL250001",
+        subject: "History",
+        grade: "A",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Hansa Nirmal",
+        index: "OL250001",
+        subject: "Commerce",
+        grade: "A",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Hansa Nirmal",
+        index: "OL250001",
+        subject: "Buddhism",
+        grade: "A",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Hansa Nirmal",
+        index: "OL250001",
+        subject: "ICT",
+        grade: "B",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Hansa Nirmal",
+        index: "OL250001",
+        subject: "Health",
+        grade: "A",
+      },
 
-        const container = document.getElementById("grade-performance-content");
-        container.innerHTML = `<canvas id="gradePerformanceChart" height="150"></canvas>`;
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Yoshadhi Edirisinghe",
+        index: "OL250002",
+        subject: "Mathematics",
+        grade: "B",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Yoshadhi Edirisinghe",
+        index: "OL250002",
+        subject: "Science",
+        grade: "B",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Yoshadhi Edirisinghe",
+        index: "OL250002",
+        subject: "Sinhala",
+        grade: "A",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Yoshadhi Edirisinghe",
+        index: "OL250002",
+        subject: "English",
+        grade: "A",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Yoshadhi Edirisinghe",
+        index: "OL250002",
+        subject: "History",
+        grade: "A",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Yoshadhi Edirisinghe",
+        index: "OL250002",
+        subject: "Commerce",
+        grade: "C",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Yoshadhi Edirisinghe",
+        index: "OL250002",
+        subject: "Buddhism",
+        grade: "A",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Yoshadhi Edirisinghe",
+        index: "OL250002",
+        subject: "ICT",
+        grade: "B",
+      },
+      {
+        year: 2025,
+        cls: "11A",
+        name: "Yoshadhi Edirisinghe",
+        index: "OL250002",
+        subject: "Health",
+        grade: "A",
+      },
 
-        setTimeout(() => {
-          const rootStyles = getComputedStyle(document.documentElement);
-          const primaryColor = rootStyles
-            .getPropertyValue("--color-primary")
-            .trim();
+      // 2024 - 11B (short sample)
+      {
+        year: 2024,
+        cls: "11B",
+        name: "Chandupa Silva",
+        index: "OL240001",
+        subject: "Mathematics",
+        grade: "C",
+      },
+      {
+        year: 2024,
+        cls: "11B",
+        name: "Chandupa Silva",
+        index: "OL240001",
+        subject: "Science",
+        grade: "S",
+      },
+      {
+        year: 2024,
+        cls: "11B",
+        name: "Chandupa Silva",
+        index: "OL240001",
+        subject: "ICT",
+        grade: "S",
+      },
 
-          const chartData = {
-            labels: mockData.map((item) => `Grade ${item.grade}`),
-            datasets: [
-              {
-                label: "Average Marks (%)",
-                data: mockData.map((item) => item.average_marks),
-                backgroundColor: primaryColor,
-                borderColor: primaryColor,
-                borderWidth: 2,
-                borderRadius: 4,
-              },
-            ],
-          };
+      // 2023 - 11C (short sample)
+      {
+        year: 2023,
+        cls: "11C",
+        name: "Pasindu Anjana",
+        index: "OL230001",
+        subject: "Mathematics",
+        grade: "A",
+      },
+      {
+        year: 2023,
+        cls: "11C",
+        name: "Pasindu Anjana",
+        index: "OL230001",
+        subject: "Science",
+        grade: "A",
+      },
+      {
+        year: 2023,
+        cls: "11C",
+        name: "Pasindu Anjana",
+        index: "OL230001",
+        subject: "English",
+        grade: "A",
+      },
+    ],
 
-          new Chart(document.getElementById("gradePerformanceChart"), {
-            type: "bar",
-            data: chartData,
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  max: 100,
-                  ticks: {
-                    callback: function (value) {
-                      return value + "%";
-                    },
-                  },
-                },
-              },
-              plugins: {
-                legend: { display: false },
-              },
-            },
-          });
-        }, 100);
-      }
-    } catch (err) {
-      console.error("Error loading grade performance:", err);
-      document.getElementById("grade-performance-content").innerHTML = `
-        <p class="text-sm text-center">Error loading data</p>
-      `;
+    // ---- A/L (per student row) ----
+    al: [
+      {
+        year: 2025,
+        name: "Hansa Nirmal",
+        index: "AL250001",
+        stream: "Science",
+        z: 1.9854,
+        districtRank: 12,
+        islandRank: 250,
+        result: "Pass",
+      },
+      {
+        year: 2025,
+        name: "Yoshadhi Edirisinghe",
+        index: "AL250002",
+        stream: "Commerce",
+        z: 1.412,
+        districtRank: 85,
+        islandRank: 1200,
+        result: "Pass",
+      },
+      {
+        year: 2024,
+        name: "Chandupa Silva",
+        index: "AL240001",
+        stream: "Arts",
+        z: 0.7521,
+        districtRank: 402,
+        islandRank: 5400,
+        result: "Fail",
+      },
+      {
+        year: 2024,
+        name: "Pasindu Anjana",
+        index: "AL240002",
+        stream: "Science",
+        z: 1.625,
+        districtRank: 60,
+        islandRank: 980,
+        result: "Pass",
+      },
+      {
+        year: 2023,
+        name: "Nirmal Kolabage",
+        index: "AL230001",
+        stream: "Technology",
+        z: 1.1054,
+        districtRank: 220,
+        islandRank: 3500,
+        result: "Pass",
+      },
+    ],
+  };
+
+  /* =========================
+   DOM refs
+   ========================= */
+  const examEl = document.getElementById("examFilter");
+  const yearEl = document.getElementById("yearFilter");
+  const termEl = document.getElementById("termFilter");
+  const classEl = document.getElementById("classFilter");
+  const streamEl = document.getElementById("streamFilter");
+  const subjectEl = document.getElementById("subjectFilter");
+  const indexSearchEl = document.getElementById("indexSearch");
+
+  const termWrap = document.getElementById("termWrap");
+  const classWrap = document.getElementById("classWrap");
+  const streamWrap = document.getElementById("streamWrap");
+  const subjectWrap = document.getElementById("subjectWrap");
+
+  const tableHead = document.getElementById("tableHead");
+  const tableBody = document.getElementById("tableBody");
+
+  const overallTotal = document.getElementById("overallTotal");
+  const overallRate = document.getElementById("overallRate");
+  const overallAvg = document.getElementById("overallAvg");
+  const overallHighlight = document.getElementById("overallHighlight");
+
+  const fTotal = document.getElementById("fTotal");
+  const fPass = document.getElementById("fPass");
+  const fFail = document.getElementById("fFail");
+  const fAvg = document.getElementById("fAvg");
+
+  let currentFiltered = [];
+  let chartA, chartB;
+
+  /* =========================
+   Helpers
+   ========================= */
+  function getUniqueCountByIndex(arr) {
+    const set = new Set(arr.map((r) => r.index));
+    return set.size;
+  }
+  function gradeToPoint(g) {
+    return { A: 4, B: 3, C: 2, S: 1, W: 0 }[g] ?? 0;
+  }
+
+  function setHead(cols) {
+    tableHead.innerHTML = `
+    <tr>
+      ${cols.map((c) => `<th ${c.attr || ""}>${c.text}</th>`).join("")}
+    </tr>`;
+  }
+
+  function avg(nums) {
+    return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : 0;
+  }
+
+  /* =========================
+   Overall tiles (exam/year scope)
+   ========================= */
+  function updateOverallTiles(exam, yearData) {
+    if (exam === "term") {
+      // Candidates = unique students in yearData
+      const unique = new Set(yearData.map((d) => d.cls + "|" + d.name));
+      overallTotal.textContent = unique.size;
+      // Pass Rate (simple: marks >= 50 as pass)
+      const pass = yearData.filter((d) => d.marks >= 50).length;
+      const rate = yearData.length
+        ? Math.round((pass / yearData.length) * 100)
+        : 0;
+      overallRate.textContent = rate + "%";
+      overallAvg.textContent = avg(yearData.map((d) => d.marks)).toFixed(1);
+      overallHighlight.textContent = "Term performance";
+      return;
+    }
+
+    if (exam === "sch") {
+      // Candidates = yearData.length (each row=student)
+      overallTotal.textContent = yearData.length;
+      const pass = yearData.filter((d) => d.result === "Pass").length;
+      overallRate.textContent = yearData.length
+        ? Math.round((pass / yearData.length) * 100) + "%"
+        : "--";
+      overallAvg.textContent = avg(yearData.map((d) => d.marks)).toFixed(1); // Avg Score (correct)
+      overallHighlight.textContent =
+        pass >= yearData.length * 0.6 ? "Good intake" : "Needs support";
+      return;
+    }
+
+    if (exam === "ol") {
+      // Candidates = unique index in yearData
+      overallTotal.textContent = getUniqueCountByIndex(yearData);
+      const passSubs = yearData.filter((d) => d.grade !== "W").length;
+      overallRate.textContent = yearData.length
+        ? Math.round((passSubs / yearData.length) * 100) + "%"
+        : "--";
+      overallAvg.textContent = avg(
+        yearData.map((d) => gradeToPoint(d.grade))
+      ).toFixed(2); // GPA-like
+      const aCount = yearData.filter((d) => d.grade === "A").length;
+      overallHighlight.textContent = `A: ${aCount}`;
+      return;
+    }
+
+    if (exam === "al") {
+      // Candidates = yearData.length (each row=student)
+      overallTotal.textContent = yearData.length;
+      const pass = yearData.filter((d) => d.result === "Pass").length;
+      overallRate.textContent = yearData.length
+        ? Math.round((pass / yearData.length) * 100) + "%"
+        : "--";
+      overallAvg.textContent = avg(yearData.map((d) => d.z)).toFixed(3); // Z-score avg
+      const top = yearData.slice().sort((a, b) => b.z - a.z)[0];
+      overallHighlight.textContent = top
+        ? `${top.stream} Z ${top.z.toFixed(3)}`
+        : "--";
     }
   }
 
-  // Load subject-wise performance
-  async function loadSubjectPerformance() {
-    try {
-      const res = await fetch("/api/admin/academic/performance/subjects");
-      if (res.ok) {
-        const data = await res.json();
-
-        if (data.length > 0) {
-          const container = document.getElementById(
-            "subject-performance-content"
-          );
-          container.innerHTML = `<canvas id="subjectPerformanceChart" height="150"></canvas>`;
-
-          setTimeout(() => {
-            const rootStyles = getComputedStyle(document.documentElement);
-            const primaryColor = rootStyles
-              .getPropertyValue("--color-primary")
-              .trim();
-
-            const chartData = {
-              labels: data.map((item) => item.subject_name),
-              datasets: [
-                {
-                  label: "Average Marks (%)",
-                  data: data.map((item) => parseFloat(item.average_marks)),
-                  backgroundColor: primaryColor,
-                  borderColor: primaryColor,
-                  borderWidth: 2,
-                  borderRadius: 4,
-                },
-              ],
-            };
-
-            new Chart(document.getElementById("subjectPerformanceChart"), {
-              type: "bar",
-              data: chartData,
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                      callback: function (value) {
-                        return value + "%";
-                      },
-                    },
-                  },
-                  x: {
-                    ticks: {
-                      maxRotation: 45,
-                      minRotation: 45,
-                    },
-                  },
-                },
-                plugins: {
-                  legend: { display: false },
-                },
-              },
-            });
-          }, 100);
-        } else {
-          document.getElementById("subject-performance-content").innerHTML = `
-            <p class="text-sm text-center">No subject data available</p>
-          `;
-        }
-      } else {
-        // Fallback to mock data
-        const mockData = [
-          { subject_name: "Mathematics", average_marks: 82.5 },
-          { subject_name: "Science", average_marks: 78.3 },
-          { subject_name: "English", average_marks: 85.1 },
-          { subject_name: "History", average_marks: 76.8 },
-          { subject_name: "Geography", average_marks: 79.2 },
-        ];
-
-        const container = document.getElementById(
-          "subject-performance-content"
-        );
-        container.innerHTML = `<canvas id="subjectPerformanceChart" height="150"></canvas>`;
-
-        setTimeout(() => {
-          const rootStyles = getComputedStyle(document.documentElement);
-          const primaryColor = rootStyles
-            .getPropertyValue("--color-primary")
-            .trim();
-
-          const chartData = {
-            labels: mockData.map((item) => item.subject_name),
-            datasets: [
-              {
-                label: "Average Marks (%)",
-                data: mockData.map((item) => item.average_marks),
-                backgroundColor: primaryColor,
-                borderColor: primaryColor,
-                borderWidth: 2,
-                borderRadius: 4,
-              },
-            ],
-          };
-
-          new Chart(document.getElementById("subjectPerformanceChart"), {
-            type: "bar",
-            data: chartData,
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  max: 100,
-                  ticks: {
-                    callback: function (value) {
-                      return value + "%";
-                    },
-                  },
-                },
-                x: {
-                  ticks: {
-                    maxRotation: 45,
-                    minRotation: 45,
-                  },
-                },
-              },
-              plugins: {
-                legend: { display: false },
-              },
-            },
-          });
-        }, 100);
-      }
-    } catch (err) {
-      console.error("Error loading subject performance:", err);
-      document.getElementById("subject-performance-content").innerHTML = `
-        <p class="text-sm text-center">Error loading data</p>
-      `;
+  /* =========================
+   Filtered tiles
+   ========================= */
+  function updateFilteredTiles(exam, data) {
+    fTotal.textContent = data.length;
+    if (exam === "term") {
+      const pass = data.filter((d) => d.marks >= 50).length;
+      fPass.textContent = pass;
+      fFail.textContent = data.length - pass;
+      fAvg.textContent = data.length
+        ? avg(data.map((d) => d.marks)).toFixed(1)
+        : "--";
+      return;
+    }
+    if (exam === "sch") {
+      const pass = data.filter((d) => d.result === "Pass").length;
+      fPass.textContent = pass;
+      fFail.textContent = data.length - pass;
+      fAvg.textContent = data.length
+        ? avg(data.map((d) => d.marks)).toFixed(1)
+        : "--";
+      return;
+    }
+    if (exam === "ol") {
+      const pass = data.filter((d) => d.grade !== "W").length;
+      fPass.textContent = pass;
+      fFail.textContent = data.length - pass;
+      fAvg.textContent = data.length
+        ? avg(data.map((d) => gradeToPoint(d.grade))).toFixed(2)
+        : "--";
+      return;
+    }
+    if (exam === "al") {
+      const pass = data.filter((d) => d.result === "Pass").length;
+      fPass.textContent = pass;
+      fFail.textContent = data.length - pass;
+      fAvg.textContent = data.length
+        ? avg(data.map((d) => d.z)).toFixed(3)
+        : "--";
     }
   }
 
-  // Load top performers
-  async function loadTopPerformers() {
-    try {
-      const res = await fetch("/api/admin/academic/top-performers");
-      if (res.ok) {
-        const data = await res.json();
+  /* =========================
+   Table renderers
+   ========================= */
+  function renderTable(exam, data) {
+    if (exam === "term") {
+      setHead([
+        {
+          text: "Class",
+          attr: 'data-en="Class" data-si="පන්තිය" data-ta="வகுப்பு"',
+        },
+        {
+          text: "Student",
+          attr: 'data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்"',
+        },
+        {
+          text: "Subject",
+          attr: 'data-en="Subject" data-si="විෂය" data-ta="பாடம்"',
+        },
+        {
+          text: "Marks",
+          attr: 'data-en="Marks" data-si="ලකුණු" data-ta="மதிப்பெண்கள்"',
+        },
+      ]);
+      tableBody.innerHTML = data
+        .map(
+          (d) => `
+      <tr>
+        <td>${d.cls}</td>
+        <td>${d.name}</td>
+        <td>${d.subject}</td>
+        <td>${d.marks}</td>
+      </tr>`
+        )
+        .join("");
+      return;
+    }
 
-        const container = document.getElementById("top-performers-content");
-        if (data.length > 0) {
-          container.innerHTML = `
-            <div class="stats-list">
-              ${data
-                .map(
-                  (student, index) => `
-                <div class="stat-item">
-                  <div class="stat-icon">${index + 1}</div>
-                  <div class="stat-content">
-                    <span class="stat-number">${student.username}</span>
-                    <span class="stat-label">Grade ${student.grade} - ${
-                    student.average_marks
-                  }%</span>
-                  </div>
-                </div>
-              `
-                )
-                .join("")}
-            </div>
-          `;
-        } else {
-          container.innerHTML = `
-            <p class="text-sm text-center">No top performers data available</p>
-          `;
-        }
-      } else {
-        // Fallback to mock data
-        const mockData = [
-          { username: "S1001", grade: 10, average_marks: 95.2 },
-          { username: "S1005", grade: 9, average_marks: 93.8 },
-          { username: "S1012", grade: 11, average_marks: 92.5 },
-          { username: "S1008", grade: 10, average_marks: 91.7 },
-          { username: "S1015", grade: 9, average_marks: 90.3 },
-        ];
+    if (exam === "sch") {
+      setHead([
+        {
+          text: "Student",
+          attr: 'data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்"',
+        },
+        {
+          text: "Index No",
+          attr: 'data-en="Index No" data-si="දර්ශක අංකය" data-ta="தொகுதி எண்"',
+        },
+        {
+          text: "Marks",
+          attr: 'data-en="Marks" data-si="ලකුණු" data-ta="மதிப்பெண்கள்"',
+        },
+        {
+          text: "Result",
+          attr: 'data-en="Result" data-si="ප්‍රතිඵලය" data-ta="முடிவு"',
+        },
+      ]);
+      tableBody.innerHTML = data
+        .map(
+          (d) => `
+      <tr>
+        <td>${d.name}</td>
+        <td>${d.index}</td>
+        <td>${d.marks}</td>
+        <td>${d.result}</td>
+      </tr>`
+        )
+        .join("");
+      return;
+    }
 
-        const container = document.getElementById("top-performers-content");
-        container.innerHTML = `
-          <div class="stats-list">
-            ${mockData
-              .map(
-                (student, index) => `
-              <div class="stat-item">
-                <div class="stat-icon">${index + 1}</div>
-                <div class="stat-content">
-                  <span class="stat-number">${student.username}</span>
-                  <span class="stat-label">Grade ${student.grade} - ${
-                  student.average_marks
-                }%</span>
-                </div>
-              </div>
-            `
-              )
-              .join("")}
-          </div>
-        `;
-      }
-    } catch (err) {
-      console.error("Error loading top performers:", err);
-      document.getElementById("top-performers-content").innerHTML = `
-        <p class="text-sm text-center">Error loading data</p>
-      `;
+    if (exam === "ol") {
+      setHead([
+        {
+          text: "Class",
+          attr: 'data-en="Class" data-si="පන්තිය" data-ta="வகுப்பு"',
+        },
+        {
+          text: "Student",
+          attr: 'data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்"',
+        },
+        {
+          text: "Index No",
+          attr: 'data-en="Index No" data-si="දර්ශක අංකය" data-ta="தொகுதி எண்"',
+        },
+        {
+          text: "Subject",
+          attr: 'data-en="Subject" data-si="විෂය" data-ta="பாடம்"',
+        },
+        {
+          text: "Grade",
+          attr: 'data-en="Grade" data-si="ශ්‍රේණිය" data-ta="தரம்"',
+        },
+      ]);
+      tableBody.innerHTML = data
+        .map(
+          (d) => `
+      <tr>
+        <td>${d.cls}</td>
+        <td>${d.name}</td>
+        <td>${d.index}</td>
+        <td>${d.subject}</td>
+        <td>${d.grade}</td>
+      </tr>`
+        )
+        .join("");
+      return;
+    }
+
+    if (exam === "al") {
+      setHead([
+        {
+          text: "Student",
+          attr: 'data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்"',
+        },
+        {
+          text: "Index No",
+          attr: 'data-en="Index No" data-si="දර්ශක අංකය" data-ta="தொகுதி எண்"',
+        },
+        {
+          text: "Stream",
+          attr: 'data-en="Stream" data-si="ධාරාව" data-ta="ஓட்டம்"',
+        },
+        {
+          text: "Z-Score",
+          attr: 'data-en="Z-Score" data-si="Z ලකුණ" data-ta="Z-Score"',
+        },
+        {
+          text: "District Rank",
+          attr: 'data-en="District Rank" data-si="දිස්ත්‍රික් ශ්‍රේණිය" data-ta="மாவட்ட தரவரிசை"',
+        },
+        {
+          text: "Island Rank",
+          attr: 'data-en="Island Rank" data-si="දිවයිනේ ශ්‍රේණිය" data-ta="தீவு தரவரிசை"',
+        },
+        {
+          text: "Result",
+          attr: 'data-en="Result" data-si="ප්‍රතිඵලය" data-ta="முடிவு"',
+        },
+      ]);
+      tableBody.innerHTML = data
+        .map(
+          (d) => `
+      <tr>
+        <td>${d.name}</td>
+        <td>${d.index}</td>
+        <td>${d.stream}</td>
+        <td>${d.z.toFixed(3)}</td>
+        <td>${d.districtRank}</td>
+        <td>${d.islandRank}</td>
+        <td>${d.result}</td>
+      </tr>`
+        )
+        .join("");
     }
   }
 
-  // Load students needing attention
-  async function loadAttentionNeeded() {
-    try {
-      const res = await fetch("/api/admin/academic/attention-needed");
-      if (res.ok) {
-        const data = await res.json();
-
-        const container = document.getElementById("attention-needed-content");
-        if (data.length > 0) {
-          container.innerHTML = `
-            <div class="stats-list">
-              ${data
-                .map(
-                  (student) => `
-                <div class="stat-item">
-                  <div class="stat-icon">
-                    <i class="fas fa-exclamation-triangle" style="color: var(--color-error);"></i>
-                  </div>
-                  <div class="stat-content">
-                    <span class="stat-number">${student.username}</span>
-                    <span class="stat-label">Grade ${student.grade} - ${student.average_marks}%</span>
-                  </div>
-                </div>
-              `
-                )
-                .join("")}
-            </div>
-          `;
-        } else {
-          container.innerHTML = `
-            <p class="text-sm text-center">No students needing attention</p>
-          `;
-        }
-      } else {
-        // Fallback to mock data
-        const mockData = [
-          { username: "S1023", grade: 8, average_marks: 45.2 },
-          { username: "S1031", grade: 9, average_marks: 38.8 },
-          { username: "S1018", grade: 7, average_marks: 42.5 },
-          { username: "S1042", grade: 10, average_marks: 39.7 },
-          { username: "S1027", grade: 8, average_marks: 41.3 },
-        ];
-
-        const container = document.getElementById("attention-needed-content");
-        container.innerHTML = `
-          <div class="stats-list">
-            ${mockData
-              .map(
-                (student) => `
-              <div class="stat-item">
-                <div class="stat-icon">
-                  <i class="fas fa-exclamation-triangle" style="color: var(--color-error);"></i>
-                </div>
-                <div class="stat-content">
-                  <span class="stat-number">${student.username}</span>
-                  <span class="stat-label">Grade ${student.grade} - ${student.average_marks}%</span>
-                </div>
-              </div>
-            `
-              )
-              .join("")}
-          </div>
-        `;
-      }
-    } catch (err) {
-      console.error("Error loading attention needed:", err);
-      document.getElementById("attention-needed-content").innerHTML = `
-        <p class="text-sm text-center">Error loading data</p>
-      `;
-    }
+  /* =========================
+   Charts
+   ========================= */
+  function destroyCharts() {
+    if (chartA) chartA.destroy();
+    if (chartB) chartB.destroy();
   }
 
-  // Load recent exams
-  async function loadRecentExams() {
-    try {
-      const res = await fetch("/api/admin/academic/recent-exams");
-      if (res.ok) {
-        const data = await res.json();
-
-        const container = document.getElementById("recent-exams-content");
-        if (data.length > 0) {
-          container.innerHTML = `
-            <div class="stats-list">
-              ${data
-                .map(
-                  (exam) => `
-                <div class="stat-item">
-                  <div class="stat-icon">
-                    <i class="fas fa-file-alt"></i>
-                  </div>
-                  <div class="stat-content">
-                    <span class="stat-number">${exam.subject_name}</span>
-                    <span class="stat-label">Grade ${exam.grade} - ${exam.average_marks}% avg</span>
-                  </div>
-                </div>
-              `
-                )
-                .join("")}
-            </div>
-          `;
-        } else {
-          container.innerHTML = `
-            <p class="text-sm text-center">No recent exams data available</p>
-          `;
-        }
-      } else {
-        // Fallback to mock data
-        const mockData = [
-          { subject_name: "Mathematics", grade: 10, average_marks: 78.5 },
-          { subject_name: "Science", grade: 9, average_marks: 82.3 },
-          { subject_name: "English", grade: 11, average_marks: 85.1 },
-          { subject_name: "History", grade: 8, average_marks: 76.8 },
-        ];
-
-        const container = document.getElementById("recent-exams-content");
-        container.innerHTML = `
-          <div class="stats-list">
-            ${mockData
-              .map(
-                (exam) => `
-              <div class="stat-item">
-                <div class="stat-icon">
-                  <i class="fas fa-file-alt"></i>
-                </div>
-                <div class="stat-content">
-                  <span class="stat-number">${exam.subject_name}</span>
-                  <span class="stat-label">Grade ${exam.grade} - ${exam.average_marks}% avg</span>
-                </div>
-              </div>
-            `
-              )
-              .join("")}
-          </div>
-        `;
-      }
-    } catch (err) {
-      console.error("Error loading recent exams:", err);
-      document.getElementById("recent-exams-content").innerHTML = `
-        <p class="text-sm text-center">Error loading data</p>
-      `;
-    }
+  function setChartTitles(a, b) {
+    const aEl = document.getElementById("chartATitle");
+    const bEl = document.getElementById("chartBTitle");
+    aEl.setAttribute("data-en", a);
+    bEl.setAttribute("data-en", b);
+    updateText(getLang());
   }
 
-  // Load performance distribution (pie chart)
-  async function loadPerformanceDistribution() {
-    try {
-      const res = await fetch("/api/admin/academic/performance-distribution");
-      if (res.ok) {
-        const data = await res.json();
+  function renderCharts(exam, data) {
+    destroyCharts();
+    const ctxA = document.getElementById("chartA").getContext("2d");
+    const ctxB = document.getElementById("chartB").getContext("2d");
 
-        if (data.length > 0) {
-          const container = document.getElementById(
-            "performance-distribution-content"
-          );
-          container.innerHTML = `<canvas id="performanceDistributionChart" height="150"></canvas>`;
-
-          // Transform data for chart
-          const distributionMap = {};
-          data.forEach((item) => {
-            distributionMap[item.performance_level] = parseInt(
-              item.student_count
-            );
-          });
-
-          const excellent = distributionMap.excellent || 0;
-          const good = distributionMap.good || 0;
-          const average = distributionMap.average || 0;
-          const poor = distributionMap.poor || 0;
-
-          setTimeout(() => {
-            const rootStyles = getComputedStyle(document.documentElement);
-            const primaryColor = rootStyles
-              .getPropertyValue("--color-primary")
-              .trim();
-
-            const chartData = {
-              labels: [
-                "Excellent (90-100%)",
-                "Good (75-89%)",
-                "Average (60-74%)",
-                "Needs Improvement (<60%)",
-              ],
-              datasets: [
-                {
-                  data: [excellent, good, average, poor],
-                  backgroundColor: [
-                    primaryColor,
-                    primaryColor + "80",
-                    primaryColor + "40",
-                    primaryColor + "20",
-                  ],
-                  borderWidth: 2,
-                  borderColor: "white",
-                },
-              ],
-            };
-
-            new Chart(document.getElementById("performanceDistributionChart"), {
-              type: "pie",
-              data: chartData,
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    position: "bottom",
-                    labels: {
-                      boxWidth: 12,
-                      font: { size: 11 },
-                    },
-                  },
-                },
-              },
-            });
-          }, 100);
-        } else {
-          document.getElementById(
-            "performance-distribution-content"
-          ).innerHTML = `
-            <p class="text-sm text-center">No performance data available</p>
-          `;
-        }
-      } else {
-        // Fallback to mock data
-        const mockData = {
-          excellent: 15,
-          good: 35,
-          average: 30,
-          poor: 20,
-        };
-
-        const container = document.getElementById(
-          "performance-distribution-content"
-        );
-        container.innerHTML = `<canvas id="performanceDistributionChart" height="150"></canvas>`;
-
-        setTimeout(() => {
-          const rootStyles = getComputedStyle(document.documentElement);
-          const primaryColor = rootStyles
-            .getPropertyValue("--color-primary")
-            .trim();
-
-          const chartData = {
-            labels: [
-              "Excellent (90-100%)",
-              "Good (75-89%)",
-              "Average (60-74%)",
-              "Needs Improvement (<60%)",
-            ],
-            datasets: [
-              {
-                data: [
-                  mockData.excellent,
-                  mockData.good,
-                  mockData.average,
-                  mockData.poor,
-                ],
-                backgroundColor: [
-                  primaryColor,
-                  primaryColor + "80",
-                  primaryColor + "40",
-                  primaryColor + "20",
-                ],
-                borderWidth: 2,
-                borderColor: "white",
-              },
-            ],
-          };
-
-          new Chart(document.getElementById("performanceDistributionChart"), {
-            type: "pie",
-            data: chartData,
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  position: "bottom",
-                  labels: {
-                    boxWidth: 12,
-                    font: { size: 11 },
-                  },
-                },
-              },
-            },
-          });
-        }, 100);
-      }
-    } catch (err) {
-      console.error("Error loading performance distribution:", err);
-      document.getElementById("performance-distribution-content").innerHTML = `
-        <p class="text-sm text-center">Error loading data</p>
-      `;
-    }
-  }
-
-  // Load class trends
-  async function loadClassTrends() {
-    try {
-      // Mock data for class performance trends
-      const mockData = {
-        months: ["Jun", "Jul", "Aug", "Sep", "Oct"],
-        grade6: [75, 76, 78, 79, 81],
-        grade7: [78, 79, 80, 81, 83],
-        grade8: [80, 81, 82, 83, 85],
-        grade9: [82, 83, 84, 85, 86],
-        grade10: [84, 85, 86, 87, 88],
-      };
-
-      const container = document.getElementById("class-trends-content");
-      container.innerHTML = `<canvas id="classTrendsChart" height="200"></canvas>`;
-
-      setTimeout(() => {
-        const rootStyles = getComputedStyle(document.documentElement);
-        const primaryColor = rootStyles
-          .getPropertyValue("--color-primary")
-          .trim();
-
-        const chartData = {
-          labels: mockData.months,
+    if (exam === "term") {
+      // A: Subject average marks
+      const subjects = [...new Set(data.map((d) => d.subject))];
+      const avgs = subjects.map((s) =>
+        avg(data.filter((d) => d.subject === s).map((d) => d.marks)).toFixed(1)
+      );
+      chartA = new Chart(ctxA, {
+        type: "bar",
+        data: {
+          labels: subjects,
           datasets: [
-            {
-              label: "Grade 6",
-              data: mockData.grade6,
-              borderColor: primaryColor,
-              backgroundColor: primaryColor + "20",
-              tension: 0.4,
-            },
-            {
-              label: "Grade 7",
-              data: mockData.grade7,
-              borderColor: primaryColor + "80",
-              backgroundColor: primaryColor + "15",
-              tension: 0.4,
-            },
-            {
-              label: "Grade 8",
-              data: mockData.grade8,
-              borderColor: primaryColor + "60",
-              backgroundColor: primaryColor + "10",
-              tension: 0.4,
-            },
-            {
-              label: "Grade 9",
-              data: mockData.grade9,
-              borderColor: primaryColor + "40",
-              backgroundColor: primaryColor + "08",
-              tension: 0.4,
-            },
-            {
-              label: "Grade 10",
-              data: mockData.grade10,
-              borderColor: primaryColor + "20",
-              backgroundColor: primaryColor + "05",
-              tension: 0.4,
-            },
+            { label: "Avg Marks", data: avgs, backgroundColor: "#2196F3" },
           ],
-        };
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true, max: 100 } },
+        },
+      });
+      // B: Mark distribution
+      const buckets = [0, 50, 60, 70, 80, 90, 100];
+      const counts = new Array(buckets.length - 1).fill(0);
+      data.forEach((d) => {
+        for (let i = 0; i < buckets.length - 1; i++) {
+          if (d.marks >= buckets[i] && d.marks < buckets[i + 1]) {
+            counts[i]++;
+            break;
+          }
+        }
+      });
+      chartB = new Chart(ctxB, {
+        type: "bar",
+        data: {
+          labels: ["0-49", "50-59", "60-69", "70-79", "80-89", "90-99"],
+          datasets: [
+            { label: "Students", data: counts, backgroundColor: "#4CAF50" },
+          ],
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } },
+      });
+      setChartTitles("Subject Averages", "Mark Distribution");
+      return;
+    }
 
-        new Chart(document.getElementById("classTrendsChart"), {
-          type: "line",
-          data: chartData,
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true,
-                max: 100,
-                ticks: {
-                  callback: function (value) {
-                    return value + "%";
-                  },
-                },
-              },
-            },
-            plugins: {
-              legend: {
-                position: "top",
-                labels: {
-                  boxWidth: 12,
-                  usePointStyle: true,
-                },
-              },
-            },
+    if (exam === "sch") {
+      // A: Pass/Fail
+      const pass = data.filter((d) => d.result === "Pass").length;
+      const fail = data.length - pass;
+      chartA = new Chart(ctxA, {
+        type: "doughnut",
+        data: {
+          labels: ["Pass", "Fail"],
+          datasets: [
+            { data: [pass, fail], backgroundColor: ["#4CAF50", "#F44336"] },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: "bottom" } },
+        },
+      });
+      // B: Marks distribution (numeric)
+      const buckets = [0, 50, 75, 100, 125, 150, 200];
+      const counts = new Array(buckets.length - 1).fill(0);
+      data.forEach((d) => {
+        for (let i = 0; i < buckets.length - 1; i++) {
+          if (d.marks >= buckets[i] && d.marks < buckets[i + 1]) {
+            counts[i]++;
+            break;
+          }
+        }
+      });
+      chartB = new Chart(ctxB, {
+        type: "bar",
+        data: {
+          labels: ["0-49", "50-74", "75-99", "100-124", "125-149", "150-199"],
+          datasets: [
+            { label: "Students", data: counts, backgroundColor: "#2196F3" },
+          ],
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } },
+      });
+      setChartTitles("Pass / Fail", "Marks Distribution");
+      return;
+    }
+
+    if (exam === "ol") {
+      // A: Grade distribution (A,B,C,S,W)
+      const grades = ["A", "B", "C", "S", "W"];
+      const gCounts = grades.map(
+        (g) => data.filter((d) => d.grade === g).length
+      );
+      chartA = new Chart(ctxA, {
+        type: "bar",
+        data: {
+          labels: grades,
+          datasets: [
+            { label: "Count", data: gCounts, backgroundColor: "#4CAF50" },
+          ],
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } },
+      });
+
+      // B: Subject-wise stacked grades
+      const subjects = [...new Set(data.map((d) => d.subject))];
+      const colors = {
+        A: "#4CAF50",
+        B: "#8BC34A",
+        C: "#FFC107",
+        S: "#FF9800",
+        W: "#F44336",
+      };
+      const ds = Object.keys(colors).map((g) => ({
+        label: g,
+        backgroundColor: colors[g],
+        data: subjects.map(
+          (s) => data.filter((d) => d.subject === s && d.grade === g).length
+        ),
+        stack: "grades",
+      }));
+      chartB = new Chart(ctxB, {
+        type: "bar",
+        data: { labels: subjects, datasets: ds },
+        options: {
+          responsive: true,
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true },
           },
-        });
-      }, 100);
-    } catch (err) {
-      console.error("Error loading class trends:", err);
-      document.getElementById("class-trends-content").innerHTML = `
-        <p class="text-sm text-center">Error loading data</p>
-      `;
+        },
+      });
+
+      setChartTitles("Grade Distribution", "Subject-wise Grade Mix");
+      return;
+    }
+
+    if (exam === "al") {
+      // A: Avg Z by stream
+      const streams = [...new Set(data.map((d) => d.stream))];
+      const avgZ = streams.map((s) => {
+        const arr = data.filter((d) => d.stream === s).map((x) => x.z);
+        return arr.length
+          ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(3)
+          : 0;
+      });
+      chartA = new Chart(ctxA, {
+        type: "bar",
+        data: {
+          labels: streams,
+          datasets: [
+            { label: "Avg Z-Score", data: avgZ, backgroundColor: "#3F51B5" },
+          ],
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } },
+      });
+
+      // B: Pass/Fail
+      const pass = data.filter((d) => d.result === "Pass").length;
+      const fail = data.length - pass;
+      chartB = new Chart(ctxB, {
+        type: "doughnut",
+        data: {
+          labels: ["Pass", "Fail"],
+          datasets: [
+            { data: [pass, fail], backgroundColor: ["#4CAF50", "#F44336"] },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: "bottom" } },
+        },
+      });
+
+      setChartTitles("Average Z-Score by Stream", "Pass / Fail");
     }
   }
 
-  // Load subject analysis table
-  async function loadSubjectAnalysis() {
-    try {
-      // Mock data for subject analysis
-      const mockData = [
-        {
-          subject: "Mathematics",
-          students: 245,
-          average: 78.5,
-          highest: 98,
-          lowest: 35,
-        },
-        {
-          subject: "Science",
-          students: 245,
-          average: 82.3,
-          highest: 97,
-          lowest: 42,
-        },
-        {
-          subject: "English",
-          students: 245,
-          average: 85.1,
-          highest: 99,
-          lowest: 38,
-        },
-        {
-          subject: "History",
-          students: 245,
-          average: 76.8,
-          highest: 95,
-          lowest: 28,
-        },
-        {
-          subject: "Geography",
-          students: 245,
-          average: 79.2,
-          highest: 96,
-          lowest: 33,
-        },
+  /* =========================
+   Filtering logic
+   ========================= */
+  function applyIndexSearch(rows) {
+    const q = indexSearchEl.value.trim().toLowerCase();
+    if (!q) return rows;
+    // match index, name, class or subject - case-insensitive
+    return rows.filter((r) => {
+      const index = (r.index || "").toString().toLowerCase();
+      const name = (r.name || "").toString().toLowerCase();
+      const cls = (r.cls || "").toString().toLowerCase();
+      const subj = (r.subject || "").toString().toLowerCase();
+      return (
+        index.includes(q) ||
+        name.includes(q) ||
+        cls.includes(q) ||
+        subj.includes(q)
+      );
+    });
+  }
+
+  function filterData() {
+    const exam = examEl.value;
+    const year = parseInt(yearEl.value, 10);
+
+    // Toggle filter blocks
+    termWrap.style.display = exam === "term" ? "" : "none";
+    classWrap.style.display = exam === "term" || exam === "ol" ? "" : "none";
+    subjectWrap.style.display = exam === "term" || exam === "ol" ? "" : "none";
+    streamWrap.style.display = exam === "al" ? "" : "none";
+
+    // Base year scope
+    let data = dataSets[exam].filter((d) => d.year === year);
+
+    // Extra filters
+    if (exam === "term") {
+      const t = termEl.value;
+      const cls = classEl.value;
+      const subj = subjectEl.value;
+      if (t !== "all") data = data.filter((d) => d.term === t);
+      if (cls !== "all") data = data.filter((d) => d.cls === cls);
+      if (subj !== "all") data = data.filter((d) => d.subject === subj);
+    }
+    if (exam === "ol") {
+      const cls = classEl.value;
+      const subj = subjectEl.value;
+      if (cls !== "all") data = data.filter((d) => d.cls === cls);
+      if (subj !== "all") data = data.filter((d) => d.subject === subj);
+    }
+    if (exam === "al") {
+      const st = streamEl.value;
+      if (st !== "all") data = data.filter((d) => d.stream === st);
+    }
+
+    // Index search (works for any exam having index field)
+    data = applyIndexSearch(data);
+
+    currentFiltered = data;
+    renderTable(exam, data);
+    updateFilteredTiles(exam, data);
+    // overall = full year scope (before index search & extra filters)
+    const yearData = dataSets[exam].filter((d) => d.year === year);
+    updateOverallTiles(exam, yearData);
+    renderCharts(exam, data);
+
+    // Info line
+    const info = document.getElementById("filterInfo");
+    const examText =
+      examEl.selectedOptions[0].getAttribute("data-en") ||
+      examEl.selectedOptions[0].textContent;
+    info.textContent = `${examText} — ${year} — ${data.length} record(s)`;
+  }
+
+  /* =========================
+   Export (filtered only)
+   ========================= */
+  function exportCSV() {
+    const exam = examEl.value;
+    let header = [];
+    let rows = [];
+
+    if (exam === "term") {
+      header = ["Class", "Student", "Subject", "Marks"];
+      rows = currentFiltered.map((d) => [d.cls, d.name, d.subject, d.marks]);
+    } else if (exam === "sch") {
+      header = ["Student", "Index No", "Marks", "Result"];
+      rows = currentFiltered.map((d) => [d.name, d.index, d.marks, d.result]);
+    } else if (exam === "ol") {
+      header = ["Class", "Student", "Index No", "Subject", "Grade"];
+      rows = currentFiltered.map((d) => [
+        d.cls,
+        d.name,
+        d.index,
+        d.subject,
+        d.grade,
+      ]);
+    } else {
+      header = [
+        "Student",
+        "Index No",
+        "Stream",
+        "Z-Score",
+        "District Rank",
+        "Island Rank",
+        "Result",
       ];
-
-      const container = document.getElementById("subject-analysis-content");
-      container.innerHTML = `
-        <div class="table-container" style="max-height: 200px; overflow-y: auto;">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Subject</th>
-                <th>Students</th>
-                <th>Average</th>
-                <th>Highest</th>
-                <th>Lowest</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${mockData
-                .map(
-                  (subject) => `
-                <tr>
-                  <td>${subject.subject}</td>
-                  <td>${subject.students}</td>
-                  <td>${subject.average}%</td>
-                  <td>${subject.highest}%</td>
-                  <td>${subject.lowest}%</td>
-                </tr>
-              `
-                )
-                .join("")}
-            </tbody>
-          </table>
-        </div>
-      `;
-    } catch (err) {
-      console.error("Error loading subject analysis:", err);
-      document.getElementById("subject-analysis-content").innerHTML = `
-        <p class="text-sm text-center">Error loading data</p>
-      `;
+      rows = currentFiltered.map((d) => [
+        d.name,
+        d.index,
+        d.stream,
+        d.z.toFixed(3),
+        d.districtRank,
+        d.islandRank,
+        d.result,
+      ]);
     }
+
+    const csv = [header.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `academic_report_${exam}_${yearEl.value}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
-  // Initialize academic reports page
-  async function initAcademicReports() {
-    loadGradePerformance();
-    loadSubjectPerformance();
-    loadTopPerformers();
-    loadAttentionNeeded();
-    loadRecentExams();
-    loadPerformanceDistribution();
-    loadClassTrends();
-    loadSubjectAnalysis();
+  function exportPDF() {
+    const win = window.open("", "", "width=900,height=700");
+    const when = new Date().toLocaleString();
+    const examText = examEl.selectedOptions[0].textContent;
+
+    win.document.write(
+      "<html><head><title>Academic Report</title></head><body>"
+    );
+    win.document.write(
+      `<h3 style="font-family:Arial;margin:0 0 10px 0">${examText} — ${yearEl.value}</h3>`
+    );
+    win.document.write(
+      `<div style="font-family:Arial;margin:0 0 10px 0">${when}</div>`
+    );
+    win.document.write(
+      '<table border="1" cellspacing="0" cellpadding="6" style="width:100%;font-family:Arial;font-size:12px;border-collapse:collapse">'
+    );
+
+    // headers
+    win.document.write("<tr>");
+    tableHead
+      .querySelectorAll("th")
+      .forEach((th) => win.document.write(`<th>${th.textContent}</th>`));
+    win.document.write("</tr>");
+
+    // rows (filtered)
+    currentFiltered.forEach((d) => {
+      if (examEl.value === "term") {
+        win.document.write(
+          `<tr><td>${d.cls}</td><td>${d.name}</td><td>${d.subject}</td><td>${d.marks}</td></tr>`
+        );
+      } else if (examEl.value === "sch") {
+        win.document.write(
+          `<tr><td>${d.name}</td><td>${d.index}</td><td>${d.marks}</td><td>${d.result}</td></tr>`
+        );
+      } else if (examEl.value === "ol") {
+        win.document.write(
+          `<tr><td>${d.cls}</td><td>${d.name}</td><td>${d.index}</td><td>${d.subject}</td><td>${d.grade}</td></tr>`
+        );
+      } else {
+        win.document.write(
+          `<tr><td>${d.name}</td><td>${d.index}</td><td>${
+            d.stream
+          }</td><td>${d.z.toFixed(3)}</td><td>${d.districtRank}</td><td>${
+            d.islandRank
+          }</td><td>${d.result}</td></tr>`
+        );
+      }
+    });
+
+    win.document.write("</table></body></html>");
+    win.document.close();
+    win.focus();
+    win.print();
   }
 
-  initAcademicReports();
+  /* =========================
+   Language handling (persist + instant)
+   ========================= */
+  function getLang() {
+    const stored = localStorage.getItem("lang");
+    if (stored && ["en", "si", "ta"].includes(stored)) return stored;
+    const auto = navigator.language?.startsWith("si")
+      ? "si"
+      : navigator.language?.startsWith("ta")
+      ? "ta"
+      : "en";
+    localStorage.setItem("lang", auto);
+    return auto;
+  }
+
+  function updateText(lang) {
+    if (!["en", "si", "ta"].includes(lang)) lang = "en";
+    document.querySelectorAll("[data-en]").forEach((el) => {
+      const next =
+        el.getAttribute(`data-${lang}`) || el.getAttribute("data-en");
+      if (next != null) el.textContent = next;
+    });
+  }
+
+  /* existing storage and custom-event handlers stay */
+  window.addEventListener("storage", (e) => {
+    if (e.key === "lang") updateText(getLang());
+  });
+
+  window.addEventListener("languageChange", (e) => {
+    const newLang = e.detail?.lang;
+    if (newLang && ["en", "si", "ta"].includes(newLang)) {
+      localStorage.setItem("lang", newLang);
+      updateText(newLang);
+    }
+  });
+
+  /* ====== POLLING FIX: handle same-tab localStorage changes immediately ======
+   (storage event doesn't fire in same tab when localStorage is set)
+   This is a lightweight poll to detect changes and update UI instantly. */
+  let _lastLangPoll = localStorage.getItem("lang") || getLang();
+  setInterval(() => {
+    const cur = localStorage.getItem("lang") || "en";
+    if (cur !== _lastLangPoll) {
+      updateText(cur);
+      _lastLangPoll = cur;
+    }
+  }, 400);
+
+  /* =========================
+   Wire-up & initial render
+   ========================= */
+  [examEl, yearEl, termEl, classEl, subjectEl, streamEl].forEach((el) => {
+    if (el) el.addEventListener("change", filterData);
+  });
+  indexSearchEl.addEventListener("input", filterData);
+
+  // Defaults
+  (function init() {
+    // Primary = Term Tests
+    examEl.value = "term";
+    yearEl.value = "2025";
+    updateText(getLang());
+    filterData();
+  })();
 </script>
