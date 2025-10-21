@@ -286,7 +286,7 @@ exports.getRecentExams = async (limit = 5) => {
       e.name as exam_name,
       s.name as subject_name,
       c.grade,
-      e.exam_date,
+      e.year as exam_year,
       ROUND(AVG(m.marks), 1) as average_marks,
       COUNT(m.id) as total_students
     FROM exams e
@@ -294,8 +294,8 @@ exports.getRecentExams = async (limit = 5) => {
     JOIN subjects s ON m.subject_id = s.id
     JOIN users u ON m.student_id = u.id
     JOIN classes c ON u.class_id = c.id
-    GROUP BY e.id, e.name, s.id, s.name, c.grade, e.exam_date
-    ORDER BY e.exam_date DESC
+    GROUP BY e.id, e.name, s.id, s.name, c.grade, e.year
+    ORDER BY e.id DESC
     LIMIT $1
   `,
     [limit]
@@ -308,22 +308,27 @@ exports.getRecentExams = async (limit = 5) => {
 exports.getPerformanceDistribution = async () => {
   const result = await pool.query(`
     SELECT
-      CASE
-        WHEN AVG(m.marks) >= 90 THEN 'excellent'
-        WHEN AVG(m.marks) >= 75 THEN 'good'
-        WHEN AVG(m.marks) >= 60 THEN 'average'
-        ELSE 'poor'
-      END as performance_level,
+      performance_level,
       COUNT(*) as student_count
     FROM (
-      SELECT student_id, AVG(marks) as avg_marks
+      SELECT
+        CASE
+          WHEN ROUND(AVG(marks), 1) >= 90 THEN 'excellent'
+          WHEN ROUND(AVG(marks), 1) >= 75 THEN 'good'
+          WHEN ROUND(AVG(marks), 1) >= 60 THEN 'average'
+          ELSE 'poor'
+        END as performance_level
       FROM marks
       GROUP BY student_id
-    ) student_averages
-    CROSS JOIN LATERAL (
-      SELECT AVG(marks) as marks FROM marks WHERE student_id = student_averages.student_id
-    ) m
+    ) categorized_students
     GROUP BY performance_level
+    ORDER BY
+      CASE performance_level
+        WHEN 'excellent' THEN 1
+        WHEN 'good' THEN 2
+        WHEN 'average' THEN 3
+        WHEN 'poor' THEN 4
+      END
   `);
 
   return result.rows;
