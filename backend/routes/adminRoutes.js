@@ -70,6 +70,53 @@ module.exports = (req, res) => {
     );
   }
 
+  // Subject performance route
+  if (
+    req.method === "GET" &&
+    req.url === "/api/admin/academic/performance/subjects"
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getSubjectPerformance(req, res)
+    );
+  }
+
+  // Top performers route
+  if (
+    req.method === "GET" &&
+    req.url === "/api/admin/academic/top-performers"
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getTopPerformers(req, res)
+    );
+  }
+
+  // Students needing attention route
+  if (
+    req.method === "GET" &&
+    req.url === "/api/admin/academic/attention-needed"
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getStudentsNeedingAttention(req, res)
+    );
+  }
+
+  // Recent exams route
+  if (req.method === "GET" && req.url === "/api/admin/academic/recent-exams") {
+    return protect("admin")(req, res, () =>
+      adminController.getRecentExams(req, res)
+    );
+  }
+
+  // Performance distribution route
+  if (
+    req.method === "GET" &&
+    req.url === "/api/admin/academic/performance-distribution"
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getPerformanceDistribution(req, res)
+    );
+  }
+
   res.writeHead(404);
   res.end("Not Found");
 };

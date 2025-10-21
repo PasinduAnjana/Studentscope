@@ -5,6 +5,11 @@
     "page": "attendance",
     "icon": "fas fa-user-check"
   },
+  {
+    "label": "sidebar.academic",
+    "page": "academic",
+    "icon": "fas fa-graduation-cap"
+  },
   { "label": "sidebar.marks", "page": "marks", "icon": "fas fa-chart-bar" },
   {
     "label": "sidebar.timeTable",

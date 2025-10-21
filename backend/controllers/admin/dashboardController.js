@@ -58,3 +58,67 @@ exports.getAcademicPerformance = async (req, res) => {
     res.end(JSON.stringify({ error: "Failed to fetch academic performance" }));
   }
 };
+
+exports.getSubjectPerformance = async (req, res) => {
+  try {
+    const performance = await adminService.getSubjectPerformance();
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(performance));
+  } catch (err) {
+    console.error("Error fetching subject performance:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch subject performance" }));
+  }
+};
+
+exports.getTopPerformers = async (req, res) => {
+  try {
+    const performers = await adminService.getTopPerformers();
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(performers));
+  } catch (err) {
+    console.error("Error fetching top performers:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch top performers" }));
+  }
+};
+
+exports.getStudentsNeedingAttention = async (req, res) => {
+  try {
+    const students = await adminService.getStudentsNeedingAttention();
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(students));
+  } catch (err) {
+    console.error("Error fetching students needing attention:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(
+      JSON.stringify({ error: "Failed to fetch students needing attention" })
+    );
+  }
+};
+
+exports.getRecentExams = async (req, res) => {
+  try {
+    const exams = await adminService.getRecentExams();
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(exams));
+  } catch (err) {
+    console.error("Error fetching recent exams:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch recent exams" }));
+  }
+};
+
+exports.getPerformanceDistribution = async (req, res) => {
+  try {
+    const distribution = await adminService.getPerformanceDistribution();
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(distribution));
+  } catch (err) {
+    console.error("Error fetching performance distribution:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(
+      JSON.stringify({ error: "Failed to fetch performance distribution" })
+    );
+  }
+};

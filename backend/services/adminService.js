@@ -213,3 +213,118 @@ exports.getAcademicPerformanceByGrade = async () => {
 
   return result.rows;
 };
+
+// Get subject-wise performance
+exports.getSubjectPerformance = async () => {
+  const result = await pool.query(`
+    SELECT
+      s.name as subject_name,
+      ROUND(AVG(m.marks), 1) as average_marks,
+      COUNT(m.id) as total_marks,
+      COUNT(DISTINCT m.student_id) as student_count
+    FROM marks m
+    JOIN subjects s ON m.subject_id = s.id
+    GROUP BY s.id, s.name
+    ORDER BY average_marks DESC
+  `);
+
+  return result.rows;
+};
+
+// Get top performers
+exports.getTopPerformers = async (limit = 5) => {
+  const result = await pool.query(
+    `
+    SELECT
+      u.username,
+      c.grade,
+      ROUND(AVG(m.marks), 1) as average_marks,
+      COUNT(m.id) as subjects_count
+    FROM users u
+    JOIN classes c ON u.class_id = c.id
+    JOIN marks m ON u.id = m.student_id
+    WHERE u.role_id = (SELECT id FROM roles WHERE name = 'student')
+    GROUP BY u.id, u.username, c.grade
+    ORDER BY average_marks DESC
+    LIMIT $1
+  `,
+    [limit]
+  );
+
+  return result.rows;
+};
+
+// Get students needing attention (low performance)
+exports.getStudentsNeedingAttention = async (limit = 5) => {
+  const result = await pool.query(
+    `
+    SELECT
+      u.username,
+      c.grade,
+      ROUND(AVG(m.marks), 1) as average_marks,
+      COUNT(m.id) as subjects_count
+    FROM users u
+    JOIN classes c ON u.class_id = c.id
+    JOIN marks m ON u.id = m.student_id
+    WHERE u.role_id = (SELECT id FROM roles WHERE name = 'student')
+    GROUP BY u.id, u.username, c.grade
+    HAVING AVG(m.marks) < 50
+    ORDER BY average_marks ASC
+    LIMIT $1
+  `,
+    [limit]
+  );
+
+  return result.rows;
+};
+
+// Get recent exams
+exports.getRecentExams = async (limit = 5) => {
+  const result = await pool.query(
+    `
+    SELECT
+      e.name as exam_name,
+      s.name as subject_name,
+      c.grade,
+      e.exam_date,
+      ROUND(AVG(m.marks), 1) as average_marks,
+      COUNT(m.id) as total_students
+    FROM exams e
+    JOIN marks m ON e.id = m.exam_id
+    JOIN subjects s ON m.subject_id = s.id
+    JOIN users u ON m.student_id = u.id
+    JOIN classes c ON u.class_id = c.id
+    GROUP BY e.id, e.name, s.id, s.name, c.grade, e.exam_date
+    ORDER BY e.exam_date DESC
+    LIMIT $1
+  `,
+    [limit]
+  );
+
+  return result.rows;
+};
+
+// Get performance distribution
+exports.getPerformanceDistribution = async () => {
+  const result = await pool.query(`
+    SELECT
+      CASE
+        WHEN AVG(m.marks) >= 90 THEN 'excellent'
+        WHEN AVG(m.marks) >= 75 THEN 'good'
+        WHEN AVG(m.marks) >= 60 THEN 'average'
+        ELSE 'poor'
+      END as performance_level,
+      COUNT(*) as student_count
+    FROM (
+      SELECT student_id, AVG(marks) as avg_marks
+      FROM marks
+      GROUP BY student_id
+    ) student_averages
+    CROSS JOIN LATERAL (
+      SELECT AVG(marks) as marks FROM marks WHERE student_id = student_averages.student_id
+    ) m
+    GROUP BY performance_level
+  `);
+
+  return result.rows;
+};

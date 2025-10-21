@@ -1,0 +1,929 @@
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-chart-line"></i>
+    <span>Academic Reports</span>
+  </h2>
+
+  <div class="card-grid">
+    <!-- Grade-wise Performance -->
+    <div class="card dashboard-tile w-1 h-1" id="grade-performance">
+      <div class="icon-title">
+        <i class="fas fa-chart-bar icon"></i>
+        <p class="tile-label">Grade Performance</p>
+      </div>
+      <div id="grade-performance-content">
+        <!-- Chart will be injected by JS -->
+      </div>
+    </div>
+
+    <!-- Subject-wise Performance -->
+    <div class="card dashboard-tile w-1 h-1" id="subject-performance">
+      <div class="icon-title">
+        <i class="fas fa-book icon"></i>
+        <p class="tile-label">Subject Performance</p>
+      </div>
+      <div id="subject-performance-content">
+        <!-- Chart will be injected by JS -->
+      </div>
+    </div>
+
+    <!-- Top Performers -->
+    <div class="card dashboard-tile w-1 h-2" id="top-performers">
+      <div class="icon-title">
+        <i class="fas fa-trophy icon"></i>
+        <p class="tile-label">Top Performers</p>
+      </div>
+      <div id="top-performers-content">
+        <!-- Content will be injected by JS -->
+      </div>
+    </div>
+
+    <!-- Students Needing Attention -->
+    <div class="card dashboard-tile w-1 h-2" id="attention-needed">
+      <div class="icon-title">
+        <i class="fas fa-exclamation-triangle icon"></i>
+        <p class="tile-label">Needs Attention</p>
+      </div>
+      <div id="attention-needed-content">
+        <!-- Content will be injected by JS -->
+      </div>
+    </div>
+
+    <!-- Recent Exam Results -->
+    <div class="card dashboard-tile w-1 h-2" id="recent-exams">
+      <div class="icon-title">
+        <i class="fas fa-file-alt icon"></i>
+        <p class="tile-label">Recent Exams</p>
+      </div>
+      <div id="recent-exams-content">
+        <!-- Content will be injected by JS -->
+      </div>
+    </div>
+
+    <!-- Performance Distribution -->
+    <div class="card dashboard-tile w-1 h-1" id="performance-distribution">
+      <div class="icon-title">
+        <i class="fas fa-chart-pie icon"></i>
+        <p class="tile-label">Grade Distribution</p>
+      </div>
+      <div id="performance-distribution-content">
+        <!-- Chart will be injected by JS -->
+      </div>
+    </div>
+
+    <!-- Class Average Trends -->
+    <div class="card dashboard-tile w-2 h-1" id="class-trends">
+      <div class="icon-title">
+        <i class="fas fa-chart-line icon"></i>
+        <p class="tile-label">Class Performance Trends</p>
+      </div>
+      <div id="class-trends-content">
+        <!-- Chart will be injected by JS -->
+      </div>
+    </div>
+
+    <!-- Subject-wise Analysis -->
+    <div class="card dashboard-tile w-2 h-1" id="subject-analysis">
+      <div class="icon-title">
+        <i class="fas fa-graduation-cap icon"></i>
+        <p class="tile-label">Subject-wise Analysis</p>
+      </div>
+      <div id="subject-analysis-content">
+        <!-- Table will be injected by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Load grade-wise performance chart
+  async function loadGradePerformance() {
+    try {
+      const res = await fetch("/api/admin/academic/performance/grades");
+      if (res.ok) {
+        const data = await res.json();
+
+        if (data.length > 0) {
+          const container = document.getElementById(
+            "grade-performance-content"
+          );
+
+          container.innerHTML = `<canvas id="gradePerformanceChart" height="150"></canvas>`;
+
+          setTimeout(() => {
+            const rootStyles = getComputedStyle(document.documentElement);
+            const primaryColor = rootStyles
+              .getPropertyValue("--color-primary")
+              .trim();
+
+            const chartData = {
+              labels: data.map((item) => `Grade ${item.grade}`),
+              datasets: [
+                {
+                  label: "Average Marks (%)",
+                  data: data.map((item) => parseFloat(item.average_marks)),
+                  backgroundColor: primaryColor,
+                  borderColor: primaryColor,
+                  borderWidth: 2,
+                  borderRadius: 4,
+                },
+              ],
+            };
+
+            new Chart(document.getElementById("gradePerformanceChart"), {
+              type: "bar",
+              data: chartData,
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                      callback: function (value) {
+                        return value + "%";
+                      },
+                    },
+                  },
+                },
+                plugins: {
+                  legend: { display: false },
+                },
+              },
+            });
+          }, 100);
+        } else {
+          document.getElementById("grade-performance-content").innerHTML = `
+            <p class="text-sm text-center">No academic data available</p>
+          `;
+        }
+      } else {
+        // Fallback to mock data
+        const mockData = [
+          { grade: 6, average_marks: 78.5 },
+          { grade: 7, average_marks: 82.3 },
+          { grade: 8, average_marks: 75.8 },
+          { grade: 9, average_marks: 79.2 },
+          { grade: 10, average_marks: 84.1 },
+          { grade: 11, average_marks: 81.7 },
+        ];
+
+        const container = document.getElementById("grade-performance-content");
+        container.innerHTML = `<canvas id="gradePerformanceChart" height="150"></canvas>`;
+
+        setTimeout(() => {
+          const rootStyles = getComputedStyle(document.documentElement);
+          const primaryColor = rootStyles
+            .getPropertyValue("--color-primary")
+            .trim();
+
+          const chartData = {
+            labels: mockData.map((item) => `Grade ${item.grade}`),
+            datasets: [
+              {
+                label: "Average Marks (%)",
+                data: mockData.map((item) => item.average_marks),
+                backgroundColor: primaryColor,
+                borderColor: primaryColor,
+                borderWidth: 2,
+                borderRadius: 4,
+              },
+            ],
+          };
+
+          new Chart(document.getElementById("gradePerformanceChart"), {
+            type: "bar",
+            data: chartData,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  max: 100,
+                  ticks: {
+                    callback: function (value) {
+                      return value + "%";
+                    },
+                  },
+                },
+              },
+              plugins: {
+                legend: { display: false },
+              },
+            },
+          });
+        }, 100);
+      }
+    } catch (err) {
+      console.error("Error loading grade performance:", err);
+      document.getElementById("grade-performance-content").innerHTML = `
+        <p class="text-sm text-center">Error loading data</p>
+      `;
+    }
+  }
+
+  // Load subject-wise performance
+  async function loadSubjectPerformance() {
+    try {
+      const res = await fetch("/api/admin/academic/performance/subjects");
+      if (res.ok) {
+        const data = await res.json();
+
+        if (data.length > 0) {
+          const container = document.getElementById(
+            "subject-performance-content"
+          );
+          container.innerHTML = `<canvas id="subjectPerformanceChart" height="150"></canvas>`;
+
+          setTimeout(() => {
+            const rootStyles = getComputedStyle(document.documentElement);
+            const primaryColor = rootStyles
+              .getPropertyValue("--color-primary")
+              .trim();
+
+            const chartData = {
+              labels: data.map((item) => item.subject_name),
+              datasets: [
+                {
+                  label: "Average Marks (%)",
+                  data: data.map((item) => parseFloat(item.average_marks)),
+                  backgroundColor: primaryColor,
+                  borderColor: primaryColor,
+                  borderWidth: 2,
+                  borderRadius: 4,
+                },
+              ],
+            };
+
+            new Chart(document.getElementById("subjectPerformanceChart"), {
+              type: "bar",
+              data: chartData,
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                      callback: function (value) {
+                        return value + "%";
+                      },
+                    },
+                  },
+                  x: {
+                    ticks: {
+                      maxRotation: 45,
+                      minRotation: 45,
+                    },
+                  },
+                },
+                plugins: {
+                  legend: { display: false },
+                },
+              },
+            });
+          }, 100);
+        } else {
+          document.getElementById("subject-performance-content").innerHTML = `
+            <p class="text-sm text-center">No subject data available</p>
+          `;
+        }
+      } else {
+        // Fallback to mock data
+        const mockData = [
+          { subject_name: "Mathematics", average_marks: 82.5 },
+          { subject_name: "Science", average_marks: 78.3 },
+          { subject_name: "English", average_marks: 85.1 },
+          { subject_name: "History", average_marks: 76.8 },
+          { subject_name: "Geography", average_marks: 79.2 },
+        ];
+
+        const container = document.getElementById(
+          "subject-performance-content"
+        );
+        container.innerHTML = `<canvas id="subjectPerformanceChart" height="150"></canvas>`;
+
+        setTimeout(() => {
+          const rootStyles = getComputedStyle(document.documentElement);
+          const primaryColor = rootStyles
+            .getPropertyValue("--color-primary")
+            .trim();
+
+          const chartData = {
+            labels: mockData.map((item) => item.subject_name),
+            datasets: [
+              {
+                label: "Average Marks (%)",
+                data: mockData.map((item) => item.average_marks),
+                backgroundColor: primaryColor,
+                borderColor: primaryColor,
+                borderWidth: 2,
+                borderRadius: 4,
+              },
+            ],
+          };
+
+          new Chart(document.getElementById("subjectPerformanceChart"), {
+            type: "bar",
+            data: chartData,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  max: 100,
+                  ticks: {
+                    callback: function (value) {
+                      return value + "%";
+                    },
+                  },
+                },
+                x: {
+                  ticks: {
+                    maxRotation: 45,
+                    minRotation: 45,
+                  },
+                },
+              },
+              plugins: {
+                legend: { display: false },
+              },
+            },
+          });
+        }, 100);
+      }
+    } catch (err) {
+      console.error("Error loading subject performance:", err);
+      document.getElementById("subject-performance-content").innerHTML = `
+        <p class="text-sm text-center">Error loading data</p>
+      `;
+    }
+  }
+
+  // Load top performers
+  async function loadTopPerformers() {
+    try {
+      const res = await fetch("/api/admin/academic/top-performers");
+      if (res.ok) {
+        const data = await res.json();
+
+        const container = document.getElementById("top-performers-content");
+        if (data.length > 0) {
+          container.innerHTML = `
+            <div class="stats-list">
+              ${data
+                .map(
+                  (student, index) => `
+                <div class="stat-item">
+                  <div class="stat-icon">${index + 1}</div>
+                  <div class="stat-content">
+                    <span class="stat-number">${student.username}</span>
+                    <span class="stat-label">Grade ${student.grade} - ${
+                    student.average_marks
+                  }%</span>
+                  </div>
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          `;
+        } else {
+          container.innerHTML = `
+            <p class="text-sm text-center">No top performers data available</p>
+          `;
+        }
+      } else {
+        // Fallback to mock data
+        const mockData = [
+          { username: "S1001", grade: 10, average_marks: 95.2 },
+          { username: "S1005", grade: 9, average_marks: 93.8 },
+          { username: "S1012", grade: 11, average_marks: 92.5 },
+          { username: "S1008", grade: 10, average_marks: 91.7 },
+          { username: "S1015", grade: 9, average_marks: 90.3 },
+        ];
+
+        const container = document.getElementById("top-performers-content");
+        container.innerHTML = `
+          <div class="stats-list">
+            ${mockData
+              .map(
+                (student, index) => `
+              <div class="stat-item">
+                <div class="stat-icon">${index + 1}</div>
+                <div class="stat-content">
+                  <span class="stat-number">${student.username}</span>
+                  <span class="stat-label">Grade ${student.grade} - ${
+                  student.average_marks
+                }%</span>
+                </div>
+              </div>
+            `
+              )
+              .join("")}
+          </div>
+        `;
+      }
+    } catch (err) {
+      console.error("Error loading top performers:", err);
+      document.getElementById("top-performers-content").innerHTML = `
+        <p class="text-sm text-center">Error loading data</p>
+      `;
+    }
+  }
+
+  // Load students needing attention
+  async function loadAttentionNeeded() {
+    try {
+      const res = await fetch("/api/admin/academic/attention-needed");
+      if (res.ok) {
+        const data = await res.json();
+
+        const container = document.getElementById("attention-needed-content");
+        if (data.length > 0) {
+          container.innerHTML = `
+            <div class="stats-list">
+              ${data
+                .map(
+                  (student) => `
+                <div class="stat-item">
+                  <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle" style="color: var(--color-error);"></i>
+                  </div>
+                  <div class="stat-content">
+                    <span class="stat-number">${student.username}</span>
+                    <span class="stat-label">Grade ${student.grade} - ${student.average_marks}%</span>
+                  </div>
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          `;
+        } else {
+          container.innerHTML = `
+            <p class="text-sm text-center">No students needing attention</p>
+          `;
+        }
+      } else {
+        // Fallback to mock data
+        const mockData = [
+          { username: "S1023", grade: 8, average_marks: 45.2 },
+          { username: "S1031", grade: 9, average_marks: 38.8 },
+          { username: "S1018", grade: 7, average_marks: 42.5 },
+          { username: "S1042", grade: 10, average_marks: 39.7 },
+          { username: "S1027", grade: 8, average_marks: 41.3 },
+        ];
+
+        const container = document.getElementById("attention-needed-content");
+        container.innerHTML = `
+          <div class="stats-list">
+            ${mockData
+              .map(
+                (student) => `
+              <div class="stat-item">
+                <div class="stat-icon">
+                  <i class="fas fa-exclamation-triangle" style="color: var(--color-error);"></i>
+                </div>
+                <div class="stat-content">
+                  <span class="stat-number">${student.username}</span>
+                  <span class="stat-label">Grade ${student.grade} - ${student.average_marks}%</span>
+                </div>
+              </div>
+            `
+              )
+              .join("")}
+          </div>
+        `;
+      }
+    } catch (err) {
+      console.error("Error loading attention needed:", err);
+      document.getElementById("attention-needed-content").innerHTML = `
+        <p class="text-sm text-center">Error loading data</p>
+      `;
+    }
+  }
+
+  // Load recent exams
+  async function loadRecentExams() {
+    try {
+      const res = await fetch("/api/admin/academic/recent-exams");
+      if (res.ok) {
+        const data = await res.json();
+
+        const container = document.getElementById("recent-exams-content");
+        if (data.length > 0) {
+          container.innerHTML = `
+            <div class="stats-list">
+              ${data
+                .map(
+                  (exam) => `
+                <div class="stat-item">
+                  <div class="stat-icon">
+                    <i class="fas fa-file-alt"></i>
+                  </div>
+                  <div class="stat-content">
+                    <span class="stat-number">${exam.subject_name}</span>
+                    <span class="stat-label">Grade ${exam.grade} - ${exam.average_marks}% avg</span>
+                  </div>
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          `;
+        } else {
+          container.innerHTML = `
+            <p class="text-sm text-center">No recent exams data available</p>
+          `;
+        }
+      } else {
+        // Fallback to mock data
+        const mockData = [
+          { subject_name: "Mathematics", grade: 10, average_marks: 78.5 },
+          { subject_name: "Science", grade: 9, average_marks: 82.3 },
+          { subject_name: "English", grade: 11, average_marks: 85.1 },
+          { subject_name: "History", grade: 8, average_marks: 76.8 },
+        ];
+
+        const container = document.getElementById("recent-exams-content");
+        container.innerHTML = `
+          <div class="stats-list">
+            ${mockData
+              .map(
+                (exam) => `
+              <div class="stat-item">
+                <div class="stat-icon">
+                  <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="stat-content">
+                  <span class="stat-number">${exam.subject_name}</span>
+                  <span class="stat-label">Grade ${exam.grade} - ${exam.average_marks}% avg</span>
+                </div>
+              </div>
+            `
+              )
+              .join("")}
+          </div>
+        `;
+      }
+    } catch (err) {
+      console.error("Error loading recent exams:", err);
+      document.getElementById("recent-exams-content").innerHTML = `
+        <p class="text-sm text-center">Error loading data</p>
+      `;
+    }
+  }
+
+  // Load performance distribution (pie chart)
+  async function loadPerformanceDistribution() {
+    try {
+      const res = await fetch("/api/admin/academic/performance-distribution");
+      if (res.ok) {
+        const data = await res.json();
+
+        if (data.length > 0) {
+          const container = document.getElementById(
+            "performance-distribution-content"
+          );
+          container.innerHTML = `<canvas id="performanceDistributionChart" height="150"></canvas>`;
+
+          // Transform data for chart
+          const distributionMap = {};
+          data.forEach((item) => {
+            distributionMap[item.performance_level] = parseInt(
+              item.student_count
+            );
+          });
+
+          const excellent = distributionMap.excellent || 0;
+          const good = distributionMap.good || 0;
+          const average = distributionMap.average || 0;
+          const poor = distributionMap.poor || 0;
+
+          setTimeout(() => {
+            const rootStyles = getComputedStyle(document.documentElement);
+            const primaryColor = rootStyles
+              .getPropertyValue("--color-primary")
+              .trim();
+
+            const chartData = {
+              labels: [
+                "Excellent (90-100%)",
+                "Good (75-89%)",
+                "Average (60-74%)",
+                "Needs Improvement (<60%)",
+              ],
+              datasets: [
+                {
+                  data: [excellent, good, average, poor],
+                  backgroundColor: [
+                    primaryColor,
+                    primaryColor + "80",
+                    primaryColor + "40",
+                    primaryColor + "20",
+                  ],
+                  borderWidth: 2,
+                  borderColor: "white",
+                },
+              ],
+            };
+
+            new Chart(document.getElementById("performanceDistributionChart"), {
+              type: "pie",
+              data: chartData,
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: "bottom",
+                    labels: {
+                      boxWidth: 12,
+                      font: { size: 11 },
+                    },
+                  },
+                },
+              },
+            });
+          }, 100);
+        } else {
+          document.getElementById(
+            "performance-distribution-content"
+          ).innerHTML = `
+            <p class="text-sm text-center">No performance data available</p>
+          `;
+        }
+      } else {
+        // Fallback to mock data
+        const mockData = {
+          excellent: 15,
+          good: 35,
+          average: 30,
+          poor: 20,
+        };
+
+        const container = document.getElementById(
+          "performance-distribution-content"
+        );
+        container.innerHTML = `<canvas id="performanceDistributionChart" height="150"></canvas>`;
+
+        setTimeout(() => {
+          const rootStyles = getComputedStyle(document.documentElement);
+          const primaryColor = rootStyles
+            .getPropertyValue("--color-primary")
+            .trim();
+
+          const chartData = {
+            labels: [
+              "Excellent (90-100%)",
+              "Good (75-89%)",
+              "Average (60-74%)",
+              "Needs Improvement (<60%)",
+            ],
+            datasets: [
+              {
+                data: [
+                  mockData.excellent,
+                  mockData.good,
+                  mockData.average,
+                  mockData.poor,
+                ],
+                backgroundColor: [
+                  primaryColor,
+                  primaryColor + "80",
+                  primaryColor + "40",
+                  primaryColor + "20",
+                ],
+                borderWidth: 2,
+                borderColor: "white",
+              },
+            ],
+          };
+
+          new Chart(document.getElementById("performanceDistributionChart"), {
+            type: "pie",
+            data: chartData,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: {
+                    boxWidth: 12,
+                    font: { size: 11 },
+                  },
+                },
+              },
+            },
+          });
+        }, 100);
+      }
+    } catch (err) {
+      console.error("Error loading performance distribution:", err);
+      document.getElementById("performance-distribution-content").innerHTML = `
+        <p class="text-sm text-center">Error loading data</p>
+      `;
+    }
+  }
+
+  // Load class trends
+  async function loadClassTrends() {
+    try {
+      // Mock data for class performance trends
+      const mockData = {
+        months: ["Jun", "Jul", "Aug", "Sep", "Oct"],
+        grade6: [75, 76, 78, 79, 81],
+        grade7: [78, 79, 80, 81, 83],
+        grade8: [80, 81, 82, 83, 85],
+        grade9: [82, 83, 84, 85, 86],
+        grade10: [84, 85, 86, 87, 88],
+      };
+
+      const container = document.getElementById("class-trends-content");
+      container.innerHTML = `<canvas id="classTrendsChart" height="200"></canvas>`;
+
+      setTimeout(() => {
+        const rootStyles = getComputedStyle(document.documentElement);
+        const primaryColor = rootStyles
+          .getPropertyValue("--color-primary")
+          .trim();
+
+        const chartData = {
+          labels: mockData.months,
+          datasets: [
+            {
+              label: "Grade 6",
+              data: mockData.grade6,
+              borderColor: primaryColor,
+              backgroundColor: primaryColor + "20",
+              tension: 0.4,
+            },
+            {
+              label: "Grade 7",
+              data: mockData.grade7,
+              borderColor: primaryColor + "80",
+              backgroundColor: primaryColor + "15",
+              tension: 0.4,
+            },
+            {
+              label: "Grade 8",
+              data: mockData.grade8,
+              borderColor: primaryColor + "60",
+              backgroundColor: primaryColor + "10",
+              tension: 0.4,
+            },
+            {
+              label: "Grade 9",
+              data: mockData.grade9,
+              borderColor: primaryColor + "40",
+              backgroundColor: primaryColor + "08",
+              tension: 0.4,
+            },
+            {
+              label: "Grade 10",
+              data: mockData.grade10,
+              borderColor: primaryColor + "20",
+              backgroundColor: primaryColor + "05",
+              tension: 0.4,
+            },
+          ],
+        };
+
+        new Chart(document.getElementById("classTrendsChart"), {
+          type: "line",
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                  callback: function (value) {
+                    return value + "%";
+                  },
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                position: "top",
+                labels: {
+                  boxWidth: 12,
+                  usePointStyle: true,
+                },
+              },
+            },
+          },
+        });
+      }, 100);
+    } catch (err) {
+      console.error("Error loading class trends:", err);
+      document.getElementById("class-trends-content").innerHTML = `
+        <p class="text-sm text-center">Error loading data</p>
+      `;
+    }
+  }
+
+  // Load subject analysis table
+  async function loadSubjectAnalysis() {
+    try {
+      // Mock data for subject analysis
+      const mockData = [
+        {
+          subject: "Mathematics",
+          students: 245,
+          average: 78.5,
+          highest: 98,
+          lowest: 35,
+        },
+        {
+          subject: "Science",
+          students: 245,
+          average: 82.3,
+          highest: 97,
+          lowest: 42,
+        },
+        {
+          subject: "English",
+          students: 245,
+          average: 85.1,
+          highest: 99,
+          lowest: 38,
+        },
+        {
+          subject: "History",
+          students: 245,
+          average: 76.8,
+          highest: 95,
+          lowest: 28,
+        },
+        {
+          subject: "Geography",
+          students: 245,
+          average: 79.2,
+          highest: 96,
+          lowest: 33,
+        },
+      ];
+
+      const container = document.getElementById("subject-analysis-content");
+      container.innerHTML = `
+        <div class="table-container" style="max-height: 200px; overflow-y: auto;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Students</th>
+                <th>Average</th>
+                <th>Highest</th>
+                <th>Lowest</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${mockData
+                .map(
+                  (subject) => `
+                <tr>
+                  <td>${subject.subject}</td>
+                  <td>${subject.students}</td>
+                  <td>${subject.average}%</td>
+                  <td>${subject.highest}%</td>
+                  <td>${subject.lowest}%</td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    } catch (err) {
+      console.error("Error loading subject analysis:", err);
+      document.getElementById("subject-analysis-content").innerHTML = `
+        <p class="text-sm text-center">Error loading data</p>
+      `;
+    }
+  }
+
+  // Initialize academic reports page
+  async function initAcademicReports() {
+    loadGradePerformance();
+    loadSubjectPerformance();
+    loadTopPerformers();
+    loadAttentionNeeded();
+    loadRecentExams();
+    loadPerformanceDistribution();
+    loadClassTrends();
+    loadSubjectAnalysis();
+  }
+
+  initAcademicReports();
+</script>
