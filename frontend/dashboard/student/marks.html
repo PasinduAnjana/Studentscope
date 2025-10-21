@@ -283,7 +283,9 @@
   const rootStyles = getComputedStyle(document.documentElement);
   const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
   const secondaryColor = rootStyles.getPropertyValue("--color-border").trim();
-  const accentColor = rootStyles.getPropertyValue("--color-accent") ? rootStyles.getPropertyValue("--color-accent").trim() : primaryColor;
+  const accentColor = rootStyles.getPropertyValue("--color-accent")
+    ? rootStyles.getPropertyValue("--color-accent").trim()
+    : primaryColor;
 
   // Create distinctive color variations
   const primaryLight = primaryColor + "40";

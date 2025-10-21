@@ -1,7 +1,15 @@
 [
   { "label": "sidebar.dashboard", "page": "dashboard", "icon": "fas fa-home" },
-  { "label": "sidebar.attendance", "page": "attendance", "icon": "fas fa-user-check" },
+  {
+    "label": "sidebar.attendance",
+    "page": "attendance",
+    "icon": "fas fa-user-check"
+  },
   { "label": "sidebar.marks", "page": "marks", "icon": "fas fa-chart-bar" },
-  { "label": "sidebar.timeTable", "page": "notices", "icon": "fas fa-calendar-alt" },
+  {
+    "label": "sidebar.timeTable",
+    "page": "notices",
+    "icon": "fas fa-calendar-alt"
+  },
   { "label": "sidebar.students", "page": "students", "icon": "fas fa-users" }
 ]
