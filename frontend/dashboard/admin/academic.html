@@ -8,244 +8,6 @@
   >
 </h2>
 
-<!-- 🔎 Filters -->
-<div class="card dashboard-tile">
-  <div class="icon-title">
-    <i class="fas fa-filter icon"></i>
-    <p
-      class="tile-label"
-      data-en="Filters"
-      data-si="පෙරහන්"
-      data-ta="வடிப்பான்கள்"
-    >
-      Filters
-    </p>
-  </div>
-
-  <div class="filter-container">
-    <div class="filter-group">
-      <!-- Exam Type (Term Tests is primary/default) -->
-      <div class="filter-item">
-        <label
-          for="examFilter"
-          data-en="Exam Type"
-          data-si="විභාග වර්ගය"
-          data-ta="தேர்வு வகை"
-          >Exam Type</label
-        >
-        <select id="examFilter" class="dropdown-select">
-          <option
-            value="term"
-            data-en="Term Tests"
-            data-si="වාර පරීක්ෂණ"
-            data-ta="கால தேர்வுகள்"
-          >
-            Term Tests
-          </option>
-          <option
-            value="sch"
-            data-en="Grade 05 Scholarship Examination"
-            data-si="5 ශ්‍රේණිය ශිෂ්‍යත්ව විභාගය"
-            data-ta="5 ஶ்ரீஷ்ய மாணவத் தேர்வு"
-          >
-            Grade 05 Scholarship
-          </option>
-          <option
-            value="ol"
-            data-en="G.C.E. O/L Examination"
-            data-si="අ.පො.ස. සාමාන්‍ය පෙළ විභාගය"
-            data-ta="அ.பொ.ச. சாதாரண வகுப்பு தேர்வு"
-          >
-            G.C.E. O/L
-          </option>
-          <option
-            value="al"
-            data-en="G.C.E. A/L Examination"
-            data-si="අ.පො.ස. උසස් පෙළ විභාගය"
-            data-ta="அ.பொ.ச. உயர்தரப் படிப்பு"
-          >
-            G.C.E. A/L
-          </option>
-        </select>
-      </div>
-
-      <!-- Year -->
-      <div class="filter-item">
-        <label for="yearFilter" data-en="Year" data-si="වර්ෂය" data-ta="ஆண்டு"
-          >Year</label
-        >
-        <select id="yearFilter" class="dropdown-select">
-          <option value="2025">2025</option>
-          <option value="2024">2024</option>
-          <option value="2023">2023</option>
-        </select>
-      </div>
-
-      <!-- Term (Term Tests only) -->
-      <div class="filter-item" id="termWrap">
-        <label for="termFilter" data-en="Term" data-si="වාරය" data-ta="காலம்"
-          >Term</label
-        >
-        <select id="termFilter" class="dropdown-select">
-          <option
-            value="all"
-            data-en="All Terms"
-            data-si="සියලු වාර"
-            data-ta="அனைத்து காலங்கள்"
-          >
-            All Terms
-          </option>
-          <option
-            value="1"
-            data-en="Term 1"
-            data-si="1 වන වාරය"
-            data-ta="காலம் 1"
-          >
-            Term 1
-          </option>
-          <option
-            value="2"
-            data-en="Term 2"
-            data-si="2 වන වාරය"
-            data-ta="காலம் 2"
-          >
-            Term 2
-          </option>
-          <option
-            value="3"
-            data-en="Term 3"
-            data-si="3 වන වාරය"
-            data-ta="காலம் 3"
-          >
-            Term 3
-          </option>
-        </select>
-      </div>
-
-      <!-- Class (Term Tests & O/L) -->
-      <div class="filter-item" id="classWrap">
-        <label
-          for="classFilter"
-          data-en="Class"
-          data-si="පන්තිය"
-          data-ta="வகுப்பு"
-          >Class</label
-        >
-        <select id="classFilter" class="dropdown-select">
-          <option
-            value="all"
-            data-en="All Classes"
-            data-si="සියලුම පන්ති"
-            data-ta="அனைத்து வகுப்புகள்"
-          >
-            All Classes
-          </option>
-          <option value="10A">10-A</option>
-          <option value="10B">10-B</option>
-          <option value="11A">11-A</option>
-          <option value="11B">11-B</option>
-          <option value="11C">11-C</option>
-        </select>
-      </div>
-
-      <!-- Stream (A/L only) -->
-      <div class="filter-item" id="streamWrap">
-        <label
-          for="streamFilter"
-          data-en="Subject Stream"
-          data-si="විෂය ධාරාව"
-          data-ta="பொருள் அளவு"
-          >Stream</label
-        >
-        <select id="streamFilter" class="dropdown-select">
-          <option
-            value="all"
-            data-en="All Streams"
-            data-si="සියලුම විෂය ධාරා"
-            data-ta="அனைத்து பாடம் தாரா"
-          >
-            All Streams
-          </option>
-          <option
-            value="Science"
-            data-en="Science"
-            data-si="විද්‍යා"
-            data-ta="அறிவியல்"
-          >
-            Science
-          </option>
-          <option
-            value="Commerce"
-            data-en="Commerce"
-            data-si="වාණිජ"
-            data-ta="வணிக"
-          >
-            Commerce
-          </option>
-          <option value="Arts" data-en="Arts" data-si="කලා" data-ta="கலை">
-            Arts
-          </option>
-          <option
-            value="Technology"
-            data-en="Technology"
-            data-si="තාක්ෂණ"
-            data-ta="தொழில்நுட்பம்"
-          >
-            Technology
-          </option>
-        </select>
-      </div>
-
-      <!-- Subject (Term Tests & O/L quick filter) -->
-      <div class="filter-item" id="subjectWrap">
-        <label
-          for="subjectFilter"
-          data-en="Subject"
-          data-si="විෂය"
-          data-ta="பாடம்"
-          >Subject</label
-        >
-        <select id="subjectFilter" class="dropdown-select">
-          <option
-            value="all"
-            data-en="All Subjects"
-            data-si="සියලුම විෂයන්"
-            data-ta="அனைத்து பாடங்கள்"
-          >
-            All Subjects
-          </option>
-          <option>Mathematics</option>
-          <option>Science</option>
-          <option>English</option>
-          <option>Sinhala</option>
-          <option>History</option>
-          <option>Commerce</option>
-          <option>Buddhism</option>
-          <option>ICT</option>
-          <option>Health</option>
-        </select>
-      </div>
-
-      <!-- Index No. Search -->
-      <div class="filter-item" id="indexWrap">
-        <label
-          for="indexSearch"
-          data-en="Search by Index No."
-          data-si="විභාග අංකයෙන් සොයන්න"
-          data-ta="தொகுதி எண் மூலம் தேடு"
-          >Search by Index No.</label
-        >
-        <input
-          id="indexSearch"
-          class="dropdown-select"
-          placeholder="e.g., OL250001 / AL250001 / SCH250001"
-        />
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 📊 Summary Tiles (Overall for current exam/year scope) -->
 <div class="card-grid" id="overallTiles">
   <div class="card w-1 h-1 dashboard-tile">
     <div class="icon-title">
@@ -320,6 +82,248 @@
     >
       Results
     </p>
+  </div>
+
+  <!-- Filters -->
+  <div
+    class="filter-controls"
+    style="
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      white-space: nowrap;
+    "
+  >
+    <div class="search-group" style="max-width: 350px">
+      <input
+        type="text"
+        id="indexSearch"
+        class="search-input"
+        placeholder="Search by index number..."
+      />
+      <span class="search-icon"><i class="fas fa-search"></i></span>
+    </div>
+
+    <div
+      class="input-group"
+      style="min-width: 140px; flex: 1; white-space: nowrap"
+    >
+      <label
+        for="examFilter"
+        data-en="Exam Type"
+        data-si="විභාග වර්ගය"
+        data-ta="தேர்வு வகை"
+        >Exam Type</label
+      >
+      <select id="examFilter" class="dropdown-select">
+        <option
+          value="term"
+          data-en="Term Tests"
+          data-si="වාර පරීක්ෂණ"
+          data-ta="கால தேர்வுகள்"
+        >
+          Term Tests
+        </option>
+        <option
+          value="sch"
+          data-en="Grade 05 Scholarship Examination"
+          data-si="5 ශ්‍රේණිය ශිෂ්‍යත්ව විභාගය"
+          data-ta="5 ஶ்ரீஷ்ய மாணவத் தேர்வு"
+        >
+          Grade 05 Scholarship
+        </option>
+        <option
+          value="ol"
+          data-en="G.C.E. O/L Examination"
+          data-si="අ.පො.ස. සාමාන්‍ය පෙළ විභාගය"
+          data-ta="அ.பொ.ச. சாதாரண வகுப்பு தேர்வு"
+        >
+          G.C.E. O/L
+        </option>
+        <option
+          value="al"
+          data-en="G.C.E. A/L Examination"
+          data-si="අ.පො.ස. උසස් පෙළ විභාගය"
+          data-ta="அ.பொ.ச. உயர்தரப் படிப்பு"
+        >
+          G.C.E. A/L
+        </option>
+      </select>
+    </div>
+
+    <div
+      class="input-group"
+      style="min-width: 100px; flex: 1; white-space: nowrap"
+    >
+      <label for="yearFilter" data-en="Year" data-si="වර්ෂය" data-ta="ஆண்டு"
+        >Year</label
+      >
+      <select id="yearFilter" class="dropdown-select">
+        <option value="2025">2025</option>
+        <option value="2024">2024</option>
+        <option value="2023">2023</option>
+      </select>
+    </div>
+
+    <div
+      class="input-group"
+      id="termWrap"
+      style="min-width: 100px; flex: 1; white-space: nowrap"
+    >
+      <label for="termFilter" data-en="Term" data-si="වාරය" data-ta="காலம்"
+        >Term</label
+      >
+      <select id="termFilter" class="dropdown-select">
+        <option
+          value="all"
+          data-en="All Terms"
+          data-si="සියලු වාර"
+          data-ta="அனைத்து காலங்கள்"
+        >
+          All Terms
+        </option>
+        <option
+          value="1"
+          data-en="Term 1"
+          data-si="1 වන වාරය"
+          data-ta="காலம் 1"
+        >
+          Term 1
+        </option>
+        <option
+          value="2"
+          data-en="Term 2"
+          data-si="2 වන වාරය"
+          data-ta="காலம் 2"
+        >
+          Term 2
+        </option>
+        <option
+          value="3"
+          data-en="Term 3"
+          data-si="3 වන වාරය"
+          data-ta="காலம் 3"
+        >
+          Term 3
+        </option>
+      </select>
+    </div>
+
+    <div
+      class="input-group"
+      id="classWrap"
+      style="min-width: 120px; flex: 1; white-space: nowrap"
+    >
+      <label
+        for="classFilter"
+        data-en="Class"
+        data-si="පන්තිය"
+        data-ta="வகுப்பு"
+        >Class</label
+      >
+      <select id="classFilter" class="dropdown-select">
+        <option
+          value="all"
+          data-en="All Classes"
+          data-si="සියලුම පන්ති"
+          data-ta="அனைத்து வகுப்புகள்"
+        >
+          All Classes
+        </option>
+        <option value="10A">10-A</option>
+        <option value="10B">10-B</option>
+        <option value="11A">11-A</option>
+        <option value="11B">11-B</option>
+        <option value="11C">11-C</option>
+      </select>
+    </div>
+
+    <div
+      class="input-group"
+      id="streamWrap"
+      style="min-width: 120px; flex: 1; white-space: nowrap"
+    >
+      <label
+        for="streamFilter"
+        data-en="Subject Stream"
+        data-si="විෂය ධාරාව"
+        data-ta="பொருள் அளவு"
+        >Stream</label
+      >
+      <select id="streamFilter" class="dropdown-select">
+        <option
+          value="all"
+          data-en="All Streams"
+          data-si="සියලුම විෂය ධාරා"
+          data-ta="அனைத்து பாடம் தாரா"
+        >
+          All Streams
+        </option>
+        <option
+          value="Science"
+          data-en="Science"
+          data-si="විද්‍යා"
+          data-ta="அறிவியல்"
+        >
+          Science
+        </option>
+        <option
+          value="Commerce"
+          data-en="Commerce"
+          data-si="වාණිජ"
+          data-ta="வணிக"
+        >
+          Commerce
+        </option>
+        <option value="Arts" data-en="Arts" data-si="කලා" data-ta="கலை">
+          Arts
+        </option>
+        <option
+          value="Technology"
+          data-en="Technology"
+          data-si="තාක්ෂණ"
+          data-ta="தொழில்நுட்பம்"
+        >
+          Technology
+        </option>
+      </select>
+    </div>
+
+    <div
+      class="input-group"
+      id="subjectWrap"
+      style="min-width: 130px; flex: 1; white-space: nowrap"
+    >
+      <label
+        for="subjectFilter"
+        data-en="Subject"
+        data-si="විෂය"
+        data-ta="பாடம்"
+        >Subject</label
+      >
+      <select id="subjectFilter" class="dropdown-select">
+        <option
+          value="all"
+          data-en="All Subjects"
+          data-si="සියලුම විෂයන්"
+          data-ta="அனைத்து பாடங்கள்"
+        >
+          All Subjects
+        </option>
+        <option>Mathematics</option>
+        <option>Science</option>
+        <option>English</option>
+        <option>Sinhala</option>
+        <option>History</option>
+        <option>Commerce</option>
+        <option>Buddhism</option>
+        <option>ICT</option>
+        <option>Health</option>
+      </select>
+    </div>
   </div>
 
   <div class="table-container">
@@ -482,6 +486,7 @@
 <!--       SCRIPT AREA         -->
 <!-- ========================= -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../../../js/dropdown.js"></script>
 <script>
   /* =========================
    Sample datasets (10–15 rows)
@@ -986,6 +991,14 @@
   const classWrap = document.getElementById("classWrap");
   const streamWrap = document.getElementById("streamWrap");
   const subjectWrap = document.getElementById("subjectWrap");
+
+  // Searchable dropdown instances
+  let searchableExamFilter = null;
+  let searchableYearFilter = null;
+  let searchableTermFilter = null;
+  let searchableClassFilter = null;
+  let searchableStreamFilter = null;
+  let searchableSubjectFilter = null;
 
   const tableHead = document.getElementById("tableHead");
   const tableBody = document.getElementById("tableBody");
@@ -1718,6 +1731,83 @@
   }, 400);
 
   /* =========================
+   Initialize searchable dropdowns
+   ========================= */
+  function initializeSearchableDropdowns() {
+    // Exam Type
+    if (typeof makeSearchableDropdown === "function") {
+      searchableExamFilter = makeSearchableDropdown(
+        "examFilter",
+        (val, text) => {
+          const sel = document.getElementById("examFilter");
+          if (sel) sel.value = val;
+          filterData();
+        }
+      );
+    }
+
+    // Year
+    if (typeof makeSearchableDropdown === "function") {
+      searchableYearFilter = makeSearchableDropdown(
+        "yearFilter",
+        (val, text) => {
+          const sel = document.getElementById("yearFilter");
+          if (sel) sel.value = val;
+          filterData();
+        }
+      );
+    }
+
+    // Term
+    if (typeof makeSearchableDropdown === "function") {
+      searchableTermFilter = makeSearchableDropdown(
+        "termFilter",
+        (val, text) => {
+          const sel = document.getElementById("termFilter");
+          if (sel) sel.value = val;
+          filterData();
+        }
+      );
+    }
+
+    // Class
+    if (typeof makeSearchableDropdown === "function") {
+      searchableClassFilter = makeSearchableDropdown(
+        "classFilter",
+        (val, text) => {
+          const sel = document.getElementById("classFilter");
+          if (sel) sel.value = val;
+          filterData();
+        }
+      );
+    }
+
+    // Stream
+    if (typeof makeSearchableDropdown === "function") {
+      searchableStreamFilter = makeSearchableDropdown(
+        "streamFilter",
+        (val, text) => {
+          const sel = document.getElementById("streamFilter");
+          if (sel) sel.value = val;
+          filterData();
+        }
+      );
+    }
+
+    // Subject
+    if (typeof makeSearchableDropdown === "function") {
+      searchableSubjectFilter = makeSearchableDropdown(
+        "subjectFilter",
+        (val, text) => {
+          const sel = document.getElementById("subjectFilter");
+          if (sel) sel.value = val;
+          filterData();
+        }
+      );
+    }
+  }
+
+  /* =========================
    Wire-up & initial render
    ========================= */
   [examEl, yearEl, termEl, classEl, subjectEl, streamEl].forEach((el) => {
@@ -1727,6 +1817,9 @@
 
   // Defaults
   (function init() {
+    // Initialize searchable dropdowns
+    initializeSearchableDropdowns();
+
     // Primary = Term Tests
     examEl.value = "term";
     yearEl.value = "2025";
