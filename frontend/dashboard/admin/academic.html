@@ -8,7 +8,9 @@
   >
 </h2>
 
-<div class="card-grid" id="overallTiles">
+<!-- Overall Statistics Tiles -->
+<div class="card-grid">
+  <!-- Overall Total Candidates -->
   <div class="card w-1 h-1 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-users icon"></i>
@@ -24,14 +26,15 @@
     <p class="tile-value" id="overallTotal">--</p>
   </div>
 
-  <div class="card w-1 h-1 dashboard-tile" id="overallTile2">
+  <!-- Overall Pass Rate -->
+  <div class="card w-1 h-1 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-poll icon"></i>
       <p
         class="tile-label"
         data-en="Pass Rate"
         data-si="සමත් අනුපාතය"
-        data-ta="தேர்ச்சி விகிதம்"
+        data-ta="தேர्ச्चி விकिதम्"
       >
         Pass Rate
       </p>
@@ -39,14 +42,15 @@
     <p class="tile-value" id="overallRate">--</p>
   </div>
 
-  <div class="card w-1 h-1 dashboard-tile" id="overallTile3">
+  <!-- Overall Average Score -->
+  <div class="card w-1 h-1 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-signal icon"></i>
       <p
         class="tile-label"
         data-en="Avg Score"
         data-si="සාමාන්‍ය සාමාර්ථය"
-        data-ta="ஆல்ய சமர்த்தாய"
+        data-ta="ஆல்ய சமर्த्தாय"
       >
         Avg Score / GPA / Z
       </p>
@@ -54,14 +58,15 @@
     <p class="tile-value" id="overallAvg">--</p>
   </div>
 
-  <div class="card w-1 h-1 dashboard-tile" id="overallTile4">
+  <!-- Overall Highlights -->
+  <div class="card w-1 h-1 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-award icon"></i>
       <p
         class="tile-label"
         data-en="Highlights"
         data-si="ඉස්මතු කර ඇත"
-        data-ta="முக்கிய அம்சங்கள்"
+        data-ta="முக்கிய அम्सங्कள्"
       >
         Highlights
       </p>
@@ -82,6 +87,15 @@
     >
       Results
     </p>
+  </div>
+
+  <div class="flex gap-2" style="margin-top: 12px; margin-bottom: 16px">
+    <button class="btn btn-primary" onclick="exportPDF()">
+      <i class="fas fa-file-pdf"></i> Export PDF
+    </button>
+    <button class="btn btn-primary" onclick="exportCSV()">
+      <i class="fas fa-download"></i> Export CSV
+    </button>
   </div>
 
   <!-- Filters -->
@@ -115,7 +129,7 @@
         for="examFilter"
         data-en="Exam Type"
         data-si="විභාග වර්ගය"
-        data-ta="தேர்வு வகை"
+        data-ta="தேர्வு வகை"
         >Exam Type</label
       >
       <select id="examFilter" class="dropdown-select">
@@ -123,7 +137,7 @@
           value="term"
           data-en="Term Tests"
           data-si="වාර පරීක්ෂණ"
-          data-ta="கால தேர்வுகள்"
+          data-ta="కాల தேర్వుకள్"
         >
           Term Tests
         </option>
@@ -131,25 +145,25 @@
           value="sch"
           data-en="Grade 05 Scholarship Examination"
           data-si="5 ශ්‍රේණිය ශිෂ්‍යත්ව විභාගය"
-          data-ta="5 ஶ்ரீஷ்ய மாணவத் தேர்வு"
+          data-ta="5 ஶ்ரீஷ್ய మాணవత् తేర్వు"
         >
           Grade 05 Scholarship
         </option>
         <option
           value="ol"
           data-en="G.C.E. O/L Examination"
-          data-si="අ.පො.ස. සාමාන්‍ය පෙළ විභාගය"
-          data-ta="அ.பொ.ச. சாதாரண வகுப்பு தேர்வு"
+          data-si="සාමාන්‍ය ශිල්පීය පරීක්ෂණ"
+          data-ta="G.C.E. O/L தேர్வு"
         >
-          G.C.E. O/L
+          GCE O/L
         </option>
         <option
           value="al"
           data-en="G.C.E. A/L Examination"
-          data-si="අ.පො.ස. උසස් පෙළ විභාගය"
-          data-ta="அ.பொ.ச. உயர்தரப் படிப்பு"
+          data-si="උසස් ශිල්පීය පරීක්ෂණ"
+          data-ta="G.C.E. A/L தேர్வு"
         >
-          G.C.E. A/L
+          GCE A/L
         </option>
       </select>
     </div>
@@ -173,40 +187,25 @@
       id="termWrap"
       style="min-width: 100px; flex: 1; white-space: nowrap"
     >
-      <label for="termFilter" data-en="Term" data-si="වාරය" data-ta="காலம்"
+      <label for="termFilter" data-en="Term" data-si="වාරය" data-ta="काल"
         >Term</label
       >
       <select id="termFilter" class="dropdown-select">
         <option
           value="all"
           data-en="All Terms"
-          data-si="සියලු වාර"
-          data-ta="அனைத்து காலங்கள்"
+          data-si="සියළු වාරයන්"
+          data-ta="అన్ని కాలాలు"
         >
           All Terms
         </option>
-        <option
-          value="1"
-          data-en="Term 1"
-          data-si="1 වන වාරය"
-          data-ta="காலம் 1"
-        >
+        <option value="1" data-en="Term 1" data-si="1 වාරය" data-ta="1 కాల">
           Term 1
         </option>
-        <option
-          value="2"
-          data-en="Term 2"
-          data-si="2 වන වාරය"
-          data-ta="காலம் 2"
-        >
+        <option value="2" data-en="Term 2" data-si="2 වාරය" data-ta="2 కాల">
           Term 2
         </option>
-        <option
-          value="3"
-          data-en="Term 3"
-          data-si="3 වන වාරය"
-          data-ta="காலம் 3"
-        >
+        <option value="3" data-en="Term 3" data-si="3 වාරය" data-ta="3 కాల">
           Term 3
         </option>
       </select>
@@ -217,27 +216,30 @@
       id="classWrap"
       style="min-width: 120px; flex: 1; white-space: nowrap"
     >
-      <label
-        for="classFilter"
-        data-en="Class"
-        data-si="පන්තිය"
-        data-ta="வகுப்பு"
+      <label for="classFilter" data-en="Class" data-si="පන්තිය" data-ta="வர్గం"
         >Class</label
       >
       <select id="classFilter" class="dropdown-select">
         <option
           value="all"
           data-en="All Classes"
-          data-si="සියලුම පන්ති"
-          data-ta="அனைத்து வகுப்புகள்"
+          data-si="සියළු පන්තිය"
+          data-ta="అన్ని క్లాసులు"
         >
           All Classes
         </option>
-        <option value="10A">10-A</option>
-        <option value="10B">10-B</option>
-        <option value="11A">11-A</option>
-        <option value="11B">11-B</option>
-        <option value="11C">11-C</option>
+        <option value="6A" data-en="Grade 6 - A" data-si="6 ශ්‍රේණිය - A">
+          Grade 6 - A
+        </option>
+        <option value="6B" data-en="Grade 6 - B" data-si="6 ශ්‍රේණිය - B">
+          Grade 6 - B
+        </option>
+        <option value="11A" data-en="Grade 11 - A" data-si="11 ශ්‍රේණිය - A">
+          Grade 11 - A
+        </option>
+        <option value="11B" data-en="Grade 11 - B" data-si="11 ශ්‍රේණිය - B">
+          Grade 11 - B
+        </option>
       </select>
     </div>
 
@@ -248,46 +250,38 @@
     >
       <label
         for="streamFilter"
-        data-en="Subject Stream"
-        data-si="විෂය ධාරාව"
-        data-ta="பொருள் அளவு"
+        data-en="Stream"
+        data-si="ධාරාව"
+        data-ta="స్ట్రీమ్"
         >Stream</label
       >
       <select id="streamFilter" class="dropdown-select">
         <option
           value="all"
           data-en="All Streams"
-          data-si="සියලුම විෂය ධාරා"
-          data-ta="அனைத்து பாடம் தாரா"
+          data-si="සියළු ධාරා"
+          data-ta="అన్ని స్ట్రీమ్‌లు"
         >
           All Streams
         </option>
+        <option value="art" data-en="Art" data-si="කලා" data-ta="కళ">
+          Art
+        </option>
         <option
-          value="Science"
+          value="science"
           data-en="Science"
           data-si="විද්‍යා"
-          data-ta="அறிவியல்"
+          data-ta="విజ్ఞాన"
         >
           Science
         </option>
         <option
-          value="Commerce"
+          value="commerce"
           data-en="Commerce"
-          data-si="වාණිජ"
-          data-ta="வணிக"
+          data-si="වාණිජ්‍ය"
+          data-ta="వాణిజ్య"
         >
           Commerce
-        </option>
-        <option value="Arts" data-en="Arts" data-si="කලා" data-ta="கலை">
-          Arts
-        </option>
-        <option
-          value="Technology"
-          data-en="Technology"
-          data-si="තාක්ෂණ"
-          data-ta="தொழில்நுட்பம்"
-        >
-          Technology
         </option>
       </select>
     </div>
@@ -300,28 +294,43 @@
       <label
         for="subjectFilter"
         data-en="Subject"
-        data-si="විෂය"
-        data-ta="பாடம்"
+        data-si="විෂයය"
+        data-ta="విషయం"
         >Subject</label
       >
       <select id="subjectFilter" class="dropdown-select">
         <option
           value="all"
           data-en="All Subjects"
-          data-si="සියලුම විෂයන්"
-          data-ta="அனைத்து பாடங்கள்"
+          data-si="සියළු විෂයන්"
+          data-ta="అన్ని విషయాలు"
         >
           All Subjects
         </option>
-        <option>Mathematics</option>
-        <option>Science</option>
-        <option>English</option>
-        <option>Sinhala</option>
-        <option>History</option>
-        <option>Commerce</option>
-        <option>Buddhism</option>
-        <option>ICT</option>
-        <option>Health</option>
+        <option
+          value="math"
+          data-en="Mathematics"
+          data-si="ගණිතය"
+          data-ta="గణితం"
+        >
+          Mathematics
+        </option>
+        <option
+          value="english"
+          data-en="English"
+          data-si="ඉංග්‍රීසි"
+          data-ta="ఇంగ్లీష్"
+        >
+          English
+        </option>
+        <option
+          value="science"
+          data-en="Science"
+          data-si="විද්‍යා"
+          data-ta="విజ్ఞాన"
+        >
+          Science
+        </option>
       </select>
     </div>
   </div>
@@ -340,21 +349,11 @@
         class="filter-info"
         data-en="Showing results based on selected filters."
         data-si="තෝරාගත් පෙරහන් පදනම්ව ප්‍රතිඵල පෙන්වයි."
-        data-ta="தேர்ந்தெடுக்கப்பட்ட வடிகட்டிகளின் அடிப்படையில் முடிவுகள் காட்டப்படுகின்றன."
+        data-ta="தேர్ న్నెడుక్కపట్ట వడిగట్టిలోన్ అడిప్పటలోన్ ముడిపుకులు క్లాసులు కాట్టపడుతున్న"
       >
         Showing results based on selected filters.
       </p>
     </div>
-  </div>
-
-  <!-- 📤 Export (filtered only) -->
-  <div class="action-container export-buttons">
-    <button class="btn btn-secondary" onclick="exportPDF()">
-      <i class="fas fa-file-pdf"></i> PDF
-    </button>
-    <button class="btn btn-secondary" onclick="exportCSV()">
-      <i class="fas fa-file-excel"></i> Excel
-    </button>
   </div>
 </div>
 
@@ -366,7 +365,7 @@
       class="tile-label"
       data-en="Filtered Summary"
       data-si="පෙරහන් කළ සාරාංශය"
-      data-ta="வடிகட்டப்பட்ட சுருக்கம்"
+      data-ta="வடிகட்டப்பட்ட సుരుక్కమ"
     >
       Filtered Summary
     </p>
@@ -374,20 +373,20 @@
   <p
     data-en="These tiles reflect the current filter selection."
     data-si="මෙම සාරාංශය වර්තමාන පෙරහන අනුවයි."
-    data-ta="இந்த சுருக்கம் தற்போதைய வடிகட்டலின் அடிப்படையில் உள்ளது."
+    data-ta="ఇవి తిలోలు ప్రస్తుత వడిగట్టీ ఎంపికను ప్రతిబింబిస్తాయి"
   >
     These tiles reflect the current filter selection.
   </p>
 
-  <div class="card-grid" id="filteredTiles">
+  <div class="card-grid">
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
-        <i class="fas fa-users icon"></i>
+        <i class="fas fa-database icon"></i>
         <p
           class="tile-label"
           data-en="Records"
           data-si="ලේඛන"
-          data-ta="பதிவுகள்"
+          data-ta="నిర్లేఖనాలు"
         >
           Records
         </p>
@@ -398,31 +397,31 @@
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
         <i class="fas fa-check-circle icon"></i>
-        <p class="tile-label" data-en="Pass" data-si="සමත්" data-ta="தேர்ச்சி">
+        <p class="tile-label" data-en="Pass" data-si="සමත්" data-ta="పాస్">
           Pass
         </p>
       </div>
       <p class="tile-value" id="fPass">--</p>
     </div>
 
-    <div class="card w-1 h-1 dashboard-tile" id="fTile3Wrap">
+    <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
         <i class="fas fa-times-circle icon"></i>
-        <p class="tile-label" data-en="Fail" data-si="අසමත්" data-ta="தோல்வி">
+        <p class="tile-label" data-en="Fail" data-si="අසමත්" data-ta="విఫలం">
           Fail
         </p>
       </div>
       <p class="tile-value" id="fFail">--</p>
     </div>
 
-    <div class="card w-1 h-1 dashboard-tile" id="fTile4Wrap">
+    <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
         <i class="fas fa-signal icon"></i>
         <p
           class="tile-label"
           data-en="Avg Score"
           data-si="සාමාන්‍ය සාමාර්ථය"
-          data-ta="ஆல்ய சமர்த்தாய"
+          data-ta="సగటు స్కోర్"
         >
           Avg Score / GPA / Z
         </p>
@@ -432,37 +431,37 @@
   </div>
 </div>
 
-<!-- 📈 Charts (2 per row) -->
-<div class="chart-container">
+<!-- 📈 Charts -->
+<div class="card-grid">
   <!-- Chart A -->
-  <div class="card dashboard-tile chart-tile">
+  <div class="card w-1 h-1 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-chart-pie icon"></i>
       <p
-        class="tile-label"
         id="chartATitle"
-        data-en="Distribution"
-        data-si="ව්‍යාප්තිය"
-        data.ta="பகிர்வு"
+        class="tile-label"
+        data-en="Grade Distribution"
+        data-si="ශ්‍රේණිවල බෙදාහැරීම"
+        data-ta="గ్రేడ్ సంపంధం"
       >
-        Distribution
+        Grade Distribution
       </p>
     </div>
     <div class="chart-wrapper"><canvas id="chartA"></canvas></div>
   </div>
 
   <!-- Chart B -->
-  <div class="card dashboard-tile chart-tile">
+  <div class="card w-1 h-1 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-chart-bar icon"></i>
       <p
-        class="tile-label"
         id="chartBTitle"
-        data-en="Performance by Category"
-        data-si="ප්‍රවර්ග අනුව කාර්ය සාධනය"
-        data-ta="வகைப்பட செயல்திறன்"
+        class="tile-label"
+        data-en="Subject-wise Performance"
+        data-si="විෂයය අනුව කාර්යසාධන"
+        data-ta="విషయ-వారీ పనితీරు"
       >
-        Performance by Category
+        Subject-wise Performance
       </p>
     </div>
     <div class="chart-wrapper"><canvas id="chartB"></canvas></div>
@@ -476,7 +475,7 @@
     <span
       data-en="Back to Dashboard"
       data-si="ඩෑෂ්බෝඩ් වෙත"
-      data-ta="டாஷ்போர்டுக்கு திரும்ப"
+      data-ta="డ్యాష్‌బోర్డ్‌కు తిరిగి"
       >Back to Dashboard</span
     >
   </a>
@@ -489,492 +488,38 @@
 <script src="../../../js/dropdown.js"></script>
 <script>
   /* =========================
-   Sample datasets (10–15 rows)
+   Load datasets from JSON
    ========================= */
-  const dataSets = {
-    // ---- Term Tests (marks per subject, per student) ----
-    term: [
-      {
-        year: 2025,
-        term: "1",
-        cls: "10A",
-        name: "Hansa Nirmal",
-        subject: "Mathematics",
-        marks: 88,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "10A",
-        name: "Yoshadhi Edirisinghe",
-        subject: "Mathematics",
-        marks: 75,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "10B",
-        name: "Chandupa Silva",
-        subject: "Mathematics",
-        marks: 62,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "11A",
-        name: "Pasindu Anjana",
-        subject: "Mathematics",
-        marks: 91,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "11B",
-        name: "Nirmal Kolabage",
-        subject: "Mathematics",
-        marks: 54,
-      },
+  let dataSets = {};
 
-      {
-        year: 2025,
-        term: "1",
-        cls: "10A",
-        name: "Hansa Nirmal",
-        subject: "Science",
-        marks: 82,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "10A",
-        name: "Yoshadhi Edirisinghe",
-        subject: "Science",
-        marks: 78,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "10B",
-        name: "Chandupa Silva",
-        subject: "Science",
-        marks: 71,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "11A",
-        name: "Pasindu Anjana",
-        subject: "Science",
-        marks: 89,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "11B",
-        name: "Nirmal Kolabage",
-        subject: "Science",
-        marks: 60,
-      },
+  fetch("../../../data/academic_reports.json")
+    .then((response) => {
+      if (!response.ok)
+        throw new Error(`Failed to load data: ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      dataSets = data;
+      // Initialize the page after data is loaded
+      initializePage();
+    })
+    .catch((error) => {
+      console.error("Error loading academic data:", error);
+      // Fallback: show error message
+      document.body.insertAdjacentHTML(
+        "afterbegin",
+        '<div style="background: #fee; color: #c33; padding: 20px; margin: 10px; border-radius: 4px;">⚠️ Failed to load academic data. Please check the console for details.</div>'
+      );
+    });
 
-      {
-        year: 2025,
-        term: "1",
-        cls: "10A",
-        name: "Hansa Nirmal",
-        subject: "English",
-        marks: 84,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "10A",
-        name: "Yoshadhi Edirisinghe",
-        subject: "English",
-        marks: 86,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "10B",
-        name: "Chandupa Silva",
-        subject: "English",
-        marks: 68,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "11A",
-        name: "Pasindu Anjana",
-        subject: "English",
-        marks: 90,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "11B",
-        name: "Nirmal Kolabage",
-        subject: "English",
-        marks: 74,
-      },
-
-      {
-        year: 2025,
-        term: "1",
-        cls: "10A",
-        name: "Hansa Nirmal",
-        subject: "Sinhala",
-        marks: 87,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "10A",
-        name: "Yoshadhi Edirisinghe",
-        subject: "Sinhala",
-        marks: 79,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "10B",
-        name: "Chandupa Silva",
-        subject: "Sinhala",
-        marks: 70,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "11A",
-        name: "Pasindu Anjana",
-        subject: "Sinhala",
-        marks: 92,
-      },
-      {
-        year: 2025,
-        term: "1",
-        cls: "11B",
-        name: "Nirmal Kolabage",
-        subject: "Sinhala",
-        marks: 66,
-      },
-    ],
-
-    // ---- Scholarship (Pass/Fail + numeric marks) ----
-    sch: [
-      {
-        year: 2025,
-        name: "Hansa Nirmal",
-        index: "SCH250001",
-        marks: 168,
-        result: "Pass",
-      },
-      {
-        year: 2025,
-        name: "Yoshadhi Edirisinghe",
-        index: "SCH250002",
-        marks: 142,
-        result: "Pass",
-      },
-      {
-        year: 2025,
-        name: "Chandupa Silva",
-        index: "SCH250003",
-        marks: 98,
-        result: "Fail",
-      },
-      {
-        year: 2025,
-        name: "Pasindu Anjana",
-        index: "SCH250004",
-        marks: 120,
-        result: "Pass",
-      },
-      {
-        year: 2024,
-        name: "Nirmal Kolabage",
-        index: "SCH240001",
-        marks: 132,
-        result: "Pass",
-      },
-      {
-        year: 2024,
-        name: "Tharushi Senarath",
-        index: "SCH240002",
-        marks: 76,
-        result: "Fail",
-      },
-      {
-        year: 2023,
-        name: "Isuru Fernando",
-        index: "SCH230001",
-        marks: 154,
-        result: "Pass",
-      },
-      {
-        year: 2023,
-        name: "Dinithi Jayawardena",
-        index: "SCH230002",
-        marks: 91,
-        result: "Fail",
-      },
-    ],
-
-    // ---- O/L (per-subject rows; count candidates by unique index) ----
-    ol: [
-      // 2025 - 11A
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Hansa Nirmal",
-        index: "OL250001",
-        subject: "Mathematics",
-        grade: "A",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Hansa Nirmal",
-        index: "OL250001",
-        subject: "Science",
-        grade: "A",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Hansa Nirmal",
-        index: "OL250001",
-        subject: "Sinhala",
-        grade: "B",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Hansa Nirmal",
-        index: "OL250001",
-        subject: "English",
-        grade: "A",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Hansa Nirmal",
-        index: "OL250001",
-        subject: "History",
-        grade: "A",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Hansa Nirmal",
-        index: "OL250001",
-        subject: "Commerce",
-        grade: "A",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Hansa Nirmal",
-        index: "OL250001",
-        subject: "Buddhism",
-        grade: "A",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Hansa Nirmal",
-        index: "OL250001",
-        subject: "ICT",
-        grade: "B",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Hansa Nirmal",
-        index: "OL250001",
-        subject: "Health",
-        grade: "A",
-      },
-
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Yoshadhi Edirisinghe",
-        index: "OL250002",
-        subject: "Mathematics",
-        grade: "B",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Yoshadhi Edirisinghe",
-        index: "OL250002",
-        subject: "Science",
-        grade: "B",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Yoshadhi Edirisinghe",
-        index: "OL250002",
-        subject: "Sinhala",
-        grade: "A",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Yoshadhi Edirisinghe",
-        index: "OL250002",
-        subject: "English",
-        grade: "A",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Yoshadhi Edirisinghe",
-        index: "OL250002",
-        subject: "History",
-        grade: "A",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Yoshadhi Edirisinghe",
-        index: "OL250002",
-        subject: "Commerce",
-        grade: "C",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Yoshadhi Edirisinghe",
-        index: "OL250002",
-        subject: "Buddhism",
-        grade: "A",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Yoshadhi Edirisinghe",
-        index: "OL250002",
-        subject: "ICT",
-        grade: "B",
-      },
-      {
-        year: 2025,
-        cls: "11A",
-        name: "Yoshadhi Edirisinghe",
-        index: "OL250002",
-        subject: "Health",
-        grade: "A",
-      },
-
-      // 2024 - 11B (short sample)
-      {
-        year: 2024,
-        cls: "11B",
-        name: "Chandupa Silva",
-        index: "OL240001",
-        subject: "Mathematics",
-        grade: "C",
-      },
-      {
-        year: 2024,
-        cls: "11B",
-        name: "Chandupa Silva",
-        index: "OL240001",
-        subject: "Science",
-        grade: "S",
-      },
-      {
-        year: 2024,
-        cls: "11B",
-        name: "Chandupa Silva",
-        index: "OL240001",
-        subject: "ICT",
-        grade: "S",
-      },
-
-      // 2023 - 11C (short sample)
-      {
-        year: 2023,
-        cls: "11C",
-        name: "Pasindu Anjana",
-        index: "OL230001",
-        subject: "Mathematics",
-        grade: "A",
-      },
-      {
-        year: 2023,
-        cls: "11C",
-        name: "Pasindu Anjana",
-        index: "OL230001",
-        subject: "Science",
-        grade: "A",
-      },
-      {
-        year: 2023,
-        cls: "11C",
-        name: "Pasindu Anjana",
-        index: "OL230001",
-        subject: "English",
-        grade: "A",
-      },
-    ],
-
-    // ---- A/L (per student row) ----
-    al: [
-      {
-        year: 2025,
-        name: "Hansa Nirmal",
-        index: "AL250001",
-        stream: "Science",
-        z: 1.9854,
-        districtRank: 12,
-        islandRank: 250,
-        result: "Pass",
-      },
-      {
-        year: 2025,
-        name: "Yoshadhi Edirisinghe",
-        index: "AL250002",
-        stream: "Commerce",
-        z: 1.412,
-        districtRank: 85,
-        islandRank: 1200,
-        result: "Pass",
-      },
-      {
-        year: 2024,
-        name: "Chandupa Silva",
-        index: "AL240001",
-        stream: "Arts",
-        z: 0.7521,
-        districtRank: 402,
-        islandRank: 5400,
-        result: "Fail",
-      },
-      {
-        year: 2024,
-        name: "Pasindu Anjana",
-        index: "AL240002",
-        stream: "Science",
-        z: 1.625,
-        districtRank: 60,
-        islandRank: 980,
-        result: "Pass",
-      },
-      {
-        year: 2023,
-        name: "Nirmal Kolabage",
-        index: "AL230001",
-        stream: "Technology",
-        z: 1.1054,
-        districtRank: 220,
-        islandRank: 3500,
-        result: "Pass",
-      },
-    ],
-  };
+  function initializePage() {
+    // This will be called after data is loaded
+    initializeSearchableDropdowns();
+    examEl.value = "term";
+    yearEl.value = "2025";
+    updateText(getLang());
+    filterData();
+  }
 
   /* =========================
    DOM refs
@@ -991,14 +536,6 @@
   const classWrap = document.getElementById("classWrap");
   const streamWrap = document.getElementById("streamWrap");
   const subjectWrap = document.getElementById("subjectWrap");
-
-  // Searchable dropdown instances
-  let searchableExamFilter = null;
-  let searchableYearFilter = null;
-  let searchableTermFilter = null;
-  let searchableClassFilter = null;
-  let searchableStreamFilter = null;
-  let searchableSubjectFilter = null;
 
   const tableHead = document.getElementById("tableHead");
   const tableBody = document.getElementById("tableBody");
@@ -1023,6 +560,7 @@
     const set = new Set(arr.map((r) => r.index));
     return set.size;
   }
+
   function gradeToPoint(g) {
     return { A: 4, B: 3, C: 2, S: 1, W: 0 }[g] ?? 0;
   }
@@ -1043,10 +581,8 @@
    ========================= */
   function updateOverallTiles(exam, yearData) {
     if (exam === "term") {
-      // Candidates = unique students in yearData
       const unique = new Set(yearData.map((d) => d.cls + "|" + d.name));
       overallTotal.textContent = unique.size;
-      // Pass Rate (simple: marks >= 50 as pass)
       const pass = yearData.filter((d) => d.marks >= 50).length;
       const rate = yearData.length
         ? Math.round((pass / yearData.length) * 100)
@@ -1058,45 +594,40 @@
     }
 
     if (exam === "sch") {
-      // Candidates = yearData.length (each row=student)
       overallTotal.textContent = yearData.length;
       const pass = yearData.filter((d) => d.result === "Pass").length;
       overallRate.textContent = yearData.length
-        ? Math.round((pass / yearData.length) * 100) + "%"
+        ? Math.round((pass / yearData.length) * 100)
         : "--";
-      overallAvg.textContent = avg(yearData.map((d) => d.marks)).toFixed(1); // Avg Score (correct)
+      overallAvg.textContent = avg(yearData.map((d) => d.marks)).toFixed(1);
       overallHighlight.textContent =
         pass >= yearData.length * 0.6 ? "Good intake" : "Needs support";
       return;
     }
 
     if (exam === "ol") {
-      // Candidates = unique index in yearData
       overallTotal.textContent = getUniqueCountByIndex(yearData);
       const passSubs = yearData.filter((d) => d.grade !== "W").length;
       overallRate.textContent = yearData.length
-        ? Math.round((passSubs / yearData.length) * 100) + "%"
+        ? Math.round((passSubs / yearData.length) * 100)
         : "--";
       overallAvg.textContent = avg(
         yearData.map((d) => gradeToPoint(d.grade))
-      ).toFixed(2); // GPA-like
+      ).toFixed(2);
       const aCount = yearData.filter((d) => d.grade === "A").length;
       overallHighlight.textContent = `A: ${aCount}`;
       return;
     }
 
     if (exam === "al") {
-      // Candidates = yearData.length (each row=student)
       overallTotal.textContent = yearData.length;
       const pass = yearData.filter((d) => d.result === "Pass").length;
       overallRate.textContent = yearData.length
-        ? Math.round((pass / yearData.length) * 100) + "%"
+        ? Math.round((pass / yearData.length) * 100)
         : "--";
-      overallAvg.textContent = avg(yearData.map((d) => d.z)).toFixed(3); // Z-score avg
+      overallAvg.textContent = avg(yearData.map((d) => d.z)).toFixed(3);
       const top = yearData.slice().sort((a, b) => b.z - a.z)[0];
-      overallHighlight.textContent = top
-        ? `${top.stream} Z ${top.z.toFixed(3)}`
-        : "--";
+      overallHighlight.textContent = top ? `Z: ${top.z.toFixed(2)}` : "--";
     }
   }
 
@@ -1148,32 +679,22 @@
   function renderTable(exam, data) {
     if (exam === "term") {
       setHead([
-        {
-          text: "Class",
-          attr: 'data-en="Class" data-si="පන්තිය" data-ta="வகுப்பு"',
-        },
-        {
-          text: "Student",
-          attr: 'data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்"',
-        },
-        {
-          text: "Subject",
-          attr: 'data-en="Subject" data-si="විෂය" data-ta="பாடம்"',
-        },
-        {
-          text: "Marks",
-          attr: 'data-en="Marks" data-si="ලකුණු" data-ta="மதிப்பெண்கள்"',
-        },
+        { text: "Class", attr: "" },
+        { text: "Name", attr: "" },
+        { text: "Index", attr: "" },
+        { text: "Subject", attr: "" },
+        { text: "Marks", attr: "" },
       ]);
       tableBody.innerHTML = data
         .map(
           (d) => `
-      <tr>
-        <td>${d.cls}</td>
-        <td>${d.name}</td>
-        <td>${d.subject}</td>
-        <td>${d.marks}</td>
-      </tr>`
+        <tr>
+          <td>${d.cls}</td>
+          <td>${d.name}</td>
+          <td>${d.index}</td>
+          <td>${d.subject}</td>
+          <td>${d.marks}</td>
+        </tr>`
         )
         .join("");
       return;
@@ -1181,32 +702,20 @@
 
     if (exam === "sch") {
       setHead([
-        {
-          text: "Student",
-          attr: 'data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்"',
-        },
-        {
-          text: "Index No",
-          attr: 'data-en="Index No" data-si="දර්ශක අංකය" data-ta="தொகுதி எண்"',
-        },
-        {
-          text: "Marks",
-          attr: 'data-en="Marks" data-si="ලකුණු" data-ta="மதிப்பெண்கள்"',
-        },
-        {
-          text: "Result",
-          attr: 'data-en="Result" data-si="ප්‍රතිඵලය" data-ta="முடிவு"',
-        },
+        { text: "Name", attr: "" },
+        { text: "Index", attr: "" },
+        { text: "Marks", attr: "" },
+        { text: "Result", attr: "" },
       ]);
       tableBody.innerHTML = data
         .map(
           (d) => `
-      <tr>
-        <td>${d.name}</td>
-        <td>${d.index}</td>
-        <td>${d.marks}</td>
-        <td>${d.result}</td>
-      </tr>`
+        <tr>
+          <td>${d.name}</td>
+          <td>${d.index}</td>
+          <td>${d.marks}</td>
+          <td>${d.result}</td>
+        </tr>`
         )
         .join("");
       return;
@@ -1214,37 +723,22 @@
 
     if (exam === "ol") {
       setHead([
-        {
-          text: "Class",
-          attr: 'data-en="Class" data-si="පන්තිය" data-ta="வகுப்பு"',
-        },
-        {
-          text: "Student",
-          attr: 'data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்"',
-        },
-        {
-          text: "Index No",
-          attr: 'data-en="Index No" data-si="දර්ශක අංකය" data-ta="தொகுதி எண்"',
-        },
-        {
-          text: "Subject",
-          attr: 'data-en="Subject" data-si="විෂය" data-ta="பாடம்"',
-        },
-        {
-          text: "Grade",
-          attr: 'data-en="Grade" data-si="ශ්‍රේණිය" data-ta="தரம்"',
-        },
+        { text: "Index", attr: "" },
+        { text: "Name", attr: "" },
+        { text: "Class", attr: "" },
+        { text: "Subject", attr: "" },
+        { text: "Grade", attr: "" },
       ]);
       tableBody.innerHTML = data
         .map(
           (d) => `
-      <tr>
-        <td>${d.cls}</td>
-        <td>${d.name}</td>
-        <td>${d.index}</td>
-        <td>${d.subject}</td>
-        <td>${d.grade}</td>
-      </tr>`
+        <tr>
+          <td>${d.index}</td>
+          <td>${d.name}</td>
+          <td>${d.cls}</td>
+          <td>${d.subject}</td>
+          <td>${d.grade}</td>
+        </tr>`
         )
         .join("");
       return;
@@ -1252,47 +746,22 @@
 
     if (exam === "al") {
       setHead([
-        {
-          text: "Student",
-          attr: 'data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்"',
-        },
-        {
-          text: "Index No",
-          attr: 'data-en="Index No" data-si="දර්ශක අංකය" data-ta="தொகுதி எண்"',
-        },
-        {
-          text: "Stream",
-          attr: 'data-en="Stream" data-si="ධාරාව" data-ta="ஓட்டம்"',
-        },
-        {
-          text: "Z-Score",
-          attr: 'data-en="Z-Score" data-si="Z ලකුණ" data-ta="Z-Score"',
-        },
-        {
-          text: "District Rank",
-          attr: 'data-en="District Rank" data-si="දිස්ත්‍රික් ශ්‍රේණිය" data-ta="மாவட்ட தரவரிசை"',
-        },
-        {
-          text: "Island Rank",
-          attr: 'data-en="Island Rank" data-si="දිවයිනේ ශ්‍රේණිය" data-ta="தீவு தரவரிசை"',
-        },
-        {
-          text: "Result",
-          attr: 'data-en="Result" data-si="ප්‍රතිඵලය" data-ta="முடிவு"',
-        },
+        { text: "Index", attr: "" },
+        { text: "Name", attr: "" },
+        { text: "Stream", attr: "" },
+        { text: "Z-Score", attr: "" },
+        { text: "Result", attr: "" },
       ]);
       tableBody.innerHTML = data
         .map(
           (d) => `
-      <tr>
-        <td>${d.name}</td>
-        <td>${d.index}</td>
-        <td>${d.stream}</td>
-        <td>${d.z.toFixed(3)}</td>
-        <td>${d.districtRank}</td>
-        <td>${d.islandRank}</td>
-        <td>${d.result}</td>
-      </tr>`
+        <tr>
+          <td>${d.index}</td>
+          <td>${d.name}</td>
+          <td>${d.stream}</td>
+          <td>${d.z.toFixed(2)}</td>
+          <td>${d.result}</td>
+        </tr>`
         )
         .join("");
     }
@@ -1323,38 +792,45 @@
       // A: Subject average marks
       const subjects = [...new Set(data.map((d) => d.subject))];
       const avgs = subjects.map((s) =>
-        avg(data.filter((d) => d.subject === s).map((d) => d.marks)).toFixed(1)
+        avg(data.filter((d) => d.subject === s).map((d) => d.marks))
       );
       chartA = new Chart(ctxA, {
         type: "bar",
         data: {
           labels: subjects,
           datasets: [
-            { label: "Avg Marks", data: avgs, backgroundColor: "#2196F3" },
+            {
+              label: "Average Marks",
+              data: avgs,
+              backgroundColor: "rgba(75, 192, 192, 0.2)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1,
+            },
           ],
         },
-        options: {
-          responsive: true,
-          scales: { y: { beginAtZero: true, max: 100 } },
-        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } },
       });
+
       // B: Mark distribution
       const buckets = [0, 50, 60, 70, 80, 90, 100];
       const counts = new Array(buckets.length - 1).fill(0);
       data.forEach((d) => {
         for (let i = 0; i < buckets.length - 1; i++) {
-          if (d.marks >= buckets[i] && d.marks < buckets[i + 1]) {
-            counts[i]++;
-            break;
-          }
+          if (d.marks >= buckets[i] && d.marks < buckets[i + 1]) counts[i]++;
         }
       });
       chartB = new Chart(ctxB, {
         type: "bar",
         data: {
-          labels: ["0-49", "50-59", "60-69", "70-79", "80-89", "90-99"],
+          labels: buckets.slice(0, -1).map((b, i) => `${b}-${buckets[i + 1]}`),
           datasets: [
-            { label: "Students", data: counts, backgroundColor: "#4CAF50" },
+            {
+              label: "Count",
+              data: counts,
+              backgroundColor: "rgba(153, 102, 255, 0.2)",
+              borderColor: "rgba(153, 102, 255, 1)",
+              borderWidth: 1,
+            },
           ],
         },
         options: { responsive: true, scales: { y: { beginAtZero: true } } },
@@ -1368,35 +844,42 @@
       const pass = data.filter((d) => d.result === "Pass").length;
       const fail = data.length - pass;
       chartA = new Chart(ctxA, {
-        type: "doughnut",
+        type: "pie",
         data: {
           labels: ["Pass", "Fail"],
           datasets: [
-            { data: [pass, fail], backgroundColor: ["#4CAF50", "#F44336"] },
+            {
+              data: [pass, fail],
+              backgroundColor: [
+                "rgba(75, 192, 75, 0.7)",
+                "rgba(255, 99, 99, 0.7)",
+              ],
+            },
           ],
         },
-        options: {
-          responsive: true,
-          plugins: { legend: { position: "bottom" } },
-        },
+        options: { responsive: true },
       });
-      // B: Marks distribution (numeric)
+
+      // B: Marks distribution
       const buckets = [0, 50, 75, 100, 125, 150, 200];
       const counts = new Array(buckets.length - 1).fill(0);
       data.forEach((d) => {
         for (let i = 0; i < buckets.length - 1; i++) {
-          if (d.marks >= buckets[i] && d.marks < buckets[i + 1]) {
-            counts[i]++;
-            break;
-          }
+          if (d.marks >= buckets[i] && d.marks < buckets[i + 1]) counts[i]++;
         }
       });
       chartB = new Chart(ctxB, {
         type: "bar",
         data: {
-          labels: ["0-49", "50-74", "75-99", "100-124", "125-149", "150-199"],
+          labels: buckets.slice(0, -1).map((b, i) => `${b}-${buckets[i + 1]}`),
           datasets: [
-            { label: "Students", data: counts, backgroundColor: "#2196F3" },
+            {
+              label: "Count",
+              data: counts,
+              backgroundColor: "rgba(255, 159, 64, 0.2)",
+              borderColor: "rgba(255, 159, 64, 1)",
+              borderWidth: 1,
+            },
           ],
         },
         options: { responsive: true, scales: { y: { beginAtZero: true } } },
@@ -1406,37 +889,44 @@
     }
 
     if (exam === "ol") {
-      // A: Grade distribution (A,B,C,S,W)
+      // A: Grade distribution
       const grades = ["A", "B", "C", "S", "W"];
       const gCounts = grades.map(
         (g) => data.filter((d) => d.grade === g).length
       );
       chartA = new Chart(ctxA, {
-        type: "bar",
+        type: "doughnut",
         data: {
           labels: grades,
           datasets: [
-            { label: "Count", data: gCounts, backgroundColor: "#4CAF50" },
+            {
+              data: gCounts,
+              backgroundColor: [
+                "#4CAF50",
+                "#8BC34A",
+                "#CDDC39",
+                "#FFC107",
+                "#FF6F00",
+              ],
+            },
           ],
         },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } },
+        options: { responsive: true },
       });
 
-      // B: Subject-wise stacked grades
+      // B: Subject-wise grades
       const subjects = [...new Set(data.map((d) => d.subject))];
       const colors = {
-        A: "#4CAF50",
-        B: "#8BC34A",
-        C: "#FFC107",
-        S: "#FF9800",
-        W: "#F44336",
+        A: "rgba(76, 175, 80, 0.7)",
+        B: "rgba(156, 204, 101, 0.7)",
+        C: "rgba(205, 220, 57, 0.7)",
       };
       const ds = Object.keys(colors).map((g) => ({
         label: g,
-        backgroundColor: colors[g],
         data: subjects.map(
           (s) => data.filter((d) => d.subject === s && d.grade === g).length
         ),
+        backgroundColor: colors[g],
         stack: "grades",
       }));
       chartB = new Chart(ctxB, {
@@ -1444,10 +934,7 @@
         data: { labels: subjects, datasets: ds },
         options: {
           responsive: true,
-          scales: {
-            x: { stacked: true },
-            y: { stacked: true, beginAtZero: true },
-          },
+          scales: { y: { beginAtZero: true, stacked: true } },
         },
       });
 
@@ -1458,18 +945,19 @@
     if (exam === "al") {
       // A: Avg Z by stream
       const streams = [...new Set(data.map((d) => d.stream))];
-      const avgZ = streams.map((s) => {
-        const arr = data.filter((d) => d.stream === s).map((x) => x.z);
-        return arr.length
-          ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(3)
-          : 0;
-      });
+      const avgZ = streams.map((s) =>
+        avg(data.filter((d) => d.stream === s).map((d) => d.z))
+      );
       chartA = new Chart(ctxA, {
         type: "bar",
         data: {
           labels: streams,
           datasets: [
-            { label: "Avg Z-Score", data: avgZ, backgroundColor: "#3F51B5" },
+            {
+              label: "Average Z-Score",
+              data: avgZ,
+              backgroundColor: "rgba(54, 162, 235, 0.7)",
+            },
           ],
         },
         options: { responsive: true, scales: { y: { beginAtZero: true } } },
@@ -1479,17 +967,20 @@
       const pass = data.filter((d) => d.result === "Pass").length;
       const fail = data.length - pass;
       chartB = new Chart(ctxB, {
-        type: "doughnut",
+        type: "pie",
         data: {
           labels: ["Pass", "Fail"],
           datasets: [
-            { data: [pass, fail], backgroundColor: ["#4CAF50", "#F44336"] },
+            {
+              data: [pass, fail],
+              backgroundColor: [
+                "rgba(75, 192, 75, 0.7)",
+                "rgba(255, 99, 99, 0.7)",
+              ],
+            },
           ],
         },
-        options: {
-          responsive: true,
-          plugins: { legend: { position: "bottom" } },
-        },
+        options: { responsive: true },
       });
 
       setChartTitles("Average Z-Score by Stream", "Pass / Fail");
@@ -1502,7 +993,6 @@
   function applyIndexSearch(rows) {
     const q = indexSearchEl.value.trim().toLowerCase();
     if (!q) return rows;
-    // match index, name, class or subject - case-insensitive
     return rows.filter((r) => {
       const index = (r.index || "").toString().toLowerCase();
       const name = (r.name || "").toString().toLowerCase();
@@ -1521,21 +1011,18 @@
     const exam = examEl.value;
     const year = parseInt(yearEl.value, 10);
 
-    // Toggle filter blocks
     termWrap.style.display = exam === "term" ? "" : "none";
     classWrap.style.display = exam === "term" || exam === "ol" ? "" : "none";
     subjectWrap.style.display = exam === "term" || exam === "ol" ? "" : "none";
     streamWrap.style.display = exam === "al" ? "" : "none";
 
-    // Base year scope
     let data = dataSets[exam].filter((d) => d.year === year);
 
-    // Extra filters
     if (exam === "term") {
       const t = termEl.value;
       const cls = classEl.value;
       const subj = subjectEl.value;
-      if (t !== "all") data = data.filter((d) => d.term === t);
+      if (t !== "all") data = data.filter((d) => d.term === parseInt(t));
       if (cls !== "all") data = data.filter((d) => d.cls === cls);
       if (subj !== "all") data = data.filter((d) => d.subject === subj);
     }
@@ -1550,22 +1037,17 @@
       if (st !== "all") data = data.filter((d) => d.stream === st);
     }
 
-    // Index search (works for any exam having index field)
     data = applyIndexSearch(data);
 
     currentFiltered = data;
     renderTable(exam, data);
     updateFilteredTiles(exam, data);
-    // overall = full year scope (before index search & extra filters)
     const yearData = dataSets[exam].filter((d) => d.year === year);
     updateOverallTiles(exam, yearData);
     renderCharts(exam, data);
 
-    // Info line
     const info = document.getElementById("filterInfo");
-    const examText =
-      examEl.selectedOptions[0].getAttribute("data-en") ||
-      examEl.selectedOptions[0].textContent;
+    const examText = examEl.selectedOptions[0].textContent;
     info.textContent = `${examText} — ${year} — ${data.length} record(s)`;
   }
 
@@ -1578,37 +1060,33 @@
     let rows = [];
 
     if (exam === "term") {
-      header = ["Class", "Student", "Subject", "Marks"];
-      rows = currentFiltered.map((d) => [d.cls, d.name, d.subject, d.marks]);
-    } else if (exam === "sch") {
-      header = ["Student", "Index No", "Marks", "Result"];
-      rows = currentFiltered.map((d) => [d.name, d.index, d.marks, d.result]);
-    } else if (exam === "ol") {
-      header = ["Class", "Student", "Index No", "Subject", "Grade"];
+      header = ["Class", "Name", "Index", "Subject", "Marks"];
       rows = currentFiltered.map((d) => [
         d.cls,
         d.name,
         d.index,
         d.subject,
+        d.marks,
+      ]);
+    } else if (exam === "sch") {
+      header = ["Name", "Index", "Marks", "Result"];
+      rows = currentFiltered.map((d) => [d.name, d.index, d.marks, d.result]);
+    } else if (exam === "ol") {
+      header = ["Index", "Name", "Class", "Subject", "Grade"];
+      rows = currentFiltered.map((d) => [
+        d.index,
+        d.name,
+        d.cls,
+        d.subject,
         d.grade,
       ]);
     } else {
-      header = [
-        "Student",
-        "Index No",
-        "Stream",
-        "Z-Score",
-        "District Rank",
-        "Island Rank",
-        "Result",
-      ];
+      header = ["Index", "Name", "Stream", "Z-Score", "Result"];
       rows = currentFiltered.map((d) => [
-        d.name,
         d.index,
+        d.name,
         d.stream,
-        d.z.toFixed(3),
-        d.districtRank,
-        d.islandRank,
+        d.z.toFixed(2),
         d.result,
       ]);
     }
@@ -1631,48 +1109,27 @@
     const examText = examEl.selectedOptions[0].textContent;
 
     win.document.write(
-      "<html><head><title>Academic Report</title></head><body>"
+      `<html><head><title>Academic Report</title></head><body>`
     );
+    win.document.write(`<h1>${examText} - ${yearEl.value}</h1>`);
+    win.document.write(`<p>Generated: ${when}</p>`);
     win.document.write(
-      `<h3 style="font-family:Arial;margin:0 0 10px 0">${examText} — ${yearEl.value}</h3>`
-    );
-    win.document.write(
-      `<div style="font-family:Arial;margin:0 0 10px 0">${when}</div>`
-    );
-    win.document.write(
-      '<table border="1" cellspacing="0" cellpadding="6" style="width:100%;font-family:Arial;font-size:12px;border-collapse:collapse">'
+      `<table border="1" cellpadding="5" cellspacing="0" style="width:100%;">`
     );
 
-    // headers
     win.document.write("<tr>");
     tableHead
       .querySelectorAll("th")
       .forEach((th) => win.document.write(`<th>${th.textContent}</th>`));
     win.document.write("</tr>");
 
-    // rows (filtered)
     currentFiltered.forEach((d) => {
-      if (examEl.value === "term") {
-        win.document.write(
-          `<tr><td>${d.cls}</td><td>${d.name}</td><td>${d.subject}</td><td>${d.marks}</td></tr>`
-        );
-      } else if (examEl.value === "sch") {
-        win.document.write(
-          `<tr><td>${d.name}</td><td>${d.index}</td><td>${d.marks}</td><td>${d.result}</td></tr>`
-        );
-      } else if (examEl.value === "ol") {
-        win.document.write(
-          `<tr><td>${d.cls}</td><td>${d.name}</td><td>${d.index}</td><td>${d.subject}</td><td>${d.grade}</td></tr>`
-        );
-      } else {
-        win.document.write(
-          `<tr><td>${d.name}</td><td>${d.index}</td><td>${
-            d.stream
-          }</td><td>${d.z.toFixed(3)}</td><td>${d.districtRank}</td><td>${
-            d.islandRank
-          }</td><td>${d.result}</td></tr>`
-        );
-      }
+      win.document.write("<tr>");
+      tableHead.querySelectorAll("th").forEach((th, i) => {
+        const val = Object.values(d)[i] || "";
+        win.document.write(`<td>${val}</td>`);
+      });
+      win.document.write("</tr>");
     });
 
     win.document.write("</table></body></html>");
@@ -1682,7 +1139,7 @@
   }
 
   /* =========================
-   Language handling (persist + instant)
+   Language handling
    ========================= */
   function getLang() {
     const stored = localStorage.getItem("lang");
@@ -1699,34 +1156,27 @@
   function updateText(lang) {
     if (!["en", "si", "ta"].includes(lang)) lang = "en";
     document.querySelectorAll("[data-en]").forEach((el) => {
-      const next =
-        el.getAttribute(`data-${lang}`) || el.getAttribute("data-en");
+      const key = `data-${lang}`;
+      const next = el.getAttribute(key);
       if (next != null) el.textContent = next;
     });
   }
 
-  /* existing storage and custom-event handlers stay */
   window.addEventListener("storage", (e) => {
     if (e.key === "lang") updateText(getLang());
   });
 
   window.addEventListener("languageChange", (e) => {
     const newLang = e.detail?.lang;
-    if (newLang && ["en", "si", "ta"].includes(newLang)) {
-      localStorage.setItem("lang", newLang);
-      updateText(newLang);
-    }
+    if (newLang && ["en", "si", "ta"].includes(newLang)) updateText(newLang);
   });
 
-  /* ====== POLLING FIX: handle same-tab localStorage changes immediately ======
-   (storage event doesn't fire in same tab when localStorage is set)
-   This is a lightweight poll to detect changes and update UI instantly. */
   let _lastLangPoll = localStorage.getItem("lang") || getLang();
   setInterval(() => {
     const cur = localStorage.getItem("lang") || "en";
     if (cur !== _lastLangPoll) {
-      updateText(cur);
       _lastLangPoll = cur;
+      updateText(cur);
     }
   }, 400);
 
@@ -1734,76 +1184,13 @@
    Initialize searchable dropdowns
    ========================= */
   function initializeSearchableDropdowns() {
-    // Exam Type
     if (typeof makeSearchableDropdown === "function") {
-      searchableExamFilter = makeSearchableDropdown(
-        "examFilter",
-        (val, text) => {
-          const sel = document.getElementById("examFilter");
-          if (sel) sel.value = val;
-          filterData();
-        }
-      );
-    }
-
-    // Year
-    if (typeof makeSearchableDropdown === "function") {
-      searchableYearFilter = makeSearchableDropdown(
-        "yearFilter",
-        (val, text) => {
-          const sel = document.getElementById("yearFilter");
-          if (sel) sel.value = val;
-          filterData();
-        }
-      );
-    }
-
-    // Term
-    if (typeof makeSearchableDropdown === "function") {
-      searchableTermFilter = makeSearchableDropdown(
-        "termFilter",
-        (val, text) => {
-          const sel = document.getElementById("termFilter");
-          if (sel) sel.value = val;
-          filterData();
-        }
-      );
-    }
-
-    // Class
-    if (typeof makeSearchableDropdown === "function") {
-      searchableClassFilter = makeSearchableDropdown(
-        "classFilter",
-        (val, text) => {
-          const sel = document.getElementById("classFilter");
-          if (sel) sel.value = val;
-          filterData();
-        }
-      );
-    }
-
-    // Stream
-    if (typeof makeSearchableDropdown === "function") {
-      searchableStreamFilter = makeSearchableDropdown(
-        "streamFilter",
-        (val, text) => {
-          const sel = document.getElementById("streamFilter");
-          if (sel) sel.value = val;
-          filterData();
-        }
-      );
-    }
-
-    // Subject
-    if (typeof makeSearchableDropdown === "function") {
-      searchableSubjectFilter = makeSearchableDropdown(
-        "subjectFilter",
-        (val, text) => {
-          const sel = document.getElementById("subjectFilter");
-          if (sel) sel.value = val;
-          filterData();
-        }
-      );
+      makeSearchableDropdown("examFilter", () => filterData());
+      makeSearchableDropdown("yearFilter", () => filterData());
+      makeSearchableDropdown("termFilter", () => filterData());
+      makeSearchableDropdown("classFilter", () => filterData());
+      makeSearchableDropdown("streamFilter", () => filterData());
+      makeSearchableDropdown("subjectFilter", () => filterData());
     }
   }
 
@@ -1814,16 +1201,4 @@
     if (el) el.addEventListener("change", filterData);
   });
   indexSearchEl.addEventListener("input", filterData);
-
-  // Defaults
-  (function init() {
-    // Initialize searchable dropdowns
-    initializeSearchableDropdowns();
-
-    // Primary = Term Tests
-    examEl.value = "term";
-    yearEl.value = "2025";
-    updateText(getLang());
-    filterData();
-  })();
 </script>

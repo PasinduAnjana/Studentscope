@@ -1,7 +1,7 @@
 [
   { "label": "sidebar.dashboard", "page": "dashboard", "icon": "fas fa-home" },
   {
-    "label": "sidebar.attendance",
+    "label": "sidebar.attendanceReports",
     "page": "attendanceSummary",
     "icon": "fas fa-user-check"
   },
@@ -10,14 +10,18 @@
     "page": "academic",
     "icon": "fas fa-graduation-cap"
   },
-  { "label": "sidebar.students", "page": "students", "icon": "fas fa-users" },
+  {
+    "label": "sidebar.studentProfiles",
+    "page": "students",
+    "icon": "fas fa-users"
+  },
   {
     "label": "sidebar.behavior",
     "page": "behavior",
     "icon": "fas fa-user-shield"
   },
   {
-    "label": "sidebar.certificates",
+    "label": "sidebar.certificateApproval",
     "page": "certificates",
     "icon": "fas fa-certificate"
   },

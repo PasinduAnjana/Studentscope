@@ -1,0 +1,422 @@
+{
+  "term": [
+    {
+      "year": 2025,
+      "term": 1,
+      "cls": "6A",
+      "name": "John Doe",
+      "index": "001",
+      "subject": "Mathematics",
+      "marks": 88
+    },
+    {
+      "year": 2025,
+      "term": 1,
+      "cls": "6A",
+      "name": "Jane Smith",
+      "index": "002",
+      "subject": "Mathematics",
+      "marks": 75
+    },
+    {
+      "year": 2025,
+      "term": 1,
+      "cls": "6A",
+      "name": "Bob Johnson",
+      "index": "003",
+      "subject": "Mathematics",
+      "marks": 62
+    },
+    {
+      "year": 2025,
+      "term": 1,
+      "cls": "6A",
+      "name": "Alice Brown",
+      "index": "004",
+      "subject": "English",
+      "marks": 91
+    },
+    {
+      "year": 2025,
+      "term": 1,
+      "cls": "6A",
+      "name": "Charlie Davis",
+      "index": "005",
+      "subject": "English",
+      "marks": 54
+    },
+    {
+      "year": 2025,
+      "term": 2,
+      "cls": "6B",
+      "name": "Eve Wilson",
+      "index": "006",
+      "subject": "Science",
+      "marks": 82
+    },
+    {
+      "year": 2025,
+      "term": 2,
+      "cls": "6B",
+      "name": "Frank Miller",
+      "index": "007",
+      "subject": "Science",
+      "marks": 78
+    },
+    {
+      "year": 2025,
+      "term": 2,
+      "cls": "6B",
+      "name": "Grace Lee",
+      "index": "008",
+      "subject": "History",
+      "marks": 71
+    },
+    {
+      "year": 2025,
+      "term": 2,
+      "cls": "6B",
+      "name": "Henry White",
+      "index": "009",
+      "subject": "History",
+      "marks": 89
+    },
+    {
+      "year": 2025,
+      "term": 2,
+      "cls": "6B",
+      "name": "Ivy Black",
+      "index": "010",
+      "subject": "Geography",
+      "marks": 60
+    },
+    {
+      "year": 2025,
+      "term": 3,
+      "cls": "11A",
+      "name": "Jack Green",
+      "index": "011",
+      "subject": "Mathematics",
+      "marks": 84
+    },
+    {
+      "year": 2025,
+      "term": 3,
+      "cls": "11A",
+      "name": "Kate Blue",
+      "index": "012",
+      "subject": "Mathematics",
+      "marks": 86
+    },
+    {
+      "year": 2025,
+      "term": 3,
+      "cls": "11A",
+      "name": "Leo Red",
+      "index": "013",
+      "subject": "English",
+      "marks": 68
+    },
+    {
+      "year": 2025,
+      "term": 3,
+      "cls": "11B",
+      "name": "Mia Pink",
+      "index": "014",
+      "subject": "Science",
+      "marks": 90
+    },
+    {
+      "year": 2025,
+      "term": 3,
+      "cls": "11B",
+      "name": "Noah Gray",
+      "index": "015",
+      "subject": "Science",
+      "marks": 74
+    },
+    {
+      "year": 2024,
+      "term": 1,
+      "cls": "6A",
+      "name": "Oscar Orange",
+      "index": "016",
+      "subject": "Mathematics",
+      "marks": 87
+    },
+    {
+      "year": 2024,
+      "term": 1,
+      "cls": "6B",
+      "name": "Pam Purple",
+      "index": "017",
+      "subject": "English",
+      "marks": 79
+    },
+    {
+      "year": 2024,
+      "term": 2,
+      "cls": "11A",
+      "name": "Quinn Cyan",
+      "index": "018",
+      "subject": "Science",
+      "marks": 70
+    },
+    {
+      "year": 2024,
+      "term": 3,
+      "cls": "11B",
+      "name": "Ruby Brown",
+      "index": "019",
+      "subject": "Mathematics",
+      "marks": 92
+    },
+    {
+      "year": 2024,
+      "term": 3,
+      "cls": "11A",
+      "name": "Sam Silver",
+      "index": "020",
+      "subject": "History",
+      "marks": 66
+    }
+  ],
+  "sch": [
+    {
+      "year": 2025,
+      "name": "Student A",
+      "index": "S001",
+      "marks": 145,
+      "result": "Pass"
+    },
+    {
+      "year": 2025,
+      "name": "Student B",
+      "index": "S002",
+      "marks": 128,
+      "result": "Pass"
+    },
+    {
+      "year": 2025,
+      "name": "Student C",
+      "index": "S003",
+      "marks": 95,
+      "result": "Fail"
+    },
+    {
+      "year": 2025,
+      "name": "Student D",
+      "index": "S004",
+      "marks": 152,
+      "result": "Pass"
+    },
+    {
+      "year": 2025,
+      "name": "Student E",
+      "index": "S005",
+      "marks": 140,
+      "result": "Pass"
+    },
+    {
+      "year": 2024,
+      "name": "Student F",
+      "index": "S006",
+      "marks": 88,
+      "result": "Fail"
+    },
+    {
+      "year": 2024,
+      "name": "Student G",
+      "index": "S007",
+      "marks": 135,
+      "result": "Pass"
+    },
+    {
+      "year": 2023,
+      "name": "Student H",
+      "index": "S008",
+      "marks": 115,
+      "result": "Fail"
+    }
+  ],
+  "ol": [
+    {
+      "year": 2025,
+      "cls": "11A",
+      "name": "OL Student 1",
+      "index": "OL001",
+      "subject": "Mathematics",
+      "grade": "A"
+    },
+    {
+      "year": 2025,
+      "cls": "11A",
+      "name": "OL Student 1",
+      "index": "OL001",
+      "subject": "English",
+      "grade": "A"
+    },
+    {
+      "year": 2025,
+      "cls": "11A",
+      "name": "OL Student 2",
+      "index": "OL002",
+      "subject": "Mathematics",
+      "grade": "B"
+    },
+    {
+      "year": 2025,
+      "cls": "11A",
+      "name": "OL Student 2",
+      "index": "OL002",
+      "subject": "English",
+      "grade": "A"
+    },
+    {
+      "year": 2025,
+      "cls": "11A",
+      "name": "OL Student 3",
+      "index": "OL003",
+      "subject": "Mathematics",
+      "grade": "A"
+    },
+    {
+      "year": 2025,
+      "cls": "11A",
+      "name": "OL Student 3",
+      "index": "OL003",
+      "subject": "Science",
+      "grade": "A"
+    },
+    {
+      "year": 2025,
+      "cls": "11A",
+      "name": "OL Student 4",
+      "index": "OL004",
+      "subject": "Mathematics",
+      "grade": "A"
+    },
+    {
+      "year": 2025,
+      "cls": "11A",
+      "name": "OL Student 4",
+      "index": "OL004",
+      "subject": "English",
+      "grade": "B"
+    },
+    {
+      "year": 2025,
+      "cls": "11A",
+      "name": "OL Student 5",
+      "index": "OL005",
+      "subject": "Science",
+      "grade": "A"
+    },
+    {
+      "year": 2024,
+      "cls": "11B",
+      "name": "OL Student 6",
+      "index": "OL006",
+      "subject": "Mathematics",
+      "grade": "B"
+    },
+    {
+      "year": 2024,
+      "cls": "11B",
+      "name": "OL Student 6",
+      "index": "OL006",
+      "subject": "English",
+      "grade": "B"
+    },
+    {
+      "year": 2024,
+      "cls": "11B",
+      "name": "OL Student 7",
+      "index": "OL007",
+      "subject": "Mathematics",
+      "grade": "A"
+    },
+    {
+      "year": 2024,
+      "cls": "11B",
+      "name": "OL Student 7",
+      "index": "OL007",
+      "subject": "Science",
+      "grade": "A"
+    },
+    {
+      "year": 2024,
+      "cls": "11B",
+      "name": "OL Student 8",
+      "index": "OL008",
+      "subject": "Mathematics",
+      "grade": "C"
+    },
+    {
+      "year": 2023,
+      "cls": "11C",
+      "name": "OL Student 9",
+      "index": "OL009",
+      "subject": "English",
+      "grade": "A"
+    },
+    {
+      "year": 2023,
+      "cls": "11C",
+      "name": "OL Student 10",
+      "index": "OL010",
+      "subject": "Mathematics",
+      "grade": "A"
+    },
+    {
+      "year": 2023,
+      "cls": "11C",
+      "name": "OL Student 10",
+      "index": "OL010",
+      "subject": "Science",
+      "grade": "A"
+    }
+  ],
+  "al": [
+    {
+      "year": 2025,
+      "name": "AL Student 1",
+      "index": "AL001",
+      "stream": "Science",
+      "z": 2.85,
+      "result": "Pass"
+    },
+    {
+      "year": 2025,
+      "name": "AL Student 2",
+      "index": "AL002",
+      "stream": "Art",
+      "z": 1.95,
+      "result": "Pass"
+    },
+    {
+      "year": 2025,
+      "name": "AL Student 3",
+      "index": "AL003",
+      "stream": "Commerce",
+      "z": 1.25,
+      "result": "Fail"
+    },
+    {
+      "year": 2025,
+      "name": "AL Student 4",
+      "index": "AL004",
+      "stream": "Science",
+      "z": 2.45,
+      "result": "Pass"
+    },
+    {
+      "year": 2024,
+      "name": "AL Student 5",
+      "index": "AL005",
+      "stream": "Art",
+      "z": 1.65,
+      "result": "Pass"
+    }
+  ]
+}

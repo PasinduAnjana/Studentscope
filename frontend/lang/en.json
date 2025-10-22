@@ -19,17 +19,20 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "attendance": "Mark Attendance",
+    "attendanceReports": "Attendance Reports",
     "academic": "Academic Reports",
     "timeTable": "Time Table",
     "timetableAssignment": "Timetable Assignment",
     "marks": "Enter Marks",
     "students": "Students",
+    "studentProfiles": "Student Profiles",
     "teachers": "Teachers",
     "classes": "Classes",
     "class_subjects": "Class Subjects",
     "announcements": "Announcements",
     "behavior": "Behavior Reports",
-    "certificates": "Certificates"
+    "certificates": "Certificates",
+    "certificateApproval": "Certificate Approval"
   },
   "profile": {
     "quickStats": "Quick Stats",

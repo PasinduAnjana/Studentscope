@@ -585,7 +585,7 @@ async function deleteTeacher(teacherId) {
   ]);
 
   // Delete from announcements
-  await pool.query("DELETE FROM announcements WHERE teacher_id = $1", [
+  await pool.query("DELETE FROM announcements WHERE posted_by = $1", [
     teacherId,
   ]);
 

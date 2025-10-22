@@ -19,17 +19,20 @@
     "dashboard": "ඩෑෂ්බෝර්ඩ්",
     "profile": "පැතිකඩ",
     "attendance": "පැමිණීම",
+    "attendanceReports": "පැමිණීම් වාර්තා",
     "academic": "අධ්‍යයන වාර්තා",
     "timeTable": "කාලසටහන",
     "timetableAssignment": "කාලසටහන පැවරීම",
     "marks": "ලකුණු ",
     "students": "ශිෂ්‍යයන්",
+    "studentProfiles": "ශිෂ්‍ය පැතිකඩ",
     "teachers": "ගුරුවරුන්",
     "classes": "පන්තිවල",
     "class_subjects": "පන්ති විෂයයන්",
     "announcements": "නිවේදන",
     "behavior": "ශිෂ්‍ය හැසිරීම් වාර්තා",
-    "certificates": "සහතික අනුමත කිරීම"
+    "certificates": "සහතික අනුමත කිරීම",
+    "certificateApproval": "සහතික අනුමතයි"
   },
   "profile": {
     "quickStats": "ඉක්මන් සංඛ්‍යාලේඛන",

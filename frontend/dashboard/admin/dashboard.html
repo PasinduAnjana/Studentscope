@@ -356,164 +356,83 @@
   } // Load academic performance by grade (bar chart)
   async function loadAcademicPerformance() {
     try {
-      // Load academic performance data from API
-      const res = await fetch("/api/admin/academic/performance/grades");
-      if (res.ok) {
-        const data = await res.json();
+      // Use dummy data for now
+      const mockData = {
+        grades: [
+          "Grade 6",
+          "Grade 7",
+          "Grade 8",
+          "Grade 9",
+          "Grade 10",
+          "Grade 11",
+        ],
+        averageMarks: [78.5, 82.3, 75.8, 79.2, 84.1, 81.7],
+      };
 
-        if (data.length > 0) {
-          const container = document.getElementById(
-            "academic-performance-content"
-          );
+      const container = document.getElementById("academic-performance-content");
 
-          // Create chart container
-          container.innerHTML = `<canvas id="academicPerformanceChart" height="200"></canvas>`;
+      // Create chart container
+      container.innerHTML = `<canvas id="academicPerformanceChart" height="200"></canvas>`;
 
-          // Render chart
-          setTimeout(() => {
-            const rootStyles = getComputedStyle(document.documentElement);
-            const primaryColor = rootStyles
-              .getPropertyValue("--color-primary")
-              .trim();
+      // Render chart
+      setTimeout(() => {
+        const rootStyles = getComputedStyle(document.documentElement);
+        const primaryColor = rootStyles
+          .getPropertyValue("--color-primary")
+          .trim();
 
-            const chartData = {
-              labels: data.map((item) => `Grade ${item.grade}`),
-              datasets: [
-                {
-                  label: "Average Marks (%)",
-                  data: data.map((item) => parseFloat(item.average_marks)),
-                  backgroundColor: primaryColor,
-                  borderColor: primaryColor,
-                  borderWidth: 1,
-                  borderRadius: 4,
-                  borderSkipped: false,
-                },
-              ],
-            };
-
-            new Chart(document.getElementById("academicPerformanceChart"), {
-              type: "bar",
-              data: chartData,
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                      callback: function (value) {
-                        return value + "%";
-                      },
-                    },
-                  },
-                  x: {
-                    ticks: {
-                      maxRotation: 45,
-                      minRotation: 45,
-                    },
-                  },
-                },
-                plugins: {
-                  legend: {
-                    display: false,
-                  },
-                  title: {
-                    display: true,
-                    text: "Grade-wise Academic Performance",
-                    font: { size: 14, weight: "bold" },
-                    padding: { bottom: 20 },
-                  },
-                },
-              },
-            });
-          }, 100);
-        } else {
-          document.getElementById("academic-performance-content").innerHTML = `
-            <p class="text-sm">No academic data available</p>
-          `;
-        }
-      } else {
-        // Fallback to mock data if API fails
-        const mockData = {
-          grades: [
-            "Grade 6",
-            "Grade 7",
-            "Grade 8",
-            "Grade 9",
-            "Grade 10",
-            "Grade 11",
+        const chartData = {
+          labels: mockData.grades,
+          datasets: [
+            {
+              label: "Average Marks (%)",
+              data: mockData.averageMarks,
+              backgroundColor: primaryColor,
+              borderColor: primaryColor,
+              borderWidth: 1,
+              borderRadius: 4,
+              borderSkipped: false,
+            },
           ],
-          averageMarks: [78.5, 82.3, 75.8, 79.2, 84.1, 81.7],
         };
 
-        const container = document.getElementById(
-          "academic-performance-content"
-        );
-
-        // Create chart container
-        container.innerHTML = `<canvas id="academicPerformanceChart" height="200"></canvas>`;
-
-        // Render chart
-        setTimeout(() => {
-          const rootStyles = getComputedStyle(document.documentElement);
-          const primaryColor = rootStyles
-            .getPropertyValue("--color-primary")
-            .trim();
-
-          const chartData = {
-            labels: mockData.grades,
-            datasets: [
-              {
-                label: "Average Marks (%)",
-                data: mockData.averageMarks,
-                backgroundColor: primaryColor,
-                borderColor: primaryColor,
-                borderWidth: 1,
-                borderRadius: 4,
-                borderSkipped: false,
-              },
-            ],
-          };
-
-          new Chart(document.getElementById("academicPerformanceChart"), {
-            type: "bar",
-            data: chartData,
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  max: 100,
-                  ticks: {
-                    callback: function (value) {
-                      return value + "%";
-                    },
-                  },
-                },
-                x: {
-                  ticks: {
-                    maxRotation: 45,
-                    minRotation: 45,
+        new Chart(document.getElementById("academicPerformanceChart"), {
+          type: "bar",
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                  callback: function (value) {
+                    return value + "%";
                   },
                 },
               },
-              plugins: {
-                legend: {
-                  display: false,
-                },
-                title: {
-                  display: true,
-                  text: "Grade-wise Academic Performance",
-                  font: { size: 14, weight: "bold" },
-                  padding: { bottom: 20 },
+              x: {
+                ticks: {
+                  maxRotation: 45,
+                  minRotation: 45,
                 },
               },
             },
-          });
-        }, 100);
-      }
+            plugins: {
+              legend: {
+                display: false,
+              },
+              title: {
+                display: true,
+                text: "Grade-wise Academic Performance",
+                font: { size: 14, weight: "bold" },
+                padding: { bottom: 20 },
+              },
+            },
+          },
+        });
+      }, 100);
 
       // Uncomment below when real API endpoint is available:
       /*
