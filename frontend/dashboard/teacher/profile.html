@@ -109,6 +109,114 @@
       </div>
     </div>
 
+    <!-- Change Password -->
+    <div class="card w-2 h-1 profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="fas fa-lock"></i>
+        </div>
+        <div class="profile-info">
+          <h3
+            data-en="Change Password"
+            data-si="මුරපදය වෙනස් කරන්න"
+            data-ta="கடவுச்சொல்லை மாற்றவும்"
+          >
+            Change Password
+          </h3>
+          <p
+            class="text-sm"
+            data-en="Update your password"
+            data-si="ඔබේ මුරපදය යාවත්කාලීන කරන්න"
+            data-ta="உங்கள் கடவுச்சொல்லைப் புதுப்பிக்கவும்"
+          >
+            Update your password
+          </p>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-row">
+          <label
+            for="old-password"
+            class="detail-label"
+            data-en="Old Password:"
+            data-si="පැරණි මුරපදය:"
+            data-ta="பழைய கடவுச்சொல்:"
+          >
+            Old Password:
+          </label>
+          <input
+            type="password"
+            id="old-password"
+            placeholder="Enter old password"
+            data-placeholder-en="Enter old password"
+            data-placeholder-si="පැරණි මුරපදය ඇතුළු කරන්න"
+            data-placeholder-ta="பழைய கடவுச்சொல்லை உள்ளிடவும்"
+          />
+        </div>
+
+        <div class="detail-row">
+          <label
+            for="new-password"
+            class="detail-label"
+            data-en="New Password:"
+            data-si="නව මුරපදය:"
+            data-ta="புதிய கடவுச்சொல்:"
+          >
+            New Password:
+          </label>
+          <input
+            type="password"
+            id="new-password"
+            placeholder="Enter new password"
+            data-placeholder-en="Enter new password"
+            data-placeholder-si="නව මුරපදය ඇතුළු කරන්න"
+            data-placeholder-ta="புதிய கடவுச்சொல்லை உள்ளிடவும்"
+          />
+        </div>
+
+        <div class="detail-row">
+          <label
+            for="confirm-password"
+            class="detail-label"
+            data-en="Confirm Password:"
+            data-si="මුරපදය තහවුරු කරන්න:"
+            data-ta="கடவுச்சொல்லை உறுதிப்படுத்தவும்:"
+          >
+            Confirm Password:
+          </label>
+          <input
+            type="password"
+            id="confirm-password"
+            placeholder="Confirm new password"
+            data-placeholder-en="Confirm new password"
+            data-placeholder-si="නව මුරපදය තහවුරු කරන්න"
+            data-placeholder-ta="புதிய கடவுச்சொல்லை உறுதிப்படுத்தவும்"
+          />
+        </div>
+
+        <div class="detail-row">
+          <button
+            id="change-password-btn"
+            onclick="changePassword()"
+            data-en="Update Password"
+            data-si="මුරපදය යාවත්කාලීන කරන්න"
+            data-ta="கடவுச்சொல்லைப் புதுப்பிக்கவும்"
+            style="
+              padding: 10px 20px;
+              background-color: #007bff;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+            "
+          >
+            Update Password
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Quick Stats -->
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
@@ -317,4 +425,69 @@
 
   // Initialize
   loadProfile();
+
+  function showToast(message, icon) {
+    if (typeof toast === "function") {
+      toast(message, icon);
+    } else {
+      alert(message);
+    }
+  }
+
+  async function changePassword() {
+    const oldPassword = document.getElementById("old-password").value;
+    const newPassword = document.getElementById("new-password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    // Validation
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      showToast("All fields are required", "fa-solid fa-circle-exclamation");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showToast("New passwords do not match", "fa-solid fa-circle-exclamation");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      showToast(
+        "New password must be at least 6 characters",
+        "fa-solid fa-circle-exclamation"
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/teacher/change-password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          oldPassword: oldPassword,
+          newPassword: newPassword,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        showToast(
+          error.message || "Failed to change password",
+          "fa-solid fa-circle-exclamation"
+        );
+        return;
+      }
+
+      // Clear form
+      document.getElementById("old-password").value = "";
+      document.getElementById("new-password").value = "";
+      document.getElementById("confirm-password").value = "";
+
+      showToast("Password changed successfully", "fa-solid fa-check");
+    } catch (error) {
+      console.error("Error changing password:", error);
+      showToast("Error changing password", "fa-solid fa-circle-exclamation");
+    }
+  }
 </script>

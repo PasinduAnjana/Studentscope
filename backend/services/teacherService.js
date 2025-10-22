@@ -896,3 +896,44 @@ exports.updateTodoStatus = async (todoId, teacherId, status) => {
 
   return result.rows[0] || null;
 };
+
+exports.changePassword = async (teacherId, oldPassword, newPassword) => {
+  const crypto = require("crypto");
+
+  // Get current user with password and salt
+  const userResult = await pool.query(
+    "SELECT password, salt FROM users WHERE id = $1",
+    [teacherId]
+  );
+
+  if (userResult.rows.length === 0) {
+    return { success: false, message: "User not found" };
+  }
+
+  const user = userResult.rows[0];
+
+  // Hash the old password with the same method
+  const hashedOldPassword = crypto
+    .pbkdf2Sync(oldPassword, user.salt, 100000, 64, "sha512")
+    .toString("hex");
+
+  // Verify old password
+  if (hashedOldPassword !== user.password) {
+    return { success: false, message: "Old password is incorrect" };
+  }
+
+  // Generate new salt and hash new password
+  const newSalt = crypto.randomBytes(16).toString("hex");
+  const hashedNewPassword = crypto
+    .pbkdf2Sync(newPassword, newSalt, 100000, 64, "sha512")
+    .toString("hex");
+
+  // Update password and salt
+  await pool.query("UPDATE users SET password = $1, salt = $2 WHERE id = $3", [
+    hashedNewPassword,
+    newSalt,
+    teacherId,
+  ]);
+
+  return { success: true, message: "Password changed successfully" };
+};

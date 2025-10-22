@@ -42,6 +42,13 @@ module.exports = (req, res) => {
     );
   }
 
+  // Change password route
+  if (req.method === "PUT" && req.url === "/api/teacher/change-password") {
+    return protect("teacher")(req, res, () =>
+      profileController.changePassword(req, res)
+    );
+  }
+
   // Subjects routes
   if (req.method === "GET" && req.url === "/api/teacher/subjects") {
     return protect("teacher")(req, res, () =>

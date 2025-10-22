@@ -593,6 +593,12 @@ async function deleteTeacher(teacherId) {
   // Delete from notices
   await pool.query("DELETE FROM notices WHERE posted_by = $1", [teacherId]);
 
+  // Update behavior records to set reported_by to NULL (preserve historical data)
+  await pool.query(
+    "UPDATE behavior_records SET reported_by = NULL WHERE reported_by = $1",
+    [teacherId]
+  );
+
   // Delete from sessions
   await pool.query("DELETE FROM sessions WHERE user_id = $1", [teacherId]);
 

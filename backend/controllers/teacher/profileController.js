@@ -83,3 +83,68 @@ exports.getTeacherClasses = async (req, res) => {
     res.end(JSON.stringify({ error: "Failed to fetch teacher classes" }));
   }
 };
+
+exports.changePassword = async (req, res) => {
+  try {
+    const cookie = req.headers.cookie || "";
+    const match = cookie.match(/sessionToken=([^;]+)/);
+    const sessionToken = match ? match[1] : null;
+
+    if (!sessionToken) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "No session token" }));
+      return;
+    }
+
+    const session = await authService.getSession(sessionToken);
+    if (!session) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      return;
+    }
+
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk.toString();
+    });
+
+    req.on("end", async () => {
+      try {
+        const { oldPassword, newPassword } = JSON.parse(body);
+
+        if (!oldPassword || !newPassword) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({
+              message: "Old password and new password are required",
+            })
+          );
+          return;
+        }
+
+        const result = await teacherService.changePassword(
+          session.userId,
+          oldPassword,
+          newPassword
+        );
+
+        if (!result.success) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ message: result.message }));
+          return;
+        }
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "Password changed successfully" }));
+      } catch (err) {
+        console.error("Error parsing request:", err);
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "Invalid request body" }));
+      }
+    });
+  } catch (err) {
+    console.error("Error:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to change password" }));
+  }
+};
