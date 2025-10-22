@@ -63,6 +63,36 @@
   </div>
 
 
+  <!-- 📈 Charts -->
+  <div class="chart-container">
+    <div class="card dashboard-tile chart-tile">
+      <div class="icon-title">
+        <i class="fas fa-chart-pie icon"></i>
+        <p
+          data-en="Behavior Distribution"
+          data-si="හැසිරීම් ව්‍යාප්තිය"
+          data-ta="நடத்தை விநியோகம்"
+        >
+          Behavior Distribution
+        </p>
+      </div>
+      <canvas id="behaviorChart"></canvas>
+    </div>
+
+    <div class="card dashboard-tile chart-tile">
+      <div class="icon-title">
+        <i class="fas fa-chart-line icon"></i>
+        <p
+          data-en="Monthly Discipline Trend"
+          data-si="මාසික විනය ප්‍රවණතාව"
+          data-ta="மாதாந்திர ஒழுக்கம் போக்கு"
+        >
+          Monthly Trend
+        </p>
+      </div>
+      <canvas id="trendChart"></canvas>
+    </div>
+  </div>
   <!-- 📋 Behavior Records -->
   <div class="card dashboard-tile">
     <div class="icon-title">
@@ -173,49 +203,6 @@
     </div>
   </div>
 
-  <!-- 📈 Charts -->
-  <div class="chart-container">
-    <div class="card dashboard-tile chart-tile">
-      <div class="icon-title">
-        <i class="fas fa-chart-pie icon"></i>
-        <p
-          data-en="Behavior Distribution"
-          data-si="හැසිරීම් ව්‍යාප්තිය"
-          data-ta="நடத்தை விநியோகம்"
-        >
-          Behavior Distribution
-        </p>
-      </div>
-      <canvas id="behaviorChart"></canvas>
-    </div>
-
-    <div class="card dashboard-tile chart-tile">
-      <div class="icon-title">
-        <i class="fas fa-chart-line icon"></i>
-        <p
-          data-en="Monthly Discipline Trend"
-          data-si="මාසික විනය ප්‍රවණතාව"
-          data-ta="மாதாந்திர ஒழுக்கம் போக்கு"
-        >
-          Monthly Trend
-        </p>
-      </div>
-      <canvas id="trendChart"></canvas>
-    </div>
-  </div>
-</div>
-
-<!-- 🔙 Back Button -->
-<div class="action-container">
-  <a href="layout.html?role=admin&page=dashboard" class="btn back-btn">
-    <i class="fas fa-arrow-left"></i>
-    <span
-      data-en="Back to Dashboard"
-      data-si="ඩෑෂ්බෝඩ් වෙත"
-      data-ta="டாஷ்போர்டுக்கு திரும்ப"
-      >Back to Dashboard</span
-    >
-  </a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
