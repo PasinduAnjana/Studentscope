@@ -4,6 +4,7 @@ const attendanceController = require("../controllers/teacher/attendanceControlle
 const subjectAssignmentController = require("../controllers/teacher/subjectAssignmentController");
 const announcementsController = require("../controllers/teacher/announcementsController");
 const profileController = require("../controllers/teacher/profileController");
+const todoController = require("../controllers/teacher/todoController");
 const { protect } = require("../middleware/authMiddleware");
 
 module.exports = (req, res) => {
@@ -434,6 +435,39 @@ module.exports = (req, res) => {
         );
       }
     });
+  }
+
+  // Todo routes
+  if (req.method === "GET" && req.url === "/api/teacher/todos") {
+    return protect("teacher")(req, res, () =>
+      todoController.getAllTodos(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url === "/api/teacher/todos") {
+    return protect("teacher")(req, res, () =>
+      todoController.createTodo(req, res)
+    );
+  }
+
+  if (req.method === "PUT" && req.url.startsWith("/api/teacher/todos/")) {
+    const pathParts = req.url.split("/");
+    // Check if it's a status update route: /api/teacher/todos/{id}/status
+    if (pathParts[pathParts.length - 1] === "status") {
+      return protect("teacher")(req, res, () =>
+        todoController.updateTodoStatus(req, res)
+      );
+    }
+    // Regular todo text update
+    return protect("teacher")(req, res, () =>
+      todoController.updateTodo(req, res)
+    );
+  }
+
+  if (req.method === "DELETE" && req.url.startsWith("/api/teacher/todos/")) {
+    return protect("teacher")(req, res, () =>
+      todoController.deleteTodo(req, res)
+    );
   }
 
   // 404 - Route not found

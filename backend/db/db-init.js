@@ -280,6 +280,17 @@ END $$;
       );
     `);
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS todos (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        teacher_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+        text TEXT NOT NULL,
+        status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'completed')),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `);
+
     console.log("✅ Tables created successfully");
   } catch (err) {
     console.error("❌ Error initializing database:", err);

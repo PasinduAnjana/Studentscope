@@ -1,0 +1,498 @@
+<h2 class="heading">
+  <i class="fas fa-tasks"></i>
+  <span
+    data-en="My Todo List"
+    data-si="මගේ කරණීය ලැයිස්තුව"
+    data-ta="எனது செய்ய வேண்டிய பட்டியல்"
+    >My Todo List</span
+  >
+</h2>
+
+<div class="actions">
+  <div class="todo-input-wrapper">
+    <input
+      type="text"
+      id="todoInput"
+      class="input-field"
+      placeholder="Add a new todo..."
+      data-en-placeholder="Add a new todo..."
+      data-si-placeholder="නව කරණීය එක් කරන්න..."
+      data-ta-placeholder="புதிய செய்ய வேண்டியதைச் சேர்க்கவும்..."
+    />
+    <button class="btn" id="addTodoBtn" onclick="addTodo()">
+      <i class="fas fa-plus"></i>
+      <span data-en="Add" data-si="එක් කරන්න" data-ta="சேர்க்கவும்">Add</span>
+    </button>
+  </div>
+</div>
+
+<div class="todos-container" id="todosContainer">
+  <div class="card">
+    <span data-en="Loading..." data-si="පූරණය වෙමින්..." data-ta="சloading..."
+      >Loading...</span
+    >
+  </div>
+</div>
+
+<!-- Edit Todo Modal -->
+<div id="editTodoModal" class="modal" style="display: none">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>
+        <span
+          data-en="Edit Todo"
+          data-si="කරණීය සංස්කරණය"
+          data-ta="செய்ய வேண்டியதை தொகுக்க"
+        >
+          Edit Todo
+        </span>
+      </h3>
+      <span class="modal-close" onclick="closeEditTodoModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <input
+        type="text"
+        id="editTodoInput"
+        class="input-field"
+        placeholder="Enter todo text..."
+        data-en-placeholder="Enter todo text..."
+        data-si-placeholder="කරණීය පෙළ ඇතුළු කරන්න..."
+        data-ta-placeholder="செய்ய வேண்டிய உரையை உள்ளிடவும்..."
+      />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeEditTodoModal()">
+        <span data-en="Cancel" data-si="අවලංගු කරන්න" data-ta="ரத்து செய்ய">
+          Cancel
+        </span>
+      </button>
+      <button class="btn" id="saveEditTodoBtn" onclick="saveEditTodo()">
+        <span data-en="Save" data-si="සුරකින්න" data-ta="சேமிக்க">Save</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let todos = [];
+  let editingTodoId = null;
+  const currentLang = localStorage.getItem("lang") || "en";
+
+  // Language translations
+  const translations = {
+    en: {
+      loading: "Loading...",
+      noTodos: "No todos yet. Create one to get started!",
+      errorLoading: "Error loading todos",
+      errorAdding: "Error adding todo",
+      errorEditing: "Error editing todo",
+      errorDeleting: "Error deleting todo",
+      errorDelConfirm: "Are you sure you want to delete this todo?",
+      deletedSuccessfully: "Todo deleted successfully",
+      savedSuccessfully: "Todo saved successfully",
+      sessionExpired: "Your session has expired. Please log in again.",
+      deleteError: "Failed to delete todo",
+    },
+    si: {
+      loading: "පූරණය වෙමින්...",
+      noTodos: "තවම කරණීය නොමැත. එක් එක ඇරඹීමට පටන් ගන්න!",
+      errorLoading: "කරණීය පූරණය කිරීමේ දෝෂ",
+      errorAdding: "කරණීය එක් කිරීමේ දෝෂ",
+      errorEditing: "කරණීය සංස්කරණ දෝෂ",
+      errorDeleting: "කරණීය මකා දැමීමේ දෝෂ",
+      errorDelConfirm: "ඔබට මෙම කරණීය මකා දැමීමට අවශ්‍යද?",
+      deletedSuccessfully: "කරණීය සფලව මකා දමන ලදී",
+      savedSuccessfully: "කරණීය සෙ‍ු‍‍ලව සුරකින ලදී",
+      sessionExpired: "ඔබගේ සැසිය අවසන් විය. කරුණාකර නැවත ඇතුල් වන්න.",
+      deleteError: "කරණීය මකා දැමීම අපොහොසත් විය",
+    },
+    ta: {
+      loading: "சloading...",
+      noTodos: "இன்னும் செய்ய வேண்டியது இல்லை. ஒன்றை உருவாக்கி தொடங்குங்கள்!",
+      errorLoading: "செய்ய வேண்டியதை சload செய்வதில் பிழை",
+      errorAdding: "செய்ய வேண்டியதைச் சேர்ப்பதில் பிழை",
+      errorEditing: "செய்ய வேண்டியதை தொகுப்பதில் பிழை",
+      errorDeleting: "செய்ய வேண்டியதை நீக்குவதில் பிழை",
+      errorDelConfirm: "இந்த செய்ய வேண்டியதை நீக்க விரும்புகிறீர்களா?",
+      deletedSuccessfully: "செய்ய வேண்டியது வெற்றிகரமாக நீக்கப்பட்டது",
+      savedSuccessfully: "செய்ய வேண்டியது வெற்றிகரமாக சேமிக்கப்பட்டது",
+      sessionExpired: "உங்கள் அமர்வு முடிந்துவிட்டது. மீண்டும் உள்நுழையவும்.",
+      deleteError: "செய்ய வேண்டியதை நீக்கவில்லை",
+    },
+  };
+
+  function t(key) {
+    return translations[currentLang]?.[key] || translations.en[key];
+  }
+
+  async function loadTodos() {
+    try {
+      const res = await fetch("/api/teacher/todos", {
+        credentials: "include",
+      });
+
+      if (res.status === 401) {
+        toast(t("sessionExpired"), "fa-solid fa-circle-exclamation");
+        window.location.href = "/login.html";
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(t("errorLoading"));
+      }
+
+      todos = await res.json();
+      renderTodos();
+    } catch (err) {
+      console.error(err);
+      renderMessage(t("errorLoading"));
+    }
+  }
+
+  function renderTodos() {
+    const container = document.getElementById("todosContainer");
+    container.innerHTML = "";
+
+    if (todos.length === 0) {
+      renderMessage(t("noTodos"));
+      return;
+    }
+
+    todos.forEach((todo) => {
+      const card = document.createElement("div");
+      card.classList.add("card", "todo-card");
+      const isCompleted = todo.status === "completed";
+
+      card.innerHTML = `
+        <div class="todo-item ${isCompleted ? "completed" : ""}">
+          <div class="todo-checkbox-wrapper">
+            <input 
+              type="checkbox" 
+              class="todo-checkbox" 
+              ${isCompleted ? "checked" : ""} 
+              onchange="toggleTodoStatus(${todo.id}, this.checked)"
+              title="Mark as ${isCompleted ? "pending" : "complete"}"
+            />
+          </div>
+          <div class="todo-text-wrapper">
+            <p class="todo-text">${escapeHtml(todo.text)}</p>
+          </div>
+          <div class="action-buttons">
+            <button class="btn-icon btn-edit" onclick="openEditTodoModal(${
+              todo.id
+            }, '${escapeHtml(todo.text)}')" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon btn-delete" onclick="deleteTodo(${
+              todo.id
+            })" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+  }
+
+  function renderMessage(message) {
+    const container = document.getElementById("todosContainer");
+    container.innerHTML = `<div class="card"><p>${message}</p></div>`;
+  }
+
+  function escapeHtml(text) {
+    const map = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+  }
+
+  async function addTodo() {
+    const input = document.getElementById("todoInput");
+    const text = input.value.trim();
+
+    if (!text) {
+      toast("Please enter a todo", "fa-solid fa-circle-exclamation");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/teacher/todos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ text }),
+      });
+
+      if (!res.ok) {
+        throw new Error(t("errorAdding"));
+      }
+
+      toast(t("savedSuccessfully"), "fa-solid fa-check-circle");
+      input.value = "";
+      loadTodos();
+    } catch (err) {
+      console.error(err);
+      toast(err.message, "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  function openEditTodoModal(todoId, todoText) {
+    editingTodoId = todoId;
+    document.getElementById("editTodoInput").value = todoText;
+    document.getElementById("editTodoModal").style.display = "flex";
+    document.getElementById("editTodoInput").focus();
+  }
+
+  function closeEditTodoModal() {
+    document.getElementById("editTodoModal").style.display = "none";
+    editingTodoId = null;
+  }
+
+  async function saveEditTodo() {
+    const newText = document.getElementById("editTodoInput").value.trim();
+
+    if (!newText) {
+      toast("Todo cannot be empty", "fa-solid fa-circle-exclamation");
+      return;
+    }
+
+    const originalTodo = todos.find((t) => t.id === editingTodoId);
+    if (originalTodo && originalTodo.text === newText) {
+      closeEditTodoModal();
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/teacher/todos/${editingTodoId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ text: newText }),
+      });
+
+      if (!res.ok) {
+        throw new Error(t("errorEditing"));
+      }
+
+      toast(t("savedSuccessfully"), "fa-solid fa-check-circle");
+      closeEditTodoModal();
+      loadTodos();
+    } catch (err) {
+      console.error(err);
+      toast(err.message, "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  async function deleteTodo(todoId) {
+    toast(t("errorDelConfirm"), "fa-solid fa-trash-alt", {
+      confirm: true,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      onConfirm: async function () {
+        try {
+          const res = await fetch(`/api/teacher/todos/${todoId}`, {
+            method: "DELETE",
+            credentials: "include",
+          });
+
+          if (!res.ok) {
+            throw new Error(t("deleteError"));
+          }
+
+          toast(t("deletedSuccessfully"), "fa-solid fa-check-circle");
+          loadTodos();
+        } catch (err) {
+          console.error(err);
+          toast(err.message, "fa-solid fa-circle-exclamation");
+        }
+      },
+    });
+  }
+
+  async function toggleTodoStatus(todoId, isCompleted) {
+    const newStatus = isCompleted ? "completed" : "pending";
+
+    try {
+      const res = await fetch(`/api/teacher/todos/${todoId}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update todo status");
+      }
+
+      // Update the local todo
+      const todo = todos.find((t) => t.id === todoId);
+      if (todo) {
+        todo.status = newStatus;
+        renderTodos();
+      }
+
+      toast(
+        isCompleted ? "Task marked as complete" : "Task marked as pending",
+        "fa-solid fa-check-circle"
+      );
+    } catch (err) {
+      console.error(err);
+      toast(err.message, "fa-solid fa-circle-exclamation");
+      // Reload todos to reset the UI if there was an error
+      loadTodos();
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const todoInput = document.getElementById("todoInput");
+    if (todoInput) {
+      todoInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+          addTodo();
+        }
+      });
+    }
+    loadTodos();
+  });
+
+  document.addEventListener("click", function (event) {
+    const editModal = document.getElementById("editTodoModal");
+    if (event.target === editModal) {
+      closeEditTodoModal();
+    }
+  });
+
+  // Add Enter key to save edit todo
+  document.addEventListener("keypress", function (event) {
+    const editModal = document.getElementById("editTodoModal");
+    if (
+      editModal.style.display === "flex" &&
+      event.key === "Enter" &&
+      event.target.id === "editTodoInput"
+    ) {
+      saveEditTodo();
+    }
+  });
+
+  loadTodos();
+</script>
+
+<style>
+  .todo-input-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .todo-input-wrapper .input-field {
+    flex: 1;
+    margin: 0;
+    min-width: 200px;
+  }
+
+  .todo-input-wrapper .btn {
+    height: 40px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    .todo-input-wrapper {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .todo-input-wrapper .input-field {
+      min-width: unset;
+    }
+
+    .todo-input-wrapper .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .todo-card {
+    padding: 15px;
+    margin-bottom: 10px;
+  }
+
+  .todo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .todo-item.completed .todo-text {
+    text-decoration: line-through;
+    color: var(--color-subtext);
+  }
+
+  .todo-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .todo-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+  }
+
+  .todo-text-wrapper {
+    flex: 1;
+  }
+
+  .todo-text {
+    margin: 0;
+    color: var(--color-text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+  }
+
+  .btn-icon {
+    background: none;
+    border: none;
+    color: var(--color-subtext);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s;
+  }
+
+  .btn-icon:hover {
+    color: var(--color-primary);
+  }
+
+  .btn-edit:hover {
+    color: #3498db;
+  }
+
+  .btn-delete:hover {
+    color: #dc3545;
+  }
+
+  .actions {
+    margin-bottom: 20px;
+  }
+</style>

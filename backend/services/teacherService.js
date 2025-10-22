@@ -806,3 +806,86 @@ exports.getStudentsFromTeacherClasses = async (teacherId) => {
     class_name: row.class_name,
   }));
 };
+
+// Todo Management Functions
+// Get all todos for a teacher
+exports.getTeacherTodos = async (teacherId) => {
+  const result = await pool.query(
+    `
+    SELECT 
+      id,
+      text,
+      status,
+      created_at,
+      updated_at
+    FROM todos
+    WHERE teacher_id = $1
+    ORDER BY created_at DESC
+    `,
+    [teacherId]
+  );
+
+  return result.rows;
+};
+
+// Create a new todo
+exports.createTodo = async (teacherId, text) => {
+  const result = await pool.query(
+    `
+    INSERT INTO todos (teacher_id, text, status)
+    VALUES ($1, $2, 'pending')
+    RETURNING id, text, status, created_at, updated_at
+    `,
+    [teacherId, text]
+  );
+
+  return result.rows[0];
+};
+
+// Update a todo
+exports.updateTodo = async (todoId, teacherId, text) => {
+  const result = await pool.query(
+    `
+    UPDATE todos
+    SET text = $1, updated_at = now()
+    WHERE id = $2 AND teacher_id = $3
+    RETURNING id, text, status, created_at, updated_at
+    `,
+    [text, todoId, teacherId]
+  );
+
+  return result.rows[0] || null;
+};
+
+// Delete a todo
+exports.deleteTodo = async (todoId, teacherId) => {
+  const result = await pool.query(
+    `
+    DELETE FROM todos
+    WHERE id = $1 AND teacher_id = $2
+    RETURNING id
+    `,
+    [todoId, teacherId]
+  );
+
+  return result.rows.length > 0;
+};
+
+// Update todo status
+exports.updateTodoStatus = async (todoId, teacherId, status) => {
+  if (!['pending', 'completed'].includes(status)) {
+    throw new Error("Invalid status. Must be 'pending' or 'completed'");
+  }
+
+  const result = await pool.query(
+    `
+    UPDATE todos
+    SET status = $1, updated_at = now()
+    WHERE id = $2 AND teacher_id = $3
+    RETURNING id, text, status, created_at, updated_at
+    `,
+    [status, todoId, teacherId]
+  );
+
+  return result.rows[0] || null;
+};
