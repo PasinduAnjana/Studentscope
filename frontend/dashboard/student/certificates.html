@@ -1,257 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Certificate Requests</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
 
     <style>
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1.5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
+      .header p {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        margin-bottom: 38px;
+      }
 
-        .header p {
-            font-size: 1.1rem;
-            color: #7f8c8d;
-            margin-bottom: 38px;
-        }
+      .container {
+        display: flex;
+        flex-direction: column;
+      }
 
-        .container {
-            display: flex;
-            flex-direction: column;
-        }
+      .certificate-tabs {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+      }
 
-        .certificate-tabs {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-        }
+      .tab-button {
+        flex: 1;
+        min-width: 250px;
+        padding: 20px;
+        border: 2px solid #e0e6ed;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+      }
 
-        .tab-button {
-            flex: 1;
-            min-width: 250px;
-            padding: 20px;
-            border: 2px solid #e0e6ed;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            cursor: pointer;
-        }
-    
+      .tab-button:hover {
+        border-color: #3498db;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
 
-        .tab-button:hover {
-            border-color: #3498db;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        }
+      .tab-button.active {
+        border-color: #3498db;
+        background: #ebf3fd;
+        transform: translateY(-2px);
+      }
 
-        .tab-button.active {
-            border-color: #3498db;
-            background: #ebf3fd;
-            transform: translateY(-2px);
-        }
+      .tab-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        color: #3498db;
+      }
 
-        .tab-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            color: #3498db;
-        }
+      .tab-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 5px;
+      }
 
-        .tab-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
+      .tab-description {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
 
-        .tab-description {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-
-    .certificate-tabs {
+      .certificate-tabs {
         display: flex;
         gap: 25px;
         margin-bottom: 30px;
         flex-direction: row;
-        }
+      }
 
-        .certificate-content {
-            /* background: white; */
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            margin-bottom: 40px;
-        }
+      .certificate-content {
+        /* background: white; */
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        margin-bottom: 40px;
+      }
 
-        .certificate-preview {
-            background: #fefefe;
-            border: 3px solid #2c3e50;
-            border-radius: 10px;
-            padding: 40px;
-            margin-bottom: 30px;
-            min-height: 600px;
-            position: relative;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
-        }
+      .certificate-preview {
+        background: #fefefe;
+        border: 3px solid #2c3e50;
+        border-radius: 10px;
+        padding: 40px;
+        margin-bottom: 30px;
+        min-height: 600px;
+        position: relative;
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+      }
 
-        .certificate-preview::before {
-            content: '';
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            right: 15px;
-            bottom: 15px;
-            border: 2px solid #34495e;
-            border-radius: 5px;
-        }
+      .certificate-preview::before {
+        content: "";
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+        border: 2px solid #34495e;
+        border-radius: 5px;
+      }
 
-        .certificate-header {
-            text-align: center;
-            margin-bottom: 40px;
-            position: relative;
-            z-index: 1;
-        }
+      .certificate-header {
+        text-align: center;
+        margin-bottom: 40px;
+        position: relative;
+        z-index: 1;
+      }
 
-        .school-name {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+      .school-name {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
 
-        .school-address {
-            font-size: 0.9rem;
-            color: #7f8c8d;
-            margin-bottom: 20px;
-        }
+      .school-address {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        margin-bottom: 20px;
+      }
 
-        .certificate-title {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #e74c3c;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            border-bottom: 3px solid #e74c3c;
-            padding-bottom: 10px;
-            margin-bottom: 30px;
-            display: inline-block;
-        }
+      .certificate-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #e74c3c;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 3px solid #e74c3c;
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+        display: inline-block;
+      }
 
-        .certificate-body {
-            text-align: left;
-            line-height: 1.8;
-            color: #2c3e50;
-            position: relative;
-            z-index: 1;
-        }
+      .certificate-body {
+        text-align: left;
+        line-height: 1.8;
+        color: #2c3e50;
+        position: relative;
+        z-index: 1;
+      }
 
-        .intro-text {
-            text-align: center;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-            font-style: italic;
-        }
+      .intro-text {
+        text-align: center;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        font-style: italic;
+      }
 
-        .certificate-title {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #e74c3c;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            border-bottom: 3px solid #e74c3c;
-            padding-bottom: 10px;
-            margin-bottom: 30px;
-            display: inline-block;
-        }
+      .certificate-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #e74c3c;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 3px solid #e74c3c;
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+        display: inline-block;
+      }
 
-        .certificate-body {
-            text-align: left;
-            line-height: 1.8;
-            color: #2c3e50;
-            position: relative;
-            z-index: 1;
-        }
+      .certificate-body {
+        text-align: left;
+        line-height: 1.8;
+        color: #2c3e50;
+        position: relative;
+        z-index: 1;
+      }
 
-        .intro-text {
-            text-align: center;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-            font-style: italic;
-        }
+      .intro-text {
+        text-align: center;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        font-style: italic;
+      }
 
-        .student-details {
-            /* background: #f8f9fa; */
-            padding: 25px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border-left: 4px solid #0086bb;
-        }
+      .student-details {
+        /* background: #f8f9fa; */
+        padding: 25px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border-left: 4px solid #0086bb;
+      }
 
-        .detail-row {
-            display: flex;
-            margin-bottom: 15px;
-            align-items: center;
-        }
+      .detail-row {
+        display: flex;
+        margin-bottom: 15px;
+        align-items: center;
+      }
 
-        .detail-label {
-            font-weight: bold;
-            width: 200px;
-            color: #2c3e50;
-            font-size: 15px;
-        }
+      .detail-label {
+        font-weight: bold;
+        width: 200px;
+        color: #2c3e50;
+        font-size: 15px;
+      }
 
-        .detail-value {
-            color: #34495e;
-            flex: 1;
-        }
+      .detail-value {
+        color: #34495e;
+        flex: 1;
+      }
 
-        .achievements-section {
-            margin: 25px 0;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #0086bb;
-        }
+      .achievements-section {
+        margin: 25px 0;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #0086bb;
+      }
 
-        .achievements-title {
-            font-weight: bold;
-            color: #000000;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
+      .achievements-title {
+        font-weight: bold;
+        color: #000000;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+      }
 
-        .achievements-grid {
-            display: block;            
-            /* grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); */
-            gap: 10px;
-            padding-left: 10px;
-            transition: all 0.3s ease;
-        }
+      .achievements-grid {
+        display: block;
+        /* grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); */
+        gap: 10px;
+        padding-left: 10px;
+        transition: all 0.3s ease;
+      }
 
-        .achievement-item{
-            margin-bottom: 10px;
-            font-size: 1rem;
-            color: #2c3e50;
-            transition: all 0.3s ease;
-            line-height: 1.5;
-            display: flex;
-            align-items: center;
-        }
-        .achievement-item:hover {
-            cursor: pointer;
+      .achievement-item {
+        margin-bottom: 10px;
+        font-size: 1rem;
+        color: #2c3e50;
+        transition: all 0.3s ease;
+        line-height: 1.5;
+        display: flex;
+        align-items: center;
+      }
+      .achievement-item:hover {
+        cursor: pointer;
+      }
 
-        }
-
-        /* .achievement-item {
+      /* .achievement-item {
             background: white;
             padding: 12px 16px;
             border-radius: 25px;
@@ -263,524 +263,589 @@
             transition: all 0.3s ease;
         } */
 
-        .achievement-item:hover {
-            color: rgb(0, 0, 0);
-            transform: translateY(-2px);
-        }
+      .achievement-item:hover {
+        color: rgb(0, 0, 0);
+        transform: translateY(-2px);
+      }
 
-        .closing-text {
-            text-align: center;
-            margin-top: 30px;
-            font-style: italic;
-            color: #7f8c8d;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
+      .closing-text {
+        text-align: center;
+        margin-top: 30px;
+        font-style: italic;
+        color: #7f8c8d;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
 
-        .signature-section {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 50px;
-            padding-top: 30px;
-            border-top: 2px solid #ecf0f1;
-        }
+      .signature-section {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 2px solid #ecf0f1;
+      }
 
-        .signature-box {
-            text-align: center;
-            width: 200px;
-        }
+      .signature-box {
+        text-align: center;
+        width: 200px;
+      }
 
-        .signature-line {
-            border-bottom: 2px solid #2c3e50;
-            margin-bottom: 10px;
-            height: 50px;
-        }
+      .signature-line {
+        border-bottom: 2px solid #2c3e50;
+        margin-bottom: 10px;
+        height: 50px;
+      }
 
-        .form-section {
-            /* background: white; */
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            margin-bottom: 40px;
-        }
+      .form-section {
+        /* background: white; */
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        margin-bottom: 40px;
+      }
 
-        .form-title {
-            font-size: 1.5rem;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            text-align: center;
-        }
+      .form-title {
+        font-size: 1.5rem;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        text-align: center;
+      }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+      .form-group {
+        margin-bottom: 20px;
+      }
 
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
+      .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #2c3e50;
+      }
 
-        .form-input, .form-textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #0086bb;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
+      .form-input,
+      .form-textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #0086bb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+      }
 
-        .form-input:focus, .form-textarea:focus {
-            outline: none;
-            border-color: #0086bb;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
+      .form-input:focus,
+      .form-textarea:focus {
+        outline: none;
+        border-color: #0086bb;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+      }
 
-        .form-textarea {
-            height: 100px;
-            resize: vertical;
-        }
+      .form-textarea {
+        height: 100px;
+        resize: vertical;
+      }
 
-        .submit-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+      .submit-btn {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
 
-        .submit-btn:hover {
-            background: linear-gradient(135deg, #2980b9, #21618c);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-        }
+      .submit-btn:hover {
+        background: linear-gradient(135deg, #2980b9, #21618c);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      }
 
-        .submit-btn:disabled {
-            background: #bdc3c7;
-            cursor: not-allowed;
-            transform: none;
-        }
+      .submit-btn:disabled {
+        background: #bdc3c7;
+        cursor: not-allowed;
+        transform: none;
+      }
 
-        .requests-section {
-            /* background: white; */
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            margin-top: 40px;
-        }
+      .requests-section {
+        /* background: white; */
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        margin-top: 40px;
+      }
 
-        .request-item {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border-left: 4px solid #3498db;
-        }
+      .request-item {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        border-left: 4px solid #3498db;
+      }
 
-        .request-title {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
+      .request-title {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 5px;
+      }
 
-        .request-date {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
+      .request-date {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+      }
 
-        .request-status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
+      .request-status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
 
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
+      .status-pending {
+        background: #fff3cd;
+        color: #856404;
+      }
 
-        .status-approved {
-            background: #d4edda;
-            color: #155724;
-        }
+      .status-approved {
+        background: #d4edda;
+        color: #155724;
+      }
 
-        .status-rejected {
-            background: #f8d7da;
-            color: #721c24;
-        }
+      .status-rejected {
+        background: #f8d7da;
+        color: #721c24;
+      }
 
-        /* .hidden {
+      /* .hidden {
             display: none;
         } */
 
-        .hidden {
-            display: none !important;
+      .hidden {
+        display: none !important;
+      }
+
+      @media (max-width: 500px) {
+        .header h1 {
+          font-size: 1.5rem;
+          margin-bottom: 8px;
+        }
+        .header p {
+          font-size: 0.95rem;
+          margin-bottom: 22px;
         }
 
+        .certificate-tabs {
+          flex-direction: column !important;
+          gap: 10px 8px;
+          margin-bottom: 20px;
+          align-items: stretch;
+          display: flex;
+          flex-wrap: wrap; /* allows wrapping on smaller screens */
+          justify-content: center;
+        }
 
+        .tab-button {
+          width: 100%;
+          min-width: 0;
+          padding: 12px;
+          font-size: 0.9rem;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.07);
+          /* align-items: center; */
+          /* text-align: center; */
+          flex: none;
+          box-sizing: border-box;
+        }
 
-    @media (max-width: 500px) {
-  .header h1 {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
-  }
-  .header p {
-    font-size: 0.95rem;
-    margin-bottom: 22px;
-  }
+        .tab-icon {
+          font-size: 1.5rem;
+          margin-bottom: 5px;
+        }
 
-  .certificate-tabs {
-    flex-direction: column !important;
-    gap: 10px 8px;
-    margin-bottom: 20px;
-    align-items: stretch;
-    display: flex;
-    flex-wrap: wrap; /* allows wrapping on smaller screens */
-    justify-content: center;
-  }
+        .tab-title {
+          font-size: 1rem;
+        }
 
-  .tab-button {
-    width: 100%;
-    min-width: 0;
-    padding: 12px;
-    font-size: 0.9rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.07);
-    /* align-items: center; */
-    /* text-align: center; */
-    flex: none;
-    box-sizing: border-box;
-  }
-
-  .tab-icon{
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-  }
-
-  .tab-title{
-    font-size: 1rem;
-  }
-
-  .tab-description{
-    font-size: 0.8rem;
-  }
-}
+        .tab-description {
+          font-size: 0.8rem;
+        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
-        <div class="header">
-            <h1>Request Certificates</h1>
-            <p>Request official certificates and documents</p>
+  <body>
+    <div class="header">
+      <h1>Request Certificates</h1>
+      <p>Request official certificates and documents</p>
+    </div>
+
+    <div class="certificate-tabs">
+      <div class="tab-button active" data-type="character">
+        <div class="tab-icon"><i class="fas fa-trophy"></i></div>
+        <div class="tab-title">Character Certificate</div>
+        <div class="tab-description">
+          Certificate of good conduct and character
+        </div>
+      </div>
+      <div class="tab-button" data-type="leaving">
+        <div class="tab-icon"><i class="fas fa-graduation-cap"></i></div>
+        <div class="tab-title">Leaving Certificate</div>
+        <div class="tab-description">
+          Official leaving certificate with enrollment details
+        </div>
+      </div>
+      <div class="tab-button" data-type="enrollment">
+        <div class="tab-icon"><i class="fas fa-file-alt"></i></div>
+        <div class="tab-title">School Enrollment Letter</div>
+        <div class="tab-description">
+          Letter confirming current enrollment status
+        </div>
+      </div>
+    </div>
+
+    <div class="certificate-content">
+      <!-- Character Certificate -->
+      <div id="character-cert" class="certificate-section">
+        <div class="certificate-preview">
+          <div class="certificate-header">
+            <div class="school-name">ST. MARY'S HIGH SCHOOL</div>
+            <div class="school-address">
+              123 Education Street, Academic City, State - 12345<br />Phone:
+              (555) 123-4567 | Email: info@stmarys.edu
+            </div>
+            <div class="certificate-title">Character Certificate</div>
+          </div>
+          <div class="certificate-body">
+            <div class="intro-text">
+              "This is to certify that the following student has maintained
+              excellent character and conduct during their tenure at our
+              institution."
+            </div>
+
+            <div class="student-details">
+              <div class="detail-row">
+                <span class="detail-label">Student Name:</span>
+                <span class="detail-value">Yosh Edirisinghe</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Grade:</span>
+                <span class="detail-value">11th Grade</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Class:</span>
+                <span class="detail-value">A</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Admission Number:</span>
+                <span class="detail-value">212001</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Academic Year:</span>
+                <span class="detail-value">2025</span>
+              </div>
+            </div>
+
+            <div class="achievements-section">
+              <div class="achievements-title">
+                Academic & Co-curricular Achievements
+              </div>
+              <div class="achievements-grid">
+                <div class="achievement-item">
+                  First Place in the Inter Mathematics Competition for the Year
+                  2024
+                </div>
+                <div class="achievement-item">
+                  2nd Place in the 2024 School Science Fair
+                </div>
+                <div class="achievement-item">
+                  Best Attendance for the Year 2024
+                </div>
+                <div class="achievement-item">
+                  Community Service Award for the Year 2022
+                </div>
+                <div class="achievement-item">
+                  Cricket Team Captain - Year 2022
+                </div>
+                <div class="achievement-item">
+                  Mathematics Olympiad Participant - Year 2021
+                </div>
+              </div>
+            </div>
+
+            <div class="closing-text">
+              "The above-mentioned student has consistently demonstrated
+              exceptional moral character, integrity, and leadership qualities.
+              They have been respectful to faculty, supportive of fellow
+              students, and have contributed positively to our school community.
+              We recommend them without reservation for any future academic or
+              professional endeavors."
+            </div>
+
+            <div class="signature-section">
+              <div class="signature-box">
+                <div class="signature-line"></div>
+                <div>Class Teacher</div>
+              </div>
+              <div class="signature-box">
+                <div class="signature-line"></div>
+                <div>Principal</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leaving Certificate -->
+      <div id="leaving-cert" class="certificate-section hidden">
+        <div class="certificate-preview">
+          <div class="certificate-header">
+            <div class="school-name">ST. MARY'S HIGH SCHOOL</div>
+            <div class="school-address">
+              123 Education Street, Academic City, State - 12345<br />Phone:
+              (555) 123-4567 | Email: info@stmarys.edu
+            </div>
+            <div class="certificate-title">Leaving Certificate</div>
+          </div>
+          <div class="certificate-body">
+            <div class="intro-text">
+              "This is to certify that the following student was dully enrolled
+              in this institution and has completed their studies
+              satisfactorily."
+            </div>
+
+            <div class="student-details">
+              <div class="detail-row">
+                <span class="detail-label">Student Name:</span>
+                <span class="detail-value">John Smith</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Father's Name:</span>
+                <span class="detail-value">Robert Smith</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Mother's Name:</span>
+                <span class="detail-value">Mary Smith</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Grade:</span>
+                <span class="detail-value">12th Grade</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Class:</span>
+                <span class="detail-value">A</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Admission Number:</span>
+                <span class="detail-value">STM2020001</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Date of Enrollment:</span>
+                <span class="detail-value">August 15, 2020</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Date of Leaving:</span>
+                <span class="detail-value">[To be filled upon approval]</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Last Class Attended:</span>
+                <span class="detail-value">12th Grade, Section A</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Reason for Leaving:</span>
+                <span class="detail-value"
+                  ><span id="leaving-reason">[To be specified]</span></span
+                >
+              </div>
+            </div>
+
+            <div class="closing-text">
+              "During their tenure at our institution, the student maintained
+              satisfactory academic performance and good conduct. They are
+              eligible for transfer to another educational institution. We wish
+              them success in their future academic endeavors."
+            </div>
+
+            <div class="signature-section">
+              <div class="signature-box">
+                <div class="signature-line"></div>
+                <div>Class Teacher</div>
+              </div>
+              <div class="signature-box">
+                <div class="signature-line"></div>
+                <div>Principal</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enrollment Letter -->
+      <div id="enrollment-cert" class="certificate-section hidden">
+        <div class="certificate-preview">
+          <div class="certificate-header">
+            <div class="school-name">ST. MARY'S HIGH SCHOOL</div>
+            <div class="school-address">
+              123 Education Street, Academic City, State - 12345<br />Phone:
+              (555) 123-4567 | Email: info@stmarys.edu
+            </div>
+            <div class="certificate-title">School Enrollment Letter</div>
+          </div>
+          <div class="certificate-body">
+            <div class="intro-text">
+              "To Whom It May Concern"<br /><br />
+              "This letter serves as official confirmation of the current
+              enrollment status of the following student at our institution."
+            </div>
+
+            <div class="student-details">
+              <div class="detail-row">
+                <span class="detail-label">Student Name:</span>
+                <span class="detail-value">John Smith</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Father's Name:</span>
+                <span class="detail-value">Robert Smith</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Current Grade:</span>
+                <span class="detail-value">12th Grade</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Class Section:</span>
+                <span class="detail-value">A</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Admission Number:</span>
+                <span class="detail-value">STM2020001</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Date of Enrollment:</span>
+                <span class="detail-value">August 15, 2020</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Current Academic Year:</span>
+                <span class="detail-value">2024-2025</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Enrollment Status:</span>
+                <span class="detail-value">Active - Full Time Student</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Academic Standing:</span>
+                <span class="detail-value">Good Standing</span>
+              </div>
+            </div>
+
+            <div class="closing-text">
+              "This letter confirms that the above-mentioned student is
+              currently enrolled as a regular, full-time student at St. Mary's
+              High School and is in good academic standing. Should you require
+              any additional information, please feel free to contact our
+              office."<br /><br />
+              "This letter is issued upon the request of the student for
+              official purposes."
+            </div>
+
+            <div class="signature-section">
+              <div class="signature-box">
+                <div class="signature-line"></div>
+                <div>Registrar</div>
+              </div>
+              <div class="signature-box">
+                <div class="signature-line"></div>
+                <div>Principal</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h2 class="form-title">Request Details</h2>
+      <form id="certificateForm">
+        <div class="form-group">
+          <label class="form-label" for="reason">Reason for Request *</label>
+          <textarea
+            id="reason"
+            class="form-textarea"
+            placeholder="Why do you need this certificate?"
+            required
+          ></textarea>
         </div>
 
-        <div class="certificate-tabs">
-            <div class="tab-button active" data-type="character">
-                <div class="tab-icon"><i class="fas fa-trophy"></i></div>
-                <div class="tab-title">Character Certificate</div>
-                <div class="tab-description">Certificate of good conduct and character</div>
-            </div>
-            <div class="tab-button" data-type="leaving">
-                <div class="tab-icon"><i class="fas fa-graduation-cap"></i></div>                
-                <div class="tab-title">Leaving Certificate</div>
-                <div class="tab-description">Official leaving certificate with enrollment details</div>
-            </div>
-            <div class="tab-button" data-type="enrollment">
-                <div class="tab-icon"><i class="fas fa-file-alt"></i></div>                
-                <div class="tab-title">School Enrollment Letter</div>
-                <div class="tab-description">Letter confirming current enrollment status</div>
-            </div>
+        <div class="form-group">
+          <label class="form-label" for="additionalInfo"
+            >Additional Information</label
+          >
+          <textarea
+            id="additionalInfo"
+            class="form-textarea"
+            placeholder="Any additional details or special requirements"
+          ></textarea>
         </div>
 
-        <div class="certificate-content">
-            <!-- Character Certificate -->
-            <div id="character-cert" class="certificate-section">
-                <div class="certificate-preview">
-                    <div class="certificate-header">
-                        <div class="school-name">ST. MARY'S HIGH SCHOOL</div>
-                        <div class="school-address">123 Education Street, Academic City, State - 12345<br>Phone: (555) 123-4567 | Email: info@stmarys.edu</div>
-                        <div class="certificate-title">Character Certificate</div>
-                    </div>
-                    <div class="certificate-body">
-                        <div class="intro-text">
-                            "This is to certify that the following student has maintained excellent character and conduct during their tenure at our institution."
-                        </div>
-                        
-                        <div class="student-details">
-                            <div class="detail-row">
-                                <span class="detail-label">Student Name:</span>
-                                <span class="detail-value">Yosh Edirisinghe</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Grade:</span>
-                                <span class="detail-value">11th Grade</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Class:</span>
-                                <span class="detail-value">A</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Admission Number:</span>
-                                <span class="detail-value">212001</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Academic Year:</span>
-                                <span class="detail-value">2025</span>
-                            </div>
-                        </div>
+        <button type="submit" class="submit-btn">Submit Request</button>
+      </form>
+    </div>
 
-                        <div class="achievements-section">
-                            <div class="achievements-title">Academic & Co-curricular Achievements</div>
-                            <div class="achievements-grid">
-                                <div class="achievement-item">First Place in the Inter Mathematics Competition for the Year 2024</div>
-                                <div class="achievement-item">2nd Place in the 2024 School Science Fair</div>
-                                <div class="achievement-item">Best Attendance for the Year 2024</div>
-                                <div class="achievement-item">Community Service Award for the Year 2022</div>
-                                <div class="achievement-item">Cricket Team Captain - Year 2022</div>
-                                <div class="achievement-item">Mathematics Olympiad Participant - Year 2021</div>
-                            </div>
-                        </div>
+    <div id="requestsSection" class="requests-section hidden">
+      <h2 class="form-title">📋 Your Certificate Requests</h2>
+      <div id="requestsList"></div>
+    </div>
 
-                        <div class="closing-text">
-                            "The above-mentioned student has consistently demonstrated exceptional moral character, integrity, and leadership qualities. They have been respectful to faculty, supportive of fellow students, and have contributed positively to our school community. We recommend them without reservation for any future academic or professional endeavors."
-                        </div>
+    <script>
+      setTimeout(() => {
+        try {
+          function setupTabs() {
+            const buttons = document.querySelectorAll(".tab-button");
+            const sections = document.querySelectorAll(".certificate-section");
 
-                        <div class="signature-section">
-                            <div class="signature-box">
-                                <div class="signature-line"></div>
-                                <div>Class Teacher</div>
-                            </div>
-                            <div class="signature-box">
-                                <div class="signature-line"></div>
-                                <div>Principal</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            // Get previously selected tab from localStorage or default to character
+            const savedType =
+              localStorage.getItem("selectedTab") || "character";
 
-            <!-- Leaving Certificate -->
-            <div id="leaving-cert" class="certificate-section hidden">
-                <div class="certificate-preview">
-                    <div class="certificate-header">
-                        <div class="school-name">ST. MARY'S HIGH SCHOOL</div>
-                        <div class="school-address">123 Education Street, Academic City, State - 12345<br>Phone: (555) 123-4567 | Email: info@stmarys.edu</div>
-                        <div class="certificate-title">Leaving Certificate</div>
-                    </div>
-                    <div class="certificate-body">
-                        <div class="intro-text">
-                            "This is to certify that the following student was dully enrolled in this institution and has completed their studies satisfactorily."
-                        </div>
-                        
-                        <div class="student-details">
-                            <div class="detail-row">
-                                <span class="detail-label">Student Name:</span>
-                                <span class="detail-value">John Smith</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Father's Name:</span>
-                                <span class="detail-value">Robert Smith</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Mother's Name:</span>
-                                <span class="detail-value">Mary Smith</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Grade:</span>
-                                <span class="detail-value">12th Grade</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Class:</span>
-                                <span class="detail-value">A</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Admission Number:</span>
-                                <span class="detail-value">STM2020001</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Date of Enrollment:</span>
-                                <span class="detail-value">August 15, 2020</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Date of Leaving:</span>
-                                <span class="detail-value">[To be filled upon approval]</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Last Class Attended:</span>
-                                <span class="detail-value">12th Grade, Section A</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Reason for Leaving:</span>
-                                <span class="detail-value"><span id="leaving-reason">[To be specified]</span></span>
-                            </div>
-                        </div>
+            // Show the saved tab on load
+            sections.forEach((sec) => sec.classList.add("hidden"));
+            document
+              .getElementById(savedType + "-cert")
+              .classList.remove("hidden");
 
-                        <div class="closing-text">
-                            "During their tenure at our institution, the student maintained satisfactory academic performance and good conduct. They are eligible for transfer to another educational institution. We wish them success in their future academic endeavors."
-                        </div>
+            buttons.forEach((b) => b.classList.remove("active"));
+            document
+              .querySelector(`.tab-button[data-type="${savedType}"]`)
+              .classList.add("active");
 
-                        <div class="signature-section">
-                            <div class="signature-box">
-                                <div class="signature-line"></div>
-                                <div>Class Teacher</div>
-                            </div>
-                            <div class="signature-box">
-                                <div class="signature-line"></div>
-                                <div>Principal</div>
-                            </div>
-                        </div>
-                    </div> 
-                </div>
-            </div>
+            buttons.forEach((btn) => {
+              btn.addEventListener("click", () => {
+                const type = btn.dataset.type;
 
-            <!-- Enrollment Letter -->
-            <div id="enrollment-cert" class="certificate-section hidden">
-                <div class="certificate-preview">
-                    <div class="certificate-header">
-                        <div class="school-name">ST. MARY'S HIGH SCHOOL</div>
-                        <div class="school-address">123 Education Street, Academic City, State - 12345<br>Phone: (555) 123-4567 | Email: info@stmarys.edu</div>
-                        <div class="certificate-title">School Enrollment Letter</div>
-                    </div>
-                    <div class="certificate-body">
-                        <div class="intro-text">
-                            "To Whom It May Concern"<br><br>
-                            "This letter serves as official confirmation of the current enrollment status of the following student at our institution."
-                        </div>
-                        
-                        <div class="student-details">
-                            <div class="detail-row">
-                                <span class="detail-label">Student Name:</span>
-                                <span class="detail-value">John Smith</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Father's Name:</span>
-                                <span class="detail-value">Robert Smith</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Current Grade:</span>
-                                <span class="detail-value">12th Grade</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Class Section:</span>
-                                <span class="detail-value">A</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Admission Number:</span>
-                                <span class="detail-value">STM2020001</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Date of Enrollment:</span>
-                                <span class="detail-value">August 15, 2020</span>
-                            </div>                            <div class="detail-row">
-                                <span class="detail-label">Current Academic Year:</span>
-                                <span class="detail-value">2024-2025</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Enrollment Status:</span>
-                                <span class="detail-value">Active - Full Time Student</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Academic Standing:</span>
-                                <span class="detail-value">Good Standing</span>
-                            </div>
-                        </div>
+                // Show selected certificate
+                sections.forEach((sec) => sec.classList.add("hidden"));
+                document
+                  .getElementById(type + "-cert")
+                  .classList.remove("hidden");
 
-                        <div class="closing-text">
-                            "This letter confirms that the above-mentioned student is currently enrolled as a regular, full-time student at St. Mary's High School and is in good academic standing. Should you require any additional information, please feel free to contact our office."<br><br>
-                            "This letter is issued upon the request of the student for official purposes."
-                        </div>
+                // Update active tab
+                buttons.forEach((b) => b.classList.remove("active"));
+                btn.classList.add("active");
 
-                        <div class="signature-section">
-                            <div class="signature-box">
-                                <div class="signature-line"></div>
-                                <div>Registrar</div>
-                            </div>
-                            <div class="signature-box">
-                                <div class="signature-line"></div>
-                                <div>Principal</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                // Save selected tab
+                localStorage.setItem("selectedTab", type);
+              });
+            });
+          }
 
-        <div class="form-section">
-            <h2 class="form-title">Request Details</h2>
-            <form id="certificateForm">
-                <div class="form-group">
-                    <label class="form-label" for="reason">Reason for Request *</label>
-                    <textarea id="reason" class="form-textarea" placeholder="Why do you need this certificate?" required></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="additionalInfo">Additional Information</label>
-                    <textarea id="additionalInfo" class="form-textarea" placeholder="Any additional details or special requirements"></textarea>
-                </div>
-                
-                <button type="submit" class="submit-btn">Submit Request</button>
-            </form>
-        </div>
-
-        <div id="requestsSection" class="requests-section hidden">
-            <h2 class="form-title">📋 Your Certificate Requests</h2>
-            <div id="requestsList"></div>
-        </div>
-
-
-
-
-   <script>
-        setTimeout(() => {
-            try {
-                function setupTabs() {
-                    const buttons = document.querySelectorAll(".tab-button");
-                    const sections = document.querySelectorAll(".certificate-section");
-
-                    // Get previously selected tab from localStorage or default to character
-                    const savedType = localStorage.getItem("selectedTab") || "character";
-
-                    // Show the saved tab on load
-                    sections.forEach(sec => sec.classList.add("hidden"));
-                    document.getElementById(savedType + "-cert").classList.remove("hidden");
-
-                    buttons.forEach(b => b.classList.remove("active"));
-                    document.querySelector(`.tab-button[data-type="${savedType}"]`).classList.add("active");
-
-                    buttons.forEach(btn => {
-                        btn.addEventListener("click", () => {
-                            const type = btn.dataset.type;
-
-                            // Show selected certificate
-                            sections.forEach(sec => sec.classList.add("hidden"));
-                            document.getElementById(type + "-cert").classList.remove("hidden");
-
-                            // Update active tab
-                            buttons.forEach(b => b.classList.remove("active"));
-                            btn.classList.add("active");
-
-                            // Save selected tab
-                            localStorage.setItem("selectedTab", type);
-                        });
-                    });
-                }
-
-                setupTabs();
-            } catch (err) {
-                console.error("Certificates script failed:", err);
-            }
-        }, 0);
+          setupTabs();
+        } catch (err) {
+          console.error("Certificates script failed:", err);
+        }
+      }, 0);
     </script>
-
-</body>
+  </body>
 </html>

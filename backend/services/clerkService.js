@@ -862,6 +862,38 @@ const getAnnouncementWithDetails = async (announcementId) => {
   return result.rows[0];
 };
 
+// Get announcements created by staff (teachers and clerks) for admin visibility
+const getStaffAnnouncements = async () => {
+  try {
+    const result = await pool.query(
+      `
+      SELECT
+        a.id,
+        a.title,
+        a.description,
+        a.created_at,
+        a.audience_type,
+        u.username as created_by_name,
+        r.name as created_by_role,
+        CASE
+          WHEN a.audience_type = 'all' THEN 'All (Teachers & Students)'
+          WHEN a.audience_type = 'teachers' THEN 'Teachers'
+          WHEN a.audience_type = 'students' THEN 'Students'
+        END as audience_display
+      FROM announcements a
+      LEFT JOIN users u ON a.posted_by = u.id
+      LEFT JOIN roles r ON u.role_id = r.id
+      WHERE r.name IN ('teacher', 'clerk')
+      ORDER BY a.created_at DESC
+      `
+    );
+    return result.rows;
+  } catch (err) {
+    console.error("Error fetching staff announcements:", err);
+    return [];
+  }
+};
+
 module.exports = {
   createStudent,
   getAllStudents,
@@ -886,6 +918,7 @@ module.exports = {
   updateAnnouncement,
   deleteAnnouncement,
   getAnnouncementWithDetails,
+  getStaffAnnouncements,
   // Password reset functions
   getPendingPasswordResets,
   approvePasswordReset,

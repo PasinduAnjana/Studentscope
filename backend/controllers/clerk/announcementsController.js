@@ -285,3 +285,35 @@ exports.deleteAnnouncement = async (req, res) => {
     }
   }
 };
+
+exports.getStaffAnnouncements = async (req, res) => {
+  try {
+    // Get current user from session
+    const cookie = req.headers.cookie || "";
+    const match = cookie.match(/sessionToken=([^;]+)/);
+    const sessionToken = match ? match[1] : null;
+
+    if (!sessionToken) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "No session token" }));
+      return;
+    }
+
+    const session = await authService.getSession(sessionToken);
+
+    if (!session) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      return;
+    }
+
+    // Get all announcements created by staff (teachers and clerks)
+    const announcements = await clerkService.getStaffAnnouncements();
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(announcements));
+  } catch (err) {
+    console.error("Database error:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch staff announcements" }));
+  }
+};

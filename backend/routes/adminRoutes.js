@@ -159,7 +159,13 @@ module.exports = (req, res) => {
   }
 
   // Announcements routes (identical to clerk)
-  if (req.method === "GET" && req.url === "/api/admin/announcements") {
+  if (req.method === "GET" && req.url.startsWith("/api/admin/announcements")) {
+    // Check if this is a query for staff announcements
+    if (req.url.includes("role=staff")) {
+      return protect("admin")(req, res, () =>
+        announcementsController.getStaffAnnouncements(req, res)
+      );
+    }
     return protect("admin")(req, res, () =>
       announcementsController.getAllAnnouncements(req, res)
     );

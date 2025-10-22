@@ -20,15 +20,42 @@
       background-color: var(--color-hover);
     }
   </style>
-  <div class="card">
-    <div class="flex-between mb-2">
-      <h1 class="title" data="sidebar.announcements"></h1>
-      <button id="add-announcement-btn" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Add Announcement
-      </button>
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <div class="card">
+      <div class="flex-between mb-2">
+        <h1 class="title" data="sidebar.announcements"></h1>
+        <button
+          id="add-announcement-btn"
+          class="btn btn-primary"
+          data-en="Add Announcement"
+          data-si="ප්‍රකාශනය එක් කරන්න"
+          data-ta="அறிவிப்பு சேர்க்கவும்"
+        >
+          <i class="fas fa-plus"></i> Add Announcement
+        </button>
+      </div>
+      <div class="announcements-container" id="announcements-container">
+        <!-- Announcements will be loaded here dynamically -->
+      </div>
     </div>
-    <div class="announcements-container" id="announcements-container">
-      <!-- Announcements will be loaded here dynamically -->
+
+    <!-- Announcements from Clerks and Teachers -->
+    <div class="card">
+      <div class="flex-between mb-2">
+        <h1 class="title">
+          <i class="fas fa-comments"></i>
+          <span
+            data-en="Announcements from Staff"
+            data-si="කාර්ය මණ්ඩලයෙන් නිවේදන"
+            data-ta="பணியாளர்களிடமிருந்து அறிவிப்புகள்"
+            >Announcements from Staff</span
+          >
+        </h1>
+      </div>
+      <div class="announcements-container" id="staff-announcements-container">
+        <!-- Staff announcements will be loaded here dynamically -->
+      </div>
     </div>
   </div>
 </section>
@@ -42,7 +69,13 @@
     </div>
     <div class="modal-body">
       <div class="mb-2">
-        <label for="announcement-title">Title:</label>
+        <label
+          for="announcement-title"
+          data-en="Title:"
+          data-si="මාතෘකාව:"
+          data-ta="தலைப்பு:"
+          >Title:</label
+        >
         <input
           type="text"
           id="announcement-title"
@@ -51,7 +84,13 @@
         />
       </div>
       <div class="mb-2">
-        <label for="announcement-description">Description:</label>
+        <label
+          for="announcement-description"
+          data-en="Description:"
+          data-si="විස්තරණය:"
+          data-ta="விளக்கம்:"
+          >Description:</label
+        >
         <textarea
           id="announcement-description"
           placeholder="Enter announcement description..."
@@ -59,25 +98,78 @@
         ></textarea>
       </div>
       <div class="mb-2">
-        <label for="announcement-audience">Audience:</label>
+        <label
+          for="announcement-audience"
+          data-en="Audience:"
+          data-si="ශ්‍රෝතෘවර්ගය:"
+          data-ta="பார்வையாளர்கள்:"
+          >Audience:</label
+        >
         <select id="announcement-audience" class="mt-1">
-          <option value="all">All (Teachers & Students)</option>
-          <option value="teachers">Specific Teachers</option>
-          <option value="students">Specific Classes</option>
+          <option
+            value="all"
+            data-en="All (Teachers & Students)"
+            data-si="සියලු (ගුරුවරුන් සහ ශිෂ්‍යයෝ)"
+            data-ta="அனைவரும் (ஆசிரியர்கள் & மாணவர்கள்)"
+          >
+            All (Teachers & Students)
+          </option>
+          <option
+            value="teachers"
+            data-en="Specific Teachers"
+            data-si="නිශ්චිත ගුරුවරුන්"
+            data-ta="குறிப்பிட்ட ஆசிரியர்கள்"
+          >
+            Specific Teachers
+          </option>
+          <option
+            value="students"
+            data-en="Specific Classes"
+            data-si="නිශ්චිත පන්තිය"
+            data-ta="குறிப்பிட்ட வகுப்புகள்"
+          >
+            Specific Classes
+          </option>
         </select>
       </div>
       <div id="teacher-selection" class="mb-2" style="display: none">
-        <label>Select Teachers:</label>
+        <label
+          data-en="Select Teachers:"
+          data-si="ගුරුවරුන් තෝරන්න:"
+          data-ta="ஆசிரியர்களைத் தேர்ந்தெடுக்கவும்:"
+          >Select Teachers:</label
+        >
         <div id="teacher-checkboxes" class="mt-1"></div>
       </div>
       <div id="class-selection" class="mb-2" style="display: none">
-        <label>Select Classes:</label>
+        <label
+          data-en="Select Classes:"
+          data-si="පන්තිය තෝරන්න:"
+          data-ta="வகுப்புகளைத் தேர்ந்தெடுக்கவும்:"
+          >Select Classes:</label
+        >
         <div id="class-checkboxes" class="mt-1"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
-      <button id="modal-save" class="btn btn-primary">Save</button>
+      <button
+        id="modal-cancel"
+        class="btn btn-secondary"
+        data-en="Cancel"
+        data-si="අවලංගු කරන්න"
+        data-ta="ரத்து"
+      >
+        Cancel
+      </button>
+      <button
+        id="modal-save"
+        class="btn btn-primary"
+        data-en="Save"
+        data-si="සුරකින්න"
+        data-ta="சேமிக்கவும்"
+      >
+        Save
+      </button>
     </div>
   </div>
 </div>
@@ -181,6 +273,126 @@
         const container = document.querySelector("#announcements-container");
         container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
       });
+  }
+
+  function fetchStaffAnnouncements() {
+    console.log("Fetching staff announcements...");
+    fetch("/api/admin/announcements?role=staff")
+      .then((res) => {
+        console.log("Staff announcements API response status:", res.status);
+        if (!res.ok) throw new Error("Failed to fetch staff announcements");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Received staff announcements data:", data);
+        renderStaffAnnouncements(data);
+      })
+      .catch((err) => {
+        console.error("Error fetching staff announcements:", err);
+        const container = document.querySelector(
+          "#staff-announcements-container"
+        );
+        container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
+      });
+  }
+
+  function renderStaffAnnouncements(staffAnnouncements) {
+    const container = document.querySelector("#staff-announcements-container");
+    container.innerHTML = "";
+
+    if (!staffAnnouncements.length) {
+      container.innerHTML = `<div class="no-announcements text-center">No announcements from staff</div>`;
+      return;
+    }
+
+    staffAnnouncements.forEach((announcement) => {
+      const card = document.createElement("div");
+      card.className = "announcement-card";
+
+      const createdDate = new Date(
+        announcement.created_at
+      ).toLocaleDateString();
+
+      // Format audience display
+      let audienceDisplay = "";
+      switch (announcement.audience_type) {
+        case "all":
+          audienceDisplay = "All (Teachers & Students)";
+          break;
+        case "teachers":
+          audienceDisplay = "Teachers";
+          break;
+        case "students":
+          audienceDisplay = "Students";
+          break;
+      }
+
+      // Get creator info
+      const creatorRole = announcement.created_by_role || "Staff";
+      const creatorName = announcement.created_by_name || "Unknown";
+
+      card.innerHTML = `
+        <div class="announcement-title flex-between">
+          <span>${announcement.title}</span>
+        </div>
+        <div class="announcement-description-container">
+          <div class="announcement-description collapsed" id="staff-desc-${announcement.id}">
+            ${announcement.description}
+          </div>
+          <button class="expand-btn" id="staff-expand-${announcement.id}" style="display: none" onclick="toggleStaffDescription(${announcement.id})">
+            <span>Show more</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+        <div class="announcement-meta flex-between">
+          <div>
+            <span class="text-sm">Audience: ${audienceDisplay}</span>
+            <span class="text-sm" style="margin-left: 16px;">By: ${creatorName} (${creatorRole})</span>
+          </div>
+          <span class="text-sm">Created: ${createdDate}</span>
+        </div>
+      `;
+
+      container.appendChild(card);
+
+      // Check if description needs expand button
+      setTimeout(() => {
+        const descElement = document.getElementById(
+          `staff-desc-${announcement.id}`
+        );
+        const expandBtn = document.getElementById(
+          `staff-expand-${announcement.id}`
+        );
+        if (
+          descElement &&
+          expandBtn &&
+          descElement.scrollHeight > descElement.clientHeight
+        ) {
+          expandBtn.style.display = "inline-flex";
+        }
+      }, 0);
+    });
+  }
+
+  function toggleStaffDescription(id) {
+    const descElement = document.getElementById(`staff-desc-${id}`);
+    const expandBtn = document.getElementById(`staff-expand-${id}`);
+    const btnText = expandBtn.querySelector("span");
+    const btnIcon = expandBtn.querySelector("i");
+
+    if (descElement.classList.contains("collapsed")) {
+      // Expand
+      descElement.classList.remove("collapsed");
+      descElement.classList.add("expanded");
+      btnText.textContent = "Show less";
+      expandBtn.classList.add("expanded");
+    } else {
+      // Collapse
+      descElement.classList.remove("expanded");
+      descElement.classList.add("collapsed");
+      btnText.textContent = "Show more";
+      expandBtn.classList.remove("expanded");
+    }
   }
 
   function setupAddButton() {
@@ -531,6 +743,7 @@
 
   // Initialize
   fetchAnnouncements();
+  fetchStaffAnnouncements();
   setupAddButton();
   loadTeachers(); // Pre-load teachers for better UX
   loadClasses(); // Pre-load classes for better UX
