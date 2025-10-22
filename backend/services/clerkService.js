@@ -378,10 +378,11 @@ async function assignClassTeacher(classId, teacherId) {
   );
   if (current.rows.length > 0) {
     const oldTeacherId = current.rows[0].teacher_id;
-    // Set old teacher's class_id to null
-    await pool.query("UPDATE users SET class_id = NULL WHERE id = $1", [
-      oldTeacherId,
-    ]);
+    // Set old teacher's class_id to null and is_class_teacher to false
+    await pool.query(
+      "UPDATE users SET class_id = NULL, is_class_teacher = FALSE WHERE id = $1",
+      [oldTeacherId]
+    );
   }
 
   // Remove existing assignment
@@ -393,11 +394,11 @@ async function assignClassTeacher(classId, teacherId) {
       "INSERT INTO class_teachers (class_id, teacher_id) VALUES ($1, $2)",
       [classId, teacherId]
     );
-    // Set new teacher's class_id
-    await pool.query("UPDATE users SET class_id = $1 WHERE id = $2", [
-      classId,
-      teacherId,
-    ]);
+    // Set new teacher's class_id and is_class_teacher to true
+    await pool.query(
+      "UPDATE users SET class_id = $1, is_class_teacher = TRUE WHERE id = $2",
+      [classId, teacherId]
+    );
   }
 }
 

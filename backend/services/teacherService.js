@@ -776,11 +776,14 @@ exports.getStudentsFromTeacherClasses = async (teacherId) => {
       s.birthday,
       s.address,
       s.gender,
-      s.nationality
+      s.nationality,
+      p.name AS parent_name,
+      p.address AS parent_address
     FROM classes c
     JOIN teacher_subjects ts ON c.id = ts.class_id
     JOIN users u ON u.class_id = c.id
     LEFT JOIN students s ON s.user_id = u.id
+    LEFT JOIN parents p ON s.parent_id = p.id
     WHERE ts.teacher_id = $1
       AND u.role_id = (SELECT id FROM roles WHERE name = 'student')
     ORDER BY u.id, c.grade, c.name, u.username
@@ -804,6 +807,10 @@ exports.getStudentsFromTeacherClasses = async (teacherId) => {
     class_id: row.class_id,
     grade: row.grade,
     class_name: row.class_name,
+    parent: {
+      name: row.parent_name,
+      address: row.parent_address,
+    },
   }));
 };
 

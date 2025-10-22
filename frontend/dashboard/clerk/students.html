@@ -366,7 +366,7 @@
     studentsToShow.forEach((student) => {
       const row = document.createElement("tr");
       const className =
-        allClasses.find((c) => c.id == student.class_id)?.name || "";
+        allClasses.find((c) => c.id == student.class_id)?.class_name || "";
       const grade =
         allClasses.find((c) => c.id == student.class_id)?.grade || "";
       row.innerHTML = `
@@ -541,7 +541,7 @@
     allClasses.forEach((cls) => {
       const option = document.createElement("option");
       option.value = cls.id;
-      option.textContent = `${cls.grade} - ${cls.name}`;
+      option.textContent = `${cls.grade} - ${cls.class_name}`;
       select.appendChild(option);
     });
     // transform into searchable dropdown
@@ -589,7 +589,7 @@
     allClasses.forEach((cls) => {
       const option = document.createElement("option");
       option.value = cls.id;
-      option.textContent = `${cls.grade} - ${cls.name}`;
+      option.textContent = `${cls.grade} - ${cls.class_name}`;
       select.appendChild(option);
     });
     // transform into searchable dropdown

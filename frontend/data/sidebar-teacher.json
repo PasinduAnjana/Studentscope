@@ -23,6 +23,11 @@
     "icon": "fas fa-bullhorn"
   },
   {
+    "label": "sidebar.todo",
+    "page": "todo",
+    "icon": "fas fa-tasks"
+  },
+  {
     "label": "sidebar.behavior",
     "page": "behavior",
     "icon": "fas fa-user-shield"
