@@ -6,6 +6,15 @@
     "settings": "அமைப்புகள்",
     "logout": "வெளியேறு"
   },
+  "login": {
+    "welcome": "வரவேற்கிறோம்!",
+    "title": "StudentScope-ல் உள்நுழையவும்",
+    "username": "பயனர் பெயர்",
+    "password": "கடவுச்சொல்",
+    "loginButton": "உள்நுழைவு",
+    "invalidCredentials": "செல்லுபடியாகாத பயனர் பெயர் அல்லது கடவுச்சொல்",
+    "forgotPassword": "கடவுச்சொல்லை மறந்துவிட்டீர்களா?"
+  },
   "sidebar": {
     "dashboard": "டாஷ்போர்டு",
     "profile": "சுயவிவரம்",

@@ -160,3 +160,76 @@ exports.getUsernameById = async (userId) => {
     return null;
   }
 };
+
+exports.verifyUser = async (username, role) => {
+  try {
+    const roleResult = await pool.query(
+      "SELECT id FROM roles WHERE name = $1",
+      [role]
+    );
+
+    if (roleResult.rows.length === 0) return null;
+
+    const result = await pool.query(
+      "SELECT id FROM users WHERE username = $1 AND role_id = $2",
+      [username, roleResult.rows[0].id]
+    );
+
+    return result.rows.length > 0;
+  } catch (err) {
+    console.error("Error verifying user:", err);
+    return null;
+  }
+};
+
+exports.requestPasswordReset = async (username, role, newPassword) => {
+  try {
+    // Get role ID
+    const roleResult = await pool.query(
+      "SELECT id FROM roles WHERE name = $1",
+      [role]
+    );
+    if (roleResult.rows.length === 0) {
+      return { success: false, error: "Role not found" };
+    }
+
+    // Get user
+    const userResult = await pool.query(
+      "SELECT id FROM users WHERE username = $1 AND role_id = $2",
+      [username, roleResult.rows[0].id]
+    );
+
+    if (userResult.rows.length === 0) {
+      return { success: false, error: "User not found" };
+    }
+
+    const userId = userResult.rows[0].id;
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // For all roles, hash and store the new password
+    if (newPassword) {
+      const salt = crypto.randomBytes(16).toString("hex");
+      const hashedPassword = hashPassword(newPassword, salt);
+
+      // Create reset request with password
+      await pool.query(
+        `INSERT INTO password_reset_requests (user_id, role, reset_token, new_password, new_salt, expires_at, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [userId, role, resetToken, hashedPassword, salt, expiresAt, "pending"]
+      );
+    } else {
+      // Fallback: create request without password (if no password provided)
+      await pool.query(
+        `INSERT INTO password_reset_requests (user_id, role, reset_token, expires_at, status)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [userId, role, resetToken, expiresAt, "pending"]
+      );
+    }
+
+    return { success: true, message: "Password reset request created" };
+  } catch (err) {
+    console.error("Error creating password reset request:", err);
+    return { success: false, error: "Failed to create reset request" };
+  }
+};

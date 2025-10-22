@@ -12,7 +12,8 @@
     "password": "මුරපදය",
     "loginButton": "පිවිසෙන්න",
     "invalidCredentials": "Invalid username or password",
-    "welcome": "ආයුබෝවන්!"
+    "welcome": "ආයුබෝවන්!",
+    "forgotPassword": "මුරපදය අමතකයි?"
   },
 
   "sidebar": {

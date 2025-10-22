@@ -94,6 +94,26 @@
       </ul>
     </div>
   </div>
+
+  <!-- Password Resets -->
+  <div class="card dashboard-tile flex-column">
+    <div class="icon-title">
+      <i class="fas fa-key icon"></i>
+      <p
+        class="tile-label"
+        data-en="Password Resets"
+        data-si="මුරපදය ප්‍රතිසර්ථන"
+        data-ta="கடவுச்சொல் மீட்டமைப்புகள்"
+      >
+        Password Resets
+      </p>
+    </div>
+    <div>
+      <ul class="tile-list" id="dashboard-resets-list">
+        <li class="text-sm">Loading...</li>
+      </ul>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -658,6 +678,107 @@
     }
   }
 
+  // Load pending password resets
+  async function loadPendingResets() {
+    try {
+      const response = await fetch("/api/admin/password-resets/pending");
+      if (!response.ok) return;
+
+      const resets = await response.json();
+      const resetsList = document.getElementById("dashboard-resets-list");
+
+      if (!resetsList) return;
+
+      resetsList.innerHTML = "";
+
+      if (resets.length === 0) {
+        const noResetLi = document.createElement("li");
+        noResetLi.className = "text-sm";
+        noResetLi.setAttribute("data-en", "No pending requests");
+        noResetLi.setAttribute("data-si", "පිටුවිලි ඉල්ලීම් නැත");
+        noResetLi.setAttribute("data-ta", "நிலுவையில் உள்ள கோரிக்கைகள் இல்லை");
+        noResetLi.textContent = "No pending requests";
+        resetsList.appendChild(noResetLi);
+        return;
+      }
+
+      resets.forEach((reset) => {
+        const li = document.createElement("li");
+        li.style.cssText =
+          "padding: 12px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;";
+        li.innerHTML = `
+          <div>
+            <p class="subject-name" style="margin: 0; font-weight: 500;">${reset.username}</p>
+            <p class="text-sm" style="margin: 4px 0 0 0; color: #666;">${reset.role}</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+              <button onclick="approveReset(${reset.id})" class="btn btn-primary" >Approve</button>
+              <button onclick="rejectReset(${reset.id})" class="btn btn-secondary" >Reject</button>
+          </div>
+        `;
+        resetsList.appendChild(li);
+      });
+
+      if (typeof applyDirectLanguageAttributes === "function") {
+        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+      }
+    } catch (err) {
+      console.error("Error loading pending resets:", err);
+    }
+  }
+
+  // Approve password reset
+  async function approveReset(resetId) {
+    try {
+      const response = await fetch(
+        `/api/admin/password-resets/${resetId}/approve`,
+        {
+          method: "POST",
+        }
+      );
+
+      if (response.ok) {
+        showToast("Password reset approved", "fa-solid fa-check");
+        loadPendingResets();
+      } else {
+        showToast("Failed to approve reset", "fa-solid fa-circle-exclamation");
+      }
+    } catch (error) {
+      console.error("Error approving reset:", error);
+      showToast("Error approving reset", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  // Reject password reset
+  async function rejectReset(resetId) {
+    try {
+      const response = await fetch(
+        `/api/admin/password-resets/${resetId}/reject`,
+        {
+          method: "POST",
+        }
+      );
+
+      if (response.ok) {
+        showToast("Password reset rejected", "fa-solid fa-check");
+        loadPendingResets();
+      } else {
+        showToast("Failed to reject reset", "fa-solid fa-circle-exclamation");
+      }
+    } catch (error) {
+      console.error("Error rejecting reset:", error);
+      showToast("Error rejecting reset", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  function showToast(message, icon) {
+    if (typeof toast === "function") {
+      toast(message, icon);
+    } else {
+      alert(message);
+    }
+  }
+
   // Initialize admin dashboard
   async function initAdminDashboard() {
     await loadSchoolOverview();
@@ -665,6 +786,7 @@
     loadAcademicPerformance();
     loadAdminAnnouncements();
     loadRecentActivities();
+    loadPendingResets();
   }
 
   initAdminDashboard();

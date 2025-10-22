@@ -477,6 +477,36 @@ module.exports = (req, res) => {
     );
   }
 
+  // Password reset routes
+  if (
+    req.method === "GET" &&
+    req.url === "/api/teacher/password-resets/pending"
+  ) {
+    return protect("teacher")(req, res, () =>
+      profileController.getPendingPasswordResets(req, res)
+    );
+  }
+
+  if (
+    req.method === "POST" &&
+    req.url.startsWith("/api/teacher/password-resets/") &&
+    req.url.endsWith("/approve")
+  ) {
+    return protect("teacher")(req, res, () =>
+      profileController.approvePasswordReset(req, res)
+    );
+  }
+
+  if (
+    req.method === "POST" &&
+    req.url.startsWith("/api/teacher/password-resets/") &&
+    req.url.endsWith("/reject")
+  ) {
+    return protect("teacher")(req, res, () =>
+      profileController.rejectPasswordReset(req, res)
+    );
+  }
+
   // 404 - Route not found
 
   res.writeHead(404, { "Content-Type": "application/json" });

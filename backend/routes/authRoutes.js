@@ -16,6 +16,17 @@ module.exports = (req, res) => {
     return authController.getCurrentUser(req, res);
   }
 
+  if (parsedUrl.pathname === "/api/auth/verify-user" && req.method === "POST") {
+    return authController.verifyUser(req, res);
+  }
+
+  if (
+    parsedUrl.pathname === "/api/auth/request-password-reset" &&
+    req.method === "POST"
+  ) {
+    return authController.requestPasswordReset(req, res);
+  }
+
   // Fallback
   res.writeHead(404, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Auth route not found" }));

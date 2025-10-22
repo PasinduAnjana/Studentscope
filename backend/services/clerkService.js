@@ -886,4 +886,83 @@ module.exports = {
   updateAnnouncement,
   deleteAnnouncement,
   getAnnouncementWithDetails,
+  // Password reset functions
+  getPendingPasswordResets,
+  approvePasswordReset,
+  rejectPasswordReset,
 };
+
+// Password reset functions
+async function getPendingPasswordResets() {
+  try {
+    const result = await pool.query(
+      `SELECT prr.id, prr.user_id, prr.role, u.username, prr.created_at
+       FROM password_reset_requests prr
+       JOIN users u ON prr.user_id = u.id
+       WHERE prr.status = 'pending' AND prr.role = 'admin'
+       ORDER BY prr.created_at DESC`
+    );
+    return result.rows;
+  } catch (err) {
+    console.error("Error getting pending password resets:", err);
+    return [];
+  }
+}
+
+async function approvePasswordReset(resetId, approverId) {
+  try {
+    const resetResult = await pool.query(
+      "SELECT * FROM password_reset_requests WHERE id = $1 AND status = 'pending'",
+      [resetId]
+    );
+
+    if (resetResult.rows.length === 0) {
+      return { success: false, error: "Reset request not found" };
+    }
+
+    const reset = resetResult.rows[0];
+
+    if (reset.new_password && reset.new_salt) {
+      // Update user password
+      await pool.query(
+        "UPDATE users SET password = $1, salt = $2 WHERE id = $3",
+        [reset.new_password, reset.new_salt, reset.user_id]
+      );
+    }
+
+    // Update reset request status
+    await pool.query(
+      "UPDATE password_reset_requests SET status = 'approved', approved_by = $1, approved_at = now() WHERE id = $2",
+      [approverId, resetId]
+    );
+
+    return { success: true, message: "Password reset approved" };
+  } catch (err) {
+    console.error("Error approving password reset:", err);
+    return { success: false, error: "Failed to approve password reset" };
+  }
+}
+
+async function rejectPasswordReset(resetId, rejectedBy) {
+  try {
+    const resetResult = await pool.query(
+      "SELECT * FROM password_reset_requests WHERE id = $1 AND status = 'pending'",
+      [resetId]
+    );
+
+    if (resetResult.rows.length === 0) {
+      return { success: false, error: "Reset request not found" };
+    }
+
+    // Update reset request status
+    await pool.query(
+      "UPDATE password_reset_requests SET status = 'rejected', approved_by = $1, approved_at = now() WHERE id = $2",
+      [rejectedBy, resetId]
+    );
+
+    return { success: true, message: "Password reset rejected" };
+  } catch (err) {
+    console.error("Error rejecting password reset:", err);
+    return { success: false, error: "Failed to reject password reset" };
+  }
+}

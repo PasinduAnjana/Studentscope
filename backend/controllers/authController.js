@@ -129,3 +129,57 @@ exports.getCurrentUser = async (req, res) => {
     res.end(JSON.stringify({ error: "Internal server error" }));
   }
 };
+
+exports.verifyUser = async (req, res) => {
+  let body = "";
+  req.on("data", (chunk) => (body += chunk));
+  req.on("end", async () => {
+    try {
+      const { username, role } = JSON.parse(body);
+
+      const result = await authService.verifyUser(username, role);
+
+      if (result) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, message: "User found" }));
+      } else {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "User not found" }));
+      }
+    } catch (err) {
+      console.error("Verify user error:", err);
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Invalid request" }));
+    }
+  });
+};
+
+exports.requestPasswordReset = async (req, res) => {
+  let body = "";
+  req.on("data", (chunk) => (body += chunk));
+  req.on("end", async () => {
+    try {
+      const { username, role, newPassword } = JSON.parse(body);
+
+      const result = await authService.requestPasswordReset(
+        username,
+        role,
+        newPassword
+      );
+
+      if (result.success) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({ message: "Password reset request submitted" })
+        );
+      } else {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: result.error }));
+      }
+    } catch (err) {
+      console.error("Password reset error:", err);
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Invalid request" }));
+    }
+  });
+};

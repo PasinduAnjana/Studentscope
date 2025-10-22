@@ -2,6 +2,7 @@ const adminController = require("../controllers/admin/dashboardController");
 const attendanceController = require("../controllers/admin/attendanceController");
 const behaviorController = require("../controllers/admin/behaviorController");
 const announcementsController = require("../controllers/clerk/announcementsController");
+const profileController = require("../controllers/admin/profileController");
 const { protect } = require("../middleware/authMiddleware");
 
 module.exports = (req, res) => {
@@ -185,6 +186,36 @@ module.exports = (req, res) => {
   ) {
     return protect("admin")(req, res, () =>
       announcementsController.deleteAnnouncement(req, res)
+    );
+  }
+
+  // Password reset routes
+  if (
+    req.method === "GET" &&
+    req.url === "/api/admin/password-resets/pending"
+  ) {
+    return protect("admin")(req, res, () =>
+      profileController.getPendingPasswordResets(req, res)
+    );
+  }
+
+  if (
+    req.method === "POST" &&
+    req.url.startsWith("/api/admin/password-resets/") &&
+    req.url.endsWith("/approve")
+  ) {
+    return protect("admin")(req, res, () =>
+      profileController.approvePasswordReset(req, res)
+    );
+  }
+
+  if (
+    req.method === "POST" &&
+    req.url.startsWith("/api/admin/password-resets/") &&
+    req.url.endsWith("/reject")
+  ) {
+    return protect("admin")(req, res, () =>
+      profileController.rejectPasswordReset(req, res)
     );
   }
 

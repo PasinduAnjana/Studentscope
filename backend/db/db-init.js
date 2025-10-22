@@ -292,6 +292,21 @@ END $$;
     `);
 
     console.log("✅ Tables created successfully");
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS password_reset_requests (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+        role TEXT NOT NULL,
+        reset_token TEXT UNIQUE NOT NULL,
+        new_password TEXT,
+        new_salt TEXT,
+        expires_at TIMESTAMPTZ NOT NULL,
+        status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+        created_at TIMESTAMPTZ DEFAULT now(),
+        approved_by BIGINT REFERENCES users(id),
+        approved_at TIMESTAMPTZ
+      );
+    `);
   } catch (err) {
     console.error("❌ Error initializing database:", err);
   } finally {

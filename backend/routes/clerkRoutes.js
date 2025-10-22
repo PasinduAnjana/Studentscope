@@ -186,6 +186,36 @@ module.exports = async (req, res) => {
     );
   }
 
+  // Password reset routes
+  if (
+    req.method === "GET" &&
+    req.url === "/api/clerk/password-resets/pending"
+  ) {
+    return protect("clerk")(req, res, () =>
+      profileController.getPendingPasswordResets(req, res)
+    );
+  }
+
+  if (
+    req.method === "POST" &&
+    req.url.startsWith("/api/clerk/password-resets/") &&
+    req.url.endsWith("/approve")
+  ) {
+    return protect("clerk")(req, res, () =>
+      profileController.approvePasswordReset(req, res)
+    );
+  }
+
+  if (
+    req.method === "POST" &&
+    req.url.startsWith("/api/clerk/password-resets/") &&
+    req.url.endsWith("/reject")
+  ) {
+    return protect("clerk")(req, res, () =>
+      profileController.rejectPasswordReset(req, res)
+    );
+  }
+
   res.writeHead(404);
   res.end("Not Found");
 };
