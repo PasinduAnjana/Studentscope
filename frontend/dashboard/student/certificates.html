@@ -38,12 +38,12 @@
         flex: 1;
         min-width: 250px;
         padding: 20px;
-        border: 2px solid #e0e6ed;
         border-radius: 12px;
         cursor: pointer;
         transition: all 0.3s ease;
         text-align: center;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background: var(--color-bg);
         cursor: pointer;
       }
 
@@ -54,9 +54,11 @@
       }
 
       .tab-button.active {
-        border-color: #3498db;
-        background: #ebf3fd;
+        border-color: var(--color-primary);
+        border: 2px solid var(--color-primary);
+        background: var(--color-card);
         transform: translateY(-2px);
+        color: white;
       }
 
       .tab-icon {
@@ -68,7 +70,7 @@
       .tab-title {
         font-size: 1.2rem;
         font-weight: bold;
-        color: #2c3e50;
+        color: var(--color-text);
         margin-bottom: 5px;
       }
 
