@@ -873,7 +873,7 @@ exports.deleteTodo = async (todoId, teacherId) => {
 
 // Update todo status
 exports.updateTodoStatus = async (todoId, teacherId, status) => {
-  if (!['pending', 'completed'].includes(status)) {
+  if (!["pending", "completed"].includes(status)) {
     throw new Error("Invalid status. Must be 'pending' or 'completed'");
   }
 

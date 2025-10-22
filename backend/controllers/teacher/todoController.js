@@ -159,13 +159,21 @@ exports.updateTodoStatus = async (req, res) => {
       try {
         const { status } = JSON.parse(body);
 
-        if (!status || !['pending', 'completed'].includes(status)) {
+        if (!status || !["pending", "completed"].includes(status)) {
           res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Invalid status. Must be 'pending' or 'completed'" }));
+          res.end(
+            JSON.stringify({
+              error: "Invalid status. Must be 'pending' or 'completed'",
+            })
+          );
           return;
         }
 
-        const todo = await teacherService.updateTodoStatus(todoId, teacherId, status);
+        const todo = await teacherService.updateTodoStatus(
+          todoId,
+          teacherId,
+          status
+        );
 
         if (!todo) {
           res.writeHead(404, { "Content-Type": "application/json" });

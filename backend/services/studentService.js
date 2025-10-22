@@ -179,20 +179,24 @@ exports.getProfile = async (studentId) => {
 exports.getAnnouncementsForStudent = async (studentId) => {
   const result = await pool.query(
     `
-    SELECT
+    SELECT DISTINCT
       a.id,
       a.title,
       a.description,
       a.created_at,
       a.audience_type,
       u.username as posted_by_name,
-      c.name as class_name
+      CASE
+        WHEN a.audience_type = 'all' THEN 'All (Teachers & Students)'
+        WHEN a.audience_type = 'teachers' THEN 'Teachers'
+        WHEN a.audience_type = 'students' THEN 'Students'
+      END as audience_display
     FROM announcements a
     LEFT JOIN users u ON a.posted_by = u.id
     LEFT JOIN announcement_classes ac ON a.id = ac.announcement_id
-    LEFT JOIN classes c ON ac.class_id = c.id
-    WHERE a.audience_type = 'students'
-      AND ac.class_id = (SELECT class_id FROM users WHERE id = $1)
+    WHERE a.audience_type = 'all'
+       OR (a.audience_type = 'students'
+           AND ac.class_id = (SELECT class_id FROM users WHERE id = $1))
     ORDER BY a.created_at DESC
     `,
     [studentId]
