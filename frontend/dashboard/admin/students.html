@@ -884,4 +884,21 @@ function applyLanguage(lang) {
 /* ============= Init ============= */
 renderList(STUDENTS);
 applyFilters();
-</script>
+
+// Initialize searchable dropdowns (graceful)
+(function initSearchableDropdowns(){
+  try {
+    if (typeof makeSearchableDropdown === 'function') {
+      // Find all selects with class 'dropdown-select'
+      document.querySelectorAll('select.dropdown-select').forEach(sel => {
+        makeSearchableDropdown(sel.id, () => {
+          // Trigger original onchange if present
+          const evt = new Event('change', { bubbles: true });
+          sel.dispatchEvent(evt);
+        });
+      });
+    }
+  } catch (e) {
+    console.warn('Searchable dropdown init failed', e);
+  }
+})();
