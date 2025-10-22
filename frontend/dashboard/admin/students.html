@@ -6,8 +6,60 @@
     data-ta="மாணவர் சுயவிவரங்கள்">Student Profiles</span>
 </h2>
 
-<!-- ======== Split Layout: Left = List & Filters | Right = Profile ======== -->
-<div class="card-grid" style="grid-template-columns: 1.2fr 2fr; gap: 16px;">
+<style>
+/* Mobile responsiveness for students page */
+@media (max-width: 768px) {
+  .desktop-layout {
+    display: none !important;
+  }
+  
+  .mobile-layout {
+    display: block !important;
+  }
+  
+  .filter-group {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .filter-group .filter-item {
+    grid-column: span 1 !important;
+  }
+  
+  .summary-tiles {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .export-buttons {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .table-footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  
+  .filter-info {
+    text-align: center !important;
+  }
+}
+
+/* Desktop layout (default) */
+@media (min-width: 769px) {
+  .mobile-layout {
+    display: none !important;
+  }
+  
+  .desktop-layout {
+    display: block !important;
+  }
+}
+</style>
+
+<!-- ======== Desktop Layout: Side by Side ======== -->
+<div class="desktop-layout">
+<div class="card-grid">
   <!-- =========================
        LEFT: Filters + Result List
      ========================= -->
@@ -66,7 +118,7 @@
     </div>
 
     <!-- Results / Export -->
-    <div class="table-container" style="margin-top:10px;">
+    <div class="table-responsive" style="margin-top:10px;">
       <table id="studentListTable" class="attendance-table">
         <thead>
           <tr>
@@ -322,6 +374,335 @@
               data-ta="சான்றிதழ்கள் (தானியங்கி)">
               Certificates (Auto-generated)</h4>
           <ul id="certList" class="tile-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ======== Mobile Layout: Stacked ======== -->
+<div class="mobile-layout" style="display:none;">
+  <!-- Filters Card -->
+  <div class="card dashboard-tile" style="margin-bottom: 24px;">
+    <div class="icon-title">
+      <i class="fas fa-filter icon"></i>
+      <p class="tile-label"
+         data-en="Filters"
+         data-si="පෙරහන්"
+         data-ta="வடிப்பான்கள்">Filters</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-group" style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px;">
+      <div class="filter-item">
+        <label for="gradeFilterMobile"
+               data-en="Grade"
+               data-si="ශ්‍රේණිය"
+               data-ta="தரம்">Grade</label>
+        <select id="gradeFilterMobile" class="dropdown-select" onchange="applyFilters()">
+          <option value="all" data-en="All Grades" data-si="සියලුම ශ්‍රේණි" data-ta="அனைத்து தரங்கள்">All Grades</option>
+          <option value="1">Grade 1</option><option value="2">Grade 2</option><option value="3">Grade 3</option>
+          <option value="4">Grade 4</option><option value="5">Grade 5</option>
+          <option value="6">Grade 6</option><option value="7">Grade 7</option><option value="8">Grade 8</option>
+          <option value="9">Grade 9</option><option value="10">Grade 10</option><option value="11">Grade 11</option>
+          <option value="12">Grade 12</option><option value="13">Grade 13</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label for="classFilterMobile"
+               data-en="Class"
+               data-si="පන්තිය"
+               data-ta="வகுப்பு">Class</label>
+        <select id="classFilterMobile" class="dropdown-select" onchange="applyFilters()">
+          <option value="all" data-en="All Classes" data-si="සියලුම පන්ති" data-ta="அனைத்து வகுப்புகள்">All Classes</option>
+          <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label for="nameFilterMobile"
+               data-en="Student Name"
+               data-si="ශිෂ්‍යාගේ නම"
+               data-ta="மாணவர் பெயர்">Student Name</label>
+        <input id="nameFilterMobile" class="dropdown-select" type="text" placeholder="Search by name…" oninput="applyFilters()" />
+      </div>
+
+      <div class="filter-item">
+        <label for="indexFilterMobile"
+               data-en="Index/ Admission No."
+               data-si="ඇතුළත් කිරීමේ අංකය"
+               data-ta="சேர்க்கை எண்">Index / Admission No.</label>
+        <input id="indexFilterMobile" class="dropdown-select" type="text" placeholder="e.g., 2021/0054" oninput="applyFilters(true)" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Student List Card -->
+  <div class="card dashboard-tile" style="margin-bottom: 24px;">
+    <div class="icon-title">
+      <i class="fas fa-list icon"></i>
+      <p class="tile-label"
+         data-en="Student List"
+         data-si="ශිෂ්‍ය ලැයිස්තුව"
+         data-ta="மாணவர் பட்டியல்">Student List</p>
+    </div>
+
+    <div class="table-responsive">
+      <table id="studentListTableMobile" class="attendance-table">
+        <thead>
+          <tr>
+            <th data-en="Index No." data-si="අංකය" data-ta="அடைக்கல் எண்">Index No.</th>
+            <th data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்">Student</th>
+            <th data-en="Grade" data-si="ශ්‍රේණිය" data-ta="தரம்">Grade</th>
+            <th data-en="Class" data-si="පන්තිය" data-ta="வகுப்பு">Class</th>
+          </tr>
+        </thead>
+        <tbody id="studentListBodyMobile"></tbody>
+      </table>
+    </div>
+
+    <div class="table-footer" style="flex-direction: column; align-items: stretch; gap: 12px;">
+      <p id="listInfoMobile" class="filter-info" style="text-align: center;"
+         data-en="Showing filtered list. Click a row to view profile."
+         data-si="පෙරහන් කළ ලැයිස්තුව පෙන්වයි. ප්‍රොෆයිලය බැලීමට පේළියක් ඔබන්න."
+         data-ta="வடிகட்டப்பட்ட பட்டியல் காட்டப்படுகிறது. சுயவிவரம் காண வரிசையை சொடுக்கவும்.">
+         Showing filtered list. Click a row to view profile.
+      </p>
+      <div class="export-buttons" style="flex-direction: column; gap: 8px;">
+        <button class="btn btn-secondary" onclick="exportFilteredCSV()">
+          <i class="fas fa-file-excel"></i> <span data-en="CSV" data-si="CSV" data-ta="CSV">CSV</span>
+        </button>
+        <button class="btn btn-secondary" onclick="exportFilteredPDF()">
+          <i class="fas fa-file-pdf"></i> <span data-en="PDF" data-si="PDF" data-ta="PDF">PDF</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Viewer Card -->
+  <div class="card dashboard-tile" id="profilePaneMobile">
+    <div class="icon-title">
+      <i class="fas fa-user icon"></i>
+      <p class="tile-label"
+         data-en="Student Profile"
+         data-si="ශිෂ්‍ය ප්‍රොෆයිල"
+         data-ta="மாணவர் சுயவிவரம்">Student Profile</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyStateMobile" style="color:var(--color-subtext);padding:8px 0;"
+         data-en="Select a student from the list to view the profile."
+         data-si="ප්‍රොෆයිලය බැලීමට ලැයිස්තුවෙන් ශිෂ්‍යයෙකු ත෈රන්න."
+         data-ta="சுயவிவரம் காண பட்டியலிலிருந்து மாணவரைத் தேர்ந்தெடுக்கவும்.">
+      Select a student from the list to view the profile.
+    </div>
+
+    <!-- Profile Content -->
+    <div id="profileContentMobile" style="display:none;">
+      <!-- Top summary -->
+      <div class="summary-tiles" style="grid-template-columns: 1fr; gap:12px; margin-bottom:10px;">
+        <div class="card dashboard-tile summary-card">
+          <div class="icon-title">
+            <i class="fas fa-id-badge icon"></i>
+            <p class="tile-label" data-en="Index No." data-si="ඇතුළත් වීමේ අංකය" data-ta="சேர்க்கை எண்">Index No.</p>
+          </div>
+          <p class="tile-value" id="pIndexMobile">—</p>
+        </div>
+        <div class="card dashboard-tile summary-card">
+          <div class="icon-title">
+            <i class="fas fa-user-graduate icon"></i>
+            <p class="tile-label" data-en="Grade & Class" data-si="ශ්‍රේණිය හා පන්තිය" data-ta="தரம் & வகுப்பு">Grade & Class</p>
+          </div>
+          <p class="tile-value" id="pGradeClassMobile">—</p>
+        </div>
+        <div class="card dashboard-tile summary-card">
+          <div class="icon-title">
+            <i class="fas fa-language icon"></i>
+            <p class="tile-label" data-en="Medium" data-si="මාධ්‍යය" data-ta="கற்பித்த மொழி">Medium</p>
+          </div>
+          <p class="tile-value" id="pMediumMobile">—</p>
+        </div>
+        <div class="card dashboard-tile summary-card">
+          <div class="icon-title">
+            <i class="fas fa-stream icon"></i>
+            <p class="tile-label" data-en="Stream (A/L)" data-si="විෂය ධාරාව (උ.පෙ.)" data-ta="துறை (A/L)">Stream (A/L)</p>
+          </div>
+          <p class="tile-value" id="pStreamMobile">—</p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <button class="btn" data-tab="tabOverviewMobile" onclick="switchTabMobile('tabOverviewMobile')">
+          <i class="fas fa-user"></i> <span data-en="Overview" data-si="දළ විශ්ලේෂණය" data-ta="கண்ணோட்டம்">Overview</span>
+        </button>
+        <button class="btn" data-tab="tabAttendanceMobile" onclick="switchTabMobile('tabAttendanceMobile')">
+          <i class="fas fa-clipboard-check"></i> <span data-en="Attendance" data-si="පැමිණීම" data-ta="வருகை">Attendance</span>
+        </button>
+        <button class="btn" data-tab="tabAcademicsMobile" onclick="switchTabMobile('tabAcademicsMobile')">
+          <i class="fas fa-book"></i> <span data-en="Academics" data-si="අධ්‍යයන" data-ta="கல்வி">Academics</span>
+        </button>
+        <button class="btn" data-tab="tabBehaviorMobile" onclick="switchTabMobile('tabBehaviorMobile')">
+          <i class="fas fa-user-shield"></i> <span data-en="Behavior & Certificates" data-si="හැසිරීම සහ සහතික" data-ta="நடத்தை & சான்றிதழ்கள்">Behavior & Certificates</span>
+        </button>
+
+        <div style="flex:1"></div>
+        <button class="btn btn-secondary" onclick="printProfile()">
+          <i class="fas fa-print"></i> <span data-en="Print Profile" data-si="ප්‍රොෆයිලය මුද්‍රණය කරන්න" data-ta="சுயவிவரம் அச்சிடு">Print Profile</span>
+        </button>
+      </div>
+
+      <!-- Tab Panels (Mobile versions) -->
+      <div id="tabOverviewMobile" class="tab-panel">
+        <div class="table-container">
+          <table class="attendance-table">
+            <tbody>
+              <tr>
+                <th data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்">Student</th>
+                <td id="pNameMobile">—</td>
+              </tr>
+              <tr>
+                <th data-en="Guardian" data-si="භාරකරු" data-ta="பாதுகாவலர்">Guardian</th>
+                <td id="pGuardianMobile">—</td>
+              </tr>
+              <tr>
+                <th data-en="Contact" data-si="සම්බන්ධතා" data-ta="தொடர்பு">Contact</th>
+                <td id="pContactMobile">—</td>
+              </tr>
+              <tr>
+                <th data-en="Special Notes" data-si="විශේෂ සටහන්" data-ta="சிறப்பு குறிப்புகள்">Special Notes</th>
+                <td id="pNotesMobile">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="tabAttendanceMobile" class="tab-panel" style="display:none;">
+        <div class="summary-tiles" style="grid-template-columns:1fr;gap:12px;margin-bottom:8px;">
+          <div class="card dashboard-tile summary-card">
+            <div class="icon-title"><i class="fas fa-percentage icon"></i>
+              <p class="tile-label" data-en="Attendance %" data-si="පැමිණීම %" data-ta="வருகை %">Attendance %</p>
+            </div>
+            <p class="tile-value" id="pAttPercMobile">—</p>
+          </div>
+          <div class="card dashboard-tile summary-card">
+            <div class="icon-title"><i class="fas fa-calendar-check icon"></i>
+              <p class="tile-label" data-en="Days Present" data-si="පැමිණි දින" data-ta="வந்த நாட்கள்">Days Present</p>
+            </div>
+            <p class="tile-value" id="pAttPresentMobile">—</p>
+          </div>
+          <div class="card dashboard-tile summary-card">
+            <div class="icon-title"><i class="fas fa-calendar-times icon"></i>
+              <p class="tile-label" data-en="Days Absent" data-si="නොපැමිණි දින" data-ta="வராத நாட்கள்">Days Absent</p>
+            </div>
+            <p class="tile-value" id="pAttAbsentMobile">—</p>
+          </div>
+        </div>
+
+        <!-- Period selector (inside Attendance tab, above chart) -->
+        <div class="filter-item" style="margin:4px 0 8px 0;">
+          <label for="attPeriodMobile" style="margin-right:6px;"><strong>Select Period:</strong></label>
+          <select id="attPeriodMobile" class="dropdown-select" onchange="updateAttendanceViewMobile()">
+            <option value="last7" selected>Last 7 Days</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
+        </div>
+
+        <div class="chart-wrapper" style="height:220px;">
+          <canvas id="attTrendChartMobile"></canvas>
+        </div>
+      </div>
+
+      <div id="tabAcademicsMobile" class="tab-panel" style="display:none;">
+        <!-- ▼▼▼ ADDED: Grade & Term selectors ▼▼▼ -->
+        <div class="filter-item" style="margin:4px 0 8px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <label for="gradeSelectMobile"><strong>Select Grade:</strong></label>
+          <select id="gradeSelectMobile" class="dropdown-select" style="min-width:120px" onchange="updateTermDropdownMobile()"></select>
+
+          <label for="termSelectMobile" style="margin-left:4px;"><strong>Select Term:</strong></label>
+          <select id="termSelectMobile" class="dropdown-select" style="min-width:120px" onchange="showSelectedTermMarksMobile()">
+            <option value="">—</option>
+            <option value="Term 1">Term 1</option>
+            <option value="Term 2">Term 2</option>
+            <option value="Term 3">Term 3</option>
+          </select>
+        </div>
+        <!-- ▲▲▲ END ADDED ▲▲▲ -->
+
+        <div class="table-container">
+          <table class="attendance-table" id="termMarksTableMobile">
+            <thead>
+              <tr>
+                <th data-en="Term" data-si="වාරය" data-ta="காலாண்டு">Term</th>
+                <th data-en="Subject" data-si="විෂය" data-ta="பாடம்">Subject</th>
+                <th data-en="Marks" data-si="ලකුණු" data-ta="மதிப்பெண்கள்">Marks</th>
+              </tr>
+            </thead>
+            <tbody id="termMarksBodyMobile"></tbody>
+          </table>
+        </div>
+
+        <div class="chart-wrapper" style="height:220px;margin-top:10px;">
+          <canvas id="subjectAvgChartMobile"></canvas>
+        </div>
+
+        <!-- Govt Exams (if available) -->
+        <div id="govtExamsBlockMobile" style="margin-top:12px;display:none;">
+          <h3 class="title-primary" style="margin-bottom:6px;"
+              data-en="Government Exams"
+              data-si="රාජ්‍ය විභාග"
+              data-ta="அரசுத் தேர்வுகள்">Government Exams</h3>
+
+          <div id="scholRowMobile" style="display:none;margin-bottom:8px;">
+            <strong data-en="Grade 5 Scholarship:"
+                    data-si="පස්වැනි ශ්‍රේණි ශිෂ්‍යත්ව විභාගය:"
+                    data-ta="தரம் 5 உதவித்தொகை:">Grade 5 Scholarship:</strong>
+            <span id="scholTextMobile">—</span>
+          </div>
+
+          <div id="olRowMobile" style="display:none;margin-bottom:8px;">
+            <strong data-en="G.C.E. (O/L):"
+                    data-si="සා/පෙළ:"
+                    data-ta="ஓ/லெவல்:">G.C.E. (O/L):</strong>
+            <span id="olTextMobile">—</span>
+          </div>
+
+          <div id="alRowMobile" style="display:none;">
+            <strong data-en="G.C.E. (A/L):"
+                    data-si="උ/පෙළ:"
+                    data-ta="ஏ/லெவல்:">G.C.E. (A/L):</strong>
+            <span id="alTextMobile">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="tabBehaviorMobile" class="tab-panel" style="display:none;">
+        <div class="table-container">
+          <table class="attendance-table">
+            <thead>
+              <tr>
+                <th data-en="Date" data-si="දිනය" data-ta="தேதி">Date</th>
+                <th data-en="Type" data-si="වර්ගය" data-ta="வகை">Type</th>
+                <th data-en="Severity" data-si="තීව්‍රතාව" data-ta="கடுமை">Severity</th>
+                <th data-en="Description" data-si="විස්තරය" data-ta="விளக்கம்">Description</th>
+                <th data-en="By" data-si="විසින්" data-ta="யார்">By</th>
+              </tr>
+            </thead>
+            <tbody id="behaviorBodyProfileMobile"></tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:8px;">
+          <h4 class="title-primary" style="margin-bottom:6px;"
+              data-en="Certificates (Auto-generated)"
+              data-si="සහතික (ස්වයංක්‍රීය)"
+              data-ta="சான்றிதழ்கள் (தானியங்கி)">
+              Certificates (Auto-generated)</h4>
+          <ul id="certListMobile" class="tile-list"></ul>
         </div>
       </div>
     </div>
@@ -873,7 +1254,9 @@ function applyLanguage(lang) {
 
 /* ============= Init ============= */
 renderList(STUDENTS);
+renderListMobile(STUDENTS);
 applyFilters();
+applyFiltersMobile();
 
 // Initialize searchable dropdowns (graceful)
 (function initSearchableDropdowns(){
@@ -892,3 +1275,469 @@ applyFilters();
     console.warn('Searchable dropdown init failed', e);
   }
 })();
+
+/* ============= Mobile Layout Functions ============= */
+
+/* ============= Render mobile list ============= */
+function renderListMobile(students) {
+  const mobileBody = document.getElementById('studentListBodyMobile');
+  if (!mobileBody) return;
+  
+  mobileBody.innerHTML = students.map(s => `
+    <tr style="cursor:pointer" onclick="selectStudentMobile('${s.index}')">
+      <td>${s.index}</td>
+      <td>${s.name}</td>
+      <td>${s.grade}</td>
+      <td>${s.class}</td>
+    </tr>
+  `).join('');
+  
+  const mobileInfo = document.getElementById('listInfoMobile');
+  if (mobileInfo) {
+    mobileInfo.textContent = `${students.length} record${students.length===1?'':'s'} found`;
+  }
+}
+
+/* ============= Mobile filters ============= */
+function applyFiltersMobile(focusIndex=false) {
+  const g = document.getElementById('gradeFilterMobile').value;
+  const c = document.getElementById('classFilterMobile').value;
+  const name = (document.getElementById('nameFilterMobile').value || '').toLowerCase().trim();
+  const idx = (document.getElementById('indexFilterMobile').value || '').toLowerCase().trim();
+
+  let filtered = STUDENTS.filter(s => {
+    const okGrade = (g==='all') || String(s.grade)===g;
+    const okClass = (c==='all') || s.class===c;
+    const okName = !name || s.name.toLowerCase().includes(name);
+    const okIdx  = !idx || s.index.toLowerCase().includes(idx);
+    return okGrade && okClass && okName && okIdx;
+  });
+
+  renderListMobile(filtered);
+
+  // If exactly one result or index typed, auto-select
+  if ((idx && filtered.length) || filtered.length===1) {
+    selectStudentMobile(filtered[0].index);
+  } else {
+    const emptyStateMobile = document.getElementById('emptyStateMobile');
+    const profileContentMobile = document.getElementById('profileContentMobile');
+    if (emptyStateMobile) emptyStateMobile.style.display = '';
+    if (profileContentMobile) profileContentMobile.style.display = 'none';
+  }
+  // Keep language text updated
+  applyLanguage(localStorage.getItem('lang') || detectDefaultLang());
+}
+
+/* ====== Mobile attendance period handling ====== */
+function computeAttendanceForPeriodMobile(s, period) {
+  const last7 = (s.attendance.last7 || []).map(x => Number(x) ? 1 : 0);
+  const present7 = last7.reduce((a,b)=>a+b,0);
+  if (period === 'last7') {
+    const days = last7.length || 7;
+    const present = present7;
+    const absent = days - present;
+    const percent = Math.round((present/days)*100);
+    const labels = ['D-6','D-5','D-4','D-3','D-2','D-1','Today'];
+    const data = last7;
+    return { percent, present, absent, labels, data, yMax:1, step:1 };
+  }
+  if (period === 'month') {
+    const workingDays = 22;
+    const avg = (last7.length ? present7/last7.length : (s.attendance.percent||0)/100);
+    const present = Math.round(avg * workingDays);
+    const absent = workingDays - present;
+    const percent = Math.round(avg*100);
+    const data = Array.from({length:workingDays}, (_,i)=> last7[i % (last7.length||1)] || 0);
+    const labels = Array.from({length:workingDays}, (_,i)=> `D-${workingDays-1-i}`);
+    return { percent, present, absent, labels, data, yMax:1, step:1 };
+  }
+  const percent = s.attendance.percent || 0;
+  const present = s.attendance.present || 0;
+  const absent = s.attendance.absent || 0;
+  const labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const prob = Math.max(0, Math.min(1, percent/100));
+  const data = Array.from({length:12}, ()=> prob);
+  return { percent, present, absent, labels, data, yMax:1, step:1 };
+}
+
+function updateAttendanceViewMobile() {
+  if (!CURRENT_STUDENT) return;
+  const select = document.getElementById('attPeriodMobile');
+  const period = select ? select.value : 'last7';
+  const stats = computeAttendanceForPeriodMobile(CURRENT_STUDENT, period);
+
+  // Update tiles
+  const pAttPercMobile = document.getElementById('pAttPercMobile');
+  const pAttPresentMobile = document.getElementById('pAttPresentMobile');
+  const pAttAbsentMobile = document.getElementById('pAttAbsentMobile');
+  
+  if (pAttPercMobile) pAttPercMobile.textContent = `${stats.percent}%`;
+  if (pAttPresentMobile) pAttPresentMobile.textContent = stats.present;
+  if (pAttAbsentMobile) pAttAbsentMobile.textContent = stats.absent;
+
+  // Update chart
+  const attCtx = document.getElementById('attTrendChartMobile');
+  if (attCtx) {
+    const attCtx2d = attCtx.getContext('2d');
+    if (window.attTrendChartMobile) window.attTrendChartMobile.destroy();
+    window.attTrendChartMobile = new Chart(attCtx2d, {
+      type: 'line',
+      data: {
+        labels: stats.labels,
+        datasets: [{
+          label: (period === 'year' ? 'Presence ratio' : 'Present (1) / Absent (0)'),
+          data: stats.data,
+          borderColor: '#4CAF50',
+          backgroundColor: 'rgba(76, 175, 80, 0.1)',
+          fill: true,
+          tension: 0.35
+        }]
+      },
+      options: {
+        responsive:true,
+        maintainAspectRatio:false,
+        scales:{ y:{ beginAtZero:true, max:stats.yMax, ticks:{ stepSize:stats.step } } }
+      }
+    });
+  }
+}
+
+/* ============= Mobile select student & fill profile ============= */
+function selectStudentMobile(indexNo) {
+  const s = STUDENTS.find(x => x.index===indexNo);
+  if (!s) return;
+  CURRENT_STUDENT = s;
+
+  const emptyStateMobile = document.getElementById('emptyStateMobile');
+  const profileContentMobile = document.getElementById('profileContentMobile');
+  
+  if (emptyStateMobile) emptyStateMobile.style.display = 'none';
+  if (profileContentMobile) profileContentMobile.style.display = '';
+
+  // Update profile fields
+  const pIndexMobile = document.getElementById('pIndexMobile');
+  const pGradeClassMobile = document.getElementById('pGradeClassMobile');
+  const pMediumMobile = document.getElementById('pMediumMobile');
+  const pStreamMobile = document.getElementById('pStreamMobile');
+  const pNameMobile = document.getElementById('pNameMobile');
+  const pGuardianMobile = document.getElementById('pGuardianMobile');
+  const pContactMobile = document.getElementById('pContactMobile');
+  const pNotesMobile = document.getElementById('pNotesMobile');
+
+  if (pIndexMobile) pIndexMobile.textContent = s.index;
+  if (pGradeClassMobile) pGradeClassMobile.textContent = `G.${s.grade} - ${s.class}`;
+  if (pMediumMobile) pMediumMobile.textContent = s.medium || '—';
+  if (pStreamMobile) pStreamMobile.textContent = s.stream || '—';
+  if (pNameMobile) pNameMobile.textContent = s.name;
+  if (pGuardianMobile) pGuardianMobile.textContent = s.guardian || '—';
+  if (pContactMobile) pContactMobile.textContent = s.contact || '—';
+  if (pNotesMobile) pNotesMobile.textContent = s.notes || '—';
+
+  // Default tiles; dropdown will refine
+  const pAttPercMobile = document.getElementById('pAttPercMobile');
+  const pAttPresentMobile = document.getElementById('pAttPresentMobile');
+  const pAttAbsentMobile = document.getElementById('pAttAbsentMobile');
+  
+  if (pAttPercMobile) pAttPercMobile.textContent = `${s.attendance.percent}%`;
+  if (pAttPresentMobile) pAttPresentMobile.textContent = s.attendance.present;
+  if (pAttAbsentMobile) pAttAbsentMobile.textContent = s.attendance.absent;
+
+  // Attendance chart default then update by dropdown
+  const attCtx = document.getElementById('attTrendChartMobile');
+  if (attCtx) {
+    const attCtx2d = attCtx.getContext('2d');
+    if (window.attTrendChartMobile) window.attTrendChartMobile.destroy();
+    window.attTrendChartMobile = new Chart(attCtx2d, {
+      type: 'line',
+      data: {
+        labels: ['D-6','D-5','D-4','D-3','D-2','D-1','Today'],
+        datasets: [{
+          label: 'Present (1) / Absent (0)',
+          data: s.attendance.last7,
+          borderColor: '#4CAF50',
+          backgroundColor: 'rgba(76, 175, 80, 0.1)',
+          fill: true,
+          tension: 0.35
+        }]
+      },
+      options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, max:1, ticks:{ stepSize:1 } } } }
+    });
+  }
+
+  /* ====== ACADEMICS (UPDATED): Grade & Term selectors ====== */
+  // Populate grade dropdown with 1..current grade (realistic progression)
+  const gradeSelectMobile = document.getElementById('gradeSelectMobile');
+  if (gradeSelectMobile) {
+    gradeSelectMobile.innerHTML = '';
+    for (let g = 1; g <= s.grade; g++) {
+      const opt = document.createElement('option');
+      opt.value = g;
+      opt.textContent = `Grade ${g}`;
+      if (g === s.grade) opt.selected = true;
+      gradeSelectMobile.appendChild(opt);
+    }
+  }
+  // Reset term selection and table
+  const termSelMobile = document.getElementById('termSelectMobile');
+  if (termSelMobile) termSelMobile.value = '';
+  showSelectedTermMarksMobile();
+
+  // Behavior table
+  const behaviorBodyProfileMobile = document.getElementById('behaviorBodyProfileMobile');
+  if (behaviorBodyProfileMobile) {
+    behaviorBodyProfileMobile.innerHTML = (s.behavior || []).map(b =>
+      `<tr><td>${b.date}</td><td>${b.type}</td><td>${b.severity}</td><td>${b.desc}</td><td>${b.by}</td></tr>`
+    ).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--color-subtext)">—</td></tr>`;
+  }
+
+  // Certificates
+  const certListMobile = document.getElementById('certListMobile');
+  if (certListMobile) {
+    const certs = [];
+    certs.push({ key:'leaving', text:{ en:'Leaving Certificate', si:'පාසල් හැරීමේ සහතිකය', ta:'பள்ளி விலகல் சான்றிதழ்' }});
+    certs.push({ key:'character', text:{ en:'Character Certificate', si:'හුරු පුරුදු සහතිකය', ta:'நற்குணச்சான்று' }});
+    certs.push({ key:'enrollment', text:{ en:'Enrollment / Attendance Confirmation', si:'ඇතුළත් කිරීම / පැමිණීම තහවුරු කිරීම', ta:'சேர்க்கை / வருகை உறுதிப்படுத்தல்' }});
+    certListMobile.innerHTML = certs.map(c =>
+      `<li class="tile-list"><span data-en="${c.text.en}" data-si="${c.text.si}" data-ta="${c.text.ta}">${c.text.en}</span></li>`
+    ).join('');
+  }
+
+  // Govt exams block
+  renderGovtExamsMobile(s);
+
+  // Reset to Overview tab on selection
+  switchTabMobile('tabOverviewMobile');
+
+  // Apply current language to newly injected content
+  applyLanguage(localStorage.getItem('lang') || detectDefaultLang());
+
+  // Initialize attendance view based on current dropdown
+  updateAttendanceViewMobile();
+}
+
+/* ============= Mobile Event Listeners ============= */
+
+// Mobile filter listeners
+document.getElementById('gradeFilterMobile')?.addEventListener('change', () => applyFiltersMobile());
+document.getElementById('classFilterMobile')?.addEventListener('change', () => applyFiltersMobile());
+document.getElementById('nameFilterMobile')?.addEventListener('input', () => applyFiltersMobile());
+document.getElementById('indexFilterMobile')?.addEventListener('input', () => applyFiltersMobile());
+
+// Mobile attendance period listener
+document.getElementById('attPeriodMobile')?.addEventListener('change', updateAttendanceViewMobile);
+
+// Mobile academics listeners
+document.getElementById('gradeSelectMobile')?.addEventListener('change', updateTermDropdownMobile);
+document.getElementById('termSelectMobile')?.addEventListener('change', showSelectedTermMarksMobile);
+
+// Mobile tab listeners
+document.querySelectorAll('#profileContentMobile .btn[data-tab]').forEach(btn => {
+  btn.addEventListener('click', () => switchTabMobile(btn.getAttribute('data-tab')));
+});
+
+// Mobile export listeners
+document.getElementById('exportCsvMobile')?.addEventListener('click', () => {
+  const filtered = getFilteredStudents();
+  exportToCsv(filtered);
+});
+
+document.getElementById('exportPdfMobile')?.addEventListener('click', () => {
+  const filtered = getFilteredStudents();
+  exportToPdf(filtered);
+});
+
+document.getElementById('printMobile')?.addEventListener('click', () => {
+  window.print();
+});
+
+/* ============= Synchronization Between Desktop and Mobile ============= */
+
+// Sync filters between layouts
+function syncFiltersToMobile() {
+  const grade = document.getElementById('gradeFilter').value;
+  const cls = document.getElementById('classFilter').value;
+  const name = document.getElementById('nameFilter').value;
+  const idx = document.getElementById('indexFilter').value;
+  
+  const gradeMobile = document.getElementById('gradeFilterMobile');
+  const clsMobile = document.getElementById('classFilterMobile');
+  const nameMobile = document.getElementById('nameFilterMobile');
+  const idxMobile = document.getElementById('indexFilterMobile');
+  
+  if (gradeMobile) gradeMobile.value = grade;
+  if (clsMobile) clsMobile.value = cls;
+  if (nameMobile) nameMobile.value = name;
+  if (idxMobile) idxMobile.value = idx;
+  
+  applyFiltersMobile();
+}
+
+function syncFiltersToDesktop() {
+  const grade = document.getElementById('gradeFilterMobile').value;
+  const cls = document.getElementById('classFilterMobile').value;
+  const name = document.getElementById('nameFilterMobile').value;
+  const idx = document.getElementById('indexFilterMobile').value;
+  
+  const gradeDesktop = document.getElementById('gradeFilter');
+  const clsDesktop = document.getElementById('classFilter');
+  const nameDesktop = document.getElementById('nameFilter');
+  const idxDesktop = document.getElementById('indexFilter');
+  
+  if (gradeDesktop) gradeDesktop.value = grade;
+  if (clsDesktop) clsDesktop.value = cls;
+  if (nameDesktop) nameDesktop.value = name;
+  if (idxDesktop) idxDesktop.value = idx;
+  
+  applyFilters();
+}
+
+// Add sync listeners to desktop filters
+document.getElementById('gradeFilter')?.addEventListener('change', syncFiltersToMobile);
+document.getElementById('classFilter')?.addEventListener('change', syncFiltersToMobile);
+document.getElementById('nameFilter')?.addEventListener('input', syncFiltersToMobile);
+document.getElementById('indexFilter')?.addEventListener('input', syncFiltersToMobile);
+
+// Add sync listeners to mobile filters
+document.getElementById('gradeFilterMobile')?.addEventListener('change', syncFiltersToDesktop);
+document.getElementById('classFilterMobile')?.addEventListener('change', syncFiltersToDesktop);
+document.getElementById('nameFilterMobile')?.addEventListener('input', syncFiltersToDesktop);
+document.getElementById('indexFilterMobile')?.addEventListener('input', syncFiltersToDesktop);
+
+// Sync student selection between layouts
+function syncStudentSelectionToMobile(indexNo) {
+  selectStudentMobile(indexNo);
+}
+
+function syncStudentSelectionToDesktop(indexNo) {
+  selectStudent(indexNo);
+}
+
+// Override the original selectStudent to sync to mobile
+const originalSelectStudent = selectStudent;
+selectStudent = function(indexNo) {
+  originalSelectStudent(indexNo);
+  syncStudentSelectionToMobile(indexNo);
+};
+
+// Override mobile selectStudent to sync to desktop
+const originalSelectStudentMobile = selectStudentMobile;
+selectStudentMobile = function(indexNo) {
+  originalSelectStudentMobile(indexNo);
+  syncStudentSelectionToDesktop(indexNo);
+};
+
+/* === Mobile academics helpers === */
+function updateTermDropdownMobile() {
+  const termSelMobile = document.getElementById('termSelectMobile');
+  if (termSelMobile) termSelMobile.value = '';
+  showSelectedTermMarksMobile();
+}
+
+function showSelectedTermMarksMobile() {
+  const gradeSelMobile = document.getElementById('gradeSelectMobile');
+  const termSelMobile = document.getElementById('termSelectMobile');
+  const tbodyMobile = document.getElementById('termMarksBodyMobile');
+  if (!CURRENT_STUDENT || !gradeSelMobile || !termSelMobile || !tbodyMobile) return;
+
+  const term = termSelMobile.value;
+  tbodyMobile.innerHTML = '';
+
+  if (!term) {
+    tbodyMobile.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--color-subtext)">—</td></tr>`;
+    // Clear/refresh chart to empty state
+    const subjCtx = document.getElementById('subjectAvgChartMobile');
+    if (subjCtx) {
+      const subjCtx2d = subjCtx.getContext('2d');
+      if (window.subjectAvgChartMobile) window.subjectAvgChartMobile.destroy();
+      window.subjectAvgChartMobile = new Chart(subjCtx2d, {
+        type: 'bar',
+        data: { labels: [], datasets:[{ label:'Avg Marks', data: [], backgroundColor: '#2196F3' }] },
+        options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, max:100 } } }
+      });
+    }
+    return;
+  }
+
+  // Filter marks for selected term (sample data only has some terms)
+  const marks = (CURRENT_STUDENT.termMarks || []).filter(r => r.term === term);
+  if (!marks.length) {
+    tbodyMobile.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--color-subtext)">No data for ${term}</td></tr>`;
+  } else {
+    tbodyMobile.innerHTML = marks.map(r => `<tr><td>${r.term}</td><td>${r.subject}</td><td>${r.marks}</td></tr>`).join('');
+  }
+
+  // Update Subject average chart for this term
+  const subjCtx = document.getElementById('subjectAvgChartMobile');
+  if (subjCtx) {
+    const subjCtx2d = subjCtx.getContext('2d');
+    if (window.subjectAvgChartMobile) window.subjectAvgChartMobile.destroy();
+    const labels = marks.map(m => m.subject);
+    const values = marks.map(m => m.marks);
+    window.subjectAvgChartMobile = new Chart(subjCtx2d, {
+      type: 'bar',
+      data: { labels, datasets:[{ label: term, data: values, backgroundColor: '#2196F3' }] },
+      options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, max:100 } } }
+    });
+  }
+}
+
+/* Mobile govt exams renderer */
+function renderGovtExamsMobile(s) {
+  const ge = s.govExams || {};
+  let hasAny = false;
+
+  const scholRowMobile = document.getElementById('scholRowMobile');
+  const olRowMobile = document.getElementById('olRowMobile');
+  const alRowMobile = document.getElementById('alRowMobile');
+  const scholTextMobile = document.getElementById('scholTextMobile');
+  const olTextMobile = document.getElementById('olTextMobile');
+  const alTextMobile = document.getElementById('alTextMobile');
+  const govtExamsBlockMobile = document.getElementById('govtExamsBlockMobile');
+
+  if (ge.scholarship) {
+    if (scholRowMobile) scholRowMobile.style.display = '';
+    if (scholTextMobile) scholTextMobile.textContent = `${ge.scholarship.year}: ${ge.scholarship.score} (${ge.scholarship.status})`;
+    hasAny = true;
+  } else {
+    if (scholRowMobile) scholRowMobile.style.display = 'none';
+  }
+
+  if (ge.ol) {
+    if (olRowMobile) olRowMobile.style.display = '';
+    const g = ge.ol.grades || {};
+    const totalSubs = (g.A||0) + (g.B||0) + (g.C||0) + (g.S||0) + (g.F||0);
+    if (olTextMobile) olTextMobile.textContent = `${ge.ol.year}: A:${g.A||0}  B:${g.B||0}  C:${g.C||0}  S:${g.S||0}  F:${g.F||0}  (Total ${totalSubs})`;
+    hasAny = true;
+  } else {
+    if (olRowMobile) olRowMobile.style.display = 'none';
+  }
+
+  if (ge.al) {
+    if (alRowMobile) alRowMobile.style.display = '';
+    const g = ge.al.grades || {};
+    if (alTextMobile) alTextMobile.textContent =
+      `${ge.al.year}: ${ge.al.result} | Z=${ge.al.zScore} | ` +
+      `District Rank ${ge.al.districtRank}, Island Rank ${ge.al.islandRank} | ` +
+      `A:${g.A||0} B:${g.B||0} C:${g.C||0} S:${g.S||0} F:${g.F||0}`;
+    hasAny = true;
+  } else {
+    if (alRowMobile) alRowMobile.style.display = 'none';
+  }
+
+  if (govtExamsBlockMobile) govtExamsBlockMobile.style.display = hasAny ? '' : 'none';
+}
+
+/* ============= Mobile tabs ============= */
+function switchTabMobile(id) {
+  // Hide all mobile tab panels
+  document.querySelectorAll('#profileContentMobile .tab-panel').forEach(p => p.style.display='none');
+  // Show selected tab
+  const selectedTab = document.getElementById(id);
+  if (selectedTab) selectedTab.style.display = '';
+  // Update active button
+  document.querySelectorAll('#profileContentMobile .btn[data-tab]').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`#profileContentMobile .btn[data-tab="${id}"]`);
+  if (btn) btn.classList.add('active');
+}
+</script>
+</body></html>

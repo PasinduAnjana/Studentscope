@@ -26,7 +26,7 @@
   </div>
 
   <!-- Attendance Percentage -->
-  <div class="card dashboard-tile" id="attendance-percentage">
+  <div class="card dashboard-tile h-2" id="attendance-percentage">
     <div class="icon-title">
       <i class="fas fa-chart-pie icon"></i>
       <p class="tile-label" data="student.attendance_percentage"></p>
@@ -130,10 +130,13 @@
         if (!slotInfo) return;
 
         const li = document.createElement("li");
+        const rootStyles = getComputedStyle(document.documentElement);
+        const primaryColor = rootStyles
+          .getPropertyValue("--color-primary")
+          .trim();
         li.innerHTML = `
-          <span class="slot-time">${slotInfo.start}</span>
+          <span class="slot-time" style="color: ${primaryColor};">${slotInfo.start}</span>
           <span class="subject-name">${entry.subject}</span>
-          <span class="class-name">${entry.teacher}</span>
         `;
 
         timetableList.appendChild(li);
@@ -165,18 +168,32 @@
       const percentage = Math.round((data.presentDays / data.totalDays) * 100);
 
       container.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 16px;">
-          <div style="flex: 1;">
-            <canvas id="attendanceChart" width="80" height="80"></canvas>
-          </div>
-          <div>
-            <p class="tile-value" style="font-size: 24px;">${percentage}%</p>
-            <p class="tile-subtext">${data.presentDays}/${data.totalDays} days</p>
-          </div>
-        </div>
+        <canvas id="attendanceChart" height="150"></canvas>
       `;
 
-      // Render mini doughnut chart
+      // Custom plugin to draw center text in doughnut
+      const centerTextPlugin = {
+        id: "centerText",
+        beforeDraw(chart, args, options) {
+          if (chart.config.type !== "doughnut") return;
+          const { ctx, width, height } = chart;
+          ctx.save();
+          const fontSize = (height / 160).toFixed(2);
+          ctx.font = `${fontSize}em sans-serif`;
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "center";
+          ctx.fillStyle = options.color || "#2196F3";
+          const text = options.text || "";
+          ctx.fillText(
+            text,
+            width / 2,
+            chart.getDatasetMeta(0).data[0]?.y || height / 2
+          );
+          ctx.restore();
+        },
+      };
+
+      // Render doughnut chart with center text
       setTimeout(() => {
         const rootStyles = getComputedStyle(document.documentElement);
         const primaryColor = rootStyles
@@ -186,22 +203,34 @@
         new Chart(document.getElementById("attendanceChart"), {
           type: "doughnut",
           data: {
+            labels: ["Present", "Absent"],
             datasets: [
               {
                 data: [data.presentDays, data.totalDays - data.presentDays],
-                backgroundColor: [primaryColor, primaryColor + "20"],
-                borderWidth: 0,
+                backgroundColor: [primaryColor, primaryColor + "40"],
+                borderRadius: 20,
               },
             ],
           },
           options: {
-            responsive: false,
-            cutout: "70%",
+            responsive: true,
+            cutout: "85%",
+            borderColor: "transparent",
             plugins: {
-              legend: { display: false },
-              tooltip: { enabled: false },
+              legend: { position: "bottom" },
+              title: {
+                display: true,
+                text: "Attendance Overview",
+                font: { size: 14, weight: "bold" },
+                position: "bottom",
+              },
+              centerText: {
+                text: `${percentage}%`,
+                color: primaryColor,
+              },
             },
           },
+          plugins: [centerTextPlugin],
         });
       }, 100);
     } catch (err) {
