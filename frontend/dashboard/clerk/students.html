@@ -984,7 +984,16 @@
     document.getElementById("modal-title").textContent = "Edit Student";
     document.getElementById("student-full-name").value = student.full_name;
     document.getElementById("student-username").value = student.username;
-    document.getElementById("student-birthday").value = student.birthday;
+    // Format birthday to YYYY-MM-DD format for date input
+    if (student.birthday) {
+      const birthDate = new Date(student.birthday);
+      const year = birthDate.getFullYear();
+      const month = String(birthDate.getMonth() + 1).padStart(2, '0');
+      const day = String(birthDate.getDate()).padStart(2, '0');
+      document.getElementById("student-birthday").value = `${year}-${month}-${day}`;
+    } else {
+      document.getElementById("student-birthday").value = "";
+    }
     document.getElementById("student-address").value = student.address;
     document.getElementById("student-gender").value = student.gender;
     document.getElementById("student-nationality").value = student.nationality;

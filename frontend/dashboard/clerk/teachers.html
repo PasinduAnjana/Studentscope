@@ -213,11 +213,21 @@
             type="text"
             id="teacher-full-name"
             placeholder="Enter full name"
+            minlength="2"
+            maxlength="100"
+            pattern="[a-zA-Z\s\-']+"
+            title="Name can only contain letters, spaces, hyphens, and apostrophes"
           />
         </div>
         <div class="input-group">
           <label for="teacher-nic">NIC:</label>
-          <input type="text" id="teacher-nic" placeholder="Enter NIC" />
+          <input 
+            type="text" 
+            id="teacher-nic" 
+            placeholder="Enter NIC"
+            minlength="5"
+            maxlength="20"
+          />
         </div>
         <div class="input-group">
           <label for="teacher-birthday">Birthday:</label>
@@ -234,14 +244,23 @@
         </div>
         <div class="input-group">
           <label for="teacher-address">Address:</label>
-          <input type="text" id="teacher-address" placeholder="Enter address" />
+          <input 
+            type="text" 
+            id="teacher-address" 
+            placeholder="Enter address"
+            maxlength="255"
+          />
         </div>
         <div class="input-group">
           <label for="teacher-phone">Phone Number:</label>
           <input
-            type="text"
+            type="tel"
             id="teacher-phone"
             placeholder="Enter phone number"
+            pattern="[0-9\s\-\+\(\)]+"
+            title="Phone number can only contain digits, spaces, hyphens, plus sign, and parentheses"
+            minlength="7"
+            maxlength="20"
           />
         </div>
         <div class="input-group">
@@ -563,7 +582,100 @@
     updateSearchableDisplay("teacher-level");
   }
 
+  function validateTeacherForm() {
+    const fullName = document.getElementById("teacher-full-name").value.trim();
+    const nic = document.getElementById("teacher-nic").value.trim();
+    const birthday = document.getElementById("teacher-birthday").value;
+    const level = document.getElementById("teacher-level").value;
+    const phone = document.getElementById("teacher-phone").value.trim();
+    const appointmentDate = document.getElementById("teacher-appointment-date").value;
+
+    // Check required fields
+    if (!fullName) {
+      toast("Full Name is required", "fa-solid fa-circle-exclamation");
+      document.getElementById("teacher-full-name").focus();
+      return false;
+    }
+
+    if (fullName.length < 2) {
+      toast("Full Name must be at least 2 characters", "fa-solid fa-circle-exclamation");
+      document.getElementById("teacher-full-name").focus();
+      return false;
+    }
+
+    if (!fullName.match(/^[a-zA-Z\s\-']+$/)) {
+      toast("Full Name can only contain letters, spaces, hyphens, and apostrophes", "fa-solid fa-circle-exclamation");
+      document.getElementById("teacher-full-name").focus();
+      return false;
+    }
+
+    if (!nic) {
+      toast("NIC is required", "fa-solid fa-circle-exclamation");
+      document.getElementById("teacher-nic").focus();
+      return false;
+    }
+
+    if (nic.length < 5) {
+      toast("NIC must be at least 5 characters", "fa-solid fa-circle-exclamation");
+      document.getElementById("teacher-nic").focus();
+      return false;
+    }
+
+    if (!level) {
+      toast("Level is required", "fa-solid fa-circle-exclamation");
+      document.getElementById("teacher-level").focus();
+      return false;
+    }
+
+    // Validate optional fields if provided
+    if (birthday) {
+      const birthDate = new Date(birthday);
+      const today = new Date();
+      if (birthDate >= today) {
+        toast("Birthday must be in the past", "fa-solid fa-circle-exclamation");
+        document.getElementById("teacher-birthday").focus();
+        return false;
+      }
+      
+      const age = today.getFullYear() - birthDate.getFullYear();
+      if (age < 18) {
+        toast("Teacher must be at least 18 years old", "fa-solid fa-circle-exclamation");
+        document.getElementById("teacher-birthday").focus();
+        return false;
+      }
+    }
+
+    if (phone && !phone.match(/^[0-9\s\-\+\(\)]+$/) && phone.length > 0) {
+      toast("Phone number format is invalid", "fa-solid fa-circle-exclamation");
+      document.getElementById("teacher-phone").focus();
+      return false;
+    }
+
+    if (phone && phone.length < 7) {
+      toast("Phone number must be at least 7 characters", "fa-solid fa-circle-exclamation");
+      document.getElementById("teacher-phone").focus();
+      return false;
+    }
+
+    if (appointmentDate && birthday) {
+      const apptDate = new Date(appointmentDate);
+      const birthDate = new Date(birthday);
+      if (apptDate < birthDate) {
+        toast("Appointment date cannot be before birthday", "fa-solid fa-circle-exclamation");
+        document.getElementById("teacher-appointment-date").focus();
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   async function saveTeacher() {
+    // Run validation before proceeding
+    if (!validateTeacherForm()) {
+      return;
+    }
+
     const data = {
       full_name: document.getElementById("teacher-full-name").value.trim(),
       nic: document.getElementById("teacher-nic").value.trim(),
@@ -580,14 +692,6 @@
         "teacher-first-appointment-date"
       ).value,
     };
-
-    if (!data.full_name || !data.nic) {
-      toast(
-        "Please fill in all required fields.",
-        "fa-solid fa-circle-exclamation"
-      );
-      return;
-    }
 
     try {
       const method = editingTeacher ? "PUT" : "POST";

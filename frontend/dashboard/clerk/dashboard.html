@@ -55,47 +55,12 @@
 
   <div class="card dashboard-tile flex-column h-2">
     <div class="icon-title">
-      <i class="fas fa-bell icon"></i>
-      <p class="tile-label">Notifications</p>
+      <i class="fas fa-bullhorn icon"></i>
+      <p class="tile-label" data-en="Recent Announcements" data-si="අවසාන නිවේදන" data-ta="சமீபத்திய அறிவிப்புகள்">Recent Announcements</p>
     </div>
     <div>
-      <ul class="tile-list">
-        <li>
-          <div>
-            <strong>New certificate request</strong>
-            <span>Kasun Perera • 1/12/2024</span>
-          </div>
-          <button class="icon-btn" title="Delete">
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        </li>
-        <li>
-          <div>
-            <strong>Profile updated</strong>
-            <span>Nimali Silva • 1/11/2024</span>
-          </div>
-          <button class="icon-btn" title="Delete">
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        </li>
-        <li>
-          <div>
-            <strong>Parents meeting reminder</strong>
-            <span>All Parents • 1/10/2024</span>
-          </div>
-          <button class="icon-btn" title="Delete">
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        </li>
-        <li>
-          <div>
-            <strong>Exam results released</strong>
-            <span>All Students • 1/09/2024</span>
-          </div>
-          <button class="icon-btn" title="Delete">
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        </li>
+      <ul class="tile-list" id="dashboard-announcements-list">
+        <li class="text-sm">Loading...</li>
       </ul>
     </div>
   </div>
@@ -266,9 +231,56 @@
     }
   }
 
+  // Load recent announcements
+  async function loadRecentAnnouncements() {
+    try {
+      const response = await fetch("/api/clerk/announcements");
+      if (!response.ok) return;
+
+      const announcements = await response.json();
+      const announcementsList = document.getElementById("dashboard-announcements-list");
+
+      if (!announcementsList) return;
+
+      announcementsList.innerHTML = "";
+
+      if (announcements.length === 0) {
+        const noAnnounceLi = document.createElement("li");
+        noAnnounceLi.className = "text-sm";
+        noAnnounceLi.setAttribute("data-en", "No announcements yet");
+        noAnnounceLi.setAttribute("data-si", "තවම නිවේදන නැත");
+        noAnnounceLi.setAttribute("data-ta", "இன்னும் அறிவிப்புகள் இல்லை");
+        noAnnounceLi.textContent = "No announcements yet";
+        announcementsList.appendChild(noAnnounceLi);
+        return;
+      }
+
+      // Show only first 3 announcements
+      announcements.slice(0, 3).forEach((announcement) => {
+        const li = document.createElement("li");
+        li.style.cssText = "padding: 12px; border-bottom: 1px solid var(--color-border);";
+        const createdDate = new Date(announcement.created_at).toLocaleDateString();
+        li.innerHTML = `
+          <div>
+            <p class="subject-name" style="margin: 0; font-weight: 500;">${announcement.title}</p>
+            <p class="text-sm" style="margin: 4px 0 0 0; color: #666;">${createdDate}</p>
+          </div>
+        `;
+        announcementsList.appendChild(li);
+      });
+
+      if (typeof applyDirectLanguageAttributes === "function") {
+        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+      }
+    } catch (err) {
+      console.error("Error loading announcements:", err);
+    }
+  }
+
   // Initialize dashboard
   function initDashboard() {
     loadPendingResets();
+    loadRecentAnnouncements();
   }
 
   initDashboard();
