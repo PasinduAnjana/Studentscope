@@ -58,6 +58,13 @@ module.exports = (req, res) => {
     );
   }
 
+  // Change password route
+  if (req.method === "PUT" && req.url === "/api/student/change-password") {
+    return protect("student")(req, res, () =>
+      studentController.changePassword(req, res)
+    );
+  }
+
   res.writeHead(404);
   res.end("Not Found");
 };
