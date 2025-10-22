@@ -1,0 +1,668 @@
+<h2 class="heading">
+  <i class="fas fa-user-shield"></i>
+  <span
+    data-en="Student Behavior Reports"
+    data-si="ශිෂ්‍ය හැසිරීම් වාර්තා"
+    data-ta="மாணவர் நடத்தை அறிக்கைகள்"
+  >
+    Student Behavior Reports
+  </span>
+</h2>
+
+<div style="display: flex; flex-direction: column; gap: 24px">
+  <!-- 📋 Add Behavior Record Form -->
+  <div class="card dashboard-tile">
+    <div class="icon-title">
+      <i class="fas fa-plus-circle icon"></i>
+      <p
+        data-en="Add Behavior Record"
+        data-si="හැසිරීම් වාර්තා එක් කරන්න"
+        data-ta="நடத்தை பதிவைச் சேர்க்கவும்"
+      >
+        Add Behavior Record
+      </p>
+    </div>
+    <div class="filter-group">
+      <div>
+        <label
+          data-en="Select Student"
+          data-si="ශිෂ්‍ය තෝරා ගන්න"
+          data-ta="மாணவரைத் தேர்ந்தெடுக்கவும்"
+        >
+          Select Student
+        </label>
+        <select id="student-select" class="dropdown-select">
+          <option value="" data-en="Choose a student">Choose a student</option>
+        </select>
+      </div>
+      <div>
+        <label
+          data-en="Behavior Type"
+          data-si="හැසිරීමේ වර්ගය"
+          data-ta="நடத்தை வகை"
+        >
+          Behavior Type
+        </label>
+        <select id="behavior-type" class="dropdown-select">
+          <option value="">Select Type</option>
+          <option value="Good">Good</option>
+          <option value="Disciplinary">Disciplinary</option>
+          <option value="Reward">Reward</option>
+        </select>
+      </div>
+      <div>
+        <label data-en="Severity" data-si="බරපතුතාව" data-ta="கடுமை">
+          Severity
+        </label>
+        <select id="behavior-severity" class="dropdown-select">
+          <option value="">N/A</option>
+          <option value="Minor">Minor</option>
+          <option value="Serious">Serious</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom: 20px">
+      <label data-en="Description" data-si="විස්තරණ" data-ta="விளக்கம்">
+        Description
+      </label>
+      <textarea
+        id="behavior-description"
+        class="form-input"
+        rows="4"
+        placeholder="Enter behavior description..."
+        style="
+          width: 100%;
+          padding: 10px;
+          border: 1px solid var(--color-border);
+          border-radius: 4px;
+          background-color: var(--color-bg);
+          color: var(--color-text);
+        "
+      ></textarea>
+    </div>
+    <div style="display: flex; gap: 10px; justify-content: flex-end">
+      <button class="btn btn-primary" onclick="submitBehaviorRecord()">
+        <i class="fas fa-check"></i>
+        <span
+          data-en="Submit Record"
+          data-si="වාර්තා ඉදිරිපත් කරන්න"
+          data-ta="பதிவை சமர்ப்பிக்கவும்"
+        >
+          Submit Record
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 📋 My Behavior Records -->
+  <div class="card dashboard-tile">
+    <div class="icon-title">
+      <i class="fas fa-list icon"></i>
+      <p
+        data-en="My Behavior Records"
+        data-si="මගේ හැසිරීම් වාර්තා"
+        data-ta="எனது நடத்தை பதிவுகள்"
+      >
+        My Behavior Records
+      </p>
+    </div>
+    <div class="filter-group">
+      <div>
+        <input
+          type="text"
+          id="records-search"
+          class="form-input"
+          placeholder="Search by student, class, type, or description..."
+          style="
+            width: 300px;
+            padding: 10px;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+          "
+        />
+      </div>
+      <div>
+        <select id="my-records-page-size" class="dropdown-select">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Student</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Severity</th>
+            <th>Description</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="my-records-tbody"></tbody>
+      </table>
+    </div>
+    <!-- Pagination -->
+    <div
+      class="pagination-controls"
+      style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+        flex-wrap: nowrap;
+      "
+    >
+      <button
+        id="my-records-prev-page"
+        class="btn btn-secondary"
+        disabled
+        title="Previous"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <div
+        id="my-records-page-numbers"
+        style="
+          display: flex;
+          gap: 5px;
+          flex-wrap: wrap;
+          justify-content: center;
+        "
+      ></div>
+      <button
+        id="my-records-next-page"
+        class="btn btn-secondary"
+        disabled
+        title="Next"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      <span
+        id="my-records-page-info"
+        style="
+          margin-left: 20px;
+          color: var(--color-subtext);
+          white-space: nowrap;
+        "
+      ></span>
+    </div>
+  </div>
+</div>
+
+<script src="../../js/dropdown.js"></script>
+<script>
+  let classStudents = [];
+  let myBehaviorRecords = [];
+  let filteredRecords = [];
+  let teacherUserId = null;
+
+  // Pagination variables
+  let currentPage = 1;
+  let pageSize = 25;
+  let totalPages = 1;
+
+  // Get teacher ID from localStorage (set during login)
+  function getTeacherId() {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    return user.id;
+  }
+
+  // Load students from teacher's class
+  async function loadClassStudents() {
+    try {
+      const response = await fetch("/api/teacher/students");
+      if (!response.ok) throw new Error("Failed to fetch students");
+      const allStudents = await response.json();
+
+      // Group students by class and sort
+      const studentsByClass = {};
+      allStudents.forEach((student) => {
+        const classKey = `${student.grade} ${student.class_name}`;
+        if (!studentsByClass[classKey]) {
+          studentsByClass[classKey] = [];
+        }
+        studentsByClass[classKey].push(student);
+      });
+
+      // Populate student dropdown with class grouping
+      const studentSelect = document.getElementById("student-select");
+      studentSelect.innerHTML = '<option value="">Choose a student</option>';
+
+      // Sort classes
+      const sortedClasses = Object.keys(studentsByClass).sort();
+
+      sortedClasses.forEach((classKey) => {
+        const optgroup = document.createElement("optgroup");
+        optgroup.label = classKey;
+
+        studentsByClass[classKey]
+          .sort((a, b) => a.full_name.localeCompare(b.full_name))
+          .forEach((student) => {
+            const option = document.createElement("option");
+            option.value = student.id;
+            option.textContent = student.full_name;
+            option.dataset.classId = student.class_id;
+            optgroup.appendChild(option);
+          });
+
+        studentSelect.appendChild(optgroup);
+      });
+
+      // Store for later use
+      classStudents = allStudents;
+    } catch (err) {
+      console.error("Error loading students:", err);
+      showToast("Error loading students", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  // Load teacher's behavior records
+  async function loadMyBehaviorRecords() {
+    try {
+      const response = await fetch("/api/teacher/behavior/records");
+      if (!response.ok) throw new Error("Failed to fetch behavior records");
+      myBehaviorRecords = await response.json();
+      filteredRecords = myBehaviorRecords;
+      currentPage = 1;
+      renderRecordsTable();
+    } catch (err) {
+      console.error("Error loading behavior records:", err);
+      showToast("Error loading records", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  // Submit new behavior record
+  async function submitBehaviorRecord() {
+    const studentId = document.getElementById("student-select").value;
+    const type = document.getElementById("behavior-type").value;
+    const severity = document.getElementById("behavior-severity").value;
+    const description = document
+      .getElementById("behavior-description")
+      .value.trim();
+
+    // Validation
+    if (!studentId) {
+      showToast("Please select a student", "fa-solid fa-circle-exclamation");
+      return;
+    }
+    if (!type) {
+      showToast(
+        "Please select behavior type",
+        "fa-solid fa-circle-exclamation"
+      );
+      return;
+    }
+    if (!description || description.length < 5) {
+      showToast(
+        "Description must be at least 5 characters",
+        "fa-solid fa-circle-exclamation"
+      );
+      return;
+    }
+
+    try {
+      const student = classStudents.find((s) => s.id == studentId);
+      if (!student) {
+        showToast("Invalid student selected", "fa-solid fa-circle-exclamation");
+        return;
+      }
+
+      const payload = {
+        student_id: parseInt(studentId),
+        class_id: student.class_id,
+        type: type,
+        severity: severity || null,
+        description: description,
+        reported_by_id: getTeacherId(),
+      };
+
+      const response = await fetch("/api/teacher/behavior/records", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error("Failed to submit record");
+
+      showToast(
+        "Behavior record submitted successfully",
+        "fa-solid fa-check-circle"
+      );
+      resetBehaviorForm();
+      loadMyBehaviorRecords();
+    } catch (err) {
+      console.error("Error submitting record:", err);
+      showToast("Error submitting record", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  // Render records table with pagination
+  function renderRecordsTable() {
+    const tbody = document.getElementById("my-records-tbody");
+
+    if (!filteredRecords.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center">No records found</td></tr>`;
+      updateRecordsPaginationControls(0);
+      return;
+    }
+
+    totalPages = Math.ceil(filteredRecords.length / pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const recordsToShow = filteredRecords.slice(startIndex, endIndex);
+
+    tbody.innerHTML = recordsToShow
+      .map(
+        (record) => `
+      <tr>
+        <td>${record.class}</td>
+        <td>${record.student}</td>
+        <td>${record.date}</td>
+        <td>${record.type}</td>
+        <td>${record.severity || "—"}</td>
+        <td>${record.description}</td>
+        <td>
+          <button class="btn-icon btn-delete" onclick="deleteRecord(${
+            record.id
+          })" title="Delete">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `
+      )
+      .join("");
+
+    updateRecordsPaginationControls(filteredRecords.length);
+  }
+
+  // Update pagination controls
+  function updateRecordsPaginationControls(totalItems) {
+    const prevBtn = document.getElementById("my-records-prev-page");
+    const nextBtn = document.getElementById("my-records-next-page");
+    const pageNumbers = document.getElementById("my-records-page-numbers");
+    const pageInfo = document.getElementById("my-records-page-info");
+
+    if (!prevBtn || !nextBtn || !pageNumbers || !pageInfo) return;
+
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= totalPages;
+
+    const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+    const endItem = Math.min(currentPage * pageSize, totalItems);
+    pageInfo.textContent = `Showing ${startItem}-${endItem} of ${totalItems} records`;
+
+    pageNumbers.innerHTML = "";
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    if (startPage > 1) {
+      const firstBtn = document.createElement("button");
+      firstBtn.className = "btn btn-secondary";
+      firstBtn.textContent = "1";
+      firstBtn.onclick = () => goToPage(1);
+      pageNumbers.appendChild(firstBtn);
+
+      if (startPage > 2) {
+        const ellipsis = document.createElement("span");
+        ellipsis.textContent = "...";
+        ellipsis.style.margin = "0 5px";
+        pageNumbers.appendChild(ellipsis);
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      const pageBtn = document.createElement("button");
+      pageBtn.className = `btn ${
+        i === currentPage ? "btn-primary" : "btn-secondary"
+      }`;
+      pageBtn.textContent = i;
+      pageBtn.onclick = () => goToPage(i);
+      pageNumbers.appendChild(pageBtn);
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        const ellipsis = document.createElement("span");
+        ellipsis.textContent = "...";
+        ellipsis.style.margin = "0 5px";
+        pageNumbers.appendChild(ellipsis);
+      }
+
+      const lastBtn = document.createElement("button");
+      lastBtn.className = "btn btn-secondary";
+      lastBtn.textContent = totalPages;
+      lastBtn.onclick = () => goToPage(totalPages);
+      pageNumbers.appendChild(lastBtn);
+    }
+  }
+
+  // Navigate to page
+  function goToPage(page) {
+    if (page >= 1 && page <= totalPages) {
+      currentPage = page;
+      renderRecordsTable();
+    }
+  }
+
+  // Search behavior records
+  function searchRecords(searchTerm) {
+    const term = searchTerm.toLowerCase().trim();
+    
+    if (!term) {
+      filteredRecords = myBehaviorRecords;
+    } else {
+      filteredRecords = myBehaviorRecords.filter((record) => {
+        return (
+          record.student.toLowerCase().includes(term) ||
+          record.class.toLowerCase().includes(term) ||
+          record.type.toLowerCase().includes(term) ||
+          record.severity?.toLowerCase().includes(term) ||
+          record.description.toLowerCase().includes(term)
+        );
+      });
+    }
+    
+    currentPage = 1;
+    renderRecordsTable();
+  }
+
+  // Delete behavior record
+  function deleteRecord(recordId) {
+    if (confirm("Are you sure you want to delete this record?")) {
+      deleteRecordConfirmed(recordId);
+    }
+  }
+
+  async function deleteRecordConfirmed(recordId) {
+    try {
+      const response = await fetch(
+        `/api/teacher/behavior/records?id=${recordId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to delete record");
+
+      showToast("Record deleted successfully", "fa-solid fa-check-circle");
+      loadMyBehaviorRecords();
+    } catch (err) {
+      console.error("Error deleting record:", err);
+      showToast("Error deleting record", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  // Reset form
+  function resetBehaviorForm() {
+    document.getElementById("student-select").value = "";
+    document.getElementById("behavior-type").value = "";
+    document.getElementById("behavior-severity").value = "";
+    document.getElementById("behavior-description").value = "";
+  }
+
+  // Show toast notification
+  function showToast(message, icon) {
+    if (typeof toast === "function") {
+      toast(message, icon);
+    } else {
+      alert(message);
+    }
+  }
+
+  // Initialize searchable dropdowns
+  function initializeSearchableDropdowns() {
+    const dropdowns = document.querySelectorAll(".dropdown-select");
+    dropdowns.forEach((select) => {
+      // Skip my-records-page-size as it's handled separately in setupPaginationEvents
+      if (select.id === "my-records-page-size") return;
+
+      if (typeof makeSearchableDropdown === "function") {
+        makeSearchableDropdown(select.id);
+      }
+    });
+  }
+
+  // Setup pagination events
+  function setupPaginationEvents() {
+    const pageSizeElement = document.getElementById("my-records-page-size");
+    if (pageSizeElement) {
+      pageSize = parseInt(pageSizeElement.value);
+
+      // Make page size dropdown searchable with callback
+      if (typeof makeSearchableDropdown === "function") {
+        makeSearchableDropdown("my-records-page-size", (val, text) => {
+          pageSize = parseInt(val);
+          currentPage = 1;
+          renderRecordsTable();
+        });
+      }
+
+      // Page size change event (fallback)
+      pageSizeElement.addEventListener("change", (e) => {
+        pageSize = parseInt(e.target.value);
+        currentPage = 1;
+        renderRecordsTable();
+      });
+    }
+
+    const prevBtn = document.getElementById("my-records-prev-page");
+    const nextBtn = document.getElementById("my-records-next-page");
+
+    if (prevBtn) {
+      prevBtn.addEventListener("click", () => goToPage(currentPage - 1));
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => goToPage(currentPage + 1));
+    }
+
+    // Setup search input
+    const searchInput = document.getElementById("records-search");
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        searchRecords(e.target.value);
+      });
+    }
+  }
+
+  // Update language text
+  function updateText(lang) {
+    document.querySelectorAll("[data-en],[data-si],[data-ta]").forEach((el) => {
+      el.textContent =
+        el.getAttribute(`data-${lang}`) || el.getAttribute("data-en");
+    });
+  }
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === "lang") {
+      updateText(e.newValue || "en");
+    }
+  });
+
+  window.addEventListener("languageChange", (e) => {
+    updateText(e.detail.lang || "en");
+  });
+
+  let lastLang = localStorage.getItem("lang") || "en";
+  setInterval(() => {
+    const currentLang = localStorage.getItem("lang") || "en";
+    if (currentLang !== lastLang) {
+      updateText(currentLang);
+      lastLang = currentLang;
+    }
+  }, 300);
+
+  updateText(localStorage.getItem("lang") || "en");
+
+  // Initialize on page load
+  async function initializePage() {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", async () => {
+        await loadClassStudents();
+        await loadMyBehaviorRecords();
+        initializeSearchableDropdowns();
+        setupPaginationEvents();
+      });
+    } else {
+      await loadClassStudents();
+      await loadMyBehaviorRecords();
+      initializeSearchableDropdowns();
+      setupPaginationEvents();
+    }
+  }
+
+  initializePage();
+</script>
+
+<style>
+  .filter-group {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 20px;
+    margin-bottom: 20px;
+    align-items: flex-end;
+    width: auto;
+  }
+  .filter-group > div {
+    flex: 0 0 auto;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .filter-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+  .pagination-controls {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: nowrap;
+  }
+  #my-records-page-numbers {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+</style>

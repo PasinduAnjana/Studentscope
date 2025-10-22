@@ -317,6 +317,125 @@ module.exports = (req, res) => {
     );
   }
 
+  // Teacher behavior records routes
+  if (req.method === "GET" && req.url === "/api/teacher/behavior/records") {
+    return protect("teacher")(req, res, async () => {
+      try {
+        const teacherService = require("../services/teacherService");
+        const records = await teacherService.getTeacherBehaviorRecords(
+          req.user.userId
+        );
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(records));
+      } catch (error) {
+        console.error("Error fetching teacher behavior records:", error);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            error: "Failed to fetch behavior records",
+          })
+        );
+      }
+    });
+  }
+
+  // POST new behavior record
+  if (req.method === "POST" && req.url === "/api/teacher/behavior/records") {
+    return protect("teacher")(req, res, async () => {
+      try {
+        let body = "";
+        req.on("data", (chunk) => {
+          body += chunk;
+        });
+        req.on("end", async () => {
+          const data = JSON.parse(body);
+          const { student_id, class_id, type, severity, description } = data;
+
+          if (!student_id || !class_id || !type || !description) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: "Missing required fields" }));
+            return;
+          }
+
+          const adminService = require("../services/adminService");
+          const record = await adminService.addBehaviorRecord(
+            student_id,
+            class_id,
+            type,
+            severity,
+            description,
+            req.user.userId
+          );
+          res.writeHead(201, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({ success: true, id: record.id, date: record.date })
+          );
+        });
+      } catch (error) {
+        console.error("Error adding behavior record:", error);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            error: "Failed to add behavior record",
+          })
+        );
+      }
+    });
+  }
+
+  // DELETE behavior record (with ownership check)
+  if (
+    req.method === "DELETE" &&
+    req.url.startsWith("/api/teacher/behavior/records")
+  ) {
+    return protect("teacher")(req, res, async () => {
+      try {
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const recordId = url.searchParams.get("id");
+
+        if (!recordId) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Record ID required" }));
+          return;
+        }
+
+        const teacherService = require("../services/teacherService");
+        const adminService = require("../services/adminService");
+
+        // Verify ownership: check if the record was created by this teacher
+        const records = await teacherService.getTeacherBehaviorRecords(
+          req.user.userId
+        );
+        const recordExists = records.some((r) => r.id == recordId);
+
+        if (!recordExists) {
+          res.writeHead(403, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({ error: "You can only delete your own records" })
+          );
+          return;
+        }
+
+        const success = await adminService.deleteBehaviorRecord(recordId);
+        if (success) {
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: true }));
+        } else {
+          res.writeHead(404, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Record not found" }));
+        }
+      } catch (error) {
+        console.error("Error deleting behavior record:", error);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            error: "Failed to delete behavior record",
+          })
+        );
+      }
+    });
+  }
+
   // 404 - Route not found
 
   res.writeHead(404, { "Content-Type": "application/json" });

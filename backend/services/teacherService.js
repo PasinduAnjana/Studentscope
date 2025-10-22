@@ -730,3 +730,79 @@ exports.getAnnouncementsByTeacher = async (teacherId) => {
   );
   return result.rows;
 };
+
+// Get behavior records for teacher's class students created by this teacher
+exports.getTeacherBehaviorRecords = async (teacherId) => {
+  const result = await pool.query(
+    `
+    SELECT DISTINCT ON (br.id)
+      br.id,
+      br.student_id,
+      br.class_id,
+      br.type,
+      br.severity,
+      br.description,
+      br.created_at::DATE as date,
+      CONCAT(c.grade, c.name) as class,
+      s.full_name as student,
+      reporter.full_name as reported_by
+    FROM behavior_records br
+    JOIN classes c ON br.class_id = c.id
+    JOIN teacher_subjects ts ON c.id = ts.class_id
+    JOIN users u ON br.student_id = u.id
+    JOIN students s ON u.id = s.user_id
+    LEFT JOIN users reporter_u ON br.reported_by = reporter_u.id
+    LEFT JOIN teacher_details reporter ON reporter_u.id = reporter.teacher_id
+    WHERE ts.teacher_id = $1 AND br.reported_by = $1
+    ORDER BY br.id, br.created_at DESC
+    `,
+    [teacherId]
+  );
+  return result.rows;
+};
+
+// Get all students from teacher's classes
+exports.getStudentsFromTeacherClasses = async (teacherId) => {
+  console.log("getStudentsFromTeacherClasses - teacherId:", teacherId);
+  const result = await pool.query(
+    `
+    SELECT DISTINCT ON (u.id)
+      u.id,
+      u.username AS index_number,
+      u.class_id,
+      c.grade,
+      c.name AS class_name,
+      s.full_name,
+      s.birthday,
+      s.address,
+      s.gender,
+      s.nationality
+    FROM classes c
+    JOIN teacher_subjects ts ON c.id = ts.class_id
+    JOIN users u ON u.class_id = c.id
+    LEFT JOIN students s ON s.user_id = u.id
+    WHERE ts.teacher_id = $1
+      AND u.role_id = (SELECT id FROM roles WHERE name = 'student')
+    ORDER BY u.id, c.grade, c.name, u.username
+    `,
+    [teacherId]
+  );
+
+  console.log(
+    "getStudentsFromTeacherClasses - result rows count:",
+    result.rows.length
+  );
+
+  return result.rows.map((row) => ({
+    id: row.id,
+    index_number: row.index_number,
+    full_name: row.full_name,
+    birthday: row.birthday,
+    address: row.address,
+    gender: row.gender,
+    nationality: row.nationality,
+    class_id: row.class_id,
+    grade: row.grade,
+    class_name: row.class_name,
+  }));
+};
