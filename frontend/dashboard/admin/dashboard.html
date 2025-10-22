@@ -163,6 +163,17 @@
         const container = document.getElementById(
           "attendance-overview-content"
         );
+
+        // Check if attendance data exists
+        if (!data.presentToday && !data.absentToday) {
+          container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; height: 150px; text-align: center;">
+              <p class="text-sm">Attendance is not marked yet</p>
+            </div>
+          `;
+          return;
+        }
+
         const presentPercentage = data.averageAttendance;
 
         // Create chart container

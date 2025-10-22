@@ -3,417 +3,47 @@
   <span
     data-en="Academic Reports"
     data-si="අධ්‍යාපනික වාර්තා"
-    data-ta="கல்வி அறிக்கைகள்"
+    data-ta="கல்வி அறிக்கைகள්"
     >Academic Reports</span
   >
 </h2>
 
-<!-- Overall Statistics Tiles -->
-<div class="card-grid">
-  <!-- Overall Total Candidates -->
-  <div class="card w-1 h-1 dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-users icon"></i>
-      <p
-        class="tile-label"
-        data-en="Candidates"
-        data-si="අයදුම්කරුවන්"
-        data-ta="தேர்வாளர்கள்"
-      >
-        Candidates
-      </p>
-    </div>
-    <p class="tile-value" id="overallTotal">--</p>
-  </div>
-
-  <!-- Overall Pass Rate -->
-  <div class="card w-1 h-1 dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-poll icon"></i>
-      <p
-        class="tile-label"
-        data-en="Pass Rate"
-        data-si="සමත් අනුපාතය"
-        data-ta="தேர्ச्चி விकिதम्"
-      >
-        Pass Rate
-      </p>
-    </div>
-    <p class="tile-value" id="overallRate">--</p>
-  </div>
-
-  <!-- Overall Average Score -->
-  <div class="card w-1 h-1 dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-signal icon"></i>
-      <p
-        class="tile-label"
-        data-en="Avg Score"
-        data-si="සාමාන්‍ය සාමාර්ථය"
-        data-ta="ஆல்ய சமर्த्தாय"
-      >
-        Avg Score / GPA / Z
-      </p>
-    </div>
-    <p class="tile-value" id="overallAvg">--</p>
-  </div>
-
-  <!-- Overall Highlights -->
-  <div class="card w-1 h-1 dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-award icon"></i>
-      <p
-        class="tile-label"
-        data-en="Highlights"
-        data-si="ඉස්මතු කර ඇත"
-        data-ta="முக்கிய அम्सங्कள्"
-      >
-        Highlights
-      </p>
-    </div>
-    <p class="tile-value" id="overallHighlight">--</p>
-  </div>
-</div>
-
-<!-- 📋 Results Table -->
-<div class="card dashboard-tile">
-  <div class="icon-title">
-    <i class="fas fa-table icon"></i>
-    <p
-      class="tile-label"
-      data-en="Results"
-      data-si="ප්‍රතිඵල"
-      data-ta="முடிவுகள்"
-    >
-      Results
-    </p>
-  </div>
-
-  <div class="flex gap-2" style="margin-top: 12px; margin-bottom: 16px">
-    <button class="btn btn-primary" onclick="exportPDF()">
-      <i class="fas fa-file-pdf"></i> Export PDF
-    </button>
-    <button class="btn btn-primary" onclick="exportCSV()">
-      <i class="fas fa-download"></i> Export CSV
-    </button>
-  </div>
-
-  <!-- Filters -->
-  <div
-    class="filter-controls"
-    style="
-      display: flex;
-      flex-direction: row;
-      gap: 16px;
-      align-items: baseline;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-      white-space: nowrap;
-    "
-  >
-    <div class="search-group" style="max-width: 350px">
-      <input
-        type="text"
-        id="indexSearch"
-        class="search-input"
-        placeholder="Search by index number..."
-      />
-      <span class="search-icon"><i class="fas fa-search"></i></span>
-    </div>
-
-    <div
-      class="input-group"
-      style="min-width: 140px; flex: 1; white-space: nowrap"
-    >
-      <label
-        for="examFilter"
-        data-en="Exam Type"
-        data-si="විභාග වර්ගය"
-        data-ta="தேர्வு வகை"
-        >Exam Type</label
-      >
-      <select id="examFilter" class="dropdown-select">
-        <option
-          value="term"
-          data-en="Term Tests"
-          data-si="වාර පරීක්ෂණ"
-          data-ta="కాల தேర్వుకள్"
-        >
-          Term Tests
-        </option>
-        <option
-          value="sch"
-          data-en="Grade 05 Scholarship Examination"
-          data-si="5 ශ්‍රේණිය ශිෂ්‍යත්ව විභාගය"
-          data-ta="5 ஶ்ரீஷ್ய మాணవత् తేర్వు"
-        >
-          Grade 05 Scholarship
-        </option>
-        <option
-          value="ol"
-          data-en="G.C.E. O/L Examination"
-          data-si="සාමාන්‍ය ශිල්පීය පරීක්ෂණ"
-          data-ta="G.C.E. O/L தேர్வு"
-        >
-          GCE O/L
-        </option>
-        <option
-          value="al"
-          data-en="G.C.E. A/L Examination"
-          data-si="උසස් ශිල්පීය පරීක්ෂණ"
-          data-ta="G.C.E. A/L தேர్வு"
-        >
-          GCE A/L
-        </option>
-      </select>
-    </div>
-
-    <div
-      class="input-group"
-      style="min-width: 100px; flex: 1; white-space: nowrap"
-    >
-      <label for="yearFilter" data-en="Year" data-si="වර්ෂය" data-ta="ஆண்டு"
-        >Year</label
-      >
-      <select id="yearFilter" class="dropdown-select">
-        <option value="2025">2025</option>
-        <option value="2024">2024</option>
-        <option value="2023">2023</option>
-      </select>
-    </div>
-
-    <div
-      class="input-group"
-      id="termWrap"
-      style="min-width: 100px; flex: 1; white-space: nowrap"
-    >
-      <label for="termFilter" data-en="Term" data-si="වාරය" data-ta="काल"
-        >Term</label
-      >
-      <select id="termFilter" class="dropdown-select">
-        <option
-          value="all"
-          data-en="All Terms"
-          data-si="සියළු වාරයන්"
-          data-ta="అన్ని కాలాలు"
-        >
-          All Terms
-        </option>
-        <option value="1" data-en="Term 1" data-si="1 වාරය" data-ta="1 కాల">
-          Term 1
-        </option>
-        <option value="2" data-en="Term 2" data-si="2 වාරය" data-ta="2 కాల">
-          Term 2
-        </option>
-        <option value="3" data-en="Term 3" data-si="3 වාරය" data-ta="3 కాల">
-          Term 3
-        </option>
-      </select>
-    </div>
-
-    <div
-      class="input-group"
-      id="classWrap"
-      style="min-width: 120px; flex: 1; white-space: nowrap"
-    >
-      <label for="classFilter" data-en="Class" data-si="පන්තිය" data-ta="வர్గం"
-        >Class</label
-      >
-      <select id="classFilter" class="dropdown-select">
-        <option
-          value="all"
-          data-en="All Classes"
-          data-si="සියළු පන්තිය"
-          data-ta="అన్ని క్లాసులు"
-        >
-          All Classes
-        </option>
-        <option value="6A" data-en="Grade 6 - A" data-si="6 ශ්‍රේණිය - A">
-          Grade 6 - A
-        </option>
-        <option value="6B" data-en="Grade 6 - B" data-si="6 ශ්‍රේණිය - B">
-          Grade 6 - B
-        </option>
-        <option value="11A" data-en="Grade 11 - A" data-si="11 ශ්‍රේණිය - A">
-          Grade 11 - A
-        </option>
-        <option value="11B" data-en="Grade 11 - B" data-si="11 ශ්‍රේණිය - B">
-          Grade 11 - B
-        </option>
-      </select>
-    </div>
-
-    <div
-      class="input-group"
-      id="streamWrap"
-      style="min-width: 120px; flex: 1; white-space: nowrap"
-    >
-      <label
-        for="streamFilter"
-        data-en="Stream"
-        data-si="ධාරාව"
-        data-ta="స్ట్రీమ్"
-        >Stream</label
-      >
-      <select id="streamFilter" class="dropdown-select">
-        <option
-          value="all"
-          data-en="All Streams"
-          data-si="සියළු ධාරා"
-          data-ta="అన్ని స్ట్రీమ్‌లు"
-        >
-          All Streams
-        </option>
-        <option value="art" data-en="Art" data-si="කලා" data-ta="కళ">
-          Art
-        </option>
-        <option
-          value="science"
-          data-en="Science"
-          data-si="විද්‍යා"
-          data-ta="విజ్ఞాన"
-        >
-          Science
-        </option>
-        <option
-          value="commerce"
-          data-en="Commerce"
-          data-si="වාණිජ්‍ය"
-          data-ta="వాణిజ్య"
-        >
-          Commerce
-        </option>
-      </select>
-    </div>
-
-    <div
-      class="input-group"
-      id="subjectWrap"
-      style="min-width: 130px; flex: 1; white-space: nowrap"
-    >
-      <label
-        for="subjectFilter"
-        data-en="Subject"
-        data-si="විෂයය"
-        data-ta="విషయం"
-        >Subject</label
-      >
-      <select id="subjectFilter" class="dropdown-select">
-        <option
-          value="all"
-          data-en="All Subjects"
-          data-si="සියළු විෂයන්"
-          data-ta="అన్ని విషయాలు"
-        >
-          All Subjects
-        </option>
-        <option
-          value="math"
-          data-en="Mathematics"
-          data-si="ගණිතය"
-          data-ta="గణితం"
-        >
-          Mathematics
-        </option>
-        <option
-          value="english"
-          data-en="English"
-          data-si="ඉංග්‍රීසි"
-          data-ta="ఇంగ్లీష్"
-        >
-          English
-        </option>
-        <option
-          value="science"
-          data-en="Science"
-          data-si="විද්‍යා"
-          data-ta="విజ్ఞాన"
-        >
-          Science
-        </option>
-      </select>
-    </div>
-  </div>
-
-  <div class="table-container">
-    <div class="table-responsive">
-      <table id="reportTable">
-        <thead id="tableHead"></thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-
-    <div class="table-footer">
-      <p
-        id="filterInfo"
-        class="filter-info"
-        data-en="Showing results based on selected filters."
-        data-si="තෝරාගත් පෙරහන් පදනම්ව ප්‍රතිඵල පෙන්වයි."
-        data-ta="தேர్ న్నెడుక్కపట్ట వడిగట్టిలోన్ అడిప్పటలోన్ ముడిపుకులు క్లాసులు కాట్టపడుతున్న"
-      >
-        Showing results based on selected filters.
-      </p>
-    </div>
-  </div>
-</div>
-
-<!-- 📊 Filtered Summary Tiles -->
-<div class="card dashboard-tile">
-  <div class="icon-title">
-    <i class="fas fa-info-circle icon"></i>
-    <p
-      class="tile-label"
-      data-en="Filtered Summary"
-      data-si="පෙරහන් කළ සාරාංශය"
-      data-ta="வடிகட்டப்பட்ட సుരుక్కమ"
-    >
-      Filtered Summary
-    </p>
-  </div>
-  <p
-    data-en="These tiles reflect the current filter selection."
-    data-si="මෙම සාරාංශය වර්තමාන පෙරහන අනුවයි."
-    data-ta="ఇవి తిలోలు ప్రస్తుత వడిగట్టీ ఎంపికను ప్రతిబింబిస్తాయి"
-  >
-    These tiles reflect the current filter selection.
-  </p>
-
+<div style="display: flex; flex-direction: column; gap: 24px">
+  <!-- Overall Statistics Tiles -->
   <div class="card-grid">
+    <!-- Overall Total Candidates -->
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
-        <i class="fas fa-database icon"></i>
+        <i class="fas fa-users icon"></i>
         <p
           class="tile-label"
-          data-en="Records"
-          data-si="ලේඛන"
-          data-ta="నిర్లేఖనాలు"
+          data-en="Candidates"
+          data-si="අයදුම්කරුවන්"
+          data-ta="தேர்வாளர்கள்"
         >
-          Records
+          Candidates
         </p>
       </div>
-      <p class="tile-value" id="fTotal">--</p>
+      <p class="tile-value" id="overallTotal">--</p>
     </div>
 
+    <!-- Overall Pass Rate -->
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
-        <i class="fas fa-check-circle icon"></i>
-        <p class="tile-label" data-en="Pass" data-si="සමත්" data-ta="పాస్">
-          Pass
+        <i class="fas fa-poll icon"></i>
+        <p
+          class="tile-label"
+          data-en="Pass Rate"
+          data-si="සමත් අනුපාතය"
+          data-ta="தேர्ச्चி விकिதम्"
+        >
+          Pass Rate
         </p>
       </div>
-      <p class="tile-value" id="fPass">--</p>
+      <p class="tile-value" id="overallRate">--</p>
     </div>
 
-    <div class="card w-1 h-1 dashboard-tile">
-      <div class="icon-title">
-        <i class="fas fa-times-circle icon"></i>
-        <p class="tile-label" data-en="Fail" data-si="අසමත්" data-ta="విఫలం">
-          Fail
-        </p>
-      </div>
-      <p class="tile-value" id="fFail">--</p>
-    </div>
-
+    <!-- Overall Average Score -->
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
         <i class="fas fa-signal icon"></i>
@@ -421,50 +51,479 @@
           class="tile-label"
           data-en="Avg Score"
           data-si="සාමාන්‍ය සාමාර්ථය"
-          data-ta="సగటు స్కోర్"
+          data-ta="ஆல்ய சமर्த्தாय"
         >
           Avg Score / GPA / Z
         </p>
       </div>
-      <p class="tile-value" id="fAvg">--</p>
+      <p class="tile-value" id="overallAvg">--</p>
+    </div>
+
+    <!-- Overall Highlights -->
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-award icon"></i>
+        <p
+          class="tile-label"
+          data-en="Highlights"
+          data-si="ඉස්මතු කර ඇත"
+          data-ta="முக்கிய அम्सங्कள्"
+        >
+          Highlights
+        </p>
+      </div>
+      <p class="tile-value" id="overallHighlight">--</p>
     </div>
   </div>
-</div>
 
-<!-- 📈 Charts -->
-<div class="card-grid">
-  <!-- Chart A -->
-  <div class="card w-1 h-1 dashboard-tile">
+  <!-- 📋 Results Table -->
+  <div class="card dashboard-tile">
     <div class="icon-title">
-      <i class="fas fa-chart-pie icon"></i>
+      <i class="fas fa-table icon"></i>
       <p
-        id="chartATitle"
         class="tile-label"
-        data-en="Grade Distribution"
-        data-si="ශ්‍රේණිවල බෙදාහැරීම"
-        data-ta="గ్రేడ్ సంపంధం"
+        data-en="Results"
+        data-si="ප්‍රතිඵල"
+        data-ta="முடிவுகள்"
       >
-        Grade Distribution
+        Results
       </p>
     </div>
-    <div class="chart-wrapper"><canvas id="chartA"></canvas></div>
+
+    <div class="flex gap-2" style="margin-top: 12px; margin-bottom: 16px">
+      <button class="btn btn-primary" onclick="exportPDF()">
+        <i class="fas fa-file-pdf"></i> Export PDF
+      </button>
+      <button class="btn btn-primary" onclick="exportCSV()">
+        <i class="fas fa-download"></i> Export CSV
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div
+      class="filter-controls"
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 16px;
+        align-items: baseline;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+        white-space: nowrap;
+      "
+    >
+      <div class="search-group" style="max-width: 350px">
+        <input
+          type="text"
+          id="indexSearch"
+          class="search-input"
+          placeholder="Search by index number..."
+        />
+        <span class="search-icon"><i class="fas fa-search"></i></span>
+      </div>
+
+      <div
+        class="input-group"
+        style="min-width: 140px; flex: 1; white-space: nowrap"
+      >
+        <label
+          for="examFilter"
+          data-en="Exam Type"
+          data-si="විභාග වර්ගය"
+          data-ta="தேர्வு வகை"
+          >Exam Type</label
+        >
+        <select id="examFilter" class="dropdown-select">
+          <option
+            value="term"
+            data-en="Term Tests"
+            data-si="වාර පරීක්ෂණ"
+            data-ta="కాల தேర్వుకள్"
+          >
+            Term Tests
+          </option>
+          <option
+            value="sch"
+            data-en="Grade 05 Scholarship Examination"
+            data-si="5 ශ්‍රේණිය ශිෂ්‍යත්ව විභාගය"
+            data-ta="5 ஶ்ரீஷ್ய మాணవత् తేర్వు"
+          >
+            Grade 05 Scholarship
+          </option>
+          <option
+            value="ol"
+            data-en="G.C.E. O/L Examination"
+            data-si="සාමාන්‍ය ශිල්පීය පරීක්ෂණ"
+            data-ta="G.C.E. O/L தேர్வு"
+          >
+            GCE O/L
+          </option>
+          <option
+            value="al"
+            data-en="G.C.E. A/L Examination"
+            data-si="උසස් ශිල්පීය පරීක්ෂණ"
+            data-ta="G.C.E. A/L தேர్வு"
+          >
+            GCE A/L
+          </option>
+        </select>
+      </div>
+
+      <div
+        class="input-group"
+        style="min-width: 100px; flex: 1; white-space: nowrap"
+      >
+        <label for="yearFilter" data-en="Year" data-si="වර්ෂය" data-ta="ஆண்டு"
+          >Year</label
+        >
+        <select id="yearFilter" class="dropdown-select">
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+        </select>
+      </div>
+
+      <div
+        class="input-group"
+        id="termWrap"
+        style="min-width: 100px; flex: 1; white-space: nowrap"
+      >
+        <label for="termFilter" data-en="Term" data-si="වාරය" data-ta="काल"
+          >Term</label
+        >
+        <select id="termFilter" class="dropdown-select">
+          <option
+            value="all"
+            data-en="All Terms"
+            data-si="සියළු වාරයන්"
+            data-ta="అన్ని కాలాలు"
+          >
+            All Terms
+          </option>
+          <option value="1" data-en="Term 1" data-si="1 වාරය" data-ta="1 కాల">
+            Term 1
+          </option>
+          <option value="2" data-en="Term 2" data-si="2 වාරය" data-ta="2 కాల">
+            Term 2
+          </option>
+          <option value="3" data-en="Term 3" data-si="3 වාරය" data-ta="3 కాల">
+            Term 3
+          </option>
+        </select>
+      </div>
+
+      <div
+        class="input-group"
+        id="classWrap"
+        style="min-width: 120px; flex: 1; white-space: nowrap"
+      >
+        <label
+          for="classFilter"
+          data-en="Class"
+          data-si="පන්තිය"
+          data-ta="வர్గం"
+          >Class</label
+        >
+        <select id="classFilter" class="dropdown-select">
+          <option
+            value="all"
+            data-en="All Classes"
+            data-si="සියළු පන්තිය"
+            data-ta="అన్ని క్లాసులు"
+          >
+            All Classes
+          </option>
+          <option value="6A" data-en="Grade 6 - A" data-si="6 ශ්‍රේණිය - A">
+            Grade 6 - A
+          </option>
+          <option value="6B" data-en="Grade 6 - B" data-si="6 ශ්‍රේණිය - B">
+            Grade 6 - B
+          </option>
+          <option value="11A" data-en="Grade 11 - A" data-si="11 ශ්‍රේණිය - A">
+            Grade 11 - A
+          </option>
+          <option value="11B" data-en="Grade 11 - B" data-si="11 ශ්‍රේණිය - B">
+            Grade 11 - B
+          </option>
+        </select>
+      </div>
+
+      <div
+        class="input-group"
+        id="streamWrap"
+        style="min-width: 120px; flex: 1; white-space: nowrap"
+      >
+        <label
+          for="streamFilter"
+          data-en="Stream"
+          data-si="ධාරාව"
+          data-ta="స్ట్రీమ్"
+          >Stream</label
+        >
+        <select id="streamFilter" class="dropdown-select">
+          <option
+            value="all"
+            data-en="All Streams"
+            data-si="සියළු ධාරා"
+            data-ta="అన్ని స్ట్రీమ్‌లు"
+          >
+            All Streams
+          </option>
+          <option value="art" data-en="Art" data-si="කලා" data-ta="కళ">
+            Art
+          </option>
+          <option
+            value="science"
+            data-en="Science"
+            data-si="විද්‍යා"
+            data-ta="విజ్ఞాన"
+          >
+            Science
+          </option>
+          <option
+            value="commerce"
+            data-en="Commerce"
+            data-si="වාණිජ්‍ය"
+            data-ta="వాణిజ్య"
+          >
+            Commerce
+          </option>
+        </select>
+      </div>
+
+      <div
+        class="input-group"
+        id="subjectWrap"
+        style="min-width: 130px; flex: 1; white-space: nowrap"
+      >
+        <label
+          for="subjectFilter"
+          data-en="Subject"
+          data-si="විෂයය"
+          data-ta="విషయం"
+          >Subject</label
+        >
+        <select id="subjectFilter" class="dropdown-select">
+          <option
+            value="all"
+            data-en="All Subjects"
+            data-si="සියළු විෂයන්"
+            data-ta="అన్ని విషయాలు"
+          >
+            All Subjects
+          </option>
+          <option
+            value="math"
+            data-en="Mathematics"
+            data-si="ගණිතය"
+            data-ta="గణితం"
+          >
+            Mathematics
+          </option>
+          <option
+            value="english"
+            data-en="English"
+            data-si="ඉංග්‍රීසි"
+            data-ta="ఇంగ్లీష్"
+          >
+            English
+          </option>
+          <option
+            value="science"
+            data-en="Science"
+            data-si="විද්‍යා"
+            data-ta="విజ్ఞాన"
+          >
+            Science
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <div class="table-responsive">
+        <table id="reportTable">
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <p
+          id="filterInfo"
+          class="filter-info"
+          data-en="Showing results based on selected filters."
+          data-si="තෝරාගත් පෙරහන් පදනම්ව ප්‍රතිඵල පෙන්වයි."
+          data-ta="தேர్ న్నెడుక్కపట్ట వడిగట్టిలోన్ అడిప్పటలోన్ ముడిపుకులు క్లాసులు కాట్టపడుతున్న"
+        >
+          Showing results based on selected filters.
+        </p>
+      </div>
+    </div>
   </div>
 
-  <!-- Chart B -->
-  <div class="card w-1 h-1 dashboard-tile">
+  <!-- 📊 Filtered Summary Tiles -->
+  <div class="card dashboard-tile">
     <div class="icon-title">
-      <i class="fas fa-chart-bar icon"></i>
+      <i class="fas fa-info-circle icon"></i>
       <p
-        id="chartBTitle"
         class="tile-label"
-        data-en="Subject-wise Performance"
-        data-si="විෂයය අනුව කාර්යසාධන"
-        data-ta="విషయ-వారీ పనితీරు"
+        data-en="Filtered Summary"
+        data-si="පෙරහන් කළ සාරාංශය"
+        data-ta="வடிகட்டப்பட்ட సుരుక్కమ"
       >
-        Subject-wise Performance
+        Filtered Summary
       </p>
     </div>
-    <div class="chart-wrapper"><canvas id="chartB"></canvas></div>
+    <p
+      data-en="These tiles reflect the current filter selection."
+      data-si="මෙම සාරාංශය වර්තමාන පෙරහන අනුවයි."
+      data-ta="ఇవి తిలోలు ప్రస్తుత వడిగట్టీ ఎంపికను ప్రతిబింబిస్తాయి"
+    >
+      These tiles reflect the current filter selection.
+    </p>
+
+    <div
+      class="card-grid"
+      style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px"
+    >
+      <div
+        class="card w-1 h-1 dashboard-tile"
+        style="min-height: auto; padding: 12px"
+      >
+        <div class="icon-title" style="flex-direction: column; gap: 4px">
+          <i class="fas fa-database icon" style="font-size: 18px"></i>
+          <p
+            class="tile-label"
+            data-en="Records"
+            data-si="ලේඛන"
+            data-ta="నిర్లేఖనాలు"
+            style="font-size: 12px; margin: 0"
+          >
+            Records
+          </p>
+        </div>
+        <p
+          class="tile-value"
+          id="fTotal"
+          style="font-size: 20px; margin: 4px 0 0 0"
+        >
+          --
+        </p>
+      </div>
+
+      <div
+        class="card w-1 h-1 dashboard-tile"
+        style="min-height: auto; padding: 12px"
+      >
+        <div class="icon-title" style="flex-direction: column; gap: 4px">
+          <i class="fas fa-check-circle icon" style="font-size: 18px"></i>
+          <p
+            class="tile-label"
+            data-en="Pass"
+            data-si="සමත්"
+            data-ta="పాస్"
+            style="font-size: 12px; margin: 0"
+          >
+            Pass
+          </p>
+        </div>
+        <p
+          class="tile-value"
+          id="fPass"
+          style="font-size: 20px; margin: 4px 0 0 0"
+        >
+          --
+        </p>
+      </div>
+
+      <div
+        class="card w-1 h-1 dashboard-tile"
+        style="min-height: auto; padding: 12px"
+      >
+        <div class="icon-title" style="flex-direction: column; gap: 4px">
+          <i class="fas fa-times-circle icon" style="font-size: 18px"></i>
+          <p
+            class="tile-label"
+            data-en="Fail"
+            data-si="අසමත්"
+            data-ta="విఫలం"
+            style="font-size: 12px; margin: 0"
+          >
+            Fail
+          </p>
+        </div>
+        <p
+          class="tile-value"
+          id="fFail"
+          style="font-size: 20px; margin: 4px 0 0 0"
+        >
+          --
+        </p>
+      </div>
+
+      <div
+        class="card w-1 h-1 dashboard-tile"
+        style="min-height: auto; padding: 12px"
+      >
+        <div class="icon-title" style="flex-direction: column; gap: 4px">
+          <i class="fas fa-signal icon" style="font-size: 18px"></i>
+          <p
+            class="tile-label"
+            data-en="Avg Score"
+            data-si="සාමාන්‍ය සාමාර්ථය"
+            data-ta="సగటు స్కోర్"
+            style="font-size: 12px; margin: 0"
+          >
+            Avg Score / GPA / Z
+          </p>
+        </div>
+        <p
+          class="tile-value"
+          id="fAvg"
+          style="font-size: 20px; margin: 4px 0 0 0"
+        >
+          --
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📈 Charts -->
+  <div class="card-grid">
+    <!-- Chart A -->
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-chart-pie icon"></i>
+        <p
+          id="chartATitle"
+          class="tile-label"
+          data-en="Grade Distribution"
+          data-si="ශ්‍රේණිවල බෙදාහැරීම"
+          data-ta="గ్రేడ్ సంపంధం"
+        >
+          Grade Distribution
+        </p>
+      </div>
+      <div class="chart-wrapper"><canvas id="chartA"></canvas></div>
+    </div>
+
+    <!-- Chart B -->
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-chart-bar icon"></i>
+        <p
+          id="chartBTitle"
+          class="tile-label"
+          data-en="Subject-wise Performance"
+          data-si="විෂයය අනුව කාර්යසාධන"
+          data-ta="విషయ-వారీ పనితీරు"
+        >
+          Subject-wise Performance
+        </p>
+      </div>
+      <div class="chart-wrapper"><canvas id="chartB"></canvas></div>
+    </div>
   </div>
 </div>
 
