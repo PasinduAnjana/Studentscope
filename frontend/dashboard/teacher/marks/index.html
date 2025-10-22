@@ -75,7 +75,7 @@
                 teacherData.classTeacherOf
               }
             </h3>
-            <p class="marks-card-subtitle">Class Teacher - All Subjects</p>
+            <p class="marks-card-subtitle" data-en="Class Teacher - All Subjects" data-si="පන්ති ගුරුවරයා - සියලුම විෂයයන්" data-ta="வகுப்பு ஆசிரியர் - அனைத்து பாடங்களும்">Class Teacher - All Subjects</p>
             <div class="subject-tags">
               ${
                 classAssignments[teacherData.classTeacherOf]
@@ -85,7 +85,7 @@
                   .join("") || ""
               }
             </div>
-            <span class="status pending">Pending Marks</span>
+            <span class="status pending" data-en="Pending Marks" data-si="අපේක්ෂිත ලකුණු" data-ta="நிலுவையில் உள்ள மதிப்பெண்கள்">Pending Marks</span>
           </div>
         </div>
       `;
@@ -107,7 +107,7 @@
             <h3 class="marks-card-title">
               <i class="fas fa-graduation-cap"></i> Class ${className}
             </h3>
-            <p class="marks-card-subtitle">Subject Teacher</p>
+            <p class="marks-card-subtitle" data-en="Subject Teacher" data-si="විෂය ගුරුවරයා" data-ta="பாட ஆசிரியர்">Subject Teacher</p>
             <div class="subject-tags">
               ${subjects
                 .map(
@@ -119,7 +119,7 @@
                 )
                 .join("")}
             </div>
-            <span class="status pending">Pending Marks</span>
+            <span class="status pending" data-en="Pending Marks" data-si="අපේක්ෂිත ලකුණු" data-ta="நிலுவையில் உள்ள மதிப்பெண்கள்">Pending Marks</span>
           </div>
         </div>
       `;

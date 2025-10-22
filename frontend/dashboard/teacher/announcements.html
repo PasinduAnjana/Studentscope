@@ -40,10 +40,21 @@
       <div class="flex-between mb-2">
         <h3 class="section-title">
           <i class="fas fa-bullhorn"></i>
-          My Announcements
+          <span
+            data-en="My Announcements"
+            data-si="මගේ නිවේදන"
+            data-ta="எனது அறிவிப்புகள்"
+            >My Announcements</span
+          >
         </h3>
         <button id="add-announcement-btn" class="btn btn-primary">
-          <i class="fas fa-plus"></i> Add Announcement
+          <i class="fas fa-plus"></i>
+          <span
+            data-en="Add Announcement"
+            data-si="නිවේදනයක් එක් කරන්න"
+            data-ta="அறிவிப்பைச் சேர்க்க"
+            >Add Announcement</span
+          >
         </button>
       </div>
       <div class="announcements-container" id="my-announcements-container">
@@ -55,7 +66,12 @@
     <div class="card h-2">
       <h3 class="section-title">
         <i class="fas fa-inbox"></i>
-        Announcements for Me
+        <span
+          data-en="Announcements for Me"
+          data-si="මට අදාළ නිවේදන"
+          data-ta="எனக்கான அறிவிப்புகள்"
+          >Announcements for Me</span
+        >
       </h3>
       <div
         class="announcements-container"
@@ -71,37 +87,83 @@
 <div id="announcement-modal" class="modal" style="display: none">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 id="modal-title">Add Announcement</h3>
+      <h3
+        id="modal-title"
+        data-en="Add Announcement"
+        data-si="නිවේදනයක් එක් කරන්න"
+        data-ta="அறிவிப்பைச் சேர்க்க"
+      >
+        Add Announcement
+      </h3>
       <span class="modal-close">&times;</span>
     </div>
     <div class="modal-body">
       <div class="mb-2">
-        <label for="announcement-title">Title:</label>
+        <label
+          for="announcement-title"
+          data-en="Title:"
+          data-si="මාතෘකාව:"
+          data-ta="தலைப்பு:"
+          >Title:</label
+        >
         <input
           type="text"
           id="announcement-title"
           placeholder="Enter announcement title..."
           class="mt-1"
+          data-en="Enter announcement title..."
+          data-si="නිවේදන මාතෘකාව ඇතුල් කරන්න..."
+          data-ta="அறிவிப்பு தலைப்பை உள்ளீடு செய்ய..."
         />
       </div>
       <div class="mb-2">
-        <label for="announcement-description">Description:</label>
+        <label
+          for="announcement-description"
+          data-en="Description:"
+          data-si="විස්තරය:"
+          data-ta="விவரம்:"
+          >Description:</label
+        >
         <textarea
           id="announcement-description"
           placeholder="Enter announcement description..."
           class="mt-1"
+          data-en="Enter announcement description..."
+          data-si="නිවේදන විස්තරය ඇතුල් කරන්න..."
+          data-ta="அறிவிப்பு விவரத்தை உள்ளீடு செய்ய..."
         ></textarea>
       </div>
       <div class="mb-2">
         <p class="text-sm" style="color: var(--color-subtext)">
           <i class="fas fa-info-circle"></i>
-          This announcement will be sent to all students in your class.
+          <span
+            data-en="This announcement will be sent to all students in your class."
+            data-si="මෙම නිවේදනය ඔබගේ පන්තියේ සියලුම ශිෂ්‍යයින්ට යවනු ලැබේ."
+            data-ta="இந்த அறிவிப்பு உங்கள் வகுப்பில் உள்ள அனைத்து மாணவர்களுக்கும் அனுப்பப்படும்."
+            >This announcement will be sent to all students in your class.</span
+          >
         </p>
       </div>
     </div>
     <div class="modal-footer">
-      <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
-      <button id="modal-save" class="btn btn-primary">Save</button>
+      <button
+        id="modal-cancel"
+        class="btn btn-secondary"
+        data-en="Cancel"
+        data-si="අවලංගු කරන්න"
+        data-ta="ரத்து செய்ய"
+      >
+        Cancel
+      </button>
+      <button
+        id="modal-save"
+        class="btn btn-primary"
+        data-en="Save"
+        data-si="සුරකින්න"
+        data-ta="சேமிக்க"
+      >
+        Save
+      </button>
     </div>
   </div>
 </div>
@@ -115,7 +177,23 @@
     const container = document.querySelector(`#${containerId}`);
     container.innerHTML = "";
     if (!announcements.length) {
-      container.innerHTML = `<div class="no-announcements text-center">No announcements found</div>`;
+      const noAnnouncementsDiv = document.createElement("div");
+      noAnnouncementsDiv.className = "no-announcements text-center";
+      noAnnouncementsDiv.setAttribute("data-en", "No announcements found");
+      noAnnouncementsDiv.setAttribute(
+        "data-si",
+        "නිවේදන කිසිවක් සොයා ගත නොහැකි විය"
+      );
+      noAnnouncementsDiv.setAttribute(
+        "data-ta",
+        "அறிவிப்புகள் எதுவும் கிடைக்கவில்லை"
+      );
+      noAnnouncementsDiv.textContent = "No announcements found";
+      container.appendChild(noAnnouncementsDiv);
+      // Apply current language
+      if (typeof applyDirectLanguageAttributes === "function") {
+        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+      }
       return;
     }
 
@@ -128,16 +206,32 @@
       ).toLocaleDateString();
 
       // Format audience display
+      const currentLang = localStorage.getItem("lang") || "en";
       let audienceDisplay = "";
       switch (announcement.audience_type) {
         case "all":
-          audienceDisplay = "All (Teachers & Students)";
+          audienceDisplay =
+            {
+              en: "All (Teachers & Students)",
+              si: "සියල්ල (ගුරුවරුන් සහ ශිෂ්‍යයින්)",
+              ta: "அனைத்தும் (ஆசிரியர்கள் மற்றும் மாணவர்கள்)",
+            }[currentLang] || "All (Teachers & Students)";
           break;
         case "teachers":
-          audienceDisplay = `Teachers (${announcement.target_count || 0})`;
+          audienceDisplay =
+            {
+              en: `Teachers (${announcement.target_count || 0})`,
+              si: `ගුරුවරුන් (${announcement.target_count || 0})`,
+              ta: `ஆசிரியர்கள் (${announcement.target_count || 0})`,
+            }[currentLang] || `Teachers (${announcement.target_count || 0})`;
           break;
         case "students":
-          audienceDisplay = `Classes (${announcement.target_count || 0})`;
+          audienceDisplay =
+            {
+              en: `Classes (${announcement.target_count || 0})`,
+              si: `පන්ති (${announcement.target_count || 0})`,
+              ta: `வகுப்புகள் (${announcement.target_count || 0})`,
+            }[currentLang] || `Classes (${announcement.target_count || 0})`;
           break;
       }
 
@@ -168,14 +262,16 @@
       }" style="display: none;" onclick="toggleDescription('${containerId}', ${
         announcement.id
       })">
-            <span>Show more</span>
+            <span data-en="Show more" data-si="තව පෙන්වන්න" data-ta="மேலும் காட்சி">Show more</span>
             <i class="fas fa-chevron-down"></i>
           </button>
         </div>
         <div class="announcement-meta flex-between">
-          <span class="text-sm">Audience: ${audienceDisplay}</span>
-          <span class="text-sm">Created: ${createdDate} ${
-        announcement.posted_by_name ? `• By ${announcement.posted_by_name}` : ""
+          <span class="text-sm" data-en="Audience:" data-si="ප්‍රේක්ෂකයින්:" data-ta="பார்வையாளர்கள்:">Audience:</span> ${audienceDisplay}
+          <span class="text-sm" data-en="Created:" data-si="නිර්මාණය කරන ලදී:" data-ta="உருவாக்கப்பட்டது:">Created:</span> ${createdDate} ${
+        announcement.posted_by_name
+          ? `<span data-en="• By" data-si="• විසින්" data-ta="• மூலம்">• By</span> ${announcement.posted_by_name}`
+          : ""
       }</span>
         </div>
       `;
@@ -215,7 +311,17 @@
       .catch((err) => {
         console.error("Error fetching my announcements:", err);
         const container = document.querySelector("#my-announcements-container");
-        container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "no-announcements text-center";
+        errorDiv.setAttribute("data-en", "Error loading announcements");
+        errorDiv.setAttribute("data-si", "නිවේදන පූරණය කිරීමේ දෝෂයක්");
+        errorDiv.setAttribute("data-ta", "அறிவிப்புகளை ஏற்றுவதில் பிழை");
+        errorDiv.textContent = "Error loading announcements";
+        container.appendChild(errorDiv);
+        // Apply current language
+        if (typeof applyDirectLanguageAttributes === "function") {
+          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+        }
       });
   }
 
@@ -240,7 +346,17 @@
         const container = document.querySelector(
           "#received-announcements-container"
         );
-        container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "no-announcements text-center";
+        errorDiv.setAttribute("data-en", "Error loading announcements");
+        errorDiv.setAttribute("data-si", "නිවේදන පූරණය කිරීමේ දෝෂයක්");
+        errorDiv.setAttribute("data-ta", "அறிவிப்புகளை ஏற்றுவதில் பிழை");
+        errorDiv.textContent = "Error loading announcements";
+        container.appendChild(errorDiv);
+        // Apply current language
+        if (typeof applyDirectLanguageAttributes === "function") {
+          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+        }
       });
   }
 
@@ -253,7 +369,15 @@
 
     addBtn.addEventListener("click", () => {
       editingAnnouncement = null;
-      document.getElementById("modal-title").textContent = "Add Announcement";
+      const modalTitle = document.getElementById("modal-title");
+      modalTitle.setAttribute("data-en", "Add Announcement");
+      modalTitle.setAttribute("data-si", "නිවේදනයක් එක් කරන්න");
+      modalTitle.setAttribute("data-ta", "அறிவிப்பைச் சேர்க்க");
+      modalTitle.textContent = "Add Announcement";
+      // Apply current language
+      if (typeof applyDirectLanguageAttributes === "function") {
+        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+      }
       clearModal();
       modal.style.display = "flex";
     });
@@ -346,7 +470,15 @@
     }
 
     editingAnnouncement = announcement;
-    document.getElementById("modal-title").textContent = "Edit Announcement";
+    const modalTitle = document.getElementById("modal-title");
+    modalTitle.setAttribute("data-en", "Edit Announcement");
+    modalTitle.setAttribute("data-si", "නිවේදනය සංස්කරණය කරන්න");
+    modalTitle.setAttribute("data-ta", "அறிவிப்பைத் திருத்து");
+    modalTitle.textContent = "Edit Announcement";
+    // Apply current language
+    if (typeof applyDirectLanguageAttributes === "function") {
+      applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+    }
     document.getElementById("announcement-title").value = announcement.title;
     document.getElementById("announcement-description").value =
       announcement.description;
@@ -403,14 +535,24 @@
       // Expand
       descElement.classList.remove("collapsed");
       descElement.classList.add("expanded");
+      btnText.setAttribute("data-en", "Show less");
+      btnText.setAttribute("data-si", "අඩු කර පෙන්වන්න");
+      btnText.setAttribute("data-ta", "குறைவாகக் காட்சி");
       btnText.textContent = "Show less";
       expandBtn.classList.add("expanded");
     } else {
       // Collapse
       descElement.classList.remove("expanded");
       descElement.classList.add("collapsed");
+      btnText.setAttribute("data-en", "Show more");
+      btnText.setAttribute("data-si", "තව පෙන්වන්න");
+      btnText.setAttribute("data-ta", "மேலும் காட்சி");
       btnText.textContent = "Show more";
       expandBtn.classList.remove("expanded");
+    }
+    // Apply current language
+    if (typeof applyDirectLanguageAttributes === "function") {
+      applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
     }
   }
 

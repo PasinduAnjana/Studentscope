@@ -266,10 +266,14 @@
     };
 
     // --- Today's Attendance Doughnut Chart ---
+    const currentLang = localStorage.getItem("lang") || "en";
     let chartData, chartText;
     if (!attendanceMarked) {
       chartData = {
-        labels: ["Present", "Absent"],
+        labels: [
+          { en: "Present", si: "පැමිණි", ta: "வருகை" },
+          { en: "Absent", si: "නොපැමිණි", ta: "இல்லை" },
+        ],
         datasets: [
           {
             data: [0, totalStudents],
@@ -278,10 +282,18 @@
           },
         ],
       };
-      chartText = "Not Marked";
+      chartText =
+        {
+          en: "Not Marked",
+          si: "සලකුණු කර නැත",
+          ta: "குறிக்கப்படவில்லை",
+        }[currentLang] || "Not Marked";
     } else {
       chartData = {
-        labels: ["Present", "Absent"],
+        labels: [
+          { en: "Present", si: "පැමිණි", ta: "வருகை" },
+          { en: "Absent", si: "නොපැමිණි", ta: "இல்லை" },
+        ],
         datasets: [
           {
             data: [presentCount, absentCount],
@@ -303,7 +315,12 @@
           legend: { position: "bottom" },
           title: {
             display: true,
-            text: "Today's Attendance",
+            text:
+              {
+                en: "Today's Attendance",
+                si: "අද දිනයේ පැමිණීම",
+                ta: "இன்றைய வருகை",
+              }[currentLang] || "Today's Attendance",
             font: { size: 20, weight: "bold" },
             position: "bottom",
           },
@@ -316,17 +333,42 @@
       plugins: [centerTextPlugin],
     });
 
+    // Apply language to chart labels
+    const chart = Chart.getChart("attendanceChart");
+    if (chart) {
+      chart.data.labels = chartData.labels.map((label) =>
+        typeof label === "object" ? label[currentLang] || label.en : label
+      );
+      chart.update();
+    }
+
     // --- Weekly Attendance Bar Chart ---
     const weeklyData = {
-      labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+      labels: [
+        { en: "Mon", si: "සඳුදා", ta: "திங்" },
+        { en: "Tue", si: "අඟහරුවාදා", ta: "செவ்" },
+        { en: "Wed", si: "බදාදා", ta: "புத" },
+        { en: "Thu", si: "බ්‍රහස්පතින්දා", ta: "வியா" },
+        { en: "Fri", si: "සිකුරාදා", ta: "வெள்" },
+      ],
       datasets: [
         {
-          label: "Present",
+          label:
+            {
+              en: "Present",
+              si: "පැමිණි",
+              ta: "வருகை",
+            }[currentLang] || "Present",
           data: weeklyPresent,
           backgroundColor: primaryColor,
         },
         {
-          label: "Absent",
+          label:
+            {
+              en: "Absent",
+              si: "නොපැමිණි",
+              ta: "இல்லை",
+            }[currentLang] || "Absent",
           data: weeklyAbsent,
           backgroundColor: primaryColor + "40",
         },
@@ -339,11 +381,28 @@
         responsive: true,
         plugins: {
           legend: { position: "top" },
-          title: { display: true, text: "Weekly Attendance" },
+          title: {
+            display: true,
+            text:
+              {
+                en: "Weekly Attendance",
+                si: "සතිපතා පැමිණීම",
+                ta: "வாராந்திர வருகை",
+              }[currentLang] || "Weekly Attendance",
+          },
         },
         scales: { y: { beginAtZero: true } },
       },
     });
+
+    // Apply language to weekly chart labels
+    const weeklyChart = Chart.getChart("weeklyChart");
+    if (weeklyChart) {
+      weeklyChart.data.labels = weeklyData.labels.map((label) =>
+        typeof label === "object" ? label[currentLang] || label.en : label
+      );
+      weeklyChart.update();
+    }
 
     // --- Monthly Attendance Line Chart ---
     const monthlyLabels = Array.from({ length: monthDates.length }, (_, i) => {
@@ -354,7 +413,12 @@
       labels: monthlyLabels,
       datasets: [
         {
-          label: "Present",
+          label:
+            {
+              en: "Present",
+              si: "පැමිණි",
+              ta: "வருகை",
+            }[currentLang] || "Present",
           data: monthlyPresent,
           borderColor: primaryColor,
           backgroundColor: primaryColor + "33",
@@ -370,7 +434,15 @@
         responsive: true,
         plugins: {
           legend: { position: "top" },
-          title: { display: true, text: "Monthly Attendance" },
+          title: {
+            display: true,
+            text:
+              {
+                en: "Monthly Attendance",
+                si: "මාසික පැමිණීම",
+                ta: "மாதாந்திர வருகை",
+              }[currentLang] || "Monthly Attendance",
+          },
         },
         scales: { y: { beginAtZero: true } },
       },
@@ -381,47 +453,74 @@
   loadTodayAttendance();
 
   function deleteAttendance() {
-    toast(
-      "Are you sure you want to delete today's attendance?",
-      "fa-solid fa-trash",
+    const currentLang = localStorage.getItem("lang") || "en";
+    const confirmMessage =
       {
-        confirm: true,
-        confirmText: "Delete",
-        cancelText: "Cancel",
-        onConfirm: function () {
-          const today = new Date();
-          const yyyy = today.getFullYear();
-          const mm = String(today.getMonth() + 1).padStart(2, "0");
-          const dd = String(today.getDate()).padStart(2, "0");
-          const dateStr = `${yyyy}-${mm}-${dd}`;
+        en: "Are you sure you want to delete today's attendance?",
+        si: "ඔබට අද දිනයේ පැමිණීම මකා දැමීමට අවශ්‍ය බව විශ්වාසද?",
+        ta: "இன்றைய வருகையை நீக்க விரும்புகிறீர்களா?",
+      }[currentLang] || "Are you sure you want to delete today's attendance?";
 
-          fetch(`/api/teacher/attendance?date=${encodeURIComponent(dateStr)}`, {
-            method: "DELETE",
-            credentials: "include",
+    const confirmText =
+      {
+        en: "Delete",
+        si: "මකන්න",
+        ta: "நீக்கு",
+      }[currentLang] || "Delete";
+
+    const cancelText =
+      {
+        en: "Cancel",
+        si: "අවලංගු කරන්න",
+        ta: "ரத்து செய்ய",
+      }[currentLang] || "Cancel";
+
+    toast(confirmMessage, "fa-solid fa-trash", {
+      confirm: true,
+      confirmText: confirmText,
+      cancelText: cancelText,
+      onConfirm: function () {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+
+        fetch(`/api/teacher/attendance?date=${encodeURIComponent(dateStr)}`, {
+          method: "DELETE",
+          credentials: "include",
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error("Failed to delete attendance");
+            return res.json();
           })
-            .then((res) => {
-              if (!res.ok) throw new Error("Failed to delete attendance");
-              return res.json();
-            })
-            .then(() => {
-              localStorage.removeItem("attendanceMarked");
-              toast("Today's attendance deleted.", "fa-solid fa-check-circle");
-              setTimeout(function () {
-                location.reload();
-              }, 2000);
-            })
-            .catch((err) => {
-              console.error(err);
-              toast(
-                "Error deleting attendance. Please try again.",
-                "fa-solid fa-circle-exclamation"
-              );
-            });
-        },
-        onCancel: function () {
-          // Do nothing, just close toast
-        },
-      }
-    );
+          .then(() => {
+            localStorage.removeItem("attendanceMarked");
+            const successMessage =
+              {
+                en: "Today's attendance deleted.",
+                si: "අද දිනයේ පැමිණීම මකා දමන ලදී.",
+                ta: "இன்றைய வருகை நீக்கப்பட்டது.",
+              }[currentLang] || "Today's attendance deleted.";
+            toast(successMessage, "fa-solid fa-check-circle");
+            setTimeout(function () {
+              location.reload();
+            }, 2000);
+          })
+          .catch((err) => {
+            console.error(err);
+            const errorMessage =
+              {
+                en: "Error deleting attendance. Please try again.",
+                si: "පැමිණීම මකා දැමීමේ දෝෂයක්. කරුණාකර නැවත උත්සාහ කරන්න.",
+                ta: "வருகையை நீக்குவதில் பிழை. மீண்டும் முயற்சிக்கவும்.",
+              }[currentLang] || "Error deleting attendance. Please try again.";
+            toast(errorMessage, "fa-solid fa-circle-exclamation");
+          });
+      },
+      onCancel: function () {
+        // Do nothing, just close toast
+      },
+    });
   }
 </script>

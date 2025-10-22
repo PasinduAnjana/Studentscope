@@ -1,13 +1,25 @@
 <h2 class="heading">
   <i class="fas fa-pen"></i>
-  <span id="pageTitle">Enter Marks</span>
+  <span
+    id="pageTitle"
+    data-en="Enter Marks"
+    data-si="ලකුණු ඇතුල් කරන්න"
+    data-ta="மதிப்பெண்கள் உள்ளிடுக"
+    >Enter Marks</span
+  >
   <a
     href="#"
     onclick="goBack(event)"
     class="btn btn-secondary btn-sm"
     style="margin-left: 1rem"
   >
-    <i class="fas fa-arrow-left"></i> Back to Overview
+    <i class="fas fa-arrow-left"></i>
+    <span
+      data-en="Back to Overview"
+      data-si="දෘශ්‍යයට ආපසු"
+      data-ta="கண்ணோட்டத்திற்கு திரும்பு"
+      >Back to Overview</span
+    >
   </a>
 
   <script>
@@ -28,10 +40,18 @@
     </div>
     <div class="exam-selector">
       <div class="input-group">
-        <label>Exam:</label>
+        <label data-en="Exam:" data-si="පරීක්ෂණය:" data-ta="தேர்வு:"
+          >Exam:</label
+        >
         <div class="searchable-select" id="examDropdown">
           <div class="dropdown-display">
-            <span id="selectedExam">Select Exam Type</span>
+            <span
+              id="selectedExam"
+              data-en="Select Exam Type"
+              data-si="පරීක්ෂණ වර්ගය තෝරන්න"
+              data-ta="தேர்வு வகையைத் தேர்ந்தெடுக்கவும்"
+              >Select Exam Type</span
+            >
             <i class="fas fa-chevron-down dropdown-arrow"></i>
           </div>
           <div class="dropdown-list" style="display: none">
@@ -39,30 +59,81 @@
               type="text"
               class="dropdown-search"
               placeholder="Search exam type..."
+              data-en="Search exam type..."
+              data-si="පරීක්ෂණ වර්ගය සොයන්න..."
+              data-ta="தேர்வு வகையைத் தேடு..."
             />
             <div class="dropdown-options">
-              <div class="dropdown-item" data-value="Term Test 1">
+              <div
+                class="dropdown-item"
+                data-value="Term Test 1"
+                data-en="Term Test 1"
+                data-si="නියම පරීක්ෂණය 1"
+                data-ta="செமஸ்டர் தேர்வு 1"
+              >
                 Term Test 1
               </div>
-              <div class="dropdown-item" data-value="Term Test 2">
+              <div
+                class="dropdown-item"
+                data-value="Term Test 2"
+                data-en="Term Test 2"
+                data-si="නියම පරීක්ෂණය 2"
+                data-ta="செமஸ்டர் தேர்வு 2"
+              >
                 Term Test 2
               </div>
-              <div class="dropdown-item" data-value="Term Test 3">
+              <div
+                class="dropdown-item"
+                data-value="Term Test 3"
+                data-en="Term Test 3"
+                data-si="නියම පරීක්ෂණය 3"
+                data-ta="செமஸ்டர் தேர்வு 3"
+              >
                 Term Test 3
               </div>
-              <div class="dropdown-item" data-value="Midterm Exam">
+              <div
+                class="dropdown-item"
+                data-value="Midterm Exam"
+                data-en="Midterm Exam"
+                data-si="මධ්‍යම පරීක්ෂණය"
+                data-ta="நடுத்தர தேர்வு"
+              >
                 Midterm Exam
               </div>
-              <div class="dropdown-item" data-value="Final Exam">
+              <div
+                class="dropdown-item"
+                data-value="Final Exam"
+                data-en="Final Exam"
+                data-si="අවසාන පරීක්ෂණය"
+                data-ta="இறுதி தேர்வு"
+              >
                 Final Exam
               </div>
-              <div class="dropdown-item" data-value="Unit Test 1">
+              <div
+                class="dropdown-item"
+                data-value="Unit Test 1"
+                data-en="Unit Test 1"
+                data-si="ඒකක පරීක්ෂණය 1"
+                data-ta="அலகு தேர்வு 1"
+              >
                 Unit Test 1
               </div>
-              <div class="dropdown-item" data-value="Unit Test 2">
+              <div
+                class="dropdown-item"
+                data-value="Unit Test 2"
+                data-en="Unit Test 2"
+                data-si="ඒකක පරීක්ෂණය 2"
+                data-ta="அலகு தேர்வு 2"
+              >
                 Unit Test 2
               </div>
-              <div class="dropdown-item" data-value="Unit Test 3">
+              <div
+                class="dropdown-item"
+                data-value="Unit Test 3"
+                data-en="Unit Test 3"
+                data-si="ඒකක පරීක්ෂණය 3"
+                data-ta="அலகு தேர்வு 3"
+              >
                 Unit Test 3
               </div>
             </div>
@@ -78,12 +149,26 @@
     </table>
   </div>
 
-  <div class="marks-actions">
-    <button class="btn btn-secondary" onclick="saveDraft()">
-      <i class="fas fa-save"></i> Save Draft
+  <div class="action-buttons">
+    <button
+      type="button"
+      class="btn-secondary"
+      id="saveDraftBtn"
+      data-en="Save Draft"
+      data-si="කටුව සුරක්ෂිත කරන්න"
+      data-ta="வரைவை சேமிக்கவும்"
+    >
+      Save Draft
     </button>
-    <button class="btn btn-primary" onclick="submitMarks()">
-      <i class="fas fa-check"></i> Submit
+    <button
+      type="button"
+      class="btn-primary"
+      id="submitBtn"
+      data-en="Submit"
+      data-si="ඉදිරිපත් කරන්න"
+      data-ta="சமர்ப்பிக்கவும்"
+    >
+      Submit
     </button>
   </div>
 </div>
@@ -184,8 +269,8 @@
     // Create header row
     const headerRow = document.createElement("tr");
     headerRow.innerHTML = `
-      <th>Index No</th>
-      <th>Name</th>
+      <th data-en="Index No" data-si="දර්ශක අංකය" data-ta="குறியீட்டு எண்">Index No</th>
+      <th data-en="Name" data-si="නම" data-ta="பெயர்">Name</th>
       ${tableSubjects.map((s) => `<th>${s.name}</th>`).join("")}
     `;
     table.innerHTML = "";
@@ -334,8 +419,17 @@
     const table = document.querySelector(".marks-table");
     const examType = document.querySelector("#selectedExam").textContent;
 
-    if (examType === "Select Exam Type") {
-      alert("Please select an exam type first");
+    if (
+      examType === "Select Exam Type" ||
+      examType === "පරීක්ෂණ වර්ගය තෝරන්න" ||
+      examType === "தேர்வு வகையைத் தேர்ந்தெடுக்கவும்"
+    ) {
+      const messages = {
+        en: "Please select an exam type first",
+        si: "කරුණාකර පළමුව පරීක්ෂණ වර්ගය තෝරන්න",
+        ta: "முதலில் தேர்வு வகையைத் தேர்ந்தெடுக்கவும்",
+      };
+      alert(messages[currentLanguage] || messages.en);
       return;
     }
 
@@ -363,11 +457,21 @@
       })
       .then((result) => {
         console.log("Draft saved:", result);
-        showStatus("Draft Saved", "draft");
+        const messages = {
+          en: "Draft Saved",
+          si: "කටුව සුරක්ෂිත කරන ලදී",
+          ta: "வரைவு சேமிக்கப்பட்டது",
+        };
+        showStatus(messages[currentLanguage] || messages.en, "draft");
       })
       .catch((err) => {
         console.error("Error saving draft:", err);
-        showStatus("Error saving draft", "error");
+        const messages = {
+          en: "Error saving draft",
+          si: "කටුව සුරක්ෂිත කිරීමේ දෝෂයක්",
+          ta: "வரைவை சேமிப்பதில் பிழை",
+        };
+        showStatus(messages[currentLanguage] || messages.en, "error");
       });
   }
 
@@ -375,8 +479,17 @@
     const table = document.querySelector(".marks-table");
     const examType = document.querySelector("#selectedExam").textContent;
 
-    if (examType === "Select Exam Type") {
-      alert("Please select an exam type first");
+    if (
+      examType === "Select Exam Type" ||
+      examType === "පරීක්ෂණ වර්ගය තෝරන්න" ||
+      examType === "தேர்வு வகையைத் தேர்ந்தெடுக்கவும்"
+    ) {
+      const messages = {
+        en: "Please select an exam type first",
+        si: "කරුණාකර පළමුව පරීක්ෂණ වර්ගය තෝරන්න",
+        ta: "முதலில் தேர்வு வகையைத் தேர்ந்தெடுக்கவும்",
+      };
+      alert(messages[currentLanguage] || messages.en);
       return;
     }
 
@@ -404,11 +517,21 @@
       })
       .then((result) => {
         console.log("Marks submitted:", result);
-        showStatus("Submitted", "submitted");
+        const messages = {
+          en: "Submitted",
+          si: "ඉදිරිපත් කරන ලදී",
+          ta: "சமர்ப்பிக்கப்பட்டது",
+        };
+        showStatus(messages[currentLanguage] || messages.en, "submitted");
       })
       .catch((err) => {
         console.error("Error submitting marks:", err);
-        showStatus("Error submitting marks", "error");
+        const messages = {
+          en: "Error submitting marks",
+          si: "ලකුණු ඉදිරිපත් කිරීමේ දෝෂයක්",
+          ta: "மதிப்பெண்களை சமர்ப்பிப்பதில் பிழை",
+        };
+        showStatus(messages[currentLanguage] || messages.en, "error");
       });
   }
 

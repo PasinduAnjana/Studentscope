@@ -1,4 +1,12 @@
-<h2 class="heading"><i class="fas fa-chart-pie"></i> Charts Test</h2>
+<h2 class="heading">
+  <i class="fas fa-chart-pie"></i>
+  <span
+    data-en="Charts Test"
+    data-si="ප්‍රස්තුති පරීක්ෂණය"
+    data-ta="வரைபடங்கள் சோதனை"
+    >Charts Test</span
+  >
+</h2>
 
 <div class="card-grid">
   <!-- Existing Tiles like Greeting, Timetable, etc. -->
@@ -11,12 +19,32 @@
   >
     <div class="icon-title">
       <i class="fas fa-clipboard-check icon"></i>
-      <p class="tile-label">Attendance</p>
+      <p
+        class="tile-label"
+        data-en="Attendance"
+        data-si="පැමිණීම්"
+        data-ta="வருகை"
+      >
+        Attendance
+      </p>
     </div>
     <div>
-      <h3 class="tile-value text-error">Attendance not marked yet</h3>
+      <h3
+        class="tile-value text-error"
+        data-en="Attendance not marked yet"
+        data-si="පැමිණීම් තවම සලකුණු කර නොමැත"
+        data-ta="வருகை இன்னும் குறிக்கப்படவில்லை"
+      >
+        Attendance not marked yet
+      </h3>
       <button class="btn" onclick="goToMarkAttendance()">
-        <i class="fas fa-user-check"></i> Mark Attendance
+        <i class="fas fa-user-check"></i>
+        <span
+          data-en="Mark Attendance"
+          data-si="පැමිණීම් සලකුණු කරන්න"
+          data-ta="வருகையை குறிக்கவும்"
+          >Mark Attendance</span
+        >
       </button>
     </div>
   </div>
@@ -27,13 +55,37 @@
     id="attendanceSummary"
     style="display: none"
   >
-    <h3>Today's Attendance Summary</h3>
+    <h3
+      data-en="Today's Attendance Summary"
+      data-si="අද පැමිණීම් සාරාංශය"
+      data-ta="இன்றைய வருகை சுருக்கம்"
+    >
+      Today's Attendance Summary
+    </h3>
     <canvas id="attendanceChart" height="150"></canvas>
 
     <div class="quick-stats">
-      <p><strong>Total Students:</strong> <span id="totalStudents"></span></p>
-      <p><strong>Present:</strong> <span id="presentCount"></span></p>
-      <p><strong>Absent:</strong> <span id="absentCount"></span></p>
+      <p>
+        <strong
+          data-en="Total Students:"
+          data-si="මුළු සිසුන්:"
+          data-ta="மொத்த மாணவர்கள்:"
+          >Total Students:</strong
+        >
+        <span id="totalStudents"></span>
+      </p>
+      <p>
+        <strong data-en="Present:" data-si="පැමිණි:" data-ta="வருகை:"
+          >Present:</strong
+        >
+        <span id="presentCount"></span>
+      </p>
+      <p>
+        <strong data-en="Absent:" data-si="නොපැමිණි:" data-ta="இல்லை:"
+          >Absent:</strong
+        >
+        <span id="absentCount"></span>
+      </p>
     </div>
   </div>
 
@@ -77,7 +129,18 @@
       new Chart(document.getElementById("attendanceChart"), {
         type: "doughnut",
         data: {
-          labels: ["Present", "Absent"],
+          labels: [
+            currentLanguage === "si"
+              ? "පැමිණි"
+              : currentLanguage === "ta"
+              ? "வருகை"
+              : "Present",
+            currentLanguage === "si"
+              ? "නොපැමිණි"
+              : currentLanguage === "ta"
+              ? "இல்லை"
+              : "Absent",
+          ],
           datasets: [
             {
               data: [presentCount, absentCount],
@@ -89,7 +152,15 @@
           responsive: true,
           plugins: {
             legend: { position: "top" },
-            title: { display: true, text: "Attendance Summary" },
+            title: {
+              display: true,
+              text:
+                currentLanguage === "si"
+                  ? "පැමිණීම් සාරාංශය"
+                  : currentLanguage === "ta"
+                  ? "வருகை சுருக்கம்"
+                  : "Attendance Summary",
+            },
           },
         },
       });

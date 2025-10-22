@@ -6,12 +6,54 @@
 <div class="timetable" id="timetable">
   <!-- Header row -->
   <div class="timetable-row header-row" id="timetable-header-row">
-    <div class="timetable-cell header-cell">Time</div>
-    <div class="timetable-cell header-cell">Monday</div>
-    <div class="timetable-cell header-cell">Tuesday</div>
-    <div class="timetable-cell header-cell">Wednesday</div>
-    <div class="timetable-cell header-cell">Thursday</div>
-    <div class="timetable-cell header-cell">Friday</div>
+    <div
+      class="timetable-cell header-cell"
+      data-en="Time"
+      data-si="වේලාව"
+      data-ta="நேரம்"
+    >
+      Time
+    </div>
+    <div
+      class="timetable-cell header-cell"
+      data-en="Monday"
+      data-si="සඳුදා"
+      data-ta="திங்கட்கிழமை"
+    >
+      Monday
+    </div>
+    <div
+      class="timetable-cell header-cell"
+      data-en="Tuesday"
+      data-si="අඟහරුවාදා"
+      data-ta="செவ்வாய்க்கிழமை"
+    >
+      Tuesday
+    </div>
+    <div
+      class="timetable-cell header-cell"
+      data-en="Wednesday"
+      data-si="බදාදා"
+      data-ta="புதன்கிழமை"
+    >
+      Wednesday
+    </div>
+    <div
+      class="timetable-cell header-cell"
+      data-en="Thursday"
+      data-si="බ්‍රහස්පතින්දා"
+      data-ta="வியாழக்கிழமை"
+    >
+      Thursday
+    </div>
+    <div
+      class="timetable-cell header-cell"
+      data-en="Friday"
+      data-si="සිකුරාදා"
+      data-ta="வெள்ளிக்கிழமை"
+    >
+      Friday
+    </div>
   </div>
 </div>
 
@@ -31,10 +73,29 @@
     const timetableLookup = {};
     if (!Array.isArray(timetableData)) {
       const timetableContainer = document.getElementById("timetable");
-      timetableContainer.innerHTML +=
-        '<div class="error">Unable to load timetable: ' +
-        (timetableData.error || "Unknown error") +
-        "</div>";
+      const errorDiv = document.createElement("div");
+      errorDiv.className = "error";
+      errorDiv.setAttribute(
+        "data-en",
+        "Unable to load timetable: " + (timetableData.error || "Unknown error")
+      );
+      errorDiv.setAttribute(
+        "data-si",
+        "කාලසටහන පූරණය කළ නොහැකි විය: " +
+          (timetableData.error || "නොදන්නා දෝෂයක්")
+      );
+      errorDiv.setAttribute(
+        "data-ta",
+        "நேர அட்டவணையை ஏற்ற முடியவில்லை: " +
+          (timetableData.error || "தெரியாத பிழை")
+      );
+      errorDiv.textContent =
+        "Unable to load timetable: " + (timetableData.error || "Unknown error");
+      timetableContainer.appendChild(errorDiv);
+      // Apply current language
+      if (typeof applyDirectLanguageAttributes === "function") {
+        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+      }
       return;
     }
     timetableData.forEach((entry) => {
@@ -50,17 +111,19 @@
     const headerRow = document.createElement("div");
     headerRow.classList.add("timetable-row", "header-row");
     const headers = [
-      "Time",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
+      { en: "Time", si: "වේලාව", ta: "நேரம்" },
+      { en: "Monday", si: "සඳුදා", ta: "திங்கட்கிழமை" },
+      { en: "Tuesday", si: "අඟහරුවාදා", ta: "செவ்வாய்க்கிழமை" },
+      { en: "Wednesday", si: "බදාදා", ta: "புதன்கிழமை" },
+      { en: "Thursday", si: "බ්‍රහස්පතින්දා", ta: "வியாழக்கிழமை" },
+      { en: "Friday", si: "සිකුරාදා", ta: "வெள்ளிக்கிழமை" },
     ];
+    const currentLang = localStorage.getItem("lang") || "en";
     headers.forEach((day) => {
       const cell = document.createElement("div");
       cell.classList.add("timetable-cell", "header-cell");
-      cell.textContent = day;
+      cell.textContent =
+        typeof day === "object" ? day[currentLang] || day.en : day;
       headerRow.appendChild(cell);
     });
     timetableContainer.appendChild(headerRow);
@@ -119,6 +182,9 @@
         const breakCell = document.createElement("h3");
         breakCell.classList.add("timetable-cell", "interval-cell");
         breakCell.style.color = "var(--color-primary)";
+        breakCell.setAttribute("data-en", "INTERVAL");
+        breakCell.setAttribute("data-si", "විරාමය");
+        breakCell.setAttribute("data-ta", "இடைவேளை");
         breakCell.textContent = "INTERVAL";
         breakCell.colSpan = 6; // Full width (time + 5 days)
 
@@ -127,6 +193,10 @@
 
         breakRow.appendChild(breakCell);
         timetableContainer.appendChild(breakRow);
+        // Apply current language
+        if (typeof applyDirectLanguageAttributes === "function") {
+          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+        }
       }
     });
   }

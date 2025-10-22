@@ -1,6 +1,6 @@
 <h2 class="heading">
   <i class="fas fa-user-check"></i>
-  <span data="sidebar.attendance"></span>
+  <span data="student.attendance"></span>
 </h2>
 
 <div class="card-grid">
@@ -8,7 +8,14 @@
   <div class="card w-1 h-2 dashboard-tile" id="attendanceSummary">
     <div class="icon-title">
       <i class="fas fa-chart-pie icon"></i>
-      <p class="tile-label">Attendance Percentage</p>
+      <p
+        class="tile-label"
+        data-en="Attendance Percentage"
+        data-si="පැමිණීම් ප්‍රතිශතය"
+        data-ta="வருகை சதவீதம்"
+      >
+        Attendance Percentage
+      </p>
     </div>
     <canvas id="attendanceChart" height="150"></canvas>
   </div>
@@ -17,7 +24,14 @@
   <div class="card w-1 h-1 dashboard-tile" id="presentDaysCard">
     <div class="icon-title">
       <i class="fas fa-calendar-check icon"></i>
-      <p class="tile-label">Present Days</p>
+      <p
+        class="tile-label"
+        data-en="Present Days"
+        data-si="පැමිණි දින"
+        data-ta="வருகை நாட்கள்"
+      >
+        Present Days
+      </p>
     </div>
     <div class="stats-content">
       <div class="stat-item">
@@ -25,7 +39,13 @@
           <i class="fas fa-calendar-day"></i>
         </div>
         <span class="stat-number" id="presentDaysCount">-</span>
-        <span class="stat-label">This Month</span>
+        <span
+          class="stat-label"
+          data-en="This Month"
+          data-si="මෙම මාසය"
+          data-ta="இந்த மாதம்"
+          >This Month</span
+        >
       </div>
     </div>
   </div>
@@ -34,7 +54,14 @@
   <div class="card w-1 h-1 dashboard-tile" id="attendanceStats">
     <div class="icon-title">
       <i class="fas fa-chart-bar icon"></i>
-      <p class="tile-label">Attendance Stats</p>
+      <p
+        class="tile-label"
+        data-en="Attendance Stats"
+        data-si="පැමිණීම් සංඛ්‍යා"
+        data-ta="வருகை புள்ளிவிவரங்கள்"
+      >
+        Attendance Stats
+      </p>
     </div>
     <div class="stats-content">
       <div class="stat-item">
@@ -42,14 +69,26 @@
           <i class="fas fa-check-circle"></i>
         </div>
         <span class="stat-number" id="totalPresent">-</span>
-        <span class="stat-label">Total Present</span>
+        <span
+          class="stat-label"
+          data-en="Total Present"
+          data-si="මුළු පැමිණි"
+          data-ta="மொத்த வருகை"
+          >Total Present</span
+        >
       </div>
       <div class="stat-item">
         <div class="stat-icon">
           <i class="fas fa-calendar-alt"></i>
         </div>
         <span class="stat-number" id="totalDays">-</span>
-        <span class="stat-label">Total Days</span>
+        <span
+          class="stat-label"
+          data-en="Total Days"
+          data-si="මුළු දින"
+          data-ta="மொத்த நாட்கள்"
+          >Total Days</span
+        >
       </div>
     </div>
   </div>
@@ -58,10 +97,24 @@
   <div class="card w-2 h-1 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-chart-line icon"></i>
-      <p class="tile-label">Monthly Overview</p>
+      <p
+        class="tile-label"
+        data-en="Monthly Overview"
+        data-si="මාසික දසුන"
+        data-ta="மাসிக மதிப்பாய்வு"
+      >
+        Monthly Overview
+      </p>
     </div>
     <div id="monthlyOverview">
-      <p class="text-sm">Monthly attendance data will be displayed here</p>
+      <p
+        class="text-sm"
+        data-en="Monthly attendance data will be displayed here"
+        data-si="මාසික පැමිණීම් ගිණුම් දත්ත මෙහි පෙන්වනු ඇත"
+        data-ta="மாசிக வருகை தரவு இங்கே காட்டப்படும்"
+      >
+        Monthly attendance data will be displayed here
+      </p>
     </div>
   </div>
 </div>
@@ -130,7 +183,18 @@
 
       // --- Attendance Doughnut Chart ---
       const chartData = {
-        labels: ["Present", "Absent"],
+        labels: [
+          (() => {
+            const lang = localStorage.getItem("lang") || "en";
+            const labels = { en: "Present", si: "පැමිණි", ta: "வருகை" };
+            return labels[lang] || "Present";
+          })(),
+          (() => {
+            const lang = localStorage.getItem("lang") || "en";
+            const labels = { en: "Absent", si: "නොපැමිණි", ta: "வருகை இல்லை" };
+            return labels[lang] || "Absent";
+          })(),
+        ],
         datasets: [
           {
             data: [presentDays, totalDays - presentDays],
@@ -153,7 +217,15 @@
             legend: { position: "bottom" },
             title: {
               display: true,
-              text: "Overall Attendance",
+              text: (() => {
+                const lang = localStorage.getItem("lang") || "en";
+                const titles = {
+                  en: "Overall Attendance",
+                  si: "සමස්ත පැමිණීම්",
+                  ta: "ஒட்டுமொத்த வருகை",
+                };
+                return titles[lang] || "Overall Attendance";
+              })(),
               font: { size: 16, weight: "bold" },
               position: "bottom",
             },
@@ -169,26 +241,50 @@
       // --- Monthly Overview ---
       const monthlyOverview = document.getElementById("monthlyOverview");
       if (totalDays > 0) {
+        const lang = localStorage.getItem("lang") || "en";
+        const labels = {
+          rate: {
+            en: "Attendance Rate",
+            si: "පැමිණීම් අනුපාතය",
+            ta: "வருகை விகிதம்",
+          },
+          thisMonth: { en: "This Month", si: "මෙම මාසය", ta: "இந்த மாதம்" },
+          totalDays: { en: "Total Days", si: "මුළු දින", ta: "மொத்த நாட்கள்" },
+        };
         monthlyOverview.innerHTML = `
           <div style="display: flex; justify-content: space-around; align-items: center; height: 100%;">
             <div style="text-align: center;">
               <div style="font-size: 24px; font-weight: bold; color: ${primaryColor};">${percentage}%</div>
-              <div style="font-size: 12px; color: var(--color-text-secondary);">Attendance Rate</div>
+              <div style="font-size: 12px; color: var(--color-text-secondary);">${
+                labels.rate[lang] || "Attendance Rate"
+              }</div>
             </div>
             <div style="text-align: center;">
               <div style="font-size: 24px; font-weight: bold; color: ${primaryColor};">${presentDaysThisMonth}</div>
-              <div style="font-size: 12px; color: var(--color-text-secondary);">This Month</div>
+              <div style="font-size: 12px; color: var(--color-text-secondary);">${
+                labels.thisMonth[lang] || "This Month"
+              }</div>
             </div>
             <div style="text-align: center;">
               <div style="font-size: 24px; font-weight: bold; color: ${primaryColor};">${totalDays}</div>
-              <div style="font-size: 12px; color: var(--color-text-secondary);">Total Days</div>
+              <div style="font-size: 12px; color: var(--color-text-secondary);">${
+                labels.totalDays[lang] || "Total Days"
+              }</div>
             </div>
           </div>
         `;
       } else {
+        const lang = localStorage.getItem("lang") || "en";
+        const msg = {
+          en: "No attendance data available",
+          si: "පැමිණීම් ගිණුම් දත්ත නැත",
+          ta: "வருகை தரவு இல்லை",
+        };
         monthlyOverview.innerHTML = `
           <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
-            <p class="text-sm">No attendance data available</p>
+            <p class="text-sm">${
+              msg[lang] || "No attendance data available"
+            }</p>
           </div>
         `;
       }

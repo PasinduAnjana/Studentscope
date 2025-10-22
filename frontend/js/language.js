@@ -5,12 +5,24 @@ function updateLanguage(lang) {
     .then((translations) => {
       window.currentTranslations = translations;
       applyTranslations();
+      applyDirectLanguageAttributes(lang);
 
       // Reload sidebar with updated language
       const role =
         new URLSearchParams(window.location.search).get("role") || "teacher";
       loadSidebar(role);
     });
+}
+
+function applyDirectLanguageAttributes(lang) {
+  const langCode = lang || localStorage.getItem("lang") || "en";
+  document.querySelectorAll("[data-en][data-si][data-ta]").forEach((el) => {
+    const content =
+      el.getAttribute(`data-${langCode}`) || el.getAttribute("data-en");
+    if (content) {
+      el.textContent = content;
+    }
+  });
 }
 
 function getNestedTranslation(obj, path) {
@@ -37,9 +49,19 @@ function applyTranslations() {
       el.textContent = value;
     }
   });
+
+  // Also apply direct language attributes
+  const lang = localStorage.getItem("lang") || "en";
+  applyDirectLanguageAttributes(lang);
 }
 
 // Helper to support nested keys like "buttons.save"
 function getNestedValue(obj, key) {
   return key.split(".").reduce((o, k) => (o || {})[k], obj);
 }
+
+// Initialize on page load
+document.addEventListener("DOMContentLoaded", () => {
+  const lang = localStorage.getItem("lang") || "en";
+  applyDirectLanguageAttributes(lang);
+});

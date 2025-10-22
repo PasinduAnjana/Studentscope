@@ -57,14 +57,45 @@
   <div class="card dashboard-tile flex-column">
     <div class="icon-title">
       <i class="fas fa-tasks icon"></i>
-      <p class="tile-label">Pending Tasks</p>
+      <p
+        class="tile-label"
+        data-en="Pending Tasks"
+        data-si="අපේක්ෂිත කාර්යයන්"
+        data-ta="நிலுவையில் உள்ள பணிகள்"
+      >
+        Pending Tasks
+      </p>
     </div>
     <div>
       <ul class="tile-list">
-        <li>Upload results</li>
-        <li>Mark attendance</li>
-        <li>Assign Student Subjects</li>
-        <li>Enter Marks</li>
+        <li
+          data-en="Upload results"
+          data-si="ප්‍රතිඵල උඩුගත කරන්න"
+          data-ta="முடிவுகளை பதிவேற்று"
+        >
+          Upload results
+        </li>
+        <li
+          data-en="Mark attendance"
+          data-si="පැමිණීම සලකුණු කරන්න"
+          data-ta="வருகை குறி"
+        >
+          Mark attendance
+        </li>
+        <li
+          data-en="Assign Student Subjects"
+          data-si="ශිෂ්‍යයින්ට විෂයයන් පවරන්න"
+          data-ta="மாணவர்களுக்கு பாடங்களை ஒதுக்கு"
+        >
+          Assign Student Subjects
+        </li>
+        <li
+          data-en="Enter Marks"
+          data-si="ලකුණු ඇතුල් කරන්න"
+          data-ta="மதிப்பெண்கள் உள்ளிடுக"
+        >
+          Enter Marks
+        </li>
       </ul>
     </div>
   </div>
@@ -125,9 +156,25 @@
       // Update tile label to show which day's timetable is being displayed
       const tileLabel = document.querySelector("#todays-timetable .tile-label");
       if (tileLabel) {
-        tileLabel.textContent = isWeekend
-          ? "Monday's Timetable"
-          : "Today's Timetable";
+        if (isWeekend) {
+          tileLabel.setAttribute("data-en", "Monday's Timetable");
+          tileLabel.setAttribute("data-si", "සඳුදා කාලසටහන");
+          tileLabel.setAttribute("data-ta", "திங்கட்கிழமை நேர அட்டவணை");
+          tileLabel.textContent = isWeekend
+            ? "Monday's Timetable"
+            : "Today's Timetable";
+        } else {
+          tileLabel.setAttribute("data-en", "Today's Timetable");
+          tileLabel.setAttribute("data-si", "අද කාලසටහන");
+          tileLabel.setAttribute("data-ta", "இன்றைய நேர அட்டவணை");
+          tileLabel.textContent = isWeekend
+            ? "Monday's Timetable"
+            : "Today's Timetable";
+        }
+        // Apply current language
+        if (typeof applyDirectLanguageAttributes === "function") {
+          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+        }
       }
 
       // Helper to parse "HH:MM" to minutes since midnight for comparison
@@ -171,8 +218,16 @@
       if (isWeekend) {
         // On weekends, don't show any current class
         document.getElementById("current-class-name").textContent = "-";
-        document.getElementById("current-subject-name").textContent = "Weekend";
+        const subjectElement = document.getElementById("current-subject-name");
+        subjectElement.setAttribute("data-en", "Weekend");
+        subjectElement.setAttribute("data-si", "සතියාන්ද");
+        subjectElement.setAttribute("data-ta", "வார இறுதி");
+        subjectElement.textContent = "Weekend";
         document.getElementById("current-time-range").textContent = "";
+        // Apply current language
+        if (typeof applyDirectLanguageAttributes === "function") {
+          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+        }
       } else if (activeEntry) {
         document.getElementById(
           "current-class-name"
@@ -185,9 +240,16 @@
       } else {
         // If no active slot, clear or set default text
         document.getElementById("current-class-name").textContent = "-";
-        document.getElementById("current-subject-name").textContent =
-          "No class now";
+        const subjectElement = document.getElementById("current-subject-name");
+        subjectElement.setAttribute("data-en", "No class now");
+        subjectElement.setAttribute("data-si", "දැන් පන්තියක් නැත");
+        subjectElement.setAttribute("data-ta", "இப்போது வகுப்பு இல்லை");
+        subjectElement.textContent = "No class now";
         document.getElementById("current-time-range").textContent = "";
+        // Apply current language
+        if (typeof applyDirectLanguageAttributes === "function") {
+          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+        }
       }
     } catch (err) {
       console.error("Error loading timetable:", err);
@@ -290,7 +352,10 @@
           },
         };
         const chartData = {
-          labels: ["Present", "Absent"],
+          labels: [
+            { en: "Present", si: "පැමිණි", ta: "வருகை" },
+            { en: "Absent", si: "නොපැමිණි", ta: "இல்லை" },
+          ],
           datasets: [
             {
               data: [presentCount, absentCount],
@@ -322,6 +387,16 @@
           },
           plugins: [centerTextPlugin],
         });
+
+        // Apply language to chart labels
+        const currentLang = localStorage.getItem("lang") || "en";
+        const chart = Chart.getChart("dashboardAttendanceChart");
+        if (chart) {
+          chart.data.labels = chartData.labels.map((label) =>
+            typeof label === "object" ? label[currentLang] || label.en : label
+          );
+          chart.update();
+        }
       }, 100);
     }
   }
@@ -336,8 +411,17 @@
       const announcementsList = document.getElementById("announcements-list");
 
       if (!announcements || announcements.length === 0) {
-        announcementsList.innerHTML =
-          '<li class="text-sm">No announcements</li>';
+        const noAnnouncementsLi = document.createElement("li");
+        noAnnouncementsLi.className = "text-sm";
+        noAnnouncementsLi.setAttribute("data-en", "No announcements");
+        noAnnouncementsLi.setAttribute("data-si", "නිවේදන නැත");
+        noAnnouncementsLi.setAttribute("data-ta", "அறிவிப்புகள் இல்லை");
+        noAnnouncementsLi.textContent = "No announcements";
+        announcementsList.appendChild(noAnnouncementsLi);
+        // Apply current language
+        if (typeof applyDirectLanguageAttributes === "function") {
+          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+        }
         return;
       }
 
@@ -356,17 +440,34 @@
 
       // If there are more than 4 announcements, add a "View all" item
       if (announcements.length > 4) {
-        announcementsList.innerHTML += `
-          <li onclick="window.location.href='layout.html?role=teacher&page=announcements'" style="cursor: pointer; border-top: 1px solid var(--color-border); margin-top: 8px; padding-top: 8px;">
-            <span class="subject-name text-sm">View all announcements...</span>
-          </li>
-        `;
+        const viewAllLi = document.createElement("li");
+        viewAllLi.setAttribute(
+          "onclick",
+          "window.location.href='layout.html?role=teacher&page=announcements'"
+        );
+        viewAllLi.style.cssText =
+          "cursor: pointer; border-top: 1px solid var(--color-border); margin-top: 8px; padding-top: 8px;";
+        viewAllLi.innerHTML = `<span class="subject-name text-sm" data-en="View all announcements..." data-si="සියලුම නිවේදන බලන්න..." data-ta="அனைத்து அறிவிப்புகளையும் காண்க...">View all announcements...</span>`;
+        announcementsList.appendChild(viewAllLi);
+        // Apply current language
+        if (typeof applyDirectLanguageAttributes === "function") {
+          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+        }
       }
     } catch (err) {
       console.error("Error loading announcements:", err);
       const announcementsList = document.getElementById("announcements-list");
-      announcementsList.innerHTML =
-        '<li class="text-sm">Error loading announcements</li>';
+      const errorLi = document.createElement("li");
+      errorLi.className = "text-sm";
+      errorLi.setAttribute("data-en", "Error loading announcements");
+      errorLi.setAttribute("data-si", "නිවේදන පූරණය කිරීමේ දෝෂයක්");
+      errorLi.setAttribute("data-ta", "அறிவிப்புகளை ஏற்றுவதில் பிழை");
+      errorLi.textContent = "Error loading announcements";
+      announcementsList.appendChild(errorLi);
+      // Apply current language
+      if (typeof applyDirectLanguageAttributes === "function") {
+        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+      }
     }
   }
 

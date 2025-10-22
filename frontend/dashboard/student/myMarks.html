@@ -8,7 +8,14 @@
   <div class="card w-1 h-1 dashboard-tile" id="performanceSummary">
     <div class="icon-title">
       <i class="fas fa-trophy icon"></i>
-      <p class="tile-label">Overall Performance</p>
+      <p
+        class="tile-label"
+        data-en="Overall Performance"
+        data-si="සමස්ත කාර්ය සාධනය"
+        data-ta="ஒட்டுமொத்த செயல்திறன்"
+      >
+        Overall Performance
+      </p>
     </div>
     <canvas id="performanceChart" height="120"></canvas>
   </div>
@@ -17,7 +24,14 @@
   <div class="card w-1 h-1 dashboard-tile" id="classRankCard">
     <div class="icon-title">
       <i class="fas fa-trophy icon"></i>
-      <p class="tile-label">Class Rank</p>
+      <p
+        class="tile-label"
+        data-en="Class Rank"
+        data-si="පන්තිය තරඹ"
+        data-ta="வகுப்பு தரம்"
+      >
+        Class Rank
+      </p>
     </div>
     <div class="stats-content">
       <div class="stat-item">
@@ -25,7 +39,13 @@
           <i class="fas fa-hashtag"></i>
         </div>
         <span class="stat-number" id="classRank">5th</span>
-        <span class="stat-label">Out of 35</span>
+        <span
+          class="stat-label"
+          data-en="Out of 35"
+          data-si="35 න් එක"
+          data-ta="35 இல் அதிகமாக"
+          >Out of 35</span
+        >
       </div>
     </div>
   </div>
@@ -34,7 +54,14 @@
   <div class="card w-1 h-1 dashboard-tile" id="testStats">
     <div class="icon-title">
       <i class="fas fa-clipboard-check icon"></i>
-      <p class="tile-label">Test Statistics</p>
+      <p
+        class="tile-label"
+        data-en="Test Statistics"
+        data-si="පරීක්ෂණ සංඛ්‍යා"
+        data-ta="தேர்வு புள்ளிவிவரங்கள்"
+      >
+        Test Statistics
+      </p>
     </div>
     <div class="stats-content">
       <div class="stat-item">
@@ -42,14 +69,26 @@
           <i class="fas fa-file-alt"></i>
         </div>
         <span class="stat-number" id="totalTests">24</span>
-        <span class="stat-label">Total Tests</span>
+        <span
+          class="stat-label"
+          data-en="Total Tests"
+          data-si="මුළු පරීක්ෂණ"
+          data-ta="மொத்த சோதனைகள்"
+          >Total Tests</span
+        >
       </div>
       <div class="stat-item">
         <div class="stat-icon">
           <i class="fas fa-award"></i>
         </div>
         <span class="stat-number" id="passedTests">22</span>
-        <span class="stat-label">Passed</span>
+        <span
+          class="stat-label"
+          data-en="Passed"
+          data-si="සමත්"
+          data-ta="தேர்ச்சி"
+          >Passed</span
+        >
       </div>
     </div>
   </div>
@@ -58,7 +97,14 @@
   <div class="card w-1 h-1 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-chart-bar icon"></i>
-      <p class="tile-label">Term Test Performance</p>
+      <p
+        class="tile-label"
+        data-en="Term Test Performance"
+        data-si="පද තේරණ ක්‍රියාකාරිත්ව"
+        data-ta="கால சோதனை செயல்திறன்"
+      >
+        Term Test Performance
+      </p>
     </div>
     <canvas id="termTestChart" height="120"></canvas>
   </div>
@@ -67,7 +113,14 @@
   <div class="card w-1 h-1 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-chart-line icon"></i>
-      <p class="tile-label">Monthly Test Trends</p>
+      <p
+        class="tile-label"
+        data-en="Monthly Test Trends"
+        data-si="මාසික පරීක්ෂණ ප්‍රවණතා"
+        data-ta="மாসிक சோதனை போக்குகள்"
+      >
+        Monthly Test Trends
+      </p>
     </div>
     <canvas id="monthlyTrendsChart" height="120"></canvas>
   </div>
@@ -76,7 +129,14 @@
   <div class="card w-1 h-1 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-book icon"></i>
-      <p class="tile-label">Subject-wise Performance</p>
+      <p
+        class="tile-label"
+        data-en="Subject-wise Performance"
+        data-si="විෂයට අනුව කාර්ය සාධනය"
+        data-ta="பாட-வாரியான செயல்திறன்"
+      >
+        Subject-wise Performance
+      </p>
     </div>
     <div id="subjectPerformance">
       <div class="subject-list">
@@ -130,7 +190,14 @@
   <div class="card w-1 h-1 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-history icon"></i>
-      <p class="tile-label">Recent Test Results</p>
+      <p
+        class="tile-label"
+        data-en="Recent Test Results"
+        data-si="මෑත සෙයුම් ප්‍රතිඵල"
+        data-ta="சமீபத்திய சோதனை முடிவுகள்"
+      >
+        Recent Test Results
+      </p>
     </div>
     <div id="recentTests">
       <div class="test-results-list">
@@ -390,7 +457,15 @@
           },
           title: {
             display: true,
-            text: "Grade Distribution",
+            text: (() => {
+              const lang = localStorage.getItem("lang") || "en";
+              const titles = {
+                en: "Grade Distribution",
+                si: "ශ්‍රේණි බෙදාම",
+                ta: "தர விநியோகம்",
+              };
+              return titles[lang] || "Grade Distribution";
+            })(),
             font: { size: 14, weight: "bold" },
             position: "bottom",
           },
@@ -443,7 +518,15 @@
           legend: { position: "top" },
           title: {
             display: true,
-            text: "Core Subject Performance Trends",
+            text: (() => {
+              const lang = localStorage.getItem("lang") || "en";
+              const titles = {
+                en: "Core Subject Performance Trends",
+                si: "ප්‍රධාන විෂය කර්ම ප්‍රවණතා",
+                ta: "முக்கிய பாட செயல்திறன் போக்குகள்",
+              };
+              return titles[lang] || "Core Subject Performance Trends";
+            })(),
             font: { size: 14, weight: "bold" },
           },
         },
@@ -467,7 +550,15 @@
       labels: dummyData.monthlyTests.labels,
       datasets: [
         {
-          label: "Average Score",
+          label: (() => {
+            const lang = localStorage.getItem("lang") || "en";
+            const labels = {
+              en: "Average Score",
+              si: "සාමාන්‍ය ලකුණු",
+              ta: "சராசரி மதிப்பெண்",
+            };
+            return labels[lang] || "Average Score";
+          })(),
           data: dummyData.monthlyTests.average,
           borderColor: accentColor,
           backgroundColor: accentLight,
@@ -491,7 +582,15 @@
           legend: { display: false },
           title: {
             display: true,
-            text: "Monthly Performance Trend",
+            text: (() => {
+              const lang = localStorage.getItem("lang") || "en";
+              const titles = {
+                en: "Monthly Performance Trend",
+                si: "මාසික කාර්ය සාධනය ප්‍රවණතා",
+                ta: "மாசிக செயல்திறன் போக்கு",
+              };
+              return titles[lang] || "Monthly Performance Trend";
+            })(),
             font: { size: 14, weight: "bold" },
           },
         },

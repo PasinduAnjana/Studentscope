@@ -139,6 +139,9 @@
           id="student-search"
           class="search-input"
           placeholder="Search students..."
+          data-en="Search students..."
+          data-si="ශිෂ්‍යයින් සොයන්න..."
+          data-ta="மாணவர்களைத் தேடு..."
         />
         <span class="search-icon"><i class="fas fa-search"></i></span>
       </div>
@@ -149,10 +152,22 @@
       </div>
       <div style="display: flex; gap: 10px; margin-left: auto">
         <button id="export-pdf-btn" class="btn btn-primary">
-          <i class="fas fa-file-pdf"></i> Export PDF
+          <i class="fas fa-file-pdf"></i>
+          <span
+            data-en="Export PDF"
+            data-si="PDF අපනයනය කරන්න"
+            data-ta="PDF ஏற்றுமதி"
+            >Export PDF</span
+          >
         </button>
         <button id="export-btn" class="btn btn-primary">
-          <i class="fas fa-download"></i> Export CSV
+          <i class="fas fa-download"></i>
+          <span
+            data-en="Export CSV"
+            data-si="CSV අපනයනය කරන්න"
+            data-ta="CSV ஏற்றுமதி"
+            >Export CSV</span
+          >
         </button>
       </div>
     </div>
@@ -160,15 +175,39 @@
       <table id="student-table">
         <thead>
           <tr>
-            <th data="table.name">Name</th>
-            <th>Index No</th>
-            <th>Grade</th>
-            <th>Birthday</th>
-            <th>Address</th>
-            <th>Gender</th>
-            <th>Nationality</th>
-            <th>Parent Name</th>
-            <th>Parent Address</th>
+            <th data-en="Name" data-si="නම" data-ta="பெயர்">Name</th>
+            <th
+              data-en="Index No"
+              data-si="දෙපත් අංකය"
+              data-ta="குறியீட்டு எண்"
+            >
+              Index No
+            </th>
+            <th data-en="Grade" data-si="ශ්‍රේණිය" data-ta="தரம்">Grade</th>
+            <th data-en="Birthday" data-si="උපන් දිනය" data-ta="பிறந்த தேதி">
+              Birthday
+            </th>
+            <th data-en="Address" data-si="ලිපිනය" data-ta="முகவரி">Address</th>
+            <th data-en="Gender" data-si="ලිංගභේදය" data-ta="பாலினம்">
+              Gender
+            </th>
+            <th data-en="Nationality" data-si="ජාතිය" data-ta="தேசியம்">
+              Nationality
+            </th>
+            <th
+              data-en="Parent Name"
+              data-si="දෙමවුපියන්ගේ නම"
+              data-ta="பெற்றோர் பெயர்"
+            >
+              Parent Name
+            </th>
+            <th
+              data-en="Parent Address"
+              data-si="දෙමවුපියන්ගේ ලිපිනය"
+              data-ta="பெற்றோர் முகவரி"
+            >
+              Parent Address
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -183,62 +222,113 @@
 <div id="export-modal" class="modal" style="display: none">
   <div class="modal-content">
     <div class="modal-header">
-      <h3>Export Students to CSV</h3>
+      <h3
+        data-en="Export Students to CSV"
+        data-si="ශිෂ්‍යයින් CSV වෙත අපනයනය කරන්න"
+        data-ta="மாணவர்களை CSV-க்கு ஏற்றுமதி செய்ய"
+      >
+        Export Students to CSV
+      </h3>
       <span class="modal-close">&times;</span>
     </div>
     <div class="modal-body">
-      <p>Select the fields you want to include in the CSV export:</p>
+      <p
+        data-en="Select the fields you want to include in the CSV export:"
+        data-si="CSV අපනයනයේ ඇතුළත් කිරීමට අවශ්‍ය ක්ෂේත්‍ර තෝරන්න:"
+        data-ta="CSV ஏற்றுமதியில் சேர்க்க விரும்பும் புலங்களைத் தேர்ந்தெடுக்கவும்:"
+      >
+        Select the fields you want to include in the CSV export:
+      </p>
       <div class="export-fields">
         <label class="checkbox-label">
           <input type="checkbox" id="export-name" checked />
           <span class="checkmark"></span>
-          Name
+          <span data-en="Name" data-si="නම" data-ta="பெயர்">Name</span>
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="export-index" checked />
           <span class="checkmark"></span>
-          Index Number
+          <span
+            data-en="Index Number"
+            data-si="දෙපත් අංකය"
+            data-ta="குறியீட்டு எண்"
+            >Index Number</span
+          >
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="export-grade" checked />
           <span class="checkmark"></span>
-          Grade
+          <span data-en="Grade" data-si="ශ්‍රේණිය" data-ta="தரம்">Grade</span>
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="export-birthday" />
           <span class="checkmark"></span>
-          Birthday
+          <span data-en="Birthday" data-si="උපන් දිනය" data-ta="பிறந்த தேதி"
+            >Birthday</span
+          >
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="export-address" />
           <span class="checkmark"></span>
-          Address
+          <span data-en="Address" data-si="ලිපිනය" data-ta="முகவரி"
+            >Address</span
+          >
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="export-gender" />
           <span class="checkmark"></span>
-          Gender
+          <span data-en="Gender" data-si="ලිංගභේදය" data-ta="பாலினம்"
+            >Gender</span
+          >
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="export-nationality" />
           <span class="checkmark"></span>
-          Nationality
+          <span data-en="Nationality" data-si="ජාතිය" data-ta="தேசியம்"
+            >Nationality</span
+          >
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="export-parent-name" />
           <span class="checkmark"></span>
-          Parent Name
+          <span
+            data-en="Parent Name"
+            data-si="දෙමවුපියන්ගේ නම"
+            data-ta="பெற்றோர் பெயர்"
+            >Parent Name</span
+          >
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="export-parent-address" />
           <span class="checkmark"></span>
-          Parent Address
+          <span
+            data-en="Parent Address"
+            data-si="දෙමවුපියන්ගේ ලිපිනය"
+            data-ta="பெற்றோர் முகவரி"
+            >Parent Address</span
+          >
         </label>
       </div>
     </div>
     <div class="modal-footer">
-      <button id="export-cancel" class="btn btn-secondary">Cancel</button>
-      <button id="export-confirm" class="btn btn-primary">Export</button>
+      <button
+        id="export-cancel"
+        class="btn btn-secondary"
+        data-en="Cancel"
+        data-si="අවලංගු කරන්න"
+        data-ta="ரத்து செய்ய"
+      >
+        Cancel
+      </button>
+      <button
+        id="export-confirm"
+        class="btn btn-primary"
+        data-en="Export"
+        data-si="අපනයනය කරන්න"
+        data-ta="ஏற்றுமதி"
+      >
+        Export
+      </button>
     </div>
   </div>
 </div>
@@ -247,30 +337,58 @@
 <div id="export-pdf-modal" class="modal" style="display: none">
   <div class="modal-content">
     <div class="modal-header">
-      <h3>Export Students to PDF</h3>
+      <h3
+        data-en="Export Students to PDF"
+        data-si="ශිෂ්‍යයින් PDF වෙත අපනයනය කරන්න"
+        data-ta="மாணவர்களை PDF-க்கு ஏற்றுமதி செய்ய"
+      >
+        Export Students to PDF
+      </h3>
       <span class="modal-close">&times;</span>
     </div>
     <div class="modal-body">
       <div class="input-group" style="margin-bottom: 15px">
-        <label for="pdf-heading">Heading:</label>
+        <label
+          for="pdf-heading"
+          data-en="Heading:"
+          data-si="ශීර්ෂය:"
+          data-ta="தலைப்பு:"
+          >Heading:</label
+        >
         <input
           type="text"
           id="pdf-heading"
           class="input"
           placeholder="Enter heading..."
+          data-en="Enter heading..."
+          data-si="ශීර්ෂය ඇතුල් කරන්න..."
+          data-ta="தலைப்பை உள்ளீடு செய்ய..."
         />
       </div>
       <div class="input-group" style="margin-bottom: 15px">
-        <label for="pdf-subheading">Subheading:</label>
+        <label
+          for="pdf-subheading"
+          data-en="Subheading:"
+          data-si="උපශීර්ෂය:"
+          data-ta="துணைத் தலைப்பு:"
+          >Subheading:</label
+        >
         <input
           type="text"
           id="pdf-subheading"
           class="input"
           placeholder="Enter subheading..."
+          data-en="Enter subheading..."
+          data-si="උපශීර්ෂය ඇතුල් කරන්න..."
+          data-ta="துணைத் தலைப்பை உள்ளீடு செய்ய..."
         />
       </div>
       <div class="input-group" style="margin-bottom: 15px">
-        <label for="pdf-empty-columns"
+        <label
+          for="pdf-empty-columns"
+          data-en="Number of Empty Columns (for signatures, etc.):"
+          data-si="හිස් තීරු ගණන (අත්සන් සඳහා, ආදිය.):"
+          data-ta="காலியான நெடுவரிசைகளின் எண்ணிக்கை (கையொப்பங்கள் போன்றவை):"
           >Number of Empty Columns (for signatures, etc.):</label
         >
         <input
@@ -283,7 +401,11 @@
         />
       </div>
       <div class="input-group" style="margin-bottom: 15px">
-        <label for="pdf-empty-titles"
+        <label
+          for="pdf-empty-titles"
+          data-en="Empty Column Titles (comma-separated, e.g., Signature, Date, Notes):"
+          data-si="හිස් තීරු මාතෘකා (කොමාවෙන් වෙන්කර හඳුනා ඇත, උදා., අත්සන, දිනය, සටහන්):"
+          data-ta="காலியான நெடுவரிசை தலைப்புகள் (கமா-பிரிக்கப்பட்ட, எ.கா., கையொப்பம், தேதி, குறிப்புகள்):"
           >Empty Column Titles (comma-separated, e.g., Signature, Date,
           Notes):</label
         >
@@ -292,60 +414,106 @@
           id="pdf-empty-titles"
           class="input"
           placeholder="Signature, Date, Notes"
+          data-en="Signature, Date, Notes"
+          data-si="අත්සන, දිනය, සටහන්"
+          data-ta="கையொப்பம், தேதி, குறிப்புகள்"
         />
       </div>
-      <p>Select the fields you want to include in the PDF export:</p>
+      <p
+        data-en="Select the fields you want to include in the PDF export:"
+        data-si="PDF අපනයනයේ ඇතුළත් කිරීමට අවශ්‍ය ක්ෂේත්‍ර තෝරන්න:"
+        data-ta="PDF ஏற்றுமதியில் சேர்க்க விரும்பும் புலங்களைத் தேர்ந்தெடுக்கவும்:"
+      >
+        Select the fields you want to include in the PDF export:
+      </p>
       <div class="export-fields">
         <label class="checkbox-label">
           <input type="checkbox" id="pdf-export-name" checked />
           <span class="checkmark"></span>
-          Name
+          <span data-en="Name" data-si="නම" data-ta="பெயர்">Name</span>
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="pdf-export-index" checked />
           <span class="checkmark"></span>
-          Index Number
+          <span
+            data-en="Index Number"
+            data-si="දෙපත් අංකය"
+            data-ta="குறியீட்டு எண்"
+            >Index Number</span
+          >
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="pdf-export-grade" checked />
           <span class="checkmark"></span>
-          Grade
+          <span data-en="Grade" data-si="ශ්‍රේණිය" data-ta="தரம்">Grade</span>
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="pdf-export-birthday" />
           <span class="checkmark"></span>
-          Birthday
+          <span data-en="Birthday" data-si="උපන් දිනය" data-ta="பிறந்த தேதி"
+            >Birthday</span
+          >
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="pdf-export-address" />
           <span class="checkmark"></span>
-          Address
+          <span data-en="Address" data-si="ලිපිනය" data-ta="முகவரி"
+            >Address</span
+          >
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="pdf-export-gender" />
           <span class="checkmark"></span>
-          Gender
+          <span data-en="Gender" data-si="ලිංගභේදය" data-ta="பாலினம்"
+            >Gender</span
+          >
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="pdf-export-nationality" />
           <span class="checkmark"></span>
-          Nationality
+          <span data-en="Nationality" data-si="ජාතිය" data-ta="தேசியம்"
+            >Nationality</span
+          >
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="pdf-export-parent-name" />
           <span class="checkmark"></span>
-          Parent Name
+          <span
+            data-en="Parent Name"
+            data-si="දෙමවුපියන්ගේ නම"
+            data-ta="பெற்றோர் பெயர்"
+            >Parent Name</span
+          >
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="pdf-export-parent-address" />
           <span class="checkmark"></span>
-          Parent Address
+          <span
+            data-en="Parent Address"
+            data-si="දෙමවුපියන්ගේ ලිපිනය"
+            data-ta="பெற்றோர் முகவரி"
+            >Parent Address</span
+          >
         </label>
       </div>
     </div>
     <div class="modal-footer">
-      <button id="export-pdf-cancel" class="btn btn-secondary">Cancel</button>
-      <button id="export-pdf-confirm" class="btn btn-primary">
+      <button
+        id="export-pdf-cancel"
+        class="btn btn-secondary"
+        data-en="Cancel"
+        data-si="අවලංගු කරන්න"
+        data-ta="ரத்து செய்ய"
+      >
+        Cancel
+      </button>
+      <button
+        id="export-pdf-confirm"
+        class="btn btn-primary"
+        data-en="Export PDF"
+        data-si="PDF අපනයනය කරන්න"
+        data-ta="PDF ஏற்றுமதி"
+      >
         Export PDF
       </button>
     </div>
@@ -360,7 +528,20 @@
     const tbody = document.querySelector("#student-table tbody");
     tbody.innerHTML = "";
     if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="9" class="text-error">No students found</td></tr>`;
+      const noStudentsRow = document.createElement("tr");
+      const noStudentsCell = document.createElement("td");
+      noStudentsCell.colSpan = 9;
+      noStudentsCell.className = "text-error";
+      noStudentsCell.setAttribute("data-en", "No students found");
+      noStudentsCell.setAttribute("data-si", "ශිෂ්‍යයින් සොයා ගත නොහැකි විය");
+      noStudentsCell.setAttribute("data-ta", "மாணவர்கள் கிடைக்கவில்லை");
+      noStudentsCell.textContent = "No students found";
+      noStudentsRow.appendChild(noStudentsCell);
+      tbody.appendChild(noStudentsRow);
+      // Apply current language
+      if (typeof applyDirectLanguageAttributes === "function") {
+        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+      }
       return;
     }
     function formatDate(dateStr) {
@@ -426,7 +607,20 @@
       .catch((err) => {
         console.error(err);
         const tbody = document.querySelector("#student-table tbody");
-        tbody.innerHTML = `<tr><td colspan="3" class="text-error">Error loading students</td></tr>`;
+        const errorRow = document.createElement("tr");
+        const errorCell = document.createElement("td");
+        errorCell.colSpan = 9;
+        errorCell.className = "text-error";
+        errorCell.setAttribute("data-en", "Error loading students");
+        errorCell.setAttribute("data-si", "ශිෂ්‍යයින් පූරණය කිරීමේ දෝෂයක්");
+        errorCell.setAttribute("data-ta", "மாணவர்களை ஏற்றுவதில் பிழை");
+        errorCell.textContent = "Error loading students";
+        errorRow.appendChild(errorCell);
+        tbody.appendChild(errorRow);
+        // Apply current language
+        if (typeof applyDirectLanguageAttributes === "function") {
+          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+        }
       });
   }
 
@@ -470,7 +664,10 @@
     confirmBtn.addEventListener("click", () => {
       const selectedFields = getSelectedFields();
       if (selectedFields.length === 0) {
-        alert("Please select at least one field to export.");
+        const alertMessage =
+          getNestedValue(window.currentTranslations, "alerts.selectFields") ||
+          "Please select at least one field to export.";
+        alert(alertMessage);
         return;
       }
 
@@ -521,7 +718,10 @@
         .filter((t) => t);
       const selectedFields = getSelectedPDFFields();
       if (selectedFields.length === 0) {
-        alert("Please select at least one field to export.");
+        const alertMessage =
+          getNestedValue(window.currentTranslations, "alerts.selectFields") ||
+          "Please select at least one field to export.";
+        alert(alertMessage);
         return;
       }
       const filteredStudents = getFilteredStudents();
@@ -601,7 +801,10 @@
   // Export to CSV
   function exportToCSV(students, fields) {
     if (students.length === 0) {
-      alert("No students to export.");
+      const alertMessage =
+        getNestedValue(window.currentTranslations, "alerts.noStudents") ||
+        "No students to export.";
+      alert(alertMessage);
       return;
     }
 
@@ -653,7 +856,10 @@
     emptyTitles
   ) {
     if (students.length === 0) {
-      alert("No students to export.");
+      const alertMessage =
+        getNestedValue(window.currentTranslations, "alerts.noStudents") ||
+        "No students to export.";
+      alert(alertMessage);
       return;
     }
 
@@ -734,18 +940,57 @@
 
   // Get display name for field
   function getFieldDisplayName(field) {
+    const currentLang = localStorage.getItem("lang") || "en";
     const fieldNames = {
-      name: "Name",
-      index: "Index Number",
-      grade: "Grade",
-      birthday: "Birthday",
-      address: "Address",
-      gender: "Gender",
-      nationality: "Nationality",
-      "parent-name": "Parent Name",
-      "parent-address": "Parent Address",
+      name: {
+        en: "Name",
+        si: "නම",
+        ta: "பெயர்",
+      },
+      index: {
+        en: "Index Number",
+        si: "දෙපත් අංකය",
+        ta: "குறியீட்டு எண்",
+      },
+      grade: {
+        en: "Grade",
+        si: "ශ්‍රේණිය",
+        ta: "தரம்",
+      },
+      birthday: {
+        en: "Birthday",
+        si: "උපන් දිනය",
+        ta: "பிறந்த தேதி",
+      },
+      address: {
+        en: "Address",
+        si: "ලිපිනය",
+        ta: "முகவரி",
+      },
+      gender: {
+        en: "Gender",
+        si: "ලිංගභේදය",
+        ta: "பாலினம்",
+      },
+      nationality: {
+        en: "Nationality",
+        si: "ජාතිය",
+        ta: "தேசியம்",
+      },
+      "parent-name": {
+        en: "Parent Name",
+        si: "දෙමවුපියන්ගේ නම",
+        ta: "பெற்றோர் பெயர்",
+      },
+      "parent-address": {
+        en: "Parent Address",
+        si: "දෙමවුපියන්ගේ ලිපිනය",
+        ta: "பெற்றோர் முகவரி",
+      },
     };
-    return fieldNames[field] || field;
+    return fieldNames[field]
+      ? fieldNames[field][currentLang] || fieldNames[field].en
+      : field;
   }
 
   // Get field value from student object

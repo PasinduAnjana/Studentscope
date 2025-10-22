@@ -1,13 +1,23 @@
-<h2 class="heading"><i class="fas fa-user-check"></i> Mark Attendance</h2>
+<h2 class="heading">
+  <i class="fas fa-user-check"></i>
+  <span
+    data-en="Mark Attendance"
+    data-si="පැමිණීම සලකුණු කරන්න"
+    data-ta="வருகை குறி"
+    >Mark Attendance</span
+  >
+</h2>
 
 <div class="attendance-container" id="attendanceContainer"></div>
 
 <div class="actions" id="paginationControls">
   <button class="btn" id="backBtn" onclick="prevPage()" disabled>
-    <i class="fas fa-arrow-left"></i> Back
+    <i class="fas fa-arrow-left"></i>
+    <span data-en="Back" data-si="ආපසු" data-ta="பின்செல்">Back</span>
   </button>
   <button class="btn" id="nextBtn" onclick="nextPage()">
-    Next <i class="fas fa-arrow-right"></i>
+    <span data-en="Next" data-si="ඊළඟ" data-ta="அடுத்து">Next</span>
+    <i class="fas fa-arrow-right"></i>
   </button>
 </div>
 
@@ -93,7 +103,17 @@
 
   function renderMessage(message) {
     const container = document.getElementById("attendanceContainer");
-    container.innerHTML = `<div class="card">${message}</div>`;
+    const messageDiv = document.createElement("div");
+    messageDiv.className = "card";
+    messageDiv.setAttribute("data-en", message);
+    messageDiv.setAttribute("data-si", message);
+    messageDiv.setAttribute("data-ta", message);
+    messageDiv.textContent = message;
+    container.appendChild(messageDiv);
+    // Apply current language
+    if (typeof applyDirectLanguageAttributes === "function") {
+      applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+    }
     // Disable Next if there are no students
     const nextBtn = document.getElementById("nextBtn");
     nextBtn.disabled = true;
@@ -132,7 +152,8 @@
 
       const presentBtn = document.createElement("button");
       presentBtn.classList.add("btn", "btn-present");
-      presentBtn.innerHTML = '<i class="fas fa-check"></i> Present';
+      presentBtn.innerHTML =
+        '<i class="fas fa-check"></i> <span data-en="Present" data-si="පැමිණි" data-ta="வருகை">Present</span>';
       presentBtn.onclick = () => {
         student.status = "present";
         renderStudents(); // refresh row
@@ -140,7 +161,8 @@
 
       const absentBtn = document.createElement("button");
       absentBtn.classList.add("btn", "btn-absent");
-      absentBtn.innerHTML = '<i class="fas fa-times"></i> Absent';
+      absentBtn.innerHTML =
+        '<i class="fas fa-times"></i> <span data-en="Absent" data-si="නොපැමිණි" data-ta="இல்லை">Absent</span>';
       absentBtn.onclick = () => {
         student.status = "absent";
         renderStudents(); // refresh row
@@ -160,14 +182,27 @@
   function updatePagination() {
     const backBtn = document.getElementById("backBtn");
     const nextBtn = document.getElementById("nextBtn");
+    const currentLang = localStorage.getItem("lang") || "en";
 
     backBtn.disabled = currentPage === 1;
 
     if (currentPage * studentsPerPage >= students.length) {
-      nextBtn.innerHTML = '<i class="fas fa-upload"></i> Submit';
+      const submitText =
+        {
+          en: "Submit",
+          si: "ඇතුල් කරන්න",
+          ta: "சமர்ப்பிக்க",
+        }[currentLang] || "Submit";
+      nextBtn.innerHTML = `<i class="fas fa-upload"></i> <span data-en="Submit" data-si="ඇතුල් කරන්න" data-ta="சமர்ப்பிக்க">${submitText}</span>`;
       nextBtn.onclick = submitAttendance;
     } else {
-      nextBtn.innerHTML = 'Next <i class="fas fa-arrow-right"></i>';
+      const nextText =
+        {
+          en: "Next",
+          si: "ඊළඟ",
+          ta: "அடுத்து",
+        }[currentLang] || "Next";
+      nextBtn.innerHTML = `<span data-en="Next" data-si="ඊළඟ" data-ta="அடுத்து">${nextText}</span> <i class="fas fa-arrow-right"></i>`;
       nextBtn.onclick = nextPage;
     }
   }
@@ -218,10 +253,32 @@
     }));
 
     // Show confirmation toast before submitting
-    toast("Are you sure you want to submit attendance?", "fa-solid fa-upload", {
+    const currentLang = localStorage.getItem("lang") || "en";
+    const confirmMessage =
+      {
+        en: "Are you sure you want to submit attendance?",
+        si: "ඔබට පැමිණීම ඇතුල් කිරීමට අවශ්‍ය බව විශ්වාසද?",
+        ta: "வருகையை சமர்ப்பிக்க விரும்புகிறீர்களா?",
+      }[currentLang] || "Are you sure you want to submit attendance?";
+
+    const confirmText =
+      {
+        en: "Submit",
+        si: "ඇතුල් කරන්න",
+        ta: "சமர்ப்பிக்க",
+      }[currentLang] || "Submit";
+
+    const cancelText =
+      {
+        en: "Cancel",
+        si: "අවලංගු කරන්න",
+        ta: "ரத்து செய்ய",
+      }[currentLang] || "Cancel";
+
+    toast(confirmMessage, "fa-solid fa-upload", {
       confirm: true,
-      confirmText: "Submit",
-      cancelText: "Cancel",
+      confirmText: confirmText,
+      cancelText: cancelText,
       onConfirm: function () {
         fetch("/api/teacher/attendance", {
           method: "POST",
@@ -235,17 +292,26 @@
           })
           .then(() => {
             localStorage.setItem("attendanceMarked", "true");
-            toast("Attendance submitted", "fa-solid fa-check-circle");
+            const successMessage =
+              {
+                en: "Attendance submitted",
+                si: "පැමිණීම ඇතුල් කරන ලදී",
+                ta: "வருகை சமர்ப்பிக்கப்பட்டது",
+              }[currentLang] || "Attendance submitted";
+            toast(successMessage, "fa-solid fa-check-circle");
             setTimeout(function () {
               window.location.href = "layout.html?role=teacher&page=attendance";
             }, 2000);
           })
           .catch((err) => {
             console.error(err);
-            toast(
-              "Error saving attendance. Please try again.",
-              "fa-solid fa-circle-exclamation"
-            );
+            const errorMessage =
+              {
+                en: "Error saving attendance. Please try again.",
+                si: "පැමිණීම සුරකින විට දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+                ta: "வருகையை சேமிப்பதில் பிழை. மீண்டும் முயற்சிக்கவும்.",
+              }[currentLang] || "Error saving attendance. Please try again.";
+            toast(errorMessage, "fa-solid fa-circle-exclamation");
           });
       },
       onCancel: function () {

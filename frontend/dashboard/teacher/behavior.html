@@ -44,10 +44,33 @@
           Behavior Type
         </label>
         <select id="behavior-type" class="dropdown-select">
-          <option value="">Select Type</option>
-          <option value="Good">Good</option>
-          <option value="Disciplinary">Disciplinary</option>
-          <option value="Reward">Reward</option>
+          <option
+            value=""
+            data-en="Select Type"
+            data-si="වර්ගය තෝරන්න"
+            data-ta="வகையைத் தேர்ந்தெடு"
+          >
+            Select Type
+          </option>
+          <option value="Good" data-en="Good" data-si="හොඳ" data-ta="நல்ல">
+            Good
+          </option>
+          <option
+            value="Disciplinary"
+            data-en="Disciplinary"
+            data-si="අධ්‍යාපනික"
+            data-ta="கட்டுப்பாட்டு"
+          >
+            Disciplinary
+          </option>
+          <option
+            value="Reward"
+            data-en="Reward"
+            data-si="ත්‍යාගය"
+            data-ta="வெகுமதி"
+          >
+            Reward
+          </option>
         </select>
       </div>
       <div>
@@ -55,9 +78,25 @@
           Severity
         </label>
         <select id="behavior-severity" class="dropdown-select">
-          <option value="">N/A</option>
-          <option value="Minor">Minor</option>
-          <option value="Serious">Serious</option>
+          <option
+            value=""
+            data-en="N/A"
+            data-si="නොපැනවීම"
+            data-ta="பொருந்தாது"
+          >
+            N/A
+          </option>
+          <option value="Minor" data-en="Minor" data-si="සුළු" data-ta="சிறிய">
+            Minor
+          </option>
+          <option
+            value="Serious"
+            data-en="Serious"
+            data-si="බැරෑරුම්"
+            data-ta="தீவிரமான"
+          >
+            Serious
+          </option>
         </select>
       </div>
     </div>
@@ -70,6 +109,9 @@
         class="form-input"
         rows="4"
         placeholder="Enter behavior description..."
+        data-en="Enter behavior description..."
+        data-si="හැසිරීම් විස්තරය ඇතුල් කරන්න..."
+        data-ta="நடத்தை விளக்கத்தை உள்ளீடு செய்யவும்..."
         style="
           width: 100%;
           padding: 10px;
@@ -113,6 +155,9 @@
           id="records-search"
           class="search-input"
           placeholder="Search records..."
+          data-en="Search records..."
+          data-si="වාර්තා සොයන්න..."
+          data-ta="பதிவுகளைத் தேடு..."
         />
         <span class="search-icon"><i class="fas fa-search"></i></span>
       </div>
@@ -129,13 +174,17 @@
       <table>
         <thead>
           <tr>
-            <th>Class</th>
-            <th>Student</th>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Severity</th>
-            <th>Description</th>
-            <th>Action</th>
+            <th data-en="Class" data-si="පන්තිය" data-ta="வகுப்பு">Class</th>
+            <th data-en="Student" data-si="ශිෂ්‍ය" data-ta="மாணவர்">Student</th>
+            <th data-en="Date" data-si="දිනය" data-ta="தேதி">Date</th>
+            <th data-en="Type" data-si="වර්ගය" data-ta="வகை">Type</th>
+            <th data-en="Severity" data-si="බරපතුතාව" data-ta="கடுமை">
+              Severity
+            </th>
+            <th data-en="Description" data-si="විස්තරණ" data-ta="விளக்கம்">
+              Description
+            </th>
+            <th data-en="Action" data-si="ක්‍රියාව" data-ta="செயல்">Action</th>
           </tr>
         </thead>
         <tbody id="my-records-tbody"></tbody>
@@ -201,6 +250,9 @@
   let currentPage = 1;
   let pageSize = 25;
   let totalPages = 1;
+
+  // Language variable
+  let currentLanguage = localStorage.getItem("lang") || "en";
 
   // Get teacher ID from localStorage (set during login)
   function getTeacherId() {
@@ -294,8 +346,13 @@
       return;
     }
     if (!description || description.length < 5) {
+      const messages = {
+        en: "Description must be at least 5 characters",
+        si: "විස්තරය අවම වශයෙන් අකුරු 5 ක් විය යුතුය",
+        ta: "விளக்கம் குறைந்தது 5 எழுத்துகளாக இருக்க வேண்டும்",
+      };
       showToast(
-        "Description must be at least 5 characters",
+        messages[currentLanguage] || messages.en,
         "fa-solid fa-circle-exclamation"
       );
       return;
@@ -304,7 +361,15 @@
     try {
       const student = classStudents.find((s) => s.id == studentId);
       if (!student) {
-        showToast("Invalid student selected", "fa-solid fa-circle-exclamation");
+        const messages = {
+          en: "Invalid student selected",
+          si: "වලංගු නොවන ශිෂ්‍ය තෝරා ඇත",
+          ta: "தவறான மாணவர் தேர்ந்தெடுக்கப்பட்டுள்ளார்",
+        };
+        showToast(
+          messages[currentLanguage] || messages.en,
+          "fa-solid fa-circle-exclamation"
+        );
         return;
       }
 
@@ -325,15 +390,28 @@
 
       if (!response.ok) throw new Error("Failed to submit record");
 
+      const messages = {
+        en: "Behavior record submitted successfully",
+        si: "හැසිරීම් වාර්තා සාර්ථකව ඉදිරිපත් කරන ලදී",
+        ta: "நடத்தை பதிவு வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது",
+      };
       showToast(
-        "Behavior record submitted successfully",
+        messages[currentLanguage] || messages.en,
         "fa-solid fa-check-circle"
       );
       resetBehaviorForm();
       loadMyBehaviorRecords();
     } catch (err) {
       console.error("Error submitting record:", err);
-      showToast("Error submitting record", "fa-solid fa-circle-exclamation");
+      const messages = {
+        en: "Error submitting record",
+        si: "වාර්තා ඉදිරිපත් කිරීමේ දෝෂයක්",
+        ta: "பதிவை சமர்ப்பிப்பதில் பிழை",
+      };
+      showToast(
+        messages[currentLanguage] || messages.en,
+        "fa-solid fa-circle-exclamation"
+      );
     }
   }
 
@@ -342,7 +420,14 @@
     const tbody = document.getElementById("my-records-tbody");
 
     if (!filteredRecords.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center">No records found</td></tr>`;
+      const messages = {
+        en: "No records found",
+        si: "වාර්තා කිසිවක් හමු නොවීය",
+        ta: "பதிவுகள் எதுவும் கிடைக்கவில்லை",
+      };
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center">${
+        messages[currentLanguage] || messages.en
+      }</td></tr>`;
       updateRecordsPaginationControls(0);
       return;
     }
@@ -475,7 +560,12 @@
 
   // Delete behavior record
   function deleteRecord(recordId) {
-    if (confirm("Are you sure you want to delete this record?")) {
+    const messages = {
+      en: "Are you sure you want to delete this record?",
+      si: "ඔබට මෙම වාර්තා මකා දැමීමට අවශ්‍ය බව විශ්වාසද?",
+      ta: "இந்த பதிவை நீக்க விரும்புகிறீர்களா?",
+    };
+    if (confirm(messages[currentLanguage] || messages.en)) {
       deleteRecordConfirmed(recordId);
     }
   }
@@ -491,11 +581,27 @@
 
       if (!response.ok) throw new Error("Failed to delete record");
 
-      showToast("Record deleted successfully", "fa-solid fa-check-circle");
+      const messages = {
+        en: "Record deleted successfully",
+        si: "වාර්තා සාර්ථකව මකා දමන ලදී",
+        ta: "பதிவு வெற்றிகரமாக நீக்கப்பட்டது",
+      };
+      showToast(
+        messages[currentLanguage] || messages.en,
+        "fa-solid fa-check-circle"
+      );
       loadMyBehaviorRecords();
     } catch (err) {
       console.error("Error deleting record:", err);
-      showToast("Error deleting record", "fa-solid fa-circle-exclamation");
+      const messages = {
+        en: "Error deleting record",
+        si: "වාර්තා මකා දැමීමේ දෝෂයක්",
+        ta: "பதிவை நீக்குவதில் பிழை",
+      };
+      showToast(
+        messages[currentLanguage] || messages.en,
+        "fa-solid fa-circle-exclamation"
+      );
     }
   }
 
@@ -582,24 +688,27 @@
 
   window.addEventListener("storage", (e) => {
     if (e.key === "lang") {
-      updateText(e.newValue || "en");
+      currentLanguage = e.newValue || "en";
+      updateText(currentLanguage);
     }
   });
 
   window.addEventListener("languageChange", (e) => {
-    updateText(e.detail.lang || "en");
+    currentLanguage = e.detail.lang || "en";
+    updateText(currentLanguage);
   });
 
   let lastLang = localStorage.getItem("lang") || "en";
   setInterval(() => {
     const currentLang = localStorage.getItem("lang") || "en";
     if (currentLang !== lastLang) {
+      currentLanguage = currentLang;
       updateText(currentLang);
       lastLang = currentLang;
     }
   }, 300);
 
-  updateText(localStorage.getItem("lang") || "en");
+  updateText(currentLanguage);
 
   // Initialize on page load
   async function initializePage() {

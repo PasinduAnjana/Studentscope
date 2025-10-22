@@ -13,7 +13,15 @@
         </div>
         <div class="profile-info">
           <h3 id="teacher-name">Loading...</h3>
-          <p id="teacher-role" class="text-sm">Teacher</p>
+          <p
+            id="teacher-role"
+            class="text-sm"
+            data-en="Teacher"
+            data-si="ගුරුවරයා"
+            data-ta="ஆசிரியர்"
+          >
+            Teacher
+          </p>
         </div>
       </div>
 
@@ -147,27 +155,54 @@
       const profile = await response.json();
 
       // Update profile information
-      document.getElementById("teacher-name").textContent = profile.username;
+      const teacherNameElement = document.getElementById("teacher-name");
+      teacherNameElement.textContent = profile.username;
+      teacherNameElement.setAttribute("data-en", profile.username);
+      teacherNameElement.setAttribute("data-si", profile.username);
+      teacherNameElement.setAttribute("data-ta", profile.username);
+
       document.getElementById("teacher-username").textContent =
         profile.username;
-      document.getElementById("teacher-role").textContent =
+      const teacherRoleElement = document.getElementById("teacher-role");
+      teacherRoleElement.textContent =
         getNestedValue(window.currentTranslations, "profile.teacher") ||
         "Teacher";
+      teacherRoleElement.setAttribute("data-en", "Teacher");
+      teacherRoleElement.setAttribute("data-si", "ගුරුවරයා");
+      teacherRoleElement.setAttribute("data-ta", "ஆசிரியர்");
 
       if (profile.class_name && profile.class_grade) {
-        document.getElementById(
-          "teacher-class"
-        ).textContent = `Grade ${profile.class_grade} - ${profile.class_name}`;
+        const teacherClassElement = document.getElementById("teacher-class");
+        const classText = `Grade ${profile.class_grade} - ${profile.class_name}`;
+        teacherClassElement.textContent = classText;
+        teacherClassElement.setAttribute("data-en", classText);
+        teacherClassElement.setAttribute("data-si", classText);
+        teacherClassElement.setAttribute("data-ta", classText);
       } else {
-        document.getElementById("teacher-class").textContent =
+        const teacherClassElement = document.getElementById("teacher-class");
+        const notAssignedText =
           getNestedValue(window.currentTranslations, "profile.notAssigned") ||
           "Not assigned";
+        teacherClassElement.textContent = notAssignedText;
+        teacherClassElement.setAttribute("data-en", "Not assigned");
+        teacherClassElement.setAttribute("data-si", "පවරා නොමැත");
+        teacherClassElement.setAttribute("data-ta", "ஒதுக்கப்படவில்லை");
       }
 
-      document.getElementById("is-class-teacher").textContent =
-        profile.is_class_teacher
-          ? getNestedValue(window.currentTranslations, "profile.yes") || "Yes"
-          : getNestedValue(window.currentTranslations, "profile.no") || "No";
+      const isClassTeacherElement = document.getElementById("is-class-teacher");
+      const isClassTeacher = profile.is_class_teacher
+        ? getNestedValue(window.currentTranslations, "profile.yes") || "Yes"
+        : getNestedValue(window.currentTranslations, "profile.no") || "No";
+      isClassTeacherElement.textContent = isClassTeacher;
+      if (profile.is_class_teacher) {
+        isClassTeacherElement.setAttribute("data-en", "Yes");
+        isClassTeacherElement.setAttribute("data-si", "ඔව්");
+        isClassTeacherElement.setAttribute("data-ta", "ஆம்");
+      } else {
+        isClassTeacherElement.setAttribute("data-en", "No");
+        isClassTeacherElement.setAttribute("data-si", "නැත");
+        isClassTeacherElement.setAttribute("data-ta", "இல்லை");
+      }
 
       // Update teacher details if available
       if (profile.details) {
@@ -205,8 +240,11 @@
       await loadProfileStats(profile);
     } catch (error) {
       console.error("Error loading profile:", error);
-      document.getElementById("teacher-name").textContent =
-        "Error loading profile";
+      const teacherNameElement = document.getElementById("teacher-name");
+      teacherNameElement.textContent = "Error loading profile";
+      teacherNameElement.setAttribute("data-en", "Error loading profile");
+      teacherNameElement.setAttribute("data-si", "පැතිකඩ පූරණය කිරීමේ දෝෂයක්");
+      teacherNameElement.setAttribute("data-ta", "சுயவிவரத்தை ஏற்றுவதில் பிழை");
     }
   }
 
@@ -234,13 +272,20 @@
             </ul>
           `;
         } else {
-          classesList.innerHTML =
-            '<p class="text-sm">' +
-            (getNestedValue(
+          const noClassesElement = document.createElement("p");
+          noClassesElement.className = "text-sm";
+          noClassesElement.textContent =
+            getNestedValue(
               window.currentTranslations,
               "profile.noClassesAssigned"
-            ) || "No classes assigned") +
-            "</p>";
+            ) || "No classes assigned";
+          noClassesElement.setAttribute("data-en", "No classes assigned");
+          noClassesElement.setAttribute("data-si", "පන්ති කිසිවක් පවරා නොමැත");
+          noClassesElement.setAttribute(
+            "data-ta",
+            "வகுப்புகள் ஒதுக்கப்படவில்லை"
+          );
+          classesList.appendChild(noClassesElement);
         }
 
         // Load classes count

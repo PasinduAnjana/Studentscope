@@ -39,7 +39,12 @@
     <div class="card h-2">
       <h3 class="section-title">
         <i class="fas fa-inbox"></i>
-        My Announcements
+        <span
+          data-en="My Announcements"
+          data-si="මගේ ප්‍රකාශයන්"
+          data-ta="என் அறிவிப்புகள්"
+          >My Announcements</span
+        >
       </h3>
       <div class="announcements-container" id="announcements-container">
         <!-- Announcements will be loaded here dynamically -->
@@ -55,7 +60,15 @@
     const container = document.querySelector(`#${containerId}`);
     container.innerHTML = "";
     if (!announcements.length) {
-      container.innerHTML = `<div class="no-announcements text-center">No announcements found</div>`;
+      const lang = localStorage.getItem("lang") || "en";
+      const msgs = {
+        en: "No announcements found",
+        si: "ප්‍රකාශයන් හමු නොවිණි",
+        ta: "அறிவிப்புகள் கிடைக்கவில்லை",
+      };
+      container.innerHTML = `<div class="no-announcements text-center">${
+        msgs[lang] || "No announcements found"
+      }</div>`;
       return;
     }
 
@@ -69,14 +82,38 @@
 
       // Format audience display
       let audienceDisplay = "";
+      const lang = localStorage.getItem("lang") || "en";
+      const labels = {
+        all: {
+          en: "All Students",
+          si: "සියලු ශිෂ්‍යයින්",
+          ta: "அனைத்து மாணவர்கள்",
+        },
+        students: { en: "Class", si: "පන්තිය", ta: "வகுப்பு" },
+      };
+
       switch (announcement.audience_type) {
         case "all":
-          audienceDisplay = "All Students";
+          audienceDisplay = labels.all[lang] || "All Students";
           break;
         case "students":
-          audienceDisplay = `Class ${announcement.class_name || "Assigned"}`;
+          audienceDisplay = `${labels.students[lang] || "Class"} ${
+            announcement.class_name || "Assigned"
+          }`;
           break;
       }
+
+      const postedLabel = {
+        en: "Posted:",
+        si: "පළ කරන ලද:",
+        ta: "வெளியிடப்பட்ட:",
+      };
+      const byLabel = { en: "By", si: "විසින්", ta: "மூலம்" };
+      const audienceLabel = {
+        en: "Audience:",
+        si: "ප්‍රේක්ෂකයින්:",
+        ta: "பார்வையாளர்கள்:",
+      };
 
       card.innerHTML = `
         <div class="announcement-title">
@@ -91,14 +128,16 @@
       }" style="display: none;" onclick="toggleDescription('${containerId}', ${
         announcement.id
       })">
-            <span>Show more</span>
+            <span data-en="Show more" data-si="තවත් දෙස" data-ta="மேலும் காட்டு">Show more</span>
             <i class="fas fa-chevron-down"></i>
           </button>
         </div>
         <div class="announcement-meta flex-between">
-          <span class="text-sm">Audience: ${audienceDisplay}</span>
-          <span class="text-sm">Posted: ${createdDate} ${
-        announcement.posted_by_name ? `• By ${announcement.posted_by_name}` : ""
+          <span class="text-sm"><span data-en="Audience:" data-si="ප්‍රේක්ෂකයින්:" data-ta="பார்வையாளர்கள்:">Audience:</span> ${audienceDisplay}</span>
+          <span class="text-sm"><span data-en="Posted:" data-si="පළ කරන ලද:" data-ta="வெளியிடப்பட்ட:">Posted:</span> ${createdDate} ${
+        announcement.posted_by_name
+          ? `• <span data-en="By" data-si="විසින්" data-ta="மூலம்">By</span> ${announcement.posted_by_name}`
+          : ""
       }</span>
         </div>
       `;
@@ -138,7 +177,15 @@
       .catch((err) => {
         console.error("Error fetching announcements:", err);
         const container = document.querySelector("#announcements-container");
-        container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
+        const lang = localStorage.getItem("lang") || "en";
+        const msgs = {
+          en: "Error loading announcements",
+          si: "ප්‍රකාශයන් පූරණය කිරීමේ දෝෂ",
+          ta: "அறிவிப்புகளை பதிவிறக்க பிழை",
+        };
+        container.innerHTML = `<div class="no-announcements text-center">${
+          msgs[lang] || "Error loading announcements"
+        }</div>`;
       });
   }
 
