@@ -875,8 +875,70 @@ async function run() {
       }
     }
 
+    // 1️⃣4️⃣ Behavior Records for students
+    const behaviorTypes = [
+      {
+        type: "Good",
+        severity: null,
+        desc: "Excellent participation in class",
+      },
+      { type: "Good", severity: null, desc: "Helped organize school event" },
+      { type: "Disciplinary", severity: "Minor", desc: "Late to class" },
+      {
+        type: "Disciplinary",
+        severity: "Serious",
+        desc: "Disrupted classroom",
+      },
+      {
+        type: "Reward",
+        severity: null,
+        desc: "Won inter-school quiz competition",
+      },
+      { type: "Reward", severity: null, desc: "100% attendance this term" },
+    ];
+
+    let behaviorIdx = 0;
+    for (const classKey in studentIds) {
+      const classId = classIds[classKey];
+      const students = studentIds[classKey];
+
+      // Get some teachers for reporting
+      const teachersRes = await pool.query(
+        `SELECT id FROM users WHERE role_id = (SELECT id FROM roles WHERE name = 'teacher') LIMIT 5`
+      );
+      const teachers = teachersRes.rows.map((r) => r.id);
+
+      for (const studentId of students.slice(0, Math.min(5, students.length))) {
+        for (let j = 0; j < 2; j++) {
+          const behavior = behaviorTypes[behaviorIdx % behaviorTypes.length];
+          const daysAgo = Math.floor(Math.random() * 30);
+          const recordDate = new Date(today);
+          recordDate.setDate(today.getDate() - daysAgo);
+          const dateStr = recordDate.toISOString();
+
+          const reporterIndex = Math.floor(Math.random() * teachers.length);
+          const reporterId = teachers[reporterIndex] || null;
+
+          await pool.query(
+            `INSERT INTO behavior_records (student_id, class_id, type, severity, description, reported_by, created_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            [
+              studentId,
+              classId,
+              behavior.type,
+              behavior.severity,
+              behavior.desc,
+              reporterId,
+              dateStr,
+            ]
+          );
+          behaviorIdx++;
+        }
+      }
+    }
+
     console.log(
-      "🎉 Database seeded successfully with electives, subjects, timetable, and attendance!"
+      "🎉 Database seeded successfully with behavior records, timetable, and attendance!"
     );
   } catch (err) {
     console.error("❌ Seeding error:", err);

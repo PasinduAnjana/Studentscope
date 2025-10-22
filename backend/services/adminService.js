@@ -352,3 +352,117 @@ exports.getAllTeachers = async () => {
   `);
   return result.rows;
 };
+
+// ============ BEHAVIOR RECORDS ============
+exports.getBehaviorStats = async () => {
+  const result = await pool.query(`
+    SELECT
+      COUNT(*) as total,
+      COUNT(CASE WHEN type = 'Good' THEN 1 END) as good_count,
+      COUNT(CASE WHEN type = 'Disciplinary' THEN 1 END) as disciplinary_count,
+      COUNT(CASE WHEN type = 'Reward' THEN 1 END) as reward_count
+    FROM behavior_records
+  `);
+
+  const stats = result.rows[0];
+  return {
+    totalRecords: parseInt(stats.total),
+    goodBehavior: parseInt(stats.good_count),
+    disciplinaryCases: parseInt(stats.disciplinary_count),
+    rewards: parseInt(stats.reward_count),
+  };
+};
+
+exports.getBehaviorRecords = async (filters = {}) => {
+  let query = `
+    SELECT
+      br.id,
+      br.student_id,
+      br.class_id,
+      br.type,
+      br.severity,
+      br.description,
+      br.reported_by,
+      br.created_at::DATE as date,
+      u.username as index_no,
+      s.full_name as student_name,
+      c.grade,
+      c.name as class_name,
+      CONCAT(c.grade, c.name) as class_display,
+      reporter.full_name as reported_by_name
+    FROM behavior_records br
+    JOIN users u ON br.student_id = u.id
+    JOIN students s ON u.id = s.user_id
+    JOIN classes c ON br.class_id = c.id
+    LEFT JOIN users reporter_u ON br.reported_by = reporter_u.id
+    LEFT JOIN teacher_details reporter ON reporter_u.id = reporter.teacher_id
+  `;
+
+  const conditions = [];
+  const params = [];
+
+  if (filters.class_id) {
+    conditions.push(`br.class_id = $${params.length + 1}`);
+    params.push(filters.class_id);
+  }
+
+  if (filters.type && filters.type !== "all") {
+    conditions.push(`br.type = $${params.length + 1}`);
+    params.push(filters.type);
+  }
+
+  if (filters.start_date) {
+    conditions.push(`br.created_at::DATE >= $${params.length + 1}`);
+    params.push(filters.start_date);
+  }
+
+  if (filters.end_date) {
+    conditions.push(`br.created_at::DATE <= $${params.length + 1}`);
+    params.push(filters.end_date);
+  }
+
+  if (conditions.length) {
+    query += ` WHERE ${conditions.join(" AND ")}`;
+  }
+
+  query += ` ORDER BY br.created_at DESC`;
+
+  const result = await pool.query(query, params);
+  return result.rows.map((row) => ({
+    id: row.id,
+    class: row.class_display,
+    student: row.student_name,
+    date: row.date,
+    type: row.type,
+    severity: row.severity || "—",
+    description: row.description,
+    reportedBy: row.reported_by_name || "—",
+  }));
+};
+
+exports.addBehaviorRecord = async (
+  studentId,
+  classId,
+  type,
+  severity,
+  description,
+  reportedById
+) => {
+  const result = await pool.query(
+    `
+    INSERT INTO behavior_records (student_id, class_id, type, severity, description, reported_by)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, created_at::DATE as date
+  `,
+    [studentId, classId, type, severity || null, description, reportedById]
+  );
+  return result.rows[0];
+};
+
+exports.deleteBehaviorRecord = async (recordId) => {
+  const result = await pool.query(
+    `DELETE FROM behavior_records WHERE id = $1 RETURNING id`,
+    [recordId]
+  );
+  return result.rows.length > 0;
+};

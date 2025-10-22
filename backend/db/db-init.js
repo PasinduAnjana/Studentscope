@@ -227,6 +227,20 @@ END $$;
     `);
 
     await pool.query(`
+      CREATE TABLE IF NOT EXISTS behavior_records (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        student_id BIGINT REFERENCES users(id),
+        class_id BIGINT REFERENCES classes(id),
+        type TEXT NOT NULL CHECK (type IN ('Good', 'Disciplinary', 'Reward')),
+        severity TEXT CHECK (severity IN ('Minor', 'Serious', null)),
+        description TEXT NOT NULL,
+        reported_by BIGINT REFERENCES users(id),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `);
+
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS teacher_details (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         teacher_id BIGINT REFERENCES users(id) UNIQUE,

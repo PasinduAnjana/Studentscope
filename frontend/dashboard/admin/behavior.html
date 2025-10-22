@@ -14,13 +14,13 @@
   <div class="summary-tiles">
     <div class="card dashboard-tile summary-card">
       <div class="icon-title">
-        <i class="fas fa-users icon"></i>
+        <i class="fas fa-clipboard-list icon"></i>
         <p
-          data-en="Total Students"
-          data-si="මුළු සිසුන්"
-          data-ta="மொத்த மாணவர்கள்"
+          data-en="Total Cases"
+          data-si="මුළු ඩිජිටල් සිටුවම්"
+          data-ta="மொத்த வழக்குகள்"
         >
-          Total Students
+          Total Cases
         </p>
       </div>
       <p class="tile-value" id="totalStudents">120</p>
@@ -130,6 +130,15 @@
           <option value="Reward">Reward</option>
         </select>
       </div>
+      <div>
+        <select id="behavior-page-size">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
       <div class="export-buttons">
         <button class="btn btn-primary" onclick="exportPDF()">
           <i class="fas fa-file-pdf"></i> PDF
@@ -153,53 +162,32 @@
           </tr>
         </thead>
         <tbody id="behaviorBody">
-          <tr>
-            <td>10A</td>
-            <td>Hansa Nirmal</td>
-            <td>2025-09-15</td>
-            <td>Good</td>
-            <td>-</td>
-            <td>Helped organize School Exhibition</td>
-            <td>Mrs. Fernando</td>
-          </tr>
-          <tr>
-            <td>10A</td>
-            <td>Yoshadhi Edirisinghe</td>
-            <td>2025-09-14</td>
-            <td>Disciplinary</td>
-            <td>Minor</td>
-            <td>Late for first period repeatedly</td>
-            <td>Mr. Silva</td>
-          </tr>
-          <tr>
-            <td>10B</td>
-            <td>Chandupa Silva</td>
-            <td>2025-09-14</td>
-            <td>Reward</td>
-            <td>-</td>
-            <td>Won Inter-school Quiz Competition</td>
-            <td>Admin</td>
-          </tr>
-          <tr>
-            <td>11A</td>
-            <td>Pasindu Anjana</td>
-            <td>2025-09-13</td>
-            <td>Good</td>
-            <td>-</td>
-            <td>Maintained 100% attendance this term</td>
-            <td>Class Teacher</td>
-          </tr>
-          <tr>
-            <td>11A</td>
-            <td>Nirmal Kolabage</td>
-            <td>2025-09-12</td>
-            <td>Disciplinary</td>
-            <td>Serious</td>
-            <td>Involved in classroom disturbance</td>
-            <td>Vice Principal</td>
-          </tr>
         </tbody>
       </table>
+    </div>
+    <!-- Pagination Controls -->
+    <div
+      class="pagination-controls"
+      style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+        flex-wrap: nowrap;
+      "
+    >
+      <button id="behavior-prev-page" class="btn btn-secondary" disabled title="Previous">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <div id="behavior-page-numbers" style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: center;"></div>
+      <button id="behavior-next-page" class="btn btn-secondary" disabled title="Next">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      <span
+        id="behavior-page-info"
+        style="margin-left: 20px; color: var(--color-subtext); white-space: nowrap;"
+      ></span>
     </div>
   </div>
 
@@ -211,9 +199,17 @@
   // Get primary color from CSS variables
   const rootStyles = getComputedStyle(document.documentElement);
   const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
-  const secondaryColor = rootStyles.getPropertyValue("--color-border").trim();
 
-  // Custom plugin to draw center text in doughnut chart (like attendance chart)
+  let allRecords = []; // Store all records for filtering
+  let behaviorStats = {};
+  let allClasses = [];
+  
+  // Pagination variables
+  let currentPage = 1;
+  let pageSize = 25;
+  let totalPages = 1;
+
+  // Custom plugin to draw center text in doughnut chart
   const centerTextPlugin = {
     id: "centerText",
     beforeDraw(chart, args, options) {
@@ -235,134 +231,376 @@
     },
   };
 
+  // Fetch behavior stats and populate summary tiles
+  async function loadBehaviorStats() {
+    try {
+      const response = await fetch("/api/admin/behavior/stats");
+      if (!response.ok) throw new Error("Failed to fetch behavior stats");
+      behaviorStats = await response.json();
+
+      document.getElementById("totalStudents").textContent = behaviorStats.totalRecords;
+      document.getElementById("goodBehavior").textContent = behaviorStats.goodBehavior;
+      document.getElementById("disciplinaryCases").textContent = behaviorStats.disciplinaryCases;
+      document.getElementById("rewards").textContent = behaviorStats.rewards;
+
+      updateBehaviorChart();
+    } catch (err) {
+      console.error("Error loading behavior stats:", err);
+    }
+  }
+
+  // Fetch all behavior records
+  async function loadBehaviorRecords() {
+    try {
+      const response = await fetch("/api/admin/behavior/records");
+      if (!response.ok) throw new Error("Failed to fetch behavior records");
+      allRecords = await response.json();
+      filterBehavior(); // Apply filters and render
+    } catch (err) {
+      console.error("Error loading behavior records:", err);
+    }
+  }
+
+  // Fetch classes for filter dropdown
+  async function loadClasses() {
+    try {
+      const response = await fetch("/api/admin/classes");
+      if (!response.ok) throw new Error("Failed to fetch classes");
+      allClasses = await response.json();
+
+      // Populate class filter options
+      const classFilterSelect = document.getElementById("classFilter");
+      allClasses.forEach((cls) => {
+        const option = document.createElement("option");
+        option.value = `${cls.grade}${cls.name}`;
+        option.textContent = `Grade ${cls.grade}-${cls.name}`;
+        classFilterSelect.appendChild(option);
+      });
+    } catch (err) {
+      console.error("Error loading classes:", err);
+    }
+  }
+
+  // Store filtered records for pagination
+  let currentFilteredRecords = [];
+
   function filterBehavior() {
     const classFilter = document.getElementById("classFilter").value;
     const typeFilter = document.getElementById("typeFilter").value;
-    document.querySelectorAll("#behaviorBody tr").forEach((row) => {
-      const matchClass =
-        classFilter === "all" || row.cells[0].textContent === classFilter;
-      const matchType =
-        typeFilter === "all" || row.cells[3].textContent === typeFilter;
-      row.style.display = matchClass && matchType ? "" : "none";
-    });
+
+    let filtered = allRecords;
+
+    if (classFilter !== "all") {
+      filtered = filtered.filter((r) => r.class === classFilter);
+    }
+
+    if (typeFilter !== "all") {
+      filtered = filtered.filter((r) => r.type === typeFilter);
+    }
+
+    // Store filtered records and reset to page 1
+    currentFilteredRecords = filtered;
+    currentPage = 1;
+    renderBehaviorTable();
+  }
+
+  function renderBehaviorTable() {
+    const tbody = document.getElementById("behaviorBody");
+    const filtered = currentFilteredRecords;
+    
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center">No records found</td></tr>`;
+      updateBehaviorPaginationControls(0);
+      return;
+    }
+
+    // Calculate pagination
+    totalPages = Math.ceil(filtered.length / pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const recordsToShow = filtered.slice(startIndex, endIndex);
+
+    tbody.innerHTML = recordsToShow
+      .map(
+        (record) => `
+      <tr>
+        <td>${record.class}</td>
+        <td>${record.student}</td>
+        <td>${record.date}</td>
+        <td>${record.type}</td>
+        <td>${record.severity}</td>
+        <td>${record.description}</td>
+        <td>${record.reportedBy}</td>
+      </tr>
+    `
+      )
+      .join("");
+
+    updateBehaviorPaginationControls(filtered.length);
+  }
+
+  function updateBehaviorPaginationControls(totalItems) {
+    const prevBtn = document.getElementById("behavior-prev-page");
+    const nextBtn = document.getElementById("behavior-next-page");
+    const pageNumbers = document.getElementById("behavior-page-numbers");
+    const pageInfo = document.getElementById("behavior-page-info");
+
+    if (!prevBtn || !nextBtn || !pageNumbers || !pageInfo) {
+      console.warn("Pagination controls not found");
+      return;
+    }
+
+    // Update button states
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= totalPages;
+
+    // Update page info
+    const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+    const endItem = Math.min(currentPage * pageSize, totalItems);
+    pageInfo.textContent = `Showing ${startItem}-${endItem} of ${totalItems} records`;
+
+    // Generate page number buttons
+    pageNumbers.innerHTML = "";
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    // Add first page button if not in range
+    if (startPage > 1) {
+      const firstBtn = document.createElement("button");
+      firstBtn.className = "btn btn-secondary";
+      firstBtn.textContent = "1";
+      firstBtn.onclick = () => goBehaviorPage(1);
+      pageNumbers.appendChild(firstBtn);
+
+      if (startPage > 2) {
+        const ellipsis = document.createElement("span");
+        ellipsis.textContent = "...";
+        ellipsis.style.margin = "0 5px";
+        pageNumbers.appendChild(ellipsis);
+      }
+    }
+
+    // Add page number buttons
+    for (let i = startPage; i <= endPage; i++) {
+      const pageBtn = document.createElement("button");
+      pageBtn.className = `btn ${
+        i === currentPage ? "btn-primary" : "btn-secondary"
+      }`;
+      pageBtn.textContent = i;
+      pageBtn.onclick = () => goBehaviorPage(i);
+      pageNumbers.appendChild(pageBtn);
+    }
+
+    // Add last page button if not in range
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        const ellipsis = document.createElement("span");
+        ellipsis.textContent = "...";
+        ellipsis.style.margin = "0 5px";
+        pageNumbers.appendChild(ellipsis);
+      }
+
+      const lastBtn = document.createElement("button");
+      lastBtn.className = "btn btn-secondary";
+      lastBtn.textContent = totalPages;
+      lastBtn.onclick = () => goBehaviorPage(totalPages);
+      pageNumbers.appendChild(lastBtn);
+    }
+  }
+
+  function goBehaviorPage(page) {
+    if (page >= 1 && page <= totalPages) {
+      currentPage = page;
+      renderBehaviorTable();
+    }
   }
 
   function exportCSV() {
-    const rows = Array.from(
-      document.querySelectorAll("#behaviorBody tr")
-    ).filter((r) => r.style.display !== "none");
-    const csv = [["Class,Student,Date,Type,Severity,Description,Reported By"]];
-    rows.forEach((r) =>
-      csv.push(
-        Array.from(r.cells)
-          .map((td) => td.innerText)
+    const filtered = currentFilteredRecords;
+
+    const csv = [
+      "Class,Student,Date,Type,Severity,Description,Reported By",
+      ...filtered.map((r) =>
+        [
+          r.class,
+          r.student,
+          r.date,
+          r.type,
+          r.severity,
+          r.description,
+          r.reportedBy,
+        ]
+          .map((cell) => `"${cell}"`)
           .join(",")
-      )
-    );
+      ),
+    ];
+
     const blob = new Blob([csv.join("\n")], { type: "text/csv" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "behavior_report.csv";
+    link.download = `behavior_report_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
   }
 
   function exportPDF() {
-    const visibleRows = Array.from(
-      document.querySelectorAll("#behaviorBody tr")
-    ).filter((r) => r.style.display !== "none");
+    const filtered = currentFilteredRecords;
+
     const tempTable = document.createElement("table");
-    tempTable.innerHTML =
-      "<thead>" +
-      document.querySelector("#behaviorTable thead").innerHTML +
-      "</thead><tbody>" +
-      visibleRows.map((r) => r.outerHTML).join("") +
-      "</tbody>";
-    const win = window.open("", "", "width=800,height=600");
-    win.document.write(
-      "<html><head><title>Behavior Report</title></head><body>" +
-        tempTable.outerHTML +
-        "</body></html>"
+    tempTable.style.borderCollapse = "collapse";
+    tempTable.style.width = "100%";
+    tempTable.style.border = "1px solid black";
+
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+    ["Class", "Student", "Date", "Type", "Severity", "Description", "Reported By"].forEach(
+      (header) => {
+        const th = document.createElement("th");
+        th.textContent = header;
+        th.style.border = "1px solid black";
+        th.style.padding = "8px";
+        th.style.backgroundColor = "#f0f0f0";
+        headerRow.appendChild(th);
+      }
     );
+    thead.appendChild(headerRow);
+    tempTable.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    filtered.forEach((record) => {
+      const row = document.createElement("tr");
+      [record.class, record.student, record.date, record.type, record.severity, record.description, record.reportedBy].forEach(
+        (cell) => {
+          const td = document.createElement("td");
+          td.textContent = cell;
+          td.style.border = "1px solid black";
+          td.style.padding = "8px";
+          row.appendChild(td);
+        }
+      );
+      tbody.appendChild(row);
+    });
+    tempTable.appendChild(tbody);
+
+    const win = window.open("", "", "width=900,height=600");
+    win.document.write("<html><head><title>Behavior Report</title></head><body>");
+    win.document.write(tempTable.outerHTML);
+    win.document.write("</body></html>");
     win.document.close();
     win.print();
   }
 
-  // Initialize Behavior Distribution Doughnut Chart with primary color
-  new Chart(document.getElementById("behaviorChart"), {
-    type: "doughnut",
-    data: {
-      labels: ["Good", "Disciplinary", "Reward"],
-      datasets: [
-        {
-          data: [80, 15, 5],
-          backgroundColor: [
-            primaryColor,
-            primaryColor + "66",
-            primaryColor + "33",
-          ],
-          borderRadius: 20,
-          borderColor: "transparent",
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      cutout: "85%",
-      plugins: {
-        legend: { position: "bottom" },
-        title: {
-          display: true,
-          text: "Behavior Distribution",
-          font: { size: 14, weight: "bold" },
-          position: "bottom",
-        },
-        centerText: {
-          text: "80",
-          color: primaryColor,
+  function updateBehaviorChart() {
+    const ctx = document.getElementById("behaviorChart").getContext("2d");
+    new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: ["Good", "Disciplinary", "Reward"],
+        datasets: [
+          {
+            data: [
+              behaviorStats.goodBehavior || 0,
+              behaviorStats.disciplinaryCases || 0,
+              behaviorStats.rewards || 0,
+            ],
+            backgroundColor: [
+              primaryColor,
+              primaryColor + "66",
+              primaryColor + "33",
+            ],
+            borderRadius: 20,
+            borderColor: "transparent",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        cutout: "85%",
+        plugins: {
+          legend: { position: "bottom" },
+          title: {
+            display: true,
+            text: "Behavior Distribution",
+            font: { size: 14, weight: "bold" },
+            position: "bottom",
+          },
+          centerText: {
+            text: String(behaviorStats.totalRecords || 0),
+            color: primaryColor,
+          },
         },
       },
-    },
-    plugins: [centerTextPlugin],
-  });
+      plugins: [centerTextPlugin],
+    });
+  }
 
-  // Initialize Monthly Discipline Trend Line Chart with primary color
-  new Chart(document.getElementById("trendChart"), {
-    type: "line",
-    data: {
-      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
-      datasets: [
-        {
-          label: "Good Behavior",
-          data: [12, 15, 13, 18, 14, 20, 16, 17, 19],
-          borderColor: primaryColor,
-          backgroundColor: primaryColor + "33",
-          tension: 0.4,
-          fill: true,
-          borderWidth: 2,
-        },
-        {
-          label: "Disciplinary Cases",
-          data: [4, 6, 5, 7, 5, 6, 3, 4, 3],
-          borderColor: primaryColor + "80",
-          backgroundColor: primaryColor + "15",
-          tension: 0.4,
-          fill: true,
-          borderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: "top" },
-      },
-      scales: {
-        y: { beginAtZero: true },
-      },
-    },
-  });
+  function updateTrendChart() {
+    // Calculate monthly trend from records
+    const monthlyStats = {
+      Jan: 0, Feb: 0, Mar: 0, Apr: 0, May: 0, Jun: 0,
+      Jul: 0, Aug: 0, Sep: 0, Oct: 0, Nov: 0, Dec: 0,
+    };
+    const monthlyDisciplinary = { ...monthlyStats };
 
-  // ✅ FIXED LANGUAGE SWITCHING (works instantly now)
+    allRecords.forEach((record) => {
+      const date = new Date(record.date);
+      const monthName = date.toLocaleDateString("en-US", { month: "short" });
+      if (monthlyStats.hasOwnProperty(monthName)) {
+        if (record.type === "Good") {
+          monthlyStats[monthName]++;
+        } else if (record.type === "Disciplinary") {
+          monthlyDisciplinary[monthName]++;
+        }
+      }
+    });
+
+    const labels = Object.keys(monthlyStats);
+    const goodData = Object.values(monthlyStats);
+    const discData = Object.values(monthlyDisciplinary);
+
+    const ctx = document.getElementById("trendChart").getContext("2d");
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Good Behavior",
+            data: goodData,
+            borderColor: primaryColor,
+            backgroundColor: primaryColor + "33",
+            tension: 0.4,
+            fill: true,
+            borderWidth: 2,
+          },
+          {
+            label: "Disciplinary Cases",
+            data: discData,
+            borderColor: primaryColor + "80",
+            backgroundColor: primaryColor + "15",
+            tension: 0.4,
+            fill: true,
+            borderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: "top" },
+        },
+        scales: {
+          y: { beginAtZero: true },
+        },
+      },
+    });
+  }
+
+  // ✅ FIXED LANGUAGE SWITCHING
   function updateText(lang) {
     document.querySelectorAll("[data-en],[data-si],[data-ta]").forEach((el) => {
       el.textContent =
@@ -370,7 +608,6 @@
     });
   }
 
-  // Apply immediately when storage or custom event changes
   window.addEventListener("storage", (e) => {
     if (e.key === "lang") {
       updateText(e.newValue || "en");
@@ -382,7 +619,6 @@
     updateText(newLang);
   });
 
-  // Also detect changes every 300ms (failsafe)
   let lastLang = localStorage.getItem("lang") || "en";
   setInterval(() => {
     const currentLang = localStorage.getItem("lang") || "en";
@@ -392,7 +628,6 @@
     }
   }, 300);
 
-  // Initialize on load
   updateText(localStorage.getItem("lang") || "en");
 
   // Initialize searchable dropdowns
@@ -408,14 +643,70 @@
   }
 
   // Initialize after page loads
-  if (document.readyState === "loading") {
-    document.addEventListener(
-      "DOMContentLoaded",
-      initializeSearchableDropdowns
-    );
-  } else {
-    initializeSearchableDropdowns();
+  async function initializePage() {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", async () => {
+        await loadClasses();
+        await loadBehaviorStats();
+        await loadBehaviorRecords();
+        updateTrendChart();
+        initializeSearchableDropdowns();
+        setupPaginationControls();
+      });
+    } else {
+      await loadClasses();
+      await loadBehaviorStats();
+      await loadBehaviorRecords();
+      updateTrendChart();
+      initializeSearchableDropdowns();
+      setupPaginationControls();
+    }
   }
+
+  function setupPaginationControls() {
+    // Set initial page size
+    const pageSizeElement = document.getElementById("behavior-page-size");
+    if (!pageSizeElement) {
+      console.error("behavior-page-size element not found");
+      return;
+    }
+
+    pageSize = parseInt(pageSizeElement.value);
+
+    // Make page size dropdown searchable
+    if (typeof makeSearchableDropdown === "function") {
+      makeSearchableDropdown("behavior-page-size", (val, text) => {
+        pageSize = parseInt(val);
+        currentPage = 1;
+        renderBehaviorTable();
+      });
+    }
+
+    // Page size change event (fallback if searchable dropdown doesn't work)
+    pageSizeElement.addEventListener("change", (e) => {
+      pageSize = parseInt(e.target.value);
+      currentPage = 1;
+      renderBehaviorTable();
+    });
+
+    // Pagination button events
+    const prevBtn = document.getElementById("behavior-prev-page");
+    const nextBtn = document.getElementById("behavior-next-page");
+
+    if (prevBtn) {
+      prevBtn.addEventListener("click", () => {
+        goBehaviorPage(currentPage - 1);
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => {
+        goBehaviorPage(currentPage + 1);
+      });
+    }
+  }
+
+  initializePage();
 </script>
 
 <style>
@@ -466,5 +757,20 @@
   }
   .filter-group .export-buttons button {
     margin: 0;
+  }
+  .pagination-controls {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: nowrap;
+  }
+  #behavior-page-numbers {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 </style>

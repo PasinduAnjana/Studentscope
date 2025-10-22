@@ -1,5 +1,6 @@
 const adminController = require("../controllers/admin/dashboardController");
 const attendanceController = require("../controllers/admin/attendanceController");
+const behaviorController = require("../controllers/admin/behaviorController");
 const announcementsController = require("../controllers/clerk/announcementsController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -7,6 +8,37 @@ module.exports = (req, res) => {
   if (req.method === "GET" && req.url === "/api/admin/dashboard") {
     return protect("admin")(req, res, () =>
       adminController.getDashboard(req, res)
+    );
+  }
+
+  // Behavior routes
+  if (req.method === "GET" && req.url === "/api/admin/behavior/stats") {
+    return protect("admin")(req, res, () =>
+      behaviorController.getBehaviorStats(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/admin/behavior/records")
+  ) {
+    return protect("admin")(req, res, () =>
+      behaviorController.getBehaviorRecords(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url === "/api/admin/behavior/records") {
+    return protect("admin")(req, res, () =>
+      behaviorController.addBehaviorRecord(req, res)
+    );
+  }
+
+  if (
+    req.method === "DELETE" &&
+    req.url.startsWith("/api/admin/behavior/records")
+  ) {
+    return protect("admin")(req, res, () =>
+      behaviorController.deleteBehaviorRecord(req, res)
     );
   }
 
