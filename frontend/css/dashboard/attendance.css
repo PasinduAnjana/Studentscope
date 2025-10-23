@@ -48,12 +48,12 @@
 .btn-absent {
   background: var(--color-card);
   border: 2px solid var(--color-primary);
-  color: var(--color-primary);
+  color: var(--color-text);
 }
 .btn-present {
   background: var(--color-primary);
   border: 1px solid var(--color-primary);
-  color: var(--color-white);
+  color: var(--color-text);
 }
 
 .student-row.present .btn-present {
@@ -94,9 +94,6 @@
   }
 
   .btn-present i,
-  .btn-absent i {
-    display: none;
-  }
   .btn-absent i {
     margin: 0;
   }

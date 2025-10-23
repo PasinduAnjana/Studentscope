@@ -1,4 +1,3 @@
-
 @import url("https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 @import url("inputs.css");
 @import url("tables.css");
@@ -156,7 +155,7 @@ span {
   transition: background-color 0.2s ease-in-out;
 }
 .btn span {
-  color: var(--color-white);
+  color: var(--color-text);
   font-weight: 500;
   font-size: medium;
 }
@@ -420,8 +419,6 @@ input:checked + .slider:before {
   transform: translateX(20px);
 }
 
-
-
 /* Minimal scrollbar styling globally */
 /* Chrome, Edge, Safari */
 *::-webkit-scrollbar {
@@ -430,7 +427,10 @@ input:checked + .slider:before {
   background: transparent;
 }
 *::-webkit-scrollbar-thumb {
-  background: rgba(var(--color-primary-rgb), 0.25); /* semi-transparent primary */
+  background: rgba(
+    var(--color-primary-rgb),
+    0.25
+  ); /* semi-transparent primary */
   border-radius: 6px;
 }
 *::-webkit-scrollbar-thumb:hover {
