@@ -411,7 +411,7 @@
     // Load recent announcements for dashboard tile
     async function loadDashboardAnnouncements() {
       try {
-        const res = await fetch("/api/teacher/announcements");
+        const res = await fetch("/api/teacher/announcements/received");
         if (!res.ok) throw new Error("Failed to fetch announcements");
 
         const announcements = await res.json();
