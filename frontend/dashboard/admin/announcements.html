@@ -115,12 +115,28 @@
             All (Teachers & Students)
           </option>
           <option
+            value="all-teachers"
+            data-en="All Teachers"
+            data-si="සියලු ගුරුවරුන්"
+            data-ta="அனைத்து ஆசிரியர்கள்"
+          >
+            All Teachers
+          </option>
+          <option
             value="teachers"
             data-en="Specific Teachers"
             data-si="නිශ්චිත ගුරුවරුන්"
             data-ta="குறிப்பிட்ட ஆசிரியர்கள்"
           >
             Specific Teachers
+          </option>
+          <option
+            value="clerks"
+            data-en="Clerks"
+            data-si="ලිපිකර"
+            data-ta="எழுத்தாளர்கள்"
+          >
+            Clerks
           </option>
           <option
             value="students"
@@ -140,6 +156,15 @@
           >Select Teachers:</label
         >
         <div id="teacher-checkboxes" class="mt-1"></div>
+      </div>
+      <div id="clerk-selection" class="mb-2" style="display: none">
+        <label
+          data-en="Select Clerks:"
+          data-si="ලිපිකර තෝරන්න:"
+          data-ta="எழுத்தாளர்களைத் தேர்ந்தெடுக்கவும்:"
+          >Select Clerks:</label
+        >
+        <div id="clerk-checkboxes" class="mt-1"></div>
       </div>
       <div id="class-selection" class="mb-2" style="display: none">
         <label
@@ -204,6 +229,9 @@
           break;
         case "teachers":
           audienceDisplay = "Teachers";
+          break;
+        case "clerks":
+          audienceDisplay = "Clerks";
           break;
         case "students":
           audienceDisplay = "Students";
@@ -322,6 +350,9 @@
         case "teachers":
           audienceDisplay = "Teachers";
           break;
+        case "clerks":
+          audienceDisplay = "Clerks";
+          break;
         case "students":
           audienceDisplay = "Students";
           break;
@@ -430,10 +461,12 @@
   function handleAudienceChange() {
     const audience = document.getElementById("announcement-audience").value;
     const teacherSelection = document.getElementById("teacher-selection");
+    const clerkSelection = document.getElementById("clerk-selection");
     const classSelection = document.getElementById("class-selection");
 
     // Hide all selections first
     teacherSelection.style.display = "none";
+    clerkSelection.style.display = "none";
     classSelection.style.display = "none";
 
     // Show relevant selection based on audience
@@ -441,6 +474,14 @@
       teacherSelection.style.display = "block";
       if (!document.querySelector("#teacher-checkboxes .checkbox-item")) {
         loadTeachers();
+      }
+    } else if (audience === "all-teachers") {
+      // No selection needed for all teachers
+      teacherSelection.style.display = "none";
+    } else if (audience === "clerks") {
+      clerkSelection.style.display = "block";
+      if (!document.querySelector("#clerk-checkboxes .checkbox-item")) {
+        loadClerks();
       }
     } else if (audience === "students") {
       classSelection.style.display = "block";
@@ -472,6 +513,17 @@
     }
   }
 
+  async function loadClerks() {
+    try {
+      const res = await fetch("/api/admin/clerks");
+      if (!res.ok) throw new Error("Failed to fetch clerks");
+      const clerks = await res.json();
+      renderClerkCheckboxes(clerks);
+    } catch (err) {
+      console.error("Error loading clerks:", err);
+    }
+  }
+
   function renderTeacherCheckboxes() {
     const container = document.getElementById("teacher-checkboxes");
     container.innerHTML = "";
@@ -490,6 +542,30 @@
             teacher.teacher_id
           }" style="margin: 0;">
           <span>${teacher.full_name || teacher.username}</span>
+        </label>
+      `;
+      container.appendChild(checkboxDiv);
+    });
+  }
+
+  function renderClerkCheckboxes(clerks) {
+    const container = document.getElementById("clerk-checkboxes");
+    container.innerHTML = "";
+
+    if (!clerks.length) {
+      container.innerHTML = "<p class='text-sm'>No clerks found</p>";
+      return;
+    }
+
+    clerks.forEach((clerk) => {
+      const checkboxDiv = document.createElement("div");
+      checkboxDiv.className = "checkbox-item";
+      checkboxDiv.innerHTML = `
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" value="${
+            clerk.clerk_id || clerk.id
+          }" style="margin: 0;">
+          <span>${clerk.full_name || clerk.username}</span>
         </label>
       `;
       container.appendChild(checkboxDiv);
@@ -532,6 +608,7 @@
 
     // Validate audience selection
     let teacherIds = [];
+    let clerkIds = [];
     let classIds = [];
 
     if (audience === "teachers") {
@@ -541,6 +618,19 @@
       if (teacherIds.length === 0) {
         toast(
           "Please select at least one teacher.",
+          "fa-solid fa-circle-exclamation"
+        );
+        return;
+      }
+    } else if (audience === "all-teachers") {
+      // No validation needed for all teachers
+    } else if (audience === "clerks") {
+      clerkIds = Array.from(
+        document.querySelectorAll("#clerk-checkboxes input:checked")
+      ).map((cb) => parseInt(cb.value));
+      if (clerkIds.length === 0) {
+        toast(
+          "Please select at least one clerk.",
           "fa-solid fa-circle-exclamation"
         );
         return;
@@ -568,6 +658,7 @@
       description,
       audience_type: audience,
       teacher_ids: teacherIds,
+      clerk_ids: clerkIds,
       class_ids: classIds,
     };
 
@@ -596,10 +687,13 @@
     document.getElementById("announcement-description").value = "";
     document.getElementById("announcement-audience").value = "all";
     document.getElementById("teacher-selection").style.display = "none";
+    document.getElementById("clerk-selection").style.display = "none";
     document.getElementById("class-selection").style.display = "none";
     // Clear checkboxes
     document
-      .querySelectorAll("#teacher-checkboxes input, #class-checkboxes input")
+      .querySelectorAll(
+        "#teacher-checkboxes input, #clerk-checkboxes input, #class-checkboxes input"
+      )
       .forEach((cb) => (cb.checked = false));
   }
 
@@ -746,5 +840,6 @@
   fetchStaffAnnouncements();
   setupAddButton();
   loadTeachers(); // Pre-load teachers for better UX
+  loadClerks(); // Pre-load clerks for better UX
   loadClasses(); // Pre-load classes for better UX
 </script>

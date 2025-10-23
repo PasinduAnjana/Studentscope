@@ -134,3 +134,15 @@ exports.getAllTeachers = async (req, res) => {
     res.end(JSON.stringify({ error: "Failed to fetch teachers" }));
   }
 };
+
+exports.getAllClerks = async (req, res) => {
+  try {
+    const clerks = await adminService.getAllClerks();
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(clerks));
+  } catch (err) {
+    console.error("Error fetching clerks:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch clerks" }));
+  }
+};

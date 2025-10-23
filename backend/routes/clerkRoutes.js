@@ -156,7 +156,10 @@ module.exports = async (req, res) => {
   }
 
   // Announcements routes
-  if (req.method === "GET" && req.url === "/api/clerk/announcements") {
+  if (
+    req.method === "GET" &&
+    req.url.match(/^\/api\/clerk\/announcements(\?.*)?$/)
+  ) {
     return protect("clerk")(req, res, () =>
       announcementsController.getAllAnnouncements(req, res)
     );

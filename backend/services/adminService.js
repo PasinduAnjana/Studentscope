@@ -353,6 +353,26 @@ exports.getAllTeachers = async () => {
   return result.rows;
 };
 
+exports.getAllClerks = async () => {
+  const result = await pool.query(`
+    SELECT 
+      cd.clerk_id as id,
+      cd.clerk_id,
+      cd.full_name,
+      cd.nic,
+      cd.address,
+      cd.phone_number,
+      cd.appointment_date,
+      cd.first_appointment_date,
+      cd.birthday,
+      u.username
+    FROM clerk_details cd
+    JOIN users u ON cd.clerk_id = u.id
+    ORDER BY cd.full_name
+  `);
+  return result.rows;
+};
+
 // ============ BEHAVIOR RECORDS ============
 exports.getBehaviorStats = async () => {
   const result = await pool.query(`

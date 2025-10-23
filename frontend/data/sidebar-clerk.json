@@ -16,15 +16,16 @@
     "page": "timetable",
     "icon": "fas fa-calendar-alt"
   },
-  {
-    "label": "sidebar.profile",
-    "page": "profile",
-    "icon": "fas fa-user"
-  },
+
   {
     "label": "sidebar.announcements",
     "page": "announcements",
     "icon": "fas fa-bullhorn"
   },
-  { "label": "Achievements", "page": "achievements", "icon": "fas fa-trophy" }
+  { "label": "Achievements", "page": "achievements", "icon": "fas fa-trophy" },
+  {
+    "label": "sidebar.profile",
+    "page": "profile",
+    "icon": "fas fa-user"
+  }
 ]

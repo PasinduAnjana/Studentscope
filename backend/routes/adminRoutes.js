@@ -94,6 +94,13 @@ module.exports = (req, res) => {
     );
   }
 
+  // Clerks route for announcements page
+  if (req.method === "GET" && req.url === "/api/admin/clerks") {
+    return protect("admin")(req, res, () =>
+      adminController.getAllClerks(req, res)
+    );
+  }
+
   // Announcements route
   if (req.method === "GET" && req.url === "/api/admin/announcements/recent") {
     return protect("admin")(req, res, () =>

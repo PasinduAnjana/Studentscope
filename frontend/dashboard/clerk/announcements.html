@@ -20,15 +20,31 @@
       background-color: var(--color-hover);
     }
   </style>
-  <div class="card">
-    <div class="flex-between mb-2">
-      <h1 class="title" data="sidebar.announcements"></h1>
-      <button id="add-announcement-btn" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Add Announcement
-      </button>
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <!-- Announcements For Me -->
+    <div class="card">
+      <div class="flex-between mb-2">
+        <h1 class="title">
+          <i class="fas fa-inbox"></i>
+          <span>Announcements For Me</span>
+        </h1>
+      </div>
+      <div class="announcements-container" id="announcements-for-me-container">
+        <!-- Announcements for this clerk will be loaded here dynamically -->
+      </div>
     </div>
-    <div class="announcements-container" id="announcements-container">
-      <!-- Announcements will be loaded here dynamically -->
+
+    <!-- My Announcements -->
+    <div class="card">
+      <div class="flex-between mb-2">
+        <h1 class="title" data="sidebar.announcements"></h1>
+        <button id="add-announcement-btn" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Add Announcement
+        </button>
+      </div>
+      <div class="announcements-container" id="announcements-container">
+        <!-- Announcements created by me will be loaded here dynamically -->
+      </div>
     </div>
   </div>
 </section>
@@ -181,6 +197,129 @@
         const container = document.querySelector("#announcements-container");
         container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
       });
+  }
+
+  function fetchAnnouncementsForMe() {
+    console.log("Fetching announcements for me...");
+    fetch("/api/clerk/announcements?role=clerk")
+      .then((res) => {
+        console.log("API response status:", res.status);
+        if (!res.ok) throw new Error("Failed to fetch announcements for me");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Received announcements for me data:", data);
+        renderAnnouncementsForMe(data);
+      })
+      .catch((err) => {
+        console.error("Error fetching announcements for me:", err);
+        const container = document.querySelector(
+          "#announcements-for-me-container"
+        );
+        container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
+      });
+  }
+
+  function renderAnnouncementsForMe(announcementsForMe) {
+    const container = document.querySelector("#announcements-for-me-container");
+    container.innerHTML = "";
+
+    if (!announcementsForMe.length) {
+      container.innerHTML = `<div class="no-announcements text-center">No announcements for you</div>`;
+      return;
+    }
+
+    announcementsForMe.forEach((announcement) => {
+      const card = document.createElement("div");
+      card.className = "announcement-card";
+
+      const createdDate = new Date(
+        announcement.created_at
+      ).toLocaleDateString();
+
+      // Format audience display
+      let audienceDisplay = "";
+      switch (announcement.audience_type) {
+        case "all":
+          audienceDisplay = "All (Teachers & Students)";
+          break;
+        case "teachers":
+          audienceDisplay = "Teachers";
+          break;
+        case "clerks":
+          audienceDisplay = "Clerks";
+          break;
+        case "students":
+          audienceDisplay = "Students";
+          break;
+      }
+
+      // Get creator info
+      const creatorRole = announcement.created_by_role || "Staff";
+      const creatorName = announcement.created_by_name || "Unknown";
+
+      card.innerHTML = `
+        <div class="announcement-title flex-between">
+          <span>${announcement.title}</span>
+        </div>
+        <div class="announcement-description-container">
+          <div class="announcement-description collapsed" id="for-me-desc-${announcement.id}">
+            ${announcement.description}
+          </div>
+          <button class="expand-btn" id="for-me-expand-${announcement.id}" style="display: none" onclick="toggleDescriptionForMe(${announcement.id})">
+            <span>Show more</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+        <div class="announcement-meta flex-between">
+          <div>
+            <span class="text-sm">Audience: ${audienceDisplay}</span>
+            <span class="text-sm" style="margin-left: 16px;">By: ${creatorName} (${creatorRole})</span>
+          </div>
+          <span class="text-sm">Created: ${createdDate}</span>
+        </div>
+      `;
+
+      container.appendChild(card);
+
+      // Check if description needs expand button
+      setTimeout(() => {
+        const descElement = document.getElementById(
+          `for-me-desc-${announcement.id}`
+        );
+        const expandBtn = document.getElementById(
+          `for-me-expand-${announcement.id}`
+        );
+        if (
+          descElement &&
+          expandBtn &&
+          descElement.scrollHeight > descElement.clientHeight
+        ) {
+          expandBtn.style.display = "inline-flex";
+        }
+      }, 0);
+    });
+  }
+
+  function toggleDescriptionForMe(id) {
+    const descElement = document.getElementById(`for-me-desc-${id}`);
+    const expandBtn = document.getElementById(`for-me-expand-${id}`);
+    const btnText = expandBtn.querySelector("span");
+    const btnIcon = expandBtn.querySelector("i");
+
+    if (descElement.classList.contains("collapsed")) {
+      // Expand
+      descElement.classList.remove("collapsed");
+      descElement.classList.add("expanded");
+      btnText.textContent = "Show less";
+      expandBtn.classList.add("expanded");
+    } else {
+      // Collapse
+      descElement.classList.remove("expanded");
+      descElement.classList.add("collapsed");
+      btnText.textContent = "Show more";
+      expandBtn.classList.remove("expanded");
+    }
   }
 
   function setupAddButton() {
@@ -531,6 +670,7 @@
 
   // Initialize
   fetchAnnouncements();
+  fetchAnnouncementsForMe();
   setupAddButton();
   loadTeachers(); // Pre-load teachers for better UX
   loadClasses(); // Pre-load classes for better UX

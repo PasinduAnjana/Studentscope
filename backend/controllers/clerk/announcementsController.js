@@ -22,10 +22,25 @@ exports.getAllAnnouncements = async (req, res) => {
       return;
     }
 
-    // Get all announcements created by this clerk
-    const announcements = await clerkService.getAllAnnouncements(
-      session.userId
-    );
+    // Check if this is a query for announcements for the clerk
+    // Parse the URL to extract query parameters
+    const urlParts = req.url.split("?");
+    const baseUrl = urlParts[0];
+    const queryString = urlParts[1] || "";
+    const queryParams = new URLSearchParams(queryString);
+    const role = queryParams.get("role");
+
+    let announcements;
+    if (role === "clerk") {
+      // Get announcements for this clerk (including "all" and "clerks" audience)
+      announcements = await clerkService.getAnnouncementsForClerk(
+        session.userId
+      );
+    } else {
+      // Get all announcements created by this clerk
+      announcements = await clerkService.getAllAnnouncements(session.userId);
+    }
+
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(announcements));
   } catch (err) {
@@ -60,8 +75,14 @@ exports.createAnnouncement = async (req, res) => {
     req.on("data", (chunk) => (body += chunk));
     req.on("end", async () => {
       try {
-        const { title, description, audience_type, teacher_ids, class_ids } =
-          JSON.parse(body);
+        const {
+          title,
+          description,
+          audience_type,
+          teacher_ids,
+          class_ids,
+          clerk_ids,
+        } = JSON.parse(body);
         if (!title || !description) {
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(
@@ -72,7 +93,9 @@ exports.createAnnouncement = async (req, res) => {
 
         if (
           !audience_type ||
-          !["all", "teachers", "students"].includes(audience_type)
+          !["all", "teachers", "students", "clerks", "all-teachers"].includes(
+            audience_type
+          )
         ) {
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "Valid audience_type is required" }));
@@ -106,12 +129,26 @@ exports.createAnnouncement = async (req, res) => {
           return;
         }
 
+        if (
+          audience_type === "clerks" &&
+          (!clerk_ids || clerk_ids.length === 0)
+        ) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({
+              error: "Clerk selection is required for clerks audience",
+            })
+          );
+          return;
+        }
+
         const announcement = await clerkService.createAnnouncement({
           title,
           description,
           audience_type,
           teacher_ids: teacher_ids || [],
           class_ids: class_ids || [],
+          clerk_ids: clerk_ids || [],
           clerk_id: session.userId,
         });
 
@@ -158,8 +195,14 @@ exports.updateAnnouncement = async (req, res) => {
     req.on("data", (chunk) => (body += chunk));
     req.on("end", async () => {
       try {
-        const { title, description, audience_type, teacher_ids, class_ids } =
-          JSON.parse(body);
+        const {
+          title,
+          description,
+          audience_type,
+          teacher_ids,
+          class_ids,
+          clerk_ids,
+        } = JSON.parse(body);
 
         if (!title || !description) {
           res.writeHead(400, { "Content-Type": "application/json" });
@@ -171,7 +214,9 @@ exports.updateAnnouncement = async (req, res) => {
 
         if (
           !audience_type ||
-          !["all", "teachers", "students"].includes(audience_type)
+          !["all", "teachers", "students", "clerks", "all-teachers"].includes(
+            audience_type
+          )
         ) {
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "Valid audience_type is required" }));
@@ -205,6 +250,19 @@ exports.updateAnnouncement = async (req, res) => {
           return;
         }
 
+        if (
+          audience_type === "clerks" &&
+          (!clerk_ids || clerk_ids.length === 0)
+        ) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({
+              error: "Clerk selection is required for clerks audience",
+            })
+          );
+          return;
+        }
+
         const announcement = await clerkService.updateAnnouncement(
           announcementId,
           {
@@ -213,6 +271,7 @@ exports.updateAnnouncement = async (req, res) => {
             audience_type,
             teacher_ids: teacher_ids || [],
             class_ids: class_ids || [],
+            clerk_ids: clerk_ids || [],
           },
           session.userId
         );

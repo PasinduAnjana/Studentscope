@@ -723,6 +723,7 @@ const createAnnouncement = async ({
   audience_type,
   teacher_ids = [],
   class_ids = [],
+  clerk_ids = [],
   clerk_id,
 }) => {
   const result = await pool.query(
@@ -746,15 +747,29 @@ const createAnnouncement = async ({
         [announcement.id, classId]
       );
     }
+  } else if (audience_type === "clerks" && clerk_ids.length > 0) {
+    for (const clerkIdValue of clerk_ids) {
+      await pool.query(
+        "INSERT INTO announcement_clerks (announcement_id, clerk_id) VALUES ($1, $2)",
+        [announcement.id, clerkIdValue]
+      );
+    }
   }
-  // For 'all', no need to insert into link tables
+  // For 'all', 'all-teachers', no need to insert into link tables
 
   return announcement;
 };
 
 const updateAnnouncement = async (
   announcementId,
-  { title, description, audience_type, teacher_ids = [], class_ids = [] },
+  {
+    title,
+    description,
+    audience_type,
+    teacher_ids = [],
+    class_ids = [],
+    clerk_ids = [],
+  },
   clerkId
 ) => {
   // Verify the clerk has access (clerks can edit any announcement they created)
@@ -785,6 +800,10 @@ const updateAnnouncement = async (
     "DELETE FROM announcement_classes WHERE announcement_id = $1",
     [announcementId]
   );
+  await pool.query(
+    "DELETE FROM announcement_clerks WHERE announcement_id = $1",
+    [announcementId]
+  );
 
   // Insert new links based on audience type
   if (audience_type === "teachers" && teacher_ids.length > 0) {
@@ -799,6 +818,13 @@ const updateAnnouncement = async (
       await pool.query(
         "INSERT INTO announcement_classes (announcement_id, class_id) VALUES ($1, $2)",
         [announcementId, classId]
+      );
+    }
+  } else if (audience_type === "clerks" && clerk_ids.length > 0) {
+    for (const clerkIdValue of clerk_ids) {
+      await pool.query(
+        "INSERT INTO announcement_clerks (announcement_id, clerk_id) VALUES ($1, $2)",
+        [announcementId, clerkIdValue]
       );
     }
   }
@@ -894,6 +920,38 @@ const getStaffAnnouncements = async () => {
   }
 };
 
+// Get announcements for a specific clerk (including "all" and "clerks" audience)
+const getAnnouncementsForClerk = async (clerkId) => {
+  try {
+    const result = await pool.query(
+      `
+      SELECT
+        a.id,
+        a.title,
+        a.description,
+        a.created_at,
+        a.audience_type,
+        u.username as created_by_name,
+        r.name as created_by_role
+      FROM announcements a
+      LEFT JOIN users u ON a.posted_by = u.id
+      LEFT JOIN roles r ON u.role_id = r.id
+      WHERE 
+        a.audience_type = 'all'
+        OR (a.audience_type = 'clerks' AND EXISTS (
+          SELECT 1 FROM announcement_clerks ac WHERE ac.announcement_id = a.id AND ac.clerk_id = $1
+        ))
+      ORDER BY a.created_at DESC
+      `,
+      [clerkId]
+    );
+    return result.rows;
+  } catch (err) {
+    console.error("Error fetching announcements for clerk:", err);
+    return [];
+  }
+};
+
 module.exports = {
   createStudent,
   getAllStudents,
@@ -919,6 +977,7 @@ module.exports = {
   deleteAnnouncement,
   getAnnouncementWithDetails,
   getStaffAnnouncements,
+  getAnnouncementsForClerk,
   // Password reset functions
   getPendingPasswordResets,
   approvePasswordReset,
