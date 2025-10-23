@@ -221,9 +221,9 @@
         </div>
         <div class="input-group">
           <label for="teacher-nic">NIC:</label>
-          <input 
-            type="text" 
-            id="teacher-nic" 
+          <input
+            type="text"
+            id="teacher-nic"
             placeholder="Enter NIC"
             minlength="5"
             maxlength="20"
@@ -244,9 +244,9 @@
         </div>
         <div class="input-group">
           <label for="teacher-address">Address:</label>
-          <input 
-            type="text" 
-            id="teacher-address" 
+          <input
+            type="text"
+            id="teacher-address"
             placeholder="Enter address"
             maxlength="255"
           />
@@ -588,7 +588,9 @@
     const birthday = document.getElementById("teacher-birthday").value;
     const level = document.getElementById("teacher-level").value;
     const phone = document.getElementById("teacher-phone").value.trim();
-    const appointmentDate = document.getElementById("teacher-appointment-date").value;
+    const appointmentDate = document.getElementById(
+      "teacher-appointment-date"
+    ).value;
 
     // Check required fields
     if (!fullName) {
@@ -598,13 +600,19 @@
     }
 
     if (fullName.length < 2) {
-      toast("Full Name must be at least 2 characters", "fa-solid fa-circle-exclamation");
+      toast(
+        "Full Name must be at least 2 characters",
+        "fa-solid fa-circle-exclamation"
+      );
       document.getElementById("teacher-full-name").focus();
       return false;
     }
 
     if (!fullName.match(/^[a-zA-Z\s\-']+$/)) {
-      toast("Full Name can only contain letters, spaces, hyphens, and apostrophes", "fa-solid fa-circle-exclamation");
+      toast(
+        "Full Name can only contain letters, spaces, hyphens, and apostrophes",
+        "fa-solid fa-circle-exclamation"
+      );
       document.getElementById("teacher-full-name").focus();
       return false;
     }
@@ -616,7 +624,10 @@
     }
 
     if (nic.length < 5) {
-      toast("NIC must be at least 5 characters", "fa-solid fa-circle-exclamation");
+      toast(
+        "NIC must be at least 5 characters",
+        "fa-solid fa-circle-exclamation"
+      );
       document.getElementById("teacher-nic").focus();
       return false;
     }
@@ -636,10 +647,13 @@
         document.getElementById("teacher-birthday").focus();
         return false;
       }
-      
+
       const age = today.getFullYear() - birthDate.getFullYear();
       if (age < 18) {
-        toast("Teacher must be at least 18 years old", "fa-solid fa-circle-exclamation");
+        toast(
+          "Teacher must be at least 18 years old",
+          "fa-solid fa-circle-exclamation"
+        );
         document.getElementById("teacher-birthday").focus();
         return false;
       }
@@ -652,7 +666,10 @@
     }
 
     if (phone && phone.length < 7) {
-      toast("Phone number must be at least 7 characters", "fa-solid fa-circle-exclamation");
+      toast(
+        "Phone number must be at least 7 characters",
+        "fa-solid fa-circle-exclamation"
+      );
       document.getElementById("teacher-phone").focus();
       return false;
     }
@@ -661,7 +678,10 @@
       const apptDate = new Date(appointmentDate);
       const birthDate = new Date(birthday);
       if (apptDate < birthDate) {
-        toast("Appointment date cannot be before birthday", "fa-solid fa-circle-exclamation");
+        toast(
+          "Appointment date cannot be before birthday",
+          "fa-solid fa-circle-exclamation"
+        );
         document.getElementById("teacher-appointment-date").focus();
         return false;
       }
