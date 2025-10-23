@@ -50,10 +50,17 @@
   border: 2px solid var(--color-primary);
   color: var(--color-text);
 }
+.btn-absent span {
+  color: var(--color-primary);
+}
+
 .btn-present {
   background: var(--color-primary);
   border: 1px solid var(--color-primary);
   color: var(--color-text);
+}
+.btn-present span {
+  color: var(--color-white);
 }
 
 .student-row.present .btn-present {
@@ -61,9 +68,16 @@
   border: 1px dashed var(--color-primary);
   color: var(--color-primary);
 }
+.student-row.present .btn-present span {
+  color: var(--color-primary);
+}
+
 .student-row.present .btn-absent {
   background: var(--color-card);
   border: 1px solid var(--color-border);
+  color: var(--color-border);
+}
+.student-row.present .btn-absent span {
   color: var(--color-border);
 }
 
@@ -72,10 +86,16 @@
   border: 1px dashed var(--color-error);
   color: var(--color-error);
 }
+.student-row.absent .btn-absent span {
+  color: var(--color-error);
+}
 
 .student-row.absent .btn-present {
   background: var(--color-card);
   border: 1px solid var(--color-border);
+  color: var(--color-border);
+}
+.student-row.absent .btn-present span {
   color: var(--color-border);
 }
 

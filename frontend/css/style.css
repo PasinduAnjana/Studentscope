@@ -155,7 +155,7 @@ span {
   transition: background-color 0.2s ease-in-out;
 }
 .btn span {
-  color: var(--color-text);
+  color: var(--color-white);
   font-weight: 500;
   font-size: medium;
 }
