@@ -11,15 +11,16 @@
     "icon": "fas fa-graduation-cap"
   },
   {
-    "label": "sidebar.studentProfiles",
-    "page": "students",
-    "icon": "fas fa-users"
-  },
-  {
     "label": "sidebar.behavior",
     "page": "behavior",
     "icon": "fas fa-user-shield"
   },
+  {
+    "label": "sidebar.studentProfiles",
+    "page": "students",
+    "icon": "fas fa-users"
+  },
+
   {
     "label": "sidebar.certificateApproval",
     "page": "certificates",
