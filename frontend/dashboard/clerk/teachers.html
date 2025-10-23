@@ -138,10 +138,10 @@
       </div>
       <div class="input-group">
         <select id="level-filter">
-          <option value="all">All Levels</option>
-          <option value="1">Level 1</option>
-          <option value="2">Level 2</option>
-          <option value="3">Level 3</option>
+          <option value="all">All Grades</option>
+          <option value="1">Grade 1</option>
+          <option value="2">Grade 2</option>
+          <option value="3">Grade 3</option>
         </select>
       </div>
       <div class="input-group">
@@ -160,7 +160,7 @@
           <tr>
             <th>Name</th>
             <th>NIC</th>
-            <th>Level</th>
+            <th>Grade</th>
             <th>Birthday</th>
             <th>Phone</th>
             <th>Appointment Date</th>
@@ -234,12 +234,12 @@
           <input type="date" id="teacher-birthday" />
         </div>
         <div class="input-group">
-          <label for="teacher-level">Level:</label>
+          <label for="teacher-level">Grade:</label>
           <select id="teacher-level">
-            <option value="">Select Level</option>
-            <option value="1">Level 1</option>
-            <option value="2">Level 2</option>
-            <option value="3">Level 3</option>
+            <option value="">Select Grade</option>
+            <option value="1">Grade 1</option>
+            <option value="2">Grade 2</option>
+            <option value="3">Grade 3</option>
           </select>
         </div>
         <div class="input-group">
@@ -819,11 +819,11 @@
       searchableLevelFilter.destroy();
       searchableLevelFilter = null;
     }
-    select.innerHTML = '<option value="all">All Levels</option>';
+    select.innerHTML = '<option value="all">All Grades</option>';
     const levelOptions = [
-      { value: "1", text: "Level 1" },
-      { value: "2", text: "Level 2" },
-      { value: "3", text: "Level 3" },
+      { value: "1", text: "Grade 1" },
+      { value: "2", text: "Grade 2" },
+      { value: "3", text: "Grade 3" },
     ];
     levelOptions.forEach((option) => {
       const opt = document.createElement("option");
@@ -891,11 +891,11 @@
       searchableTeacherLevel.destroy();
       searchableTeacherLevel = null;
     }
-    select.innerHTML = '<option value="">Select Level</option>';
+    select.innerHTML = '<option value="">Select Grade</option>';
     const levelOptions = [
-      { value: "1", text: "Level 1" },
-      { value: "2", text: "Level 2" },
-      { value: "3", text: "Level 3" },
+      { value: "1", text: "Grade 1" },
+      { value: "2", text: "Grade 2" },
+      { value: "3", text: "Grade 3" },
     ];
     levelOptions.forEach((option) => {
       const opt = document.createElement("option");
