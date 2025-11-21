@@ -243,6 +243,19 @@ module.exports = (req, res) => {
   }
 
   // Attendance routes
+  // Weekly and monthly aggregated endpoints (must come before generic GET)
+  if (req.method === "GET" && req.url === "/api/teacher/attendance/weekly") {
+    return protect("teacher")(req, res, () =>
+      attendanceController.getWeeklyAttendance(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url === "/api/teacher/attendance/monthly") {
+    return protect("teacher")(req, res, () =>
+      attendanceController.getMonthlyAttendance(req, res)
+    );
+  }
+
   if (req.method === "POST" && req.url === "/api/teacher/attendance") {
     return protect("teacher")(req, res, () =>
       attendanceController.saveAttendance(req, res)
@@ -263,6 +276,7 @@ module.exports = (req, res) => {
       attendanceController.deleteAttendance(req, res)
     );
   }
+
 
   // Marks routes
   if (req.method === "POST" && req.url === "/api/teacher/marks") {

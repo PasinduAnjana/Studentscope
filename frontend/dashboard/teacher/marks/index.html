@@ -10,7 +10,7 @@
   // Fetch all required data
   async function loadClasses() {
     try {
-      const response = await fetch("/api/teacher/marks/data");
+      const response = await api.teacher.marks.getData();
       if (!response.ok) {
         throw new Error("Failed to fetch teacher data");
       }

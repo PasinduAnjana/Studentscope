@@ -257,7 +257,7 @@
 <script>
   async function loadProfile() {
     try {
-      const response = await fetch("/api/teacher/profile");
+      const response = await api.teacher.profile.get();
       if (!response.ok) throw new Error("Failed to fetch profile");
 
       const profile = await response.json();
@@ -359,7 +359,7 @@
   async function loadProfileStats(profile) {
     try {
       // Load teaching classes
-      const classesResponse = await fetch("/api/teacher/profile/classes");
+      const classesResponse = await api.teacher.profile.getClasses();
       if (classesResponse.ok) {
         const classes = await classesResponse.json();
         const classesList = document.getElementById("classes-list");
@@ -407,8 +407,8 @@
 
       // Load students count for the class
       if (profile.class_id) {
-        const studentsResponse = await fetch(
-          `/api/teacher/students/class/${profile.class_id}`
+        const studentsResponse = await api.teacher.students.getByClass(
+          profile.class_id
         );
         if (studentsResponse.ok) {
           const students = await studentsResponse.json();
@@ -459,15 +459,9 @@
     }
 
     try {
-      const response = await fetch("/api/teacher/change-password", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          oldPassword: oldPassword,
-          newPassword: newPassword,
-        }),
+      const response = await api.teacher.profile.changePassword({
+        oldPassword: oldPassword,
+        newPassword: newPassword,
       });
 
       if (!response.ok) {

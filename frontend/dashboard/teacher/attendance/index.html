@@ -120,7 +120,7 @@
     let classId = null;
     try {
       // Try to get classId from attendance records if available
-      const res = await fetch(`/api/teacher/attendance?date=${dateStr}`);
+      const res = await api.teacher.attendance.getByDate(dateStr);
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
@@ -140,7 +140,7 @@
       // If attendance not marked, get classId from user info endpoint
       if (!classId) {
         try {
-          const userRes = await fetch("/api/auth/me");
+          const userRes = await api.auth.me();
           if (userRes.ok) {
             const userData = await userRes.json();
             if (userData && userData.class_id) classId = userData.class_id;
@@ -152,9 +152,7 @@
       // Get students for the current class
       if (classId) {
         try {
-          const studentsRes = await fetch(
-            `/api/teacher/students/class/${classId}`
-          );
+          const studentsRes = await api.teacher.students.getByClass(classId);
           if (studentsRes.ok) {
             const studentsData = await studentsRes.json();
             if (Array.isArray(studentsData)) {
@@ -190,62 +188,25 @@
     if (typeof applyTranslations === "function") applyTranslations();
 
     // --- Load Weekly Attendance Data ---
-    const dates = getWeekDates();
-    const weeklyPresent = [];
-    const weeklyAbsent = [];
-    for (const date of dates) {
-      try {
-        const res = await fetch(`/api/teacher/attendance?date=${date}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            const present = data.filter(
-              (r) =>
-                r.status === true || r.status === "present" || r.status === 1
-            ).length;
-            const absent = data.filter(
-              (r) =>
-                r.status === false || r.status === "absent" || r.status === 0
-            ).length;
-            weeklyPresent.push(present);
-            weeklyAbsent.push(absent);
-          } else {
-            weeklyPresent.push(0);
-            weeklyAbsent.push(0);
-          }
-        } else {
-          weeklyPresent.push(0);
-          weeklyAbsent.push(0);
-        }
-      } catch (err) {
-        weeklyPresent.push(0);
-        weeklyAbsent.push(0);
+    let weeklyData = { labels: [], present: [], absent: [] };
+    try {
+      const res = await api.teacher.attendance.getWeekly();
+      if (res.ok) {
+        weeklyData = await res.json();
       }
+    } catch (err) {
+      console.error('Error loading weekly attendance:', err);
     }
 
     // --- Load Monthly Attendance Data ---
-    const monthDates = getMonthDates();
-    const monthlyPresent = [];
-    for (const date of monthDates) {
-      try {
-        const res = await fetch(`/api/teacher/attendance?date=${date}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            const present = data.filter(
-              (r) =>
-                r.status === true || r.status === "present" || r.status === 1
-            ).length;
-            monthlyPresent.push(present);
-          } else {
-            monthlyPresent.push(0);
-          }
-        } else {
-          monthlyPresent.push(0);
-        }
-      } catch (err) {
-        monthlyPresent.push(0);
+    let monthlyData = { dates: [], present: [] };
+    try {
+      const res = await api.teacher.attendance.getMonthly();
+      if (res.ok) {
+        monthlyData = await res.json();
       }
+    } catch (err) {
+      console.error('Error loading monthly attendance:', err);
     }
 
     // --- Custom plugin to draw center text in doughnut ---
@@ -352,7 +313,7 @@
     if (hideTodayLoader) hideTodayLoader();
 
     // --- Weekly Attendance Bar Chart ---
-    const weeklyData = {
+    const weeklyChartData = {
       labels: [
         { en: "Mon", si: "සඳුදා", ta: "திங்" },
         { en: "Tue", si: "අඟහරුවාදා", ta: "செவ்" },
@@ -368,7 +329,7 @@
               si: "පැමිණි",
               ta: "வருகை",
             }[currentLang] || "Present",
-          data: weeklyPresent,
+          data: weeklyData.present || [],
           backgroundColor: primaryColor,
         },
         {
@@ -378,14 +339,14 @@
               si: "නොපැමිණි",
               ta: "இல்லை",
             }[currentLang] || "Absent",
-          data: weeklyAbsent,
+          data: weeklyData.absent || [],
           backgroundColor: primaryColor + "40",
         },
       ],
     };
     new Chart(document.getElementById("weeklyChart"), {
       type: "bar",
-      data: weeklyData,
+      data: weeklyChartData,
       options: {
         responsive: true,
         plugins: {
@@ -417,11 +378,11 @@
     if (hideWeeklyLoader) hideWeeklyLoader();
 
     // --- Monthly Attendance Line Chart ---
-    const monthlyLabels = Array.from({ length: monthDates.length }, (_, i) => {
-      const date = new Date(monthDates[i]);
+    const monthlyLabels = (monthlyData.dates || []).map(dateStr => {
+      const date = new Date(dateStr);
       return `${date.getMonth() + 1}/${date.getDate()}`;
     });
-    const monthlyData = {
+    const monthlyChartData = {
       labels: monthlyLabels,
       datasets: [
         {
@@ -431,7 +392,7 @@
               si: "පැමිණි",
               ta: "வருகை",
             }[currentLang] || "Present",
-          data: monthlyPresent,
+          data: monthlyData.present || [],
           borderColor: primaryColor,
           backgroundColor: primaryColor + "33",
           tension: 0.4,
@@ -441,7 +402,7 @@
     };
     new Chart(document.getElementById("monthlyChart"), {
       type: "line",
-      data: monthlyData,
+      data: monthlyChartData,
       options: {
         responsive: true,
         plugins: {
@@ -501,10 +462,8 @@
         const dd = String(today.getDate()).padStart(2, "0");
         const dateStr = `${yyyy}-${mm}-${dd}`;
 
-        fetch(`/api/teacher/attendance?date=${encodeURIComponent(dateStr)}`, {
-          method: "DELETE",
-          credentials: "include",
-        })
+        api.teacher.attendance
+          .delete(dateStr)
           .then((res) => {
             if (!res.ok) throw new Error("Failed to delete attendance");
             return res.json();

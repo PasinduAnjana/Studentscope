@@ -160,3 +160,54 @@ exports.deleteAttendance = async (req, res) => {
     res.end(JSON.stringify({ error: "Failed to delete attendance" }));
   }
 };
+
+exports.getWeeklyAttendance = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user || user.role !== "teacher") {
+      res.writeHead(403, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Unauthorized" }));
+      return;
+    }
+
+    if (!user.class_id) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "No class assigned to teacher" }));
+      return;
+    }
+
+    const data = await teacherService.getWeeklyAttendance(user.class_id);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(data));
+  } catch (err) {
+    console.error("Error fetching weekly attendance:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch weekly attendance" }));
+  }
+};
+
+exports.getMonthlyAttendance = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user || user.role !== "teacher") {
+      res.writeHead(403, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Unauthorized" }));
+      return;
+    }
+
+    if (!user.class_id) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "No class assigned to teacher" }));
+      return;
+    }
+
+    const data = await teacherService.getMonthlyAttendance(user.class_id);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(data));
+  } catch (err) {
+    console.error("Error fetching monthly attendance:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch monthly attendance" }));
+  }
+};
+

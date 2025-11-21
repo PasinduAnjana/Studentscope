@@ -62,10 +62,10 @@
     // Fetch time slots and teacher's weekly timetable from backend
     const [timeData, timetableData, todayTimetableData, teacherClassesData] =
       await Promise.all([
-        fetch("../../data/time.json").then((res) => res.json()),
-        fetch("/api/teacher/timetable/week").then((res) => res.json()),
-        fetch("/api/teacher/timetable/today").then((res) => res.json()),
-        fetch("/api/teacher/classes/teacher").then((res) => res.json()),
+        api.data.getTimeSlots(),
+        api.teacher.timetable.getWeek().then((res) => res.json()),
+        api.teacher.timetable.getToday().then((res) => res.json()),
+        api.teacher.classes.getTeacherClasses().then((res) => res.json()),
       ]);
     // You can now use todayTimetableData and teacherClassesData as needed
 

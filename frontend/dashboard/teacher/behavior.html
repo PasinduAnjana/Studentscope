@@ -263,7 +263,7 @@
   // Load students from teacher's class
   async function loadClassStudents() {
     try {
-      const response = await fetch("/api/teacher/students");
+      const response = await api.teacher.students.getAll();
       if (!response.ok) throw new Error("Failed to fetch students");
       const allStudents = await response.json();
 
@@ -312,7 +312,7 @@
   // Load teacher's behavior records
   async function loadMyBehaviorRecords() {
     try {
-      const response = await fetch("/api/teacher/behavior/records");
+      const response = await api.teacher.behavior.getRecords();
       if (!response.ok) throw new Error("Failed to fetch behavior records");
       myBehaviorRecords = await response.json();
       filteredRecords = myBehaviorRecords;
@@ -382,11 +382,7 @@
         reported_by_id: getTeacherId(),
       };
 
-      const response = await fetch("/api/teacher/behavior/records", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await api.teacher.behavior.addRecord(payload);
 
       if (!response.ok) throw new Error("Failed to submit record");
 
@@ -572,12 +568,7 @@
 
   async function deleteRecordConfirmed(recordId) {
     try {
-      const response = await fetch(
-        `/api/teacher/behavior/records?id=${recordId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await api.teacher.behavior.deleteRecord(recordId);
 
       if (!response.ok) throw new Error("Failed to delete record");
 

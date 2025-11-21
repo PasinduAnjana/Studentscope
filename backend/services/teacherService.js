@@ -459,6 +459,99 @@ exports.clearClassAttendance = async (classId, dateStr) => {
   return { deleted: result.rowCount };
 };
 
+// Get weekly attendance data (current week Mon-Fri)
+exports.getWeeklyAttendance = async (classId) => {
+  // Calculate current week's Monday-Friday dates
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  
+  const dates = [];
+  const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+  for (let i = 0; i < 5; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    dates.push(date.toISOString().split('T')[0]);
+  }
+
+  // Query attendance for all dates in one go
+  const result = await pool.query(
+    `
+    SELECT date::text, status, COUNT(*) as count
+    FROM attendance
+    WHERE class_id = $1 AND date = ANY($2::date[])
+    GROUP BY date, status
+    ORDER BY date
+    `,
+    [classId, dates]
+  );
+
+  // Aggregate results
+  const present = new Array(5).fill(0);
+  const absent = new Array(5).fill(0);
+  
+  result.rows.forEach(row => {
+    const dateIndex = dates.indexOf(row.date);
+    if (dateIndex !== -1) {
+      if (row.status) {
+        present[dateIndex] = parseInt(row.count);
+      } else {
+        absent[dateIndex] = parseInt(row.count);
+      }
+    }
+  });
+
+  return {
+    dates,
+    labels,
+    present,
+    absent
+  };
+};
+
+// Get monthly attendance data (current month)
+exports.getMonthlyAttendance = async (classId) => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  
+  const dates = [];
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month, day);
+    dates.push(date.toISOString().split('T')[0]);
+  }
+
+  // Query attendance for all dates in one go
+  const result = await pool.query(
+    `
+    SELECT date::text, status, COUNT(*) as count
+    FROM attendance
+    WHERE class_id = $1 AND date = ANY($2::date[])
+    GROUP BY date, status
+    ORDER BY date
+    `,
+    [classId, dates]
+  );
+
+  // Aggregate results - only count present students
+  const present = new Array(daysInMonth).fill(0);
+  
+  result.rows.forEach(row => {
+    const dateIndex = dates.indexOf(row.date);
+    if (dateIndex !== -1 && row.status) {
+      present[dateIndex] = parseInt(row.count);
+    }
+  });
+
+  return {
+    dates,
+    present
+  };
+};
+
+
 // Get teacher data for marks dashboard
 exports.getTeacherMarksData = async (teacherId) => {
   // Get subject assignments

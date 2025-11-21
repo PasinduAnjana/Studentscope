@@ -185,7 +185,7 @@
 
   async function getClassId(className) {
     try {
-      const response = await fetch("/api/teacher/classes");
+      const response = await api.teacher.classes.getAll();
       const classes = await response.json();
       const classObj = classes.find((c) => `${c.grade}${c.name}` === className);
       return classObj ? classObj.id : null;
@@ -215,17 +215,21 @@
       };
 
       // Get subjects based on teacher type
-      let subjectsUrl;
+      let subjectsPromise;
       if (type === "class_teacher") {
-        subjectsUrl = `/api/teacher/classes/${classId}/subjects/all`;
+        subjectsPromise = api.teacher.classes
+          .getAllSubjects(classId)
+          .then(handleResponse);
       } else {
-        subjectsUrl = `/api/teacher/classes/${classId}/subjects/teacher`;
+        subjectsPromise = api.teacher.classes
+          .getTeacherSubjects(classId)
+          .then(handleResponse);
       }
 
       [students, subjects, classInfo] = await Promise.all([
-        fetch(`/api/teacher/students/class/${classId}`).then(handleResponse),
-        fetch(subjectsUrl).then(handleResponse),
-        fetch(`/api/teacher/classes/${classId}/info`).then(handleResponse),
+        api.teacher.students.getByClass(classId).then(handleResponse),
+        subjectsPromise,
+        api.teacher.classes.getInfo(classId).then(handleResponse),
       ]);
 
       setupPage();
@@ -442,13 +446,8 @@
     }));
 
     // Send to backend
-    fetch("/api/teacher/marks", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
+    api.teacher.marks
+      .save(data)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -502,13 +501,8 @@
     }));
 
     // Send to backend
-    fetch("/api/teacher/marks", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
+    api.teacher.marks
+      .save(data)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

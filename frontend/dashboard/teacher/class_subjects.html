@@ -114,32 +114,7 @@
   let currentClassId = null;
 
   // API helper function
-  async function apiCall(url, options = {}) {
-    const headers = {
-      "Content-Type": "application/json",
-      ...options.headers,
-    };
 
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers,
-        credentials: "include", // Include cookies for authentication
-      });
-
-      if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({ error: "Unknown error" }));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("API call failed:", error);
-      throw error;
-    }
-  }
 
   let hideLoader = null;
 
@@ -187,7 +162,7 @@
       showLoading(true);
 
       // Get current teacher's info to determine their assigned class
-      const user = await apiCall("/api/auth/me");
+      const user = await api.auth.me().then((res) => res.json());
       console.log("User data:", user);
 
       if (!user || !user.is_class_teacher || !user.class_id) {
@@ -218,7 +193,9 @@
       currentClassId = classId;
 
       // Use the combined endpoint to get all data at once
-      const data = await apiCall(`/api/teacher/subjects/assignment/${classId}`);
+      const data = await api.teacher.classes
+        .getSubjectAssignment(classId)
+        .then((res) => res.json());
       console.log("Class data received:", data);
 
       allStudents = data.students;
@@ -448,13 +425,9 @@
             showLoading(true);
             const assignments = collectStudentSubjects();
             console.log("Submitting assignments:", assignments);
-            const result = await apiCall(
-              "/api/teacher/students/subjects/batch",
-              {
-                method: "POST",
-                body: JSON.stringify({ assignments }),
-              }
-            );
+            const result = await api.teacher.students
+              .saveSubjectAssignments(assignments)
+              .then((res) => res.json());
             if (result.success) {
               toast(
                 "Subject assignments submitted successfully!",
@@ -490,10 +463,9 @@
       console.log("Saving draft:", assignments);
 
       // For draft, we can use the same endpoint but show different message
-      const result = await apiCall("/api/teacher/students/subjects/batch", {
-        method: "POST",
-        body: JSON.stringify({ assignments }),
-      });
+      const result = await api.teacher.students
+        .saveSubjectAssignments(assignments)
+        .then((res) => res.json());
 
       if (result.success) {
         showSuccess("Draft saved successfully!");
@@ -516,10 +488,7 @@
         .map((select) => select.value)
         .filter((value) => value);
 
-      await apiCall(`/api/teacher/students/${studentId}/subjects`, {
-        method: "POST",
-        body: JSON.stringify({ subject_ids: subjectIds }),
-      });
+      await api.teacher.students.saveStudentSubjects(studentId, subjectIds);
 
       console.log(`Saved subjects for student ${studentId}`);
     } catch (error) {

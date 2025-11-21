@@ -127,7 +127,7 @@
         let timetable;
         if (isWeekend) {
           // Fetch weekly timetable and filter for Monday (day_of_week = 1)
-          const weeklyRes = await fetch(`/api/teacher/timetable/week`);
+          const weeklyRes = await api.teacher.timetable.getWeek();
           const weeklyTimetable = await weeklyRes.json();
           // Map weekly format to today format for consistency
           timetable = weeklyTimetable
@@ -140,12 +140,11 @@
             }));
         } else {
           // Fetch today's timetable
-          const timetableRes = await fetch(`/api/teacher/timetable/today`);
+          const timetableRes = await api.teacher.timetable.getToday();
           timetable = await timetableRes.json();
         }
 
-        const timeRes = await fetch("/data/time.json");
-        const timeSlots = await timeRes.json();
+        const timeSlots = await api.data.getTimeSlots();
 
         const timetableList = document.querySelector(
           "#todays-timetable .tile-list"
@@ -277,7 +276,7 @@
       let attendanceMarked = false;
       let classId = null;
       try {
-        const res = await fetch(`/api/teacher/attendance?date=${dateStr}`);
+        const res = await api.teacher.attendance.getByDate(dateStr);
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
@@ -295,16 +294,14 @@
           }
         }
         if (!classId) {
-          const userRes = await fetch("/api/auth/me");
+          const userRes = await api.auth.me();
           if (userRes.ok) {
             const userData = await userRes.json();
             if (userData && userData.class_id) classId = userData.class_id;
           }
         }
         if (classId) {
-          const studentsRes = await fetch(
-            `/api/teacher/students/class/${classId}`
-          );
+          const studentsRes = await api.teacher.students.getByClass(classId);
           if (studentsRes.ok) {
             const studentsData = await studentsRes.json();
             if (Array.isArray(studentsData)) {
@@ -411,7 +408,7 @@
     // Load recent announcements for dashboard tile
     async function loadDashboardAnnouncements() {
       try {
-        const res = await fetch("/api/teacher/announcements/received");
+        const res = await api.teacher.announcements.getReceived();
         if (!res.ok) throw new Error("Failed to fetch announcements");
 
         const announcements = await res.json();
@@ -481,7 +478,7 @@
     // Load recent todos for dashboard tile
     async function loadDashboardTodos() {
       try {
-        const res = await fetch("/api/teacher/todos");
+        const res = await api.teacher.todos.getAll();
         if (!res.ok) throw new Error("Failed to fetch todos");
 
         const allTodos = await res.json();
@@ -553,7 +550,7 @@
     // Load pending password reset requests
     async function loadPendingResets() {
       try {
-        const response = await fetch("/api/teacher/password-resets/pending");
+        const response = await api.teacher.passwordResets.getPending();
         if (!response.ok) return;
 
         const resets = await response.json();
@@ -605,12 +602,7 @@
     // Approve password reset
     async function approveReset(resetId) {
       try {
-        const response = await fetch(
-          `/api/teacher/password-resets/${resetId}/approve`,
-          {
-            method: "POST",
-          }
-        );
+        const response = await api.teacher.passwordResets.approve(resetId);
 
         if (response.ok) {
           showToast("Password reset approved", "fa-solid fa-check");
@@ -630,12 +622,7 @@
     // Reject password reset
     async function rejectReset(resetId) {
       try {
-        const response = await fetch(
-          `/api/teacher/password-resets/${resetId}/reject`,
-          {
-            method: "POST",
-          }
-        );
+        const response = await api.teacher.passwordResets.reject(resetId);
 
         if (response.ok) {
           showToast("Password reset rejected", "fa-solid fa-check");
