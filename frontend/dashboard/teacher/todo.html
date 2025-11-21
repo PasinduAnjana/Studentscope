@@ -127,9 +127,7 @@
 
   async function loadTodos() {
     try {
-      const res = await fetch("/api/teacher/todos", {
-        credentials: "include",
-      });
+      const res = await api.teacher.todos.getAll();
 
       if (res.status === 401) {
         toast(t("sessionExpired"), "fa-solid fa-circle-exclamation");
@@ -222,12 +220,7 @@
     }
 
     try {
-      const res = await fetch("/api/teacher/todos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ text }),
-      });
+      const res = await api.teacher.todos.create(text);
 
       if (!res.ok) {
         throw new Error(t("errorAdding"));
@@ -269,12 +262,7 @@
     }
 
     try {
-      const res = await fetch(`/api/teacher/todos/${editingTodoId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ text: newText }),
-      });
+      const res = await api.teacher.todos.update(editingTodoId, newText);
 
       if (!res.ok) {
         throw new Error(t("errorEditing"));
@@ -296,10 +284,7 @@
       cancelText: "Cancel",
       onConfirm: async function () {
         try {
-          const res = await fetch(`/api/teacher/todos/${todoId}`, {
-            method: "DELETE",
-            credentials: "include",
-          });
+          const res = await api.teacher.todos.delete(todoId);
 
           if (!res.ok) {
             throw new Error(t("deleteError"));
@@ -319,12 +304,7 @@
     const newStatus = isCompleted ? "completed" : "pending";
 
     try {
-      const res = await fetch(`/api/teacher/todos/${todoId}/status`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ status: newStatus }),
-      });
+      const res = await api.teacher.todos.updateStatus(todoId, newStatus);
 
       if (!res.ok) {
         throw new Error("Failed to update todo status");
