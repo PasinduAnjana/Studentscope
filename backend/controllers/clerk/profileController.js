@@ -26,14 +26,7 @@ exports.getProfile = async (req, res) => {
     // Get clerk details from clerk_details table
     let details = null;
     try {
-      const detailsRes = await pool.query(
-        `SELECT full_name, nic, address, phone_number, past_schools, appointment_date, first_appointment_date, birthday
-         FROM clerk_details WHERE clerk_id = $1`,
-        [session.userId]
-      );
-      if (detailsRes.rows.length > 0) {
-        details = detailsRes.rows[0];
-      }
+      details = await clerkService.getClerkDetails(session.userId);
     } catch (err) {
       // If table doesn't exist or other error, continue without details
       console.log("No clerk details found");

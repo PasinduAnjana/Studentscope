@@ -142,17 +142,9 @@ module.exports = async (req, res) => {
 
   // Subjects route
   if (req.method === "GET" && req.url === "/api/clerk/subjects") {
-    return protect("clerk")(req, res, async () => {
-      try {
-        const subjects = await clerkService.getSubjects();
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(subjects));
-      } catch (err) {
-        console.error(err);
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Failed to fetch subjects" }));
-      }
-    });
+    return protect("clerk")(req, res, () =>
+      classesController.getSubjects(req, res)
+    );
   }
 
   // Announcements routes

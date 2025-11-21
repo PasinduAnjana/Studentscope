@@ -39,6 +39,14 @@
       <button class="btn-primary" onclick="saveTeacherAssignment()">
         Save
       </button>
+      <button
+        class="btn-danger"
+        id="removeTeacherBtn"
+        onclick="removeTeacher()"
+        style="display: none; margin-left: 10px"
+      >
+        Remove Teacher
+      </button>
     </div>
   </div>
 </div>
@@ -182,11 +190,19 @@
       modalTitle.textContent = `Assign Teacher - Grade ${classItem.grade} ${classItem.class_name}`;
       document.getElementById("classNameGroup").style.display = "none";
       document.getElementById("deleteBtn").style.display = "inline-block";
+      
+      // Show remove teacher button if a teacher is assigned
+      if (classItem.teacher_id) {
+        document.getElementById("removeTeacherBtn").style.display = "inline-block";
+      } else {
+        document.getElementById("removeTeacherBtn").style.display = "none";
+      }
     } else {
       modalTitle.textContent = `Add New Class - Grade ${classItem.grade}`;
       document.getElementById("classNameGroup").style.display = "block";
       document.getElementById("classNameInput").value = "";
       document.getElementById("deleteBtn").style.display = "none";
+      document.getElementById("removeTeacherBtn").style.display = "none";
     }
 
     // Populate teacher dropdown
@@ -293,6 +309,45 @@
         "fa-solid fa-exclamation-triangle"
       );
     }
+  }
+
+  async function removeTeacher() {
+    if (!currentClassData) return;
+
+    toast("Are you sure you want to remove the teacher from this class?", "fa-solid fa-user-minus", {
+      confirm: true,
+      onConfirm: async () => {
+        try {
+          const payload = {
+            grade: currentClassData.grade,
+            class_name: currentClassData.class_name,
+            teacher_id: null
+          };
+
+          const response = await fetch("/api/clerk/classes/assign-teacher", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json();
+
+          if (data.error) {
+            toast("Error: " + data.error, "fa-solid fa-exclamation-triangle");
+            return;
+          }
+
+          toast("Teacher removed successfully!", "fa-solid fa-check-circle");
+          closeModal();
+          loadClasses();
+        } catch (error) {
+          console.error("Error removing teacher:", error);
+          toast("An error occurred while removing teacher", "fa-solid fa-exclamation-triangle");
+        }
+      }
+    });
   }
 
   async function deleteClass() {

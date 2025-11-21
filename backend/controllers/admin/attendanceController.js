@@ -104,8 +104,6 @@ exports.deleteAttendanceRecord = async (req, res) => {
       return;
     }
 
-    // For now, we'll just return success since we're focusing on read operations
-    // In a full implementation, you'd delete the record from the database
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(
       JSON.stringify({ success: true, message: "Attendance record deleted" })

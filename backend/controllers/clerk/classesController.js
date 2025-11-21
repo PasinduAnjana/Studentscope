@@ -68,22 +68,7 @@ exports.assignTeacher = async (req, res) => {
           return;
         }
 
-        // Find the class by grade and name
-        const pool = require("../../db");
-        let classResult = await pool.query(
-          "SELECT id FROM classes WHERE grade = $1 AND name = $2",
-          [grade, class_name]
-        );
-
-        let classId;
-        if (classResult.rows.length === 0) {
-          // Class doesn't exist, create it
-          classId = await clerkService.createClass(grade, class_name);
-        } else {
-          classId = classResult.rows[0].id;
-        }
-
-        await clerkService.assignClassTeacher(classId, teacher_id);
+        await clerkService.assignTeacherToClass(grade, class_name, teacher_id);
 
         const successJson = JSON.stringify({
           message: "Teacher assigned successfully",
@@ -129,46 +114,8 @@ exports.deleteClass = async (req, res) => {
       return;
     }
 
-    // Check if class exists
-    const pool = require("../../db");
-    const classResult = await pool.query(
-      "SELECT id FROM classes WHERE id = $1",
-      [classId]
-    );
-    if (classResult.rows.length === 0) {
-      const errorJson = JSON.stringify({ error: "Class not found" });
-      res.writeHead(404, {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(errorJson),
-      });
-      res.end(errorJson);
-      return;
-    }
-
-    // Check if there are students in the class
-    const studentCount = await pool.query(
-      "SELECT COUNT(*) FROM users WHERE class_id = $1",
-      [classId]
-    );
-    if (parseInt(studentCount.rows[0].count) > 0) {
-      const errorJson = JSON.stringify({
-        error: "Cannot delete class with students assigned",
-      });
-      res.writeHead(400, {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(errorJson),
-      });
-      res.end(errorJson);
-      return;
-    }
-
-    // Delete class teacher assignments first
-    await pool.query("DELETE FROM class_teachers WHERE class_id = $1", [
-      classId,
-    ]);
-
     // Delete the class
-    await pool.query("DELETE FROM classes WHERE id = $1", [classId]);
+    await clerkService.deleteClass(classId);
 
     const successJson = JSON.stringify({
       message: "Class deleted successfully",
@@ -180,11 +127,35 @@ exports.deleteClass = async (req, res) => {
     res.end(successJson);
   } catch (err) {
     console.error("Error deleting class:", err);
-    const errorJson = JSON.stringify({ error: "Internal Server Error" });
-    res.writeHead(500, {
+    
+    let statusCode = 500;
+    let errorMessage = "Internal Server Error";
+
+    if (err.message === "Class not found") {
+      statusCode = 404;
+      errorMessage = err.message;
+    } else if (err.message === "Cannot delete class with students assigned") {
+      statusCode = 400;
+      errorMessage = err.message;
+    }
+
+    const errorJson = JSON.stringify({ error: errorMessage });
+    res.writeHead(statusCode, {
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(errorJson),
     });
     res.end(errorJson);
+  }
+};
+
+exports.getSubjects = async (req, res) => {
+  try {
+    const subjects = await clerkService.getSubjects();
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(subjects));
+  } catch (err) {
+    console.error(err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch subjects" }));
   }
 };

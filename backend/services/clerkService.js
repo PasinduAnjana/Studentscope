@@ -11,6 +11,16 @@ function hashPassword(password, salt) {
     .toString("hex");
 }
 
+// Get clerk details
+async function getClerkDetails(userId) {
+  const result = await pool.query(
+    `SELECT full_name, nic, address, phone_number, past_schools, appointment_date, first_appointment_date, birthday
+     FROM clerk_details WHERE clerk_id = $1`,
+    [userId]
+  );
+  return result.rows[0] || null;
+}
+
 // Create a student user
 async function createStudent({
   full_name,
@@ -408,6 +418,52 @@ async function createClass(grade, className) {
     [grade, className]
   );
   return result.rows[0].id;
+}
+
+async function assignTeacherToClass(grade, className, teacherId) {
+  // Find the class by grade and name
+  let classResult = await pool.query(
+    "SELECT id FROM classes WHERE grade = $1 AND name = $2",
+    [grade, className]
+  );
+
+  let classId;
+  if (classResult.rows.length === 0) {
+    // Class doesn't exist, create it
+    classId = await createClass(grade, className);
+  } else {
+    classId = classResult.rows[0].id;
+  }
+
+  await assignClassTeacher(classId, teacherId);
+  return classId;
+}
+
+async function deleteClass(classId) {
+  // Check if class exists
+  const classResult = await pool.query("SELECT id FROM classes WHERE id = $1", [
+    classId,
+  ]);
+  if (classResult.rows.length === 0) {
+    throw new Error("Class not found");
+  }
+
+  // Check if there are students in the class
+  const studentCount = await pool.query(
+    "SELECT COUNT(*) FROM users WHERE class_id = $1",
+    [classId]
+  );
+  if (parseInt(studentCount.rows[0].count) > 0) {
+    throw new Error("Cannot delete class with students assigned");
+  }
+
+  // Delete class teacher assignments first
+  await pool.query("DELETE FROM class_teachers WHERE class_id = $1", [classId]);
+
+  // Delete the class
+  await pool.query("DELETE FROM classes WHERE id = $1", [classId]);
+
+  return true;
 }
 
 async function getAllTeachers() {
@@ -952,7 +1008,63 @@ const getAnnouncementsForClerk = async (clerkId) => {
   }
 };
 
+async function assignTeacherToClass(grade, className, teacherId) {
+  // Find the class by grade and name
+  let classResult = await pool.query(
+    "SELECT id FROM classes WHERE grade = $1 AND name = $2",
+    [grade, className]
+  );
+
+  let classId;
+  if (classResult.rows.length === 0) {
+    // Class doesn't exist, create it
+    classId = await createClass(grade, className);
+  } else {
+    classId = classResult.rows[0].id;
+  }
+
+  await assignClassTeacher(classId, teacherId);
+  return classId;
+}
+
+async function deleteClass(classId) {
+  // Check if class exists
+  const classResult = await pool.query("SELECT id FROM classes WHERE id = $1", [
+    classId,
+  ]);
+  if (classResult.rows.length === 0) {
+    throw new Error("Class not found");
+  }
+
+  // Check if there are students in the class
+  const studentCount = await pool.query(
+    `SELECT COUNT(*) FROM users u 
+     JOIN roles r ON u.role_id = r.id 
+     WHERE u.class_id = $1 AND r.name = 'student'`,
+    [classId]
+  );
+  if (parseInt(studentCount.rows[0].count) > 0) {
+    throw new Error("Cannot delete class with students assigned");
+  }
+
+  // Delete class teacher assignments first
+  await pool.query("DELETE FROM class_teachers WHERE class_id = $1", [classId]);
+
+  // Unassign any teachers linked to this class in the users table
+  // We already checked for students, so these must be teachers
+  await pool.query(
+    "UPDATE users SET class_id = NULL, is_class_teacher = FALSE WHERE class_id = $1",
+    [classId]
+  );
+
+  // Delete the class
+  await pool.query("DELETE FROM classes WHERE id = $1", [classId]);
+
+  return true;
+}
+
 module.exports = {
+  getClerkDetails,
   createStudent,
   getAllStudents,
   getStudentById,
@@ -961,6 +1073,8 @@ module.exports = {
   getAllClasses,
   getTeachers,
   assignClassTeacher,
+  assignTeacherToClass,
+  deleteClass,
   createClass,
   getAllTeachers,
   getTeacherById,
