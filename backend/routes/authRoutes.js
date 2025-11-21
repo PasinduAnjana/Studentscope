@@ -2,7 +2,7 @@ const url = require("url");
 const authController = require("../controllers/authController");
 
 module.exports = (req, res) => {
-  const parsedUrl = url.parse(req.url, true);
+  const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
 
   if (parsedUrl.pathname === "/api/auth/login" && req.method === "POST") {
     return authController.login(req, res);

@@ -3,8 +3,8 @@ const url = require("url");
 
 exports.getAttendanceStats = async (req, res) => {
   try {
-    const parsed = url.parse(req.url, true);
-    const date = parsed.query.date;
+    const parsed = new URL(req.url, `http://${req.headers.host}`);
+    const date = parsed.searchParams.get("date");
 
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       res.writeHead(400, { "Content-Type": "application/json" });
@@ -26,11 +26,11 @@ exports.getAttendanceStats = async (req, res) => {
 
 exports.getAttendanceRecords = async (req, res) => {
   try {
-    const parsed = url.parse(req.url, true);
-    const date = parsed.query.date;
-    const classId = parsed.query.classId;
-    const status = parsed.query.status;
-    const search = parsed.query.search;
+    const parsed = new URL(req.url, `http://${req.headers.host}`);
+    const date = parsed.searchParams.get("date");
+    const classId = parsed.searchParams.get("classId");
+    const status = parsed.searchParams.get("status");
+    const search = parsed.searchParams.get("search");
 
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       res.writeHead(400, { "Content-Type": "application/json" });
@@ -95,8 +95,8 @@ exports.updateAttendanceRecord = async (req, res) => {
 
 exports.deleteAttendanceRecord = async (req, res) => {
   try {
-    const parsed = url.parse(req.url, true);
-    const id = parsed.query.id;
+    const parsed = new URL(req.url, `http://${req.headers.host}`);
+    const id = parsed.searchParams.get("id");
 
     if (!id) {
       res.writeHead(400, { "Content-Type": "application/json" });

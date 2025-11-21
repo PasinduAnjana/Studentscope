@@ -90,8 +90,8 @@ exports.getAttendance = async (req, res) => {
       return;
     }
 
-    const parsed = url.parse(req.url, true);
-    const date = parsed.query.date;
+    const parsed = new URL(req.url, `http://${req.headers.host}`);
+    const date = parsed.searchParams.get("date");
 
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       res.writeHead(400, { "Content-Type": "application/json" });
@@ -132,8 +132,8 @@ exports.deleteAttendance = async (req, res) => {
       return;
     }
 
-    const parsed = url.parse(req.url, true);
-    let date = parsed.query.date;
+    const parsed = new URL(req.url, `http://${req.headers.host}`);
+    let date = parsed.searchParams.get("date");
     if (!date) {
       const today = new Date();
       const yyyy = today.getFullYear();

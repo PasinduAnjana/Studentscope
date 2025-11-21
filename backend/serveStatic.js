@@ -16,7 +16,7 @@ const mimeTypes = {
 };
 
 function serveStatic(req, res) {
-  const parsedUrl = url.parse(req.url, true);
+  const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
   const pathname = parsedUrl.pathname;
 
   //  Serve frontend files

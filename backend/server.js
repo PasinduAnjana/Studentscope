@@ -8,7 +8,7 @@ require("dotenv").config();
 const PORT = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
-  const parsedUrl = url.parse(req.url, true);
+  const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
   const pathname = parsedUrl.pathname;
 
   if (pathname.startsWith("/api")) {
