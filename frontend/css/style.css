@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 @import url("inputs.css");
 @import url("tables.css");
+@import url("loader.css");
 
 /* ========================
   🎨 COLOR VARIABLES
@@ -20,6 +21,7 @@
   --color-primary-light: rgba(0, 134, 187, 0.2);
   --color-error-light: rgba(239, 68, 68, 0.1);
   --color-login-bg: rgba(0, 134, 187, 0.18);
+  --color-loader-bg: rgba(255, 255, 255, 0.8);
 }
 
 /* Dark mode variables */
@@ -37,6 +39,7 @@
   --color-primary-light: rgba(0, 134, 187, 0.3);
   --color-error-light: rgba(248, 113, 113, 0.2);
   --color-login-bg: rgba(0, 102, 255, 0.2);
+  --color-loader-bg: rgba(29, 31, 37, 0.8);
 }
 
 /* ========================
@@ -461,33 +464,4 @@ input:checked+.slider:before {
 /* Firefox */
 * {
   scrollbar-color: rgba(var(--color-primary-rgb), 0.25) transparent;
-}
-
-/* ========================
-  🔄 LOADER COMPONENT
-======================== */
-.loader-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.1);
-  /* Semi-transparent background */
-  z-index: 10;
-  border-radius: inherit;
-  /* Match parent border radius */
-}
-
-.loader-container img {
-  width: 50px;
-  height: 50px;
-}
-
-/* Ensure parent has relative positioning */
-.dashboard-tile {
-  position: relative;
 }

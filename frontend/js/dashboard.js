@@ -34,6 +34,8 @@ function loadPage(role, page) {
     // For direct pages like dashboard.html
     path = `dashboard/${role}/${page}.html`;
   }
+  const hideLoader = loader("content");
+
   fetch(path)
     .then((res) => res.text())
     .then(async (html) => {
@@ -79,6 +81,7 @@ function loadPage(role, page) {
     })
     .catch((err) => {
       console.error("Failed to load page:", err);
+      if (hideLoader) hideLoader();
     });
 }
 
