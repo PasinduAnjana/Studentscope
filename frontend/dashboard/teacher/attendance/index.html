@@ -104,6 +104,11 @@
   }
 
   async function loadTodayAttendance() {
+    // Show loaders and get hide functions
+    const hideTodayLoader = loader("attendanceSummary");
+    const hideWeeklyLoader = loader(document.querySelector(".card.w-1.h-1.dashboard-tile:nth-child(3)"));
+    const hideMonthlyLoader = loader(document.querySelector(".card.w-2.h-1.dashboard-tile"));
+
     const dateStr = getTodayStr();
     let presentCount = 0;
     let absentCount = 0;
@@ -340,7 +345,11 @@
         typeof label === "object" ? label[currentLang] || label.en : label
       );
       chart.update();
+      chart.update();
     }
+    
+    // Hide today's loader
+    if (hideTodayLoader) hideTodayLoader();
 
     // --- Weekly Attendance Bar Chart ---
     const weeklyData = {
@@ -404,6 +413,9 @@
       weeklyChart.update();
     }
 
+    // Hide weekly loader
+    if (hideWeeklyLoader) hideWeeklyLoader();
+
     // --- Monthly Attendance Line Chart ---
     const monthlyLabels = Array.from({ length: monthDates.length }, (_, i) => {
       const date = new Date(monthDates[i]);
@@ -447,6 +459,9 @@
         scales: { y: { beginAtZero: true } },
       },
     });
+
+    // Hide monthly loader
+    if (hideMonthlyLoader) hideMonthlyLoader();
   }
 
   // Load attendance on page load

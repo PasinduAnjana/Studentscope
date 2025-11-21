@@ -39,14 +39,6 @@
   </div>
 </div>
 
-<!-- Loading indicator -->
-<div
-  id="loading-indicator"
-  style="text-align: center; padding: 20px; display: none"
->
-  <i class="fas fa-spinner fa-spin"></i> Loading...
-</div>
-
 <!-- Error message -->
 <div
   id="error-message"
@@ -149,15 +141,16 @@
     }
   }
 
+  let hideLoader = null;
+
   function showLoading(show = true) {
-    const loadingEl = document.getElementById("loading-indicator");
     const containerEl = document.querySelector(".marks-container");
 
     if (show) {
-      loadingEl.style.display = "block";
+      hideLoader = loader(containerEl);
       containerEl.classList.add("loading");
     } else {
-      loadingEl.style.display = "none";
+      if (hideLoader) hideLoader();
       containerEl.classList.remove("loading");
     }
   }
