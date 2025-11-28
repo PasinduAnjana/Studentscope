@@ -255,7 +255,7 @@
       return;
     }
 
-    const originalTodo = todos.find((t) => t.id === editingTodoId);
+    const originalTodo = todos.find((t) => t.id == editingTodoId);
     if (originalTodo && originalTodo.text === newText) {
       closeEditTodoModal();
       return;
@@ -311,7 +311,7 @@
       }
 
       // Update the local todo
-      const todo = todos.find((t) => t.id === todoId);
+      const todo = todos.find((t) => t.id == todoId);
       if (todo) {
         todo.status = newStatus;
         renderTodos();
@@ -448,6 +448,14 @@
     display: flex;
     gap: 5px;
     justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+  }
+
+  .todo-item:hover .action-buttons {
+    opacity: 1;
+    visibility: visible;
   }
 
   .btn-icon {
@@ -474,5 +482,12 @@
 
   .actions {
     margin-bottom: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .action-buttons {
+      opacity: 1;
+      visibility: visible;
+    }
   }
 </style>
