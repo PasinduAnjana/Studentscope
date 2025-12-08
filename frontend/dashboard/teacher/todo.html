@@ -166,6 +166,9 @@
     todos.forEach((todo) => {
       const card = document.createElement("div");
       card.classList.add("card", "todo-card");
+      if (todo.status === "completed") {
+        card.classList.add("completed-task-card");
+      }
       const isCompleted = todo.status === "completed";
       const iconClass = "fas fa-tasks";
 
@@ -417,6 +420,11 @@
     margin-bottom: 10px;
   }
 
+  .todo-card.completed-task-card {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+
   .todo-item {
     display: flex;
     justify-content: space-between;
@@ -460,6 +468,7 @@
 
   .todo-item.completed .todo-icon {
     color: var(--color-primary);
+
   }
 
   .todo-item:hover .todo-checkbox {
