@@ -154,9 +154,7 @@
     if (todos.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon-wrapper">
-            <i class="fas fa-clipboard-check"></i>
-          </div>
+          <i class="fas fa-clipboard-check"></i>
           <p class="empty-text">${t("noTodos")}</p>
         </div>
       `;
@@ -544,25 +542,14 @@
     justify-content: center;
     padding: 60px 20px;
     text-align: center;
-    background-color: var(--color-card);
-    border-radius: 10px;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .empty-icon-wrapper {
-    width: 80px;
-    height: 80px;
-    background-color: rgba(var(--color-primary-rgb), 0.1);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
+    background-color: transparent;
+    box-shadow: none;
   }
 
   .empty-state i {
     font-size: 32px;
-    color: var(--color-primary);
+    color: var(--color-subtext);
+    margin-bottom: 20px;
   }
 
   .empty-text {
