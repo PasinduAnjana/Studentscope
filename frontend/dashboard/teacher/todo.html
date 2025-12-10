@@ -73,6 +73,37 @@
   </div>
 </div>
 
+<!-- Todo Item Template -->
+<template id="todo-template">
+  <div class="card todo-card">
+    <div class="todo-item">
+      <div class="todo-checkbox-wrapper">
+        <i class="fas fa-tasks todo-icon"></i>
+        <input type="checkbox" class="todo-checkbox" />
+      </div>
+      <div class="todo-text-wrapper">
+        <p class="todo-text"></p>
+      </div>
+      <div class="action-buttons">
+        <button class="btn-icon btn-edit" title="Edit">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn-icon btn-delete" title="Delete">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- Empty State Template -->
+<template id="empty-state-template">
+  <div class="empty-state">
+    <i class="fas fa-clipboard-check"></i>
+    <p class="empty-text"></p>
+  </div>
+</template>
+
 <script>
   let todos = [];
   let editingTodoId = null;
@@ -149,58 +180,49 @@
 
   function renderTodos() {
     const container = document.getElementById("todosContainer");
+    const todoTemplate = document.getElementById("todo-template");
+    const emptyStateTemplate = document.getElementById("empty-state-template");
+    
     container.innerHTML = "";
 
     if (todos.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-clipboard-check"></i>
-          <p class="empty-text">${t("noTodos")}</p>
-        </div>
-      `;
+      const clone = emptyStateTemplate.content.cloneNode(true);
+      clone.querySelector(".empty-text").textContent = t("noTodos");
+      container.appendChild(clone);
       return;
     }
 
     todos.forEach((todo) => {
-      const card = document.createElement("div");
-      card.classList.add("card", "todo-card");
-      if (todo.status === "completed") {
-        card.classList.add("completed-task-card");
-      }
+      const clone = todoTemplate.content.cloneNode(true);
+      const card = clone.querySelector(".todo-card");
+      const checkbox = clone.querySelector(".todo-checkbox");
+      const text = clone.querySelector(".todo-text");
+      const editBtn = clone.querySelector(".btn-edit");
+      const deleteBtn = clone.querySelector(".btn-delete");
+      const todoItem = clone.querySelector(".todo-item");
+
+      // Set content
+      text.textContent = todo.text;
+      
+      // Handle status
       const isCompleted = todo.status === "completed";
-      const iconClass = "fas fa-tasks";
+      if (isCompleted) {
+        card.classList.add("completed-task-card");
+        todoItem.classList.add("completed");
+        checkbox.checked = true;
+        checkbox.title = "Mark as pending";
+      } else {
+        checkbox.title = "Mark as complete";
+      }
 
-      card.innerHTML = `
-        <div class="todo-item ${isCompleted ? "completed" : ""}">
-          <div class="todo-checkbox-wrapper">
-            <i class="${iconClass} todo-icon"></i>
-            <input 
-              type="checkbox" 
-              class="todo-checkbox" 
-              ${isCompleted ? "checked" : ""} 
-              onchange="toggleTodoStatus(${todo.id}, this.checked)"
-              title="Mark as ${isCompleted ? "pending" : "complete"}"
-            />
-          </div>
-          <div class="todo-text-wrapper">
-            <p class="todo-text">${escapeHtml(todo.text)}</p>
-          </div>
-          <div class="action-buttons">
-            <button class="btn-icon btn-edit" onclick="openEditTodoModal(${
-              todo.id
-            }, '${escapeHtml(todo.text)}')" title="Edit">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn-icon btn-delete" onclick="deleteTodo(${
-              todo.id
-            })" title="Delete">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-      `;
+      // Event listeners
+      checkbox.onchange = (e) => toggleTodoStatus(todo.id, e.target.checked);
+      
+      editBtn.onclick = () => openEditTodoModal(todo.id, todo.text);
+      
+      deleteBtn.onclick = () => deleteTodo(todo.id);
 
-      container.appendChild(card);
+      container.appendChild(clone);
     });
   }
 
