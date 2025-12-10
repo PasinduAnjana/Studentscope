@@ -134,6 +134,13 @@ const api = {
     },
   },
 
+  // Student endpoints
+  student: {
+    achievements: {
+      getAll: () => api.request("/student/achievements"),
+    },
+  },
+
   data: {
     getTimeSlots: () => fetch("/data/time.json").then((res) => res.json()),
   },

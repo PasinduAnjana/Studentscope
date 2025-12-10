@@ -1,0 +1,83 @@
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-trophy"></i>
+    <span data="student.achievements">Achievements</span>
+  </h2>
+
+  <!-- Container for cards -->
+  <div id="achievements-grid" class="card-grid">
+    <!-- Cards injected here -->
+    <div class="card" style="text-align: center; color: var(--color-subtext); padding: 40px; grid-column: 1 / -1;">
+        Loading achievements...
+    </div>
+  </div>
+
+  <script>
+    async function loadAchievements() {
+      const grid = document.getElementById("achievements-grid");
+      try {
+        const res = await api.student.achievements.getAll();
+        if (!res.ok) throw new Error("Failed to load");
+        const data = await res.json();
+
+        grid.innerHTML = "";
+
+        if (data.length === 0) {
+            grid.innerHTML = `
+             <div class="card" style="text-align: center; color: var(--color-subtext); padding: 40px; grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+                <i class="fas fa-medal" style="font-size: 48px; opacity: 0.5;"></i>
+                <p>No achievements yet. Keep working hard!</p>
+             </div>
+            `;
+            return;
+        }
+
+        data.forEach(item => {
+            const date = new Date(item.achieved_at).toLocaleDateString();
+            const icon = getCategoryIcon(item.category);
+            
+            const card = document.createElement("div");
+            card.className = "card";
+            card.style.display = "flex";
+            card.style.flexDirection = "column";
+
+            card.innerHTML = `
+                <div class="flex-between mb-2">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(0, 134, 187, 0.1); display: flex; align-items: center; justify-content: center; color: var(--color-primary);">
+                        <i class="fas ${icon}" style="font-size: 24px;"></i>
+                    </div>
+                    <span class="text-sm" style="background: var(--color-bg); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--color-border);">${date}</span>
+                </div>
+                <h3 style="margin-bottom: 8px; font-size: 18px; font-weight: 600; color: var(--color-text);">${item.title}</h3>
+                <div class="text-sm" style="margin-bottom: 12px; color: var(--color-primary); text-transform: uppercase; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">
+                    ${item.category}
+                </div>
+                <p style="color: var(--color-subtext); flex-grow: 1;">${item.description}</p>
+            `;
+            grid.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = `
+             <div class="card" style="text-align: center; color: var(--color-error); padding: 40px; grid-column: 1 / -1;">
+                <i class="fas fa-exclamation-circle" style="font-size: 32px; margin-bottom: 16px;"></i>
+                <p>Failed to load achievements.</p>
+             </div>
+        `;
+      }
+    }
+
+    function getCategoryIcon(cat) {
+      switch(cat) {
+        case 'academic': return 'fa-microscope';
+        case 'sports': return 'fa-trophy';
+        case 'arts': return 'fa-palette';
+        default: return 'fa-star';
+      }
+    }
+
+    // Initialize
+    loadAchievements();
+  </script>
+</section>

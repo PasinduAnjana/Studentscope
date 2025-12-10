@@ -17,6 +17,11 @@
     "icon": "fas fa-certificate"
   },
   {
+    "label": "student.achievements",
+    "page": "achievements",
+    "icon": "fas fa-trophy"
+  },
+  {
     "label": "sidebar.announcements",
     "page": "announcements",
     "icon": "fas fa-bullhorn"
