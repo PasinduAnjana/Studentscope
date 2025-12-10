@@ -119,6 +119,21 @@ const api = {
         api.request(`/teacher/password-resets/${id}/reject`, "POST"),
     },
   },
+
+  // Clerk endpoints
+  clerk: {
+    achievements: {
+      getAll: () => api.request("/clerk/achievements"),
+      create: (data) => api.request("/clerk/achievements", "POST", data),
+      update: (id, data) =>
+        api.request(`/clerk/achievements/${id}`, "PUT", data),
+      delete: (id) => api.request(`/clerk/achievements/${id}`, "DELETE"),
+    },
+    students: {
+      getAll: () => api.request("/clerk/students"),
+    },
+  },
+
   data: {
     getTimeSlots: () => fetch("/data/time.json").then((res) => res.json()),
   },

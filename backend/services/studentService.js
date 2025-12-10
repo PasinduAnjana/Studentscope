@@ -106,7 +106,10 @@ exports.getAchievements = async (studentId) => {
   const result = await pool.query(
     `
     SELECT
+      id,
+      title,
       description,
+      category,
       achieved_at
     FROM achievements
     WHERE student_id = $1

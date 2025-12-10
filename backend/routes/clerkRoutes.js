@@ -5,6 +5,7 @@ const teachersController = require("../controllers/clerk/teachersController");
 const timetableController = require("../controllers/clerk/timetableController");
 const profileController = require("../controllers/clerk/profileController");
 const announcementsController = require("../controllers/clerk/announcementsController");
+const achievementsController = require("../controllers/achievementsController");
 const clerkService = require("../services/clerkService");
 
 module.exports = async (req, res) => {
@@ -208,6 +209,39 @@ module.exports = async (req, res) => {
   ) {
     return protect("clerk")(req, res, () =>
       profileController.rejectPasswordReset(req, res)
+    );
+  }
+
+  // Achievements routes
+  if (req.method === "GET" && req.url === "/api/clerk/achievements") {
+    return protect("clerk")(req, res, () =>
+      achievementsController.getAll(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url === "/api/clerk/achievements") {
+    return protect("clerk")(req, res, () =>
+      achievementsController.create(req, res)
+    );
+  }
+
+  if (
+    req.method === "PUT" &&
+    req.url.match(/^\/api\/clerk\/achievements\/\d+$/)
+  ) {
+    const id = req.url.split("/").pop();
+    return protect("clerk")(req, res, () =>
+      achievementsController.update(req, res, id)
+    );
+  }
+
+  if (
+    req.method === "DELETE" &&
+    req.url.match(/^\/api\/clerk\/achievements\/\d+$/)
+  ) {
+    const id = req.url.split("/").pop();
+    return protect("clerk")(req, res, () =>
+      achievementsController.delete(req, res, id)
     );
   }
 

@@ -230,7 +230,9 @@ END $$;
       CREATE TABLE IF NOT EXISTS achievements (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         student_id BIGINT REFERENCES users(id),
+        title TEXT NOT NULL,
         description TEXT NOT NULL,
+        category TEXT NOT NULL CHECK (category IN ('academic', 'sports', 'arts', 'other')),
         achieved_at DATE NOT NULL
       );
     `);

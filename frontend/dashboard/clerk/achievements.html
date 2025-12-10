@@ -3,18 +3,10 @@
     <i class="fas fa-trophy"></i>
     <span>Achievement Management</span>
   </h2>
-  <style>
-    /* Action buttons styling */
-    .action-buttons {
-      display: flex;
-      gap: 5px;
-      justify-content: center;
-    }
-  </style>
   <div class="card">
     <div class="flex-between mb-2">
       <h1 class="title">Achievements</h1>
-      <button class="btn btn-primary">
+      <button class="btn btn-primary" onclick="openModal()">
         <i class="fas fa-plus"></i> Add Achievement
       </button>
     </div>
@@ -29,120 +21,242 @@
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="achievements-table-body">
           <tr>
-            <td>Kasun Perera</td>
-            <td>
-              <div style="font-weight: 600">Mathematics Competition Winner</div>
-              <div style="color: #777; font-size: 13px">
-                First place in inter-school mathematics competition
-              </div>
-            </td>
-            <td>
-              <span
-                style="
-                  padding: 4px 10px;
-                  border-radius: 20px;
-                  font-size: 12px;
-                  background: #e6f4ff;
-                  color: #007bff;
-                  display: inline-flex;
-                  align-items: center;
-                  gap: 5px;
-                  font-weight: 500;
-                "
-              >
-                <i class="fas fa-microscope"></i> academic
-              </span>
-            </td>
-            <td>3/15/2024</td>
-            <td>
-              <div class="action-buttons">
-                <button class="btn-icon btn-edit" title="Edit">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn-icon btn-delete" title="Delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Kasun Perera</td>
-            <td>
-              <div style="font-weight: 600">Cricket Team Captain</div>
-              <div style="color: #777; font-size: 13px">
-                Led school cricket team to provincial championship
-              </div>
-            </td>
-            <td>
-              <span
-                style="
-                  padding: 4px 10px;
-                  border-radius: 20px;
-                  font-size: 12px;
-                  background: #fff4e6;
-                  color: #f39c12;
-                  display: inline-flex;
-                  align-items: center;
-                  gap: 5px;
-                  font-weight: 500;
-                "
-              >
-                <i class="fas fa-trophy"></i> sports
-              </span>
-            </td>
-            <td>2/20/2024</td>
-            <td>
-              <div class="action-buttons">
-                <button class="btn-icon btn-edit" title="Edit">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn-icon btn-delete" title="Delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Nimali Silva</td>
-            <td>
-              <div style="font-weight: 600">Science Fair Gold Medal</div>
-              <div style="color: #777; font-size: 13px">
-                Outstanding project on renewable energy
-              </div>
-            </td>
-            <td>
-              <span
-                style="
-                  padding: 4px 10px;
-                  border-radius: 20px;
-                  font-size: 12px;
-                  background: #e6f4ff;
-                  color: #007bff;
-                  display: inline-flex;
-                  align-items: center;
-                  gap: 5px;
-                  font-weight: 500;
-                "
-              >
-                <i class="fas fa-microscope"></i> academic
-              </span>
-            </td>
-            <td>1/10/2024</td>
-            <td>
-              <div class="action-buttons">
-                <button class="btn-icon btn-edit" title="Edit">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn-icon btn-delete" title="Delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
+            <td colspan="5" class="text-center">Loading...</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
+
+  <!-- Modal using shared styles (from announcements.css) -->
+  <div id="achievementModal" class="modal" style="display: none">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add Achievement</h3>
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="achievementForm" onsubmit="handleSave(event)">
+          <input type="hidden" id="achievementId" />
+          
+          <div class="form-group">
+            <label for="studentSelect">Student</label>
+            <select id="studentSelect" required>
+              <option value="">Select Student...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="titleInput">Title</label>
+            <input type="text" id="titleInput" required placeholder="e.g. Mathematics Competition Winner" />
+          </div>
+
+          <div class="form-group">
+            <label for="descInput">Description</label>
+            <textarea id="descInput" rows="3" required placeholder="Details about the achievement..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="categorySelect">Category</label>
+            <select id="categorySelect" required>
+              <option value="academic">Academic</option>
+              <option value="sports">Sports</option>
+              <option value="arts">Arts</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="dateInput">Date</label>
+            <input type="date" id="dateInput" required />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('achievementForm').dispatchEvent(new Event('submit'))">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let students = [];
+    let isEditing = false;
+
+    async function init() {
+      await loadStudents();
+      loadAchievements();
+    }
+
+    async function loadStudents() {
+      try {
+        const res = await api.clerk.students.getAll();
+        if (res.ok) {
+          students = await res.json();
+          const select = document.getElementById("studentSelect");
+          select.innerHTML = '<option value="">Select Student...</option>';
+          students.forEach(s => {
+            const option = document.createElement("option");
+            option.value = s.user_id; 
+            option.textContent = `${s.full_name} (${s.username || 'No ID'})`;
+            select.appendChild(option);
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load students", err);
+        toast("Failed to load students", "fa-solid fa-circle-exclamation");
+      }
+    }
+
+    async function loadAchievements() {
+      const tbody = document.getElementById("achievements-table-body");
+      try {
+        const res = await api.clerk.achievements.getAll();
+        if (!res.ok) throw new Error("Failed");
+        const data = await res.json();
+        
+        tbody.innerHTML = "";
+        
+        if (data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center">No achievements found</td></tr>`;
+          return;
+        }
+
+        data.forEach(item => {
+          const date = new Date(item.achieved_at).toLocaleDateString();
+          const icon = getCategoryIcon(item.category);
+          
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${item.student_name || 'Unknown Student'}</td>
+            <td>
+              <div>${item.title}</div>
+              <div class="text-sm">${item.description}</div>
+            </td>
+            <td>
+              <span>
+                <i class="fas ${icon}"></i> ${item.category}
+              </span>
+            </td>
+            <td>${date}</td>
+            <td>
+              <div class="action-buttons flex-center">
+                <button class="btn-icon btn-edit" onclick='openEditModal(${JSON.stringify(item).replace(/'/g, "&#39;")})' title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-icon btn-delete" onclick="handleDelete(${item.id})" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-error">Error loading data</td></tr>`;
+        toast("Error loading achievements", "fa-solid fa-circle-exclamation");
+      }
+    }
+
+    function getCategoryIcon(cat) {
+      switch(cat) {
+        case 'academic': return 'fa-microscope';
+        case 'sports': return 'fa-trophy';
+        case 'arts': return 'fa-palette';
+        default: return 'fa-star';
+      }
+    }
+
+    function openModal() {
+      isEditing = false;
+      document.getElementById("modalTitle").textContent = "Add Achievement";
+      document.getElementById("achievementForm").reset();
+      document.getElementById("achievementId").value = "";
+      document.getElementById("dateInput").valueAsDate = new Date();
+      
+      document.getElementById("achievementModal").style.display = "flex";
+    }
+
+    function openEditModal(item) {
+      isEditing = true;
+      document.getElementById("modalTitle").textContent = "Edit Achievement";
+      document.getElementById("achievementId").value = item.id;
+      document.getElementById("studentSelect").value = item.student_id; 
+      document.getElementById("titleInput").value = item.title;
+      document.getElementById("descInput").value = item.description;
+      document.getElementById("categorySelect").value = item.category;
+      document.getElementById("dateInput").value = item.achieved_at.split('T')[0];
+      
+      document.getElementById("achievementModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("achievementModal").style.display = "none";
+    }
+
+    async function handleSave(e) {
+      e.preventDefault();
+      
+      const id = document.getElementById("achievementId").value;
+      const data = {
+        student_id: document.getElementById("studentSelect").value,
+        title: document.getElementById("titleInput").value,
+        description: document.getElementById("descInput").value,
+        category: document.getElementById("categorySelect").value,
+        achieved_at: document.getElementById("dateInput").value
+      };
+
+      if (!data.student_id || !data.title || !data.category || !data.achieved_at) {
+         toast("Please fill all required fields", "fa-solid fa-circle-exclamation");
+         return;
+      }
+
+      try {
+        let res;
+        if (isEditing) {
+          res = await api.clerk.achievements.update(id, data);
+        } else {
+          res = await api.clerk.achievements.create(data);
+        }
+
+        if (res.ok) {
+          toast(isEditing ? "Updated Successfully" : "Created Successfully", "fa-solid fa-check-circle");
+          closeModal();
+          loadAchievements();
+        } else {
+          toast("Failed to save", "fa-solid fa-circle-exclamation");
+        }
+      } catch (err) {
+        console.error(err);
+        toast("Error saving", "fa-solid fa-circle-exclamation");
+      }
+    }
+
+    async function handleDelete(id) {
+       toast("Are you sure you want to delete this achievement?", "fa-solid fa-trash", {
+         confirm: true,
+         confirmText: "Delete",
+         onConfirm: async () => {
+             try {
+                const res = await api.clerk.achievements.delete(id);
+                if (res.ok) {
+                  loadAchievements();
+                  toast("Deleted Successfully", "fa-solid fa-check-circle");
+                } else {
+                  toast("Failed to delete", "fa-solid fa-circle-exclamation");
+                }
+            } catch (err) {
+                console.error(err);
+                toast("Error deleting", "fa-solid fa-circle-exclamation");
+            }
+         }
+       });
+    }
+
+    // Initialize
+    init();
+  </script>
 </section>
