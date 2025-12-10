@@ -19,15 +19,38 @@
     .checkbox-item label:hover {
       background-color: var(--color-hover);
     }
+    
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+      background-color: transparent;
+      box-shadow: none;
+    }
+
+    .empty-state i {
+      font-size: 32px;
+      color: var(--color-subtext);
+      margin-bottom: 20px;
+    }
+
+    .empty-text {
+      font-size: 16px;
+      color: var(--color-subtext);
+      margin: 0;
+    }
   </style>
-  <div style="display: flex; flex-direction: column; gap: 8px">
+  <div class="card-grid">
     <!-- Announcements For Me -->
-    <div class="card">
+    <div class="card h-2">
       <div class="flex-between mb-2">
-        <h1 class="title">
-          <i class="fas fa-inbox"></i>
-          <span>Announcements For Me</span>
-        </h1>
+        <div class="icon-title">
+          <i class="fas fa-inbox icon"></i>
+          <p class="tile-label">Announcements For Me</p>
+        </div>
       </div>
       <div class="announcements-container" id="announcements-for-me-container">
         <!-- Announcements for this clerk will be loaded here dynamically -->
@@ -35,9 +58,12 @@
     </div>
 
     <!-- My Announcements -->
-    <div class="card">
+    <div class="card h-2">
       <div class="flex-between mb-2">
-        <h1 class="title" data="sidebar.announcements"></h1>
+        <div class="icon-title">
+          <i class="fas fa-bullhorn icon"></i>
+          <p class="tile-label" data="sidebar.announcements">My Announcements</p>
+        </div>
         <button id="add-announcement-btn" class="btn btn-primary">
           <i class="fas fa-plus"></i> Add Announcement
         </button>
@@ -108,7 +134,13 @@
     const container = document.querySelector("#announcements-container");
     container.innerHTML = "";
     if (!announcements.length) {
-      container.innerHTML = `<div class="no-announcements text-center">No announcements found</div>`;
+
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-bullhorn"></i>
+          <p class="empty-text">No announcements found</p>
+        </div>
+      `;
       return;
     }
 
@@ -195,7 +227,12 @@
       .catch((err) => {
         console.error("Error fetching announcements:", err);
         const container = document.querySelector("#announcements-container");
-        container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-circle" style="color: var(--color-error);"></i>
+            <p class="empty-text">Error loading announcements</p>
+          </div>
+        `;
       });
   }
 
@@ -216,7 +253,12 @@
         const container = document.querySelector(
           "#announcements-for-me-container"
         );
-        container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-circle" style="color: var(--color-error);"></i>
+            <p class="empty-text">Error loading announcements</p>
+          </div>
+        `;
       });
   }
 
@@ -225,7 +267,13 @@
     container.innerHTML = "";
 
     if (!announcementsForMe.length) {
-      container.innerHTML = `<div class="no-announcements text-center">No announcements for you</div>`;
+
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <p class="empty-text">No announcements for you</p>
+        </div>
+      `;
       return;
     }
 
