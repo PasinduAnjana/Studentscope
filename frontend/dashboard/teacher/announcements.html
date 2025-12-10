@@ -33,6 +33,29 @@
     .section-title i {
       color: var(--color-primary);
     }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+      background-color: transparent;
+      box-shadow: none;
+    }
+
+    .empty-state i {
+      font-size: 32px;
+      color: var(--color-subtext);
+      margin-bottom: 20px;
+    }
+
+    .empty-text {
+      font-size: 16px;
+      color: var(--color-subtext);
+      margin: 0;
+    }
   </style>
   <div class="card-grid">
     <!-- My Announcements Card -->
@@ -177,19 +200,22 @@
     const container = document.querySelector(`#${containerId}`);
     container.innerHTML = "";
     if (!announcements.length) {
-      const noAnnouncementsDiv = document.createElement("div");
-      noAnnouncementsDiv.className = "no-announcements text-center";
-      noAnnouncementsDiv.setAttribute("data-en", "No announcements found");
-      noAnnouncementsDiv.setAttribute(
-        "data-si",
-        "නිවේදන කිසිවක් සොයා ගත නොහැකි විය"
-      );
-      noAnnouncementsDiv.setAttribute(
-        "data-ta",
-        "அறிவிப்புகள் எதுவும் கிடைக்கவில்லை"
-      );
-      noAnnouncementsDiv.textContent = "No announcements found";
-      container.appendChild(noAnnouncementsDiv);
+      const emptyStateDiv = document.createElement("div");
+      emptyStateDiv.className = "empty-state";
+      
+      const iconClass = containerId === "received-announcements-container" ? "fa-inbox" : "fa-bullhorn";
+      
+      emptyStateDiv.innerHTML = `
+        <i class="fas ${iconClass}"></i>
+        <p class="empty-text" 
+           data-en="No announcements found" 
+           data-si="නිවේදන කිසිවක් සොයා ගත නොහැකි විය" 
+           data-ta="அறிவிப்புகள் எதுவும் கிடைக்கவில்லை">
+           No announcements found
+        </p>
+      `;
+      
+      container.appendChild(emptyStateDiv);
       // Apply current language
       if (typeof applyDirectLanguageAttributes === "function") {
         applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
@@ -311,13 +337,17 @@
       .catch((err) => {
         console.error("Error fetching my announcements:", err);
         const container = document.querySelector("#my-announcements-container");
-        const errorDiv = document.createElement("div");
-        errorDiv.className = "no-announcements text-center";
-        errorDiv.setAttribute("data-en", "Error loading announcements");
-        errorDiv.setAttribute("data-si", "නිවේදන පූරණය කිරීමේ දෝෂයක්");
-        errorDiv.setAttribute("data-ta", "அறிவிப்புகளை ஏற்றுவதில் பிழை");
-        errorDiv.textContent = "Error loading announcements";
-        container.appendChild(errorDiv);
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-circle" style="color: var(--color-error);"></i>
+            <p class="empty-text" 
+               data-en="Error loading announcements" 
+               data-si="නිවේදන පූරණය කිරීමේ දෝෂයක්" 
+               data-ta="அறிவிப்புகளை ஏற்றுவதில் பிழை">
+               Error loading announcements
+            </p>
+          </div>
+        `;
         // Apply current language
         if (typeof applyDirectLanguageAttributes === "function") {
           applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
@@ -346,13 +376,17 @@
         const container = document.querySelector(
           "#received-announcements-container"
         );
-        const errorDiv = document.createElement("div");
-        errorDiv.className = "no-announcements text-center";
-        errorDiv.setAttribute("data-en", "Error loading announcements");
-        errorDiv.setAttribute("data-si", "නිවේදන පූරණය කිරීමේ දෝෂයක්");
-        errorDiv.setAttribute("data-ta", "அறிவிப்புகளை ஏற்றுவதில் பிழை");
-        errorDiv.textContent = "Error loading announcements";
-        container.appendChild(errorDiv);
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-circle" style="color: var(--color-error);"></i>
+            <p class="empty-text" 
+               data-en="Error loading announcements" 
+               data-si="නිවේදන පූරණය කිරීමේ දෝෂයක්" 
+               data-ta="அறிவிப்புகளை ஏற்றுவதில் பிழை">
+               Error loading announcements
+            </p>
+          </div>
+        `;
         // Apply current language
         if (typeof applyDirectLanguageAttributes === "function") {
           applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
