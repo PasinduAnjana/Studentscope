@@ -1,0 +1,62 @@
+/* Custom Toggle Button Group */
+.toggle-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.toggle-btn {
+    flex: 1;
+    min-width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    background-color: var(--color-card);
+    color: var(--color-subtext);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn i {
+    font-size: 20px;
+    margin-bottom: 4px;
+    transition: color 0.2s ease;
+}
+
+.toggle-btn span {
+    font-size: 13px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    color: var(--color-subtext);
+}
+
+/* Active State */
+.toggle-btn.active {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 134, 187, 0.2);
+}
+
+.toggle-btn.active span,
+.toggle-btn.active i {
+    color: var(--color-white);
+}
+
+/* Hover effects */
+.toggle-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background-color: rgba(0, 134, 187, 0.05); /* very light primary */
+}
+
+.toggle-btn:hover i, .toggle-btn:hover span {
+    color: var(--color-primary);
+}

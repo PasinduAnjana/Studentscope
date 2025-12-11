@@ -145,6 +145,5 @@ input[type="date"]::-moz-focus-inner {
   border: 0;
 }
 
-input[type="date"]:focus::-webkit-calendar-picker-indicator {
-  color: var(--color-primary);
-}
+
+

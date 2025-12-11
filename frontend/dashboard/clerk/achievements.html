@@ -1,4 +1,7 @@
-<section class="section">
+
+  <!-- Import Web Component -->
+  <script src="js/components/ToggleSelect.js"></script>
+
   <h2 class="heading">
     <i class="fas fa-trophy"></i>
     <span>Achievement Management</span>
@@ -59,13 +62,15 @@
           </div>
 
           <div class="form-group">
-            <label for="categorySelect">Category</label>
-            <select id="categorySelect" required>
-              <option value="academic">Academic</option>
-              <option value="sports">Sports</option>
-              <option value="arts">Arts</option>
-              <option value="other">Other</option>
-            </select>
+            <label>Category</label>
+            <!-- Custom Web Component -->
+            <toggle-select id="categoryToggle" onclick="syncCategory()">
+                <toggle-option value="academic" icon="fas fa-microscope">Academic</toggle-option>
+                <toggle-option value="sports" icon="fas fa-trophy">Sports</toggle-option>
+                <toggle-option value="arts" icon="fas fa-palette">Arts</toggle-option>
+                <toggle-option value="other" icon="fas fa-star">Other</toggle-option>
+            </toggle-select>
+            <input type="hidden" id="categorySelect" required />
           </div>
 
           <div class="form-group">
@@ -84,6 +89,12 @@
   <script>
     let students = [];
     let isEditing = false;
+
+    // Sync Web Component value with hidden input for form submission
+    function syncCategory() {
+        const toggle = document.querySelector('toggle-select');
+        document.getElementById('categorySelect').value = toggle.value;
+    }
 
     async function init() {
       await loadStudents();
@@ -177,6 +188,11 @@
       document.getElementById("achievementId").value = "";
       document.getElementById("dateInput").valueAsDate = new Date();
       
+      // Reset Web Component
+      const toggle = document.querySelector('toggle-select');
+      if(toggle) toggle.value = ""; 
+      document.getElementById('categorySelect').value = "";
+
       document.getElementById("achievementModal").style.display = "flex";
     }
 
@@ -189,6 +205,10 @@
       document.getElementById("descInput").value = item.description;
       document.getElementById("categorySelect").value = item.category;
       document.getElementById("dateInput").value = item.achieved_at.split('T')[0];
+      
+      // Set Web Component value
+      const toggle = document.querySelector('toggle-select');
+      if(toggle) toggle.value = item.category;
       
       document.getElementById("achievementModal").style.display = "flex";
     }
