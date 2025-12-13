@@ -227,6 +227,7 @@
 
     addInputHighlighting();
     limitMarks();
+    enableArrowNavigation();
   }
 
   function limitMarks() {
@@ -241,6 +242,61 @@
         }
         input.value = val;
       });
+    });
+  }
+
+  function enableArrowNavigation() {
+    const table = document.querySelector(".marks-table");
+    
+    table.addEventListener("keydown", (e) => {
+      // Only handle arrow keys on inputs
+      if (!e.target.classList.contains("mark-input")) return;
+      if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) return;
+
+      e.preventDefault();
+      
+      const currentInput = e.target;
+      const currentCell = currentInput.closest("td");
+      const currentRow = currentCell.closest("tr");
+      
+      const rows = Array.from(table.rows);
+      // Skip header row (index 0)
+      const currentRowIndex = rows.indexOf(currentRow);
+      
+      const cells = Array.from(currentRow.children);
+      const currentCellIndex = cells.indexOf(currentCell);
+
+      let targetRowIndex = currentRowIndex;
+      let targetCellIndex = currentCellIndex;
+
+      switch(e.key) {
+        case "ArrowUp":
+          targetRowIndex = Math.max(1, currentRowIndex - 1);
+          break;
+        case "ArrowDown":
+          targetRowIndex = Math.min(rows.length - 1, currentRowIndex + 1);
+          break;
+        case "ArrowLeft":
+          // Find previous input cell
+          targetCellIndex = Math.max(2, currentCellIndex - 1); // Skip index(0) and name(1)
+          break;
+        case "ArrowRight":
+           // Find next input cell
+          targetCellIndex = Math.min(cells.length - 1, currentCellIndex + 1);
+          break;
+      }
+
+      // If we are moving horizontally and hit a non-input cell (like name), adjust
+      if (targetCellIndex < 2) targetCellIndex = 2;
+
+      const targetRow = rows[targetRowIndex];
+      const targetCell = targetRow.children[targetCellIndex];
+      const targetInput = targetCell.querySelector(".mark-input");
+
+      if (targetInput) {
+        targetInput.focus();
+        targetInput.select(); // Select content for easy overwriting
+      }
     });
   }
 
