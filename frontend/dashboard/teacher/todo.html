@@ -35,21 +35,9 @@
 </div>
 
 <!-- Edit Todo Modal -->
-<div id="editTodoModal" class="modal" style="display: none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>
-        <span
-          data-en="Edit Todo"
-          data-si="කරණීය සංස්කරණය"
-          data-ta="செய்ய வேண்டியதை தொகுக்க"
-        >
-          Edit Todo
-        </span>
-      </h3>
-      <span class="modal-close" onclick="closeEditTodoModal()">&times;</span>
-    </div>
-    <div class="modal-body">
+<!-- Edit Todo Modal -->
+<modal-dialog id="editTodoModal" title="Edit Todo">
+    <div style="padding: 20px;">
       <input
         type="text"
         id="editTodoInput"
@@ -58,9 +46,10 @@
         data-en-placeholder="Enter todo text..."
         data-si-placeholder="කරණීය පෙළ ඇතුළු කරන්න..."
         data-ta-placeholder="செய்ய வேண்டிய உரையை உள்ளிடவும்..."
+        style="width: 100%;" 
       />
     </div>
-    <div class="modal-footer">
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; padding: 0 20px 20px 20px;">
       <button class="btn btn-secondary" onclick="closeEditTodoModal()">
         <span data-en="Cancel" data-si="අවලංගු කරන්න" data-ta="ரத்து செய்ய">
           Cancel
@@ -70,8 +59,7 @@
         <span data-en="Save" data-si="සුරකින්න" data-ta="சேமிக்க">Save</span>
       </button>
     </div>
-  </div>
-</div>
+</modal-dialog>
 
 <!-- Todo Item Template -->
 <template id="todo-template">
@@ -270,12 +258,25 @@
   function openEditTodoModal(todoId, todoText) {
     editingTodoId = todoId;
     document.getElementById("editTodoInput").value = todoText;
-    document.getElementById("editTodoModal").style.display = "flex";
+    const modal = document.getElementById("editTodoModal");
+    
+    // Setup translations for title
+    if (modal.titleElement) {
+        modal.titleElement.setAttribute("data-en", "Edit Todo");
+        modal.titleElement.setAttribute("data-si", "කරණීය සංස්කරණය");
+        modal.titleElement.setAttribute("data-ta", "செய்ய வேண்டியதை தொகுக்க");
+    }
+    // Apply language if function exists
+    if (typeof applyDirectLanguageAttributes === "function") {
+        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+    }
+    
+    modal.open();
     document.getElementById("editTodoInput").focus();
   }
 
   function closeEditTodoModal() {
-    document.getElementById("editTodoModal").style.display = "none";
+    document.getElementById("editTodoModal").close();
     editingTodoId = null;
   }
 
@@ -373,12 +374,12 @@
     loadTodos();
   });
 
-  document.addEventListener("click", function (event) {
-    const editModal = document.getElementById("editTodoModal");
-    if (event.target === editModal) {
-      closeEditTodoModal();
-    }
-  });
+  // document.addEventListener("click", function (event) {
+  //   const editModal = document.getElementById("editTodoModal");
+  //   if (event.target === editModal) {
+  //     closeEditTodoModal();
+  //   }
+  // });
 
   // Add Enter key to save edit todo
   document.addEventListener("keypress", function (event) {

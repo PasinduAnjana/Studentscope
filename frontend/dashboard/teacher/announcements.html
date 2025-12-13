@@ -107,68 +107,55 @@
 </section>
 
 <!-- Add/Edit Announcement Modal -->
-<div id="announcement-modal" class="modal" style="display: none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3
-        id="modal-title"
-        data-en="Add Announcement"
-        data-si="නිවේදනයක් එක් කරන්න"
-        data-ta="அறிவிப்பைச் சேர்க்க"
+<!-- Add/Edit Announcement Modal -->
+<modal-dialog id="announcement-modal" title="Add Announcement">
+    <div class="mb-2">
+      <label
+        for="announcement-title"
+        data-en="Title:"
+        data-si="මාතෘකාව:"
+        data-ta="தலைப்பு:"
+        >Title:</label
       >
-        Add Announcement
-      </h3>
-      <span class="modal-close">&times;</span>
+      <input
+        type="text"
+        id="announcement-title"
+        placeholder="Enter announcement title..."
+        class="mt-1"
+        data-en="Enter announcement title..."
+        data-si="නිවේදන මාතෘකාව ඇතුල් කරන්න..."
+        data-ta="அறிவிப்பு தலைப்பை உள்ளீடு செய்ய..."
+      />
     </div>
-    <div class="modal-body">
-      <div class="mb-2">
-        <label
-          for="announcement-title"
-          data-en="Title:"
-          data-si="මාතෘකාව:"
-          data-ta="தலைப்பு:"
-          >Title:</label
-        >
-        <input
-          type="text"
-          id="announcement-title"
-          placeholder="Enter announcement title..."
-          class="mt-1"
-          data-en="Enter announcement title..."
-          data-si="නිවේදන මාතෘකාව ඇතුල් කරන්න..."
-          data-ta="அறிவிப்பு தலைப்பை உள்ளீடு செய்ய..."
-        />
-      </div>
-      <div class="mb-2">
-        <label
-          for="announcement-description"
-          data-en="Description:"
-          data-si="විස්තරය:"
-          data-ta="விவரம்:"
-          >Description:</label
-        >
-        <textarea
-          id="announcement-description"
-          placeholder="Enter announcement description..."
-          class="mt-1"
-          data-en="Enter announcement description..."
-          data-si="නිවේදන විස්තරය ඇතුල් කරන්න..."
-          data-ta="அறிவிப்பு விவரத்தை உள்ளீடு செய்ய..."
-        ></textarea>
-      </div>
-      <div class="mb-2">
-        <p class="text-sm" style="color: var(--color-subtext)">
-          <i class="fas fa-info-circle"></i>
-          <span
-            data-en="This announcement will be sent to all students in your class."
-            data-si="මෙම නිවේදනය ඔබගේ පන්තියේ සියලුම ශිෂ්‍යයින්ට යවනු ලැබේ."
-            data-ta="இந்த அறிவிப்பு உங்கள் வகுப்பில் உள்ள அனைத்து மாணவர்களுக்கும் அனுப்பப்படும்."
-            >This announcement will be sent to all students in your class.</span
-          >
-        </p>
-      </div>
+    <div class="mb-2">
+      <label
+        for="announcement-description"
+        data-en="Description:"
+        data-si="විස්තරය:"
+        data-ta="விவரம்:"
+        >Description:</label
+      >
+      <textarea
+        id="announcement-description"
+        placeholder="Enter announcement description..."
+        class="mt-1"
+        data-en="Enter announcement description..."
+        data-si="නිවේදන විස්තරය ඇතුල් කරන්න..."
+        data-ta="அறிவிப்பு விவரத்தை உள்ளீடு செய்ய..."
+      ></textarea>
     </div>
-    <div class="modal-footer">
+    <div class="mb-2">
+      <p class="text-sm" style="color: var(--color-subtext)">
+        <i class="fas fa-info-circle"></i>
+        <span
+          data-en="This announcement will be sent to all students in your class."
+          data-si="මෙම නිවේදනය ඔබගේ පන්තියේ සියලුම ශිෂ්‍යයින්ට යවනු ලැබේ."
+          data-ta="இந்த அறிவிப்பு உங்கள் வகுப்பில் உள்ள அனைத்து மாணவர்களுக்கும் அனுப்பப்படும்."
+          >This announcement will be sent to all students in your class.</span
+        >
+      </p>
+    </div>
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
       <button
         id="modal-cancel"
         class="btn btn-secondary"
@@ -188,8 +175,7 @@
         Save
       </button>
     </div>
-  </div>
-</div>
+</modal-dialog>
 
 <script>
   let myAnnouncements = [];
@@ -397,37 +383,32 @@
   function setupAddButton() {
     const addBtn = document.getElementById("add-announcement-btn");
     const modal = document.getElementById("announcement-modal");
-    const closeBtn = document.querySelector("#announcement-modal .modal-close");
     const cancelBtn = document.getElementById("modal-cancel");
     const saveBtn = document.getElementById("modal-save");
 
     addBtn.addEventListener("click", () => {
       editingAnnouncement = null;
-      const modalTitle = document.getElementById("modal-title");
-      modalTitle.setAttribute("data-en", "Add Announcement");
-      modalTitle.setAttribute("data-si", "නිවේදනයක් එක් කරන්න");
-      modalTitle.setAttribute("data-ta", "அறிவிப்பைச் சேர்க்க");
-      modalTitle.textContent = "Add Announcement";
+      modal.setTitle("Add Announcement");
+      if (modal.titleElement) {
+        modal.titleElement.setAttribute("data-en", "Add Announcement");
+        modal.titleElement.setAttribute("data-si", "නිවේදනයක් එක් කරන්න");
+        modal.titleElement.setAttribute("data-ta", "அறிவிப்பைச் சேர்க்க");
+      }
+      
       // Apply current language
       if (typeof applyDirectLanguageAttributes === "function") {
         applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
       }
       clearModal();
-      modal.style.display = "flex";
+      modal.open();
     });
 
     const closeModal = () => {
-      modal.style.display = "none";
+      modal.close();
     };
 
-    closeBtn.addEventListener("click", closeModal);
     cancelBtn.addEventListener("click", closeModal);
-
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        closeModal();
-      }
-    });
+    // Modal component handles outside click and close button internally
 
     saveBtn.addEventListener("click", saveAnnouncement);
   }
@@ -466,7 +447,7 @@
         return res.json();
       })
       .then(() => {
-        document.getElementById("announcement-modal").style.display = "none";
+        document.getElementById("announcement-modal").close();
         toast("Announcement saved successfully", "fa-solid fa-check-circle");
         fetchMyAnnouncements();
       })
@@ -504,11 +485,14 @@
     }
 
     editingAnnouncement = announcement;
-    const modalTitle = document.getElementById("modal-title");
-    modalTitle.setAttribute("data-en", "Edit Announcement");
-    modalTitle.setAttribute("data-si", "නිවේදනය සංස්කරණය කරන්න");
-    modalTitle.setAttribute("data-ta", "அறிவிப்பைத் திருத்து");
-    modalTitle.textContent = "Edit Announcement";
+    const modal = document.getElementById("announcement-modal");
+    modal.setTitle("Edit Announcement");
+    if (modal.titleElement) {
+        modal.titleElement.setAttribute("data-en", "Edit Announcement");
+        modal.titleElement.setAttribute("data-si", "නිවේදනය සංස්කරණය කරන්න");
+        modal.titleElement.setAttribute("data-ta", "அறிவிப்பைத் திருத்து");
+    }
+    
     // Apply current language
     if (typeof applyDirectLanguageAttributes === "function") {
       applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
@@ -517,7 +501,7 @@
     document.getElementById("announcement-description").value =
       announcement.description;
 
-    document.getElementById("announcement-modal").style.display = "flex";
+    modal.open();
     console.log("Modal should now be visible");
   }
 

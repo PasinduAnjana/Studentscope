@@ -1,64 +1,6 @@
 <style>
   /* Modal Styles */
-  .modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-content {
-    background-color: var(--color-card);
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    max-width: 500px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .modal-header h3 {
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  .modal-close {
-    font-size: 28px;
-    font-weight: bold;
-    color: var(--color-subtext);
-    cursor: pointer;
-    line-height: 1;
-  }
-
-  .modal-close:hover {
-    color: var(--color-text);
-  }
-
-  .modal-body {
-    padding: 20px;
-  }
-
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 20px;
-    border-top: 1px solid var(--color-border);
-  }
+  /* Modal styles managed by ModalDialog component */
 
   /* Checkbox Styles */
   .checkbox-label {
@@ -219,19 +161,8 @@
 </section>
 
 <!-- Export Modal -->
-<div id="export-modal" class="modal" style="display: none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3
-        data-en="Export Students to CSV"
-        data-si="ශිෂ්‍යයින් CSV වෙත අපනයනය කරන්න"
-        data-ta="மாணவர்களை CSV-க்கு ஏற்றுமதி செய்ய"
-      >
-        Export Students to CSV
-      </h3>
-      <span class="modal-close">&times;</span>
-    </div>
-    <div class="modal-body">
+<modal-dialog id="export-modal" title="Export Students to CSV">
+    <div style="padding: 20px;">
       <p
         data-en="Select the fields you want to include in the CSV export:"
         data-si="CSV අපනයනයේ ඇතුළත් කිරීමට අවශ්‍ය ක්ෂේත්‍ර තෝරන්න:"
@@ -310,7 +241,7 @@
         </label>
       </div>
     </div>
-    <div class="modal-footer">
+    <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 20px; border-top: 1px solid var(--color-border);">
       <button
         id="export-cancel"
         class="btn btn-secondary"
@@ -330,23 +261,11 @@
         Export
       </button>
     </div>
-  </div>
-</div>
+</modal-dialog>
 
 <!-- Export PDF Modal -->
-<div id="export-pdf-modal" class="modal" style="display: none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3
-        data-en="Export Students to PDF"
-        data-si="ශිෂ්‍යයින් PDF වෙත අපනයනය කරන්න"
-        data-ta="மாணவர்களை PDF-க்கு ஏற்றுமதி செய்ய"
-      >
-        Export Students to PDF
-      </h3>
-      <span class="modal-close">&times;</span>
-    </div>
-    <div class="modal-body">
+<modal-dialog id="export-pdf-modal" title="Export Students to PDF">
+    <div style="padding: 20px;">
       <div class="input-group" style="margin-bottom: 15px">
         <label
           for="pdf-heading"
@@ -497,7 +416,7 @@
         </label>
       </div>
     </div>
-    <div class="modal-footer">
+    <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 20px; border-top: 1px solid var(--color-border);">
       <button
         id="export-pdf-cancel"
         class="btn btn-secondary"
@@ -517,8 +436,7 @@
         Export PDF
       </button>
     </div>
-  </div>
-</div>
+</modal-dialog>
 
 <script>
   let allStudents = [];
@@ -642,23 +560,27 @@
 
     // Show modal
     exportBtn.addEventListener("click", () => {
-      modal.style.display = "flex";
+      // Translations for title
+      if (modal.titleElement) {
+          modal.titleElement.setAttribute("data-en", "Export Students to CSV");
+          modal.titleElement.setAttribute("data-si", "ශිෂ්‍යයින් CSV වෙත අපනයනය කරන්න");
+          modal.titleElement.setAttribute("data-ta", "மாணவர்களை CSV-க்கு ஏற்றுமதி செய்ய");
+      }
+      // Apply language if function exists
+      if (typeof applyDirectLanguageAttributes === "function") {
+          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+      }
+      modal.open();
     });
 
     // Hide modal
     const closeModal = () => {
-      modal.style.display = "none";
+      modal.close();
     };
 
-    closeBtn.addEventListener("click", closeModal);
+    // Close button handles itself in component
     cancelBtn.addEventListener("click", closeModal);
-
-    // Close modal when clicking outside
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        closeModal();
-      }
-    });
+    // Outside click handled by component
 
     // Export functionality
     confirmBtn.addEventListener("click", () => {
@@ -687,23 +609,27 @@
 
     // Show modal
     exportPdfBtn.addEventListener("click", () => {
-      modal.style.display = "flex";
+      // Translations for title
+      if (modal.titleElement) {
+          modal.titleElement.setAttribute("data-en", "Export Students to PDF");
+          modal.titleElement.setAttribute("data-si", "ශිෂ්‍යයින් PDF වෙත අපනයනය කරන්න");
+          modal.titleElement.setAttribute("data-ta", "மாணவர்களை PDF-க்கு ஏற்றுமதி செய்ய");
+      }
+      // Apply language if function exists
+      if (typeof applyDirectLanguageAttributes === "function") {
+          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+      }
+      modal.open();
     });
 
     // Hide modal
     const closeModal = () => {
-      modal.style.display = "none";
+      modal.close();
     };
 
-    closeBtn.addEventListener("click", closeModal);
+    // Close button handles itself in component
     cancelBtn.addEventListener("click", closeModal);
-
-    // Close modal when clicking outside
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        closeModal();
-      }
-    });
+    // Outside click handled by component
 
     // Export PDF functionality
     confirmBtn.addEventListener("click", () => {
