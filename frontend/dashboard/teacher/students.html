@@ -446,20 +446,30 @@
     const tbody = document.querySelector("#student-table tbody");
     tbody.innerHTML = "";
     if (!filtered.length) {
+      const messages = {
+        en: "No students found",
+        si: "ශිෂ්‍යයින් සොයා ගත නොහැකි විය",
+        ta: "மாணவர்கள் கிடைக்கவில்லை",
+      };
+      
+      const lang = localStorage.getItem("lang") || "en";
+      const message = messages[lang] || messages.en;
+
+      // We need to render this inside a TR/TD to be valid HTML inside TBODY, 
+      // or we can replace the whole table content if we prefer. 
+      // Let's replace the whole table body content with a row that spans all columns.
+      // But since empty-state-message is a block element, we put it inside a TD.
+      
       const noStudentsRow = document.createElement("tr");
       const noStudentsCell = document.createElement("td");
       noStudentsCell.colSpan = 9;
-      noStudentsCell.className = "text-error";
-      noStudentsCell.setAttribute("data-en", "No students found");
-      noStudentsCell.setAttribute("data-si", "ශිෂ්‍යයින් සොයා ගත නොහැකි විය");
-      noStudentsCell.setAttribute("data-ta", "மாணவர்கள் கிடைக்கவில்லை");
-      noStudentsCell.textContent = "No students found";
+      noStudentsCell.style.padding = "0"; // Remove padding to let component control spacing
+      noStudentsCell.style.border = "none";
+      
+      noStudentsCell.innerHTML = `<empty-state-message message="${message}" icon="fas fa-users-slash"></empty-state-message>`;
+      
       noStudentsRow.appendChild(noStudentsCell);
       tbody.appendChild(noStudentsRow);
-      // Apply current language
-      if (typeof applyDirectLanguageAttributes === "function") {
-        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
-      }
       return;
     }
     function formatDate(dateStr) {
@@ -525,20 +535,24 @@
       .catch((err) => {
         console.error(err);
         const tbody = document.querySelector("#student-table tbody");
+        const messages = {
+          en: "Error loading students",
+          si: "ශිෂ්‍යයින් පූරණය කිරීමේ දෝෂයක්",
+          ta: "மாணவர்களை ஏற்றுவதில் பிழை",
+        };
+        const lang = localStorage.getItem("lang") || "en";
+        const message = messages[lang] || messages.en;
+
         const errorRow = document.createElement("tr");
         const errorCell = document.createElement("td");
         errorCell.colSpan = 9;
-        errorCell.className = "text-error";
-        errorCell.setAttribute("data-en", "Error loading students");
-        errorCell.setAttribute("data-si", "ශිෂ්‍යයින් පූරණය කිරීමේ දෝෂයක්");
-        errorCell.setAttribute("data-ta", "மாணவர்களை ஏற்றுவதில் பிழை");
-        errorCell.textContent = "Error loading students";
+        errorCell.style.padding = "0";
+        errorCell.style.border = "none";
+        
+        errorCell.innerHTML = `<empty-state-message message="${message}" icon="fas fa-exclamation-triangle"></empty-state-message>`;
+        
         errorRow.appendChild(errorCell);
         tbody.appendChild(errorRow);
-        // Apply current language
-        if (typeof applyDirectLanguageAttributes === "function") {
-          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
-        }
       });
   }
 
@@ -976,4 +990,6 @@
       setupExport();
       setupExportPDF();
     });
+
 </script>
+<script src="../../js/components/EmptyStateMessage.js"></script>

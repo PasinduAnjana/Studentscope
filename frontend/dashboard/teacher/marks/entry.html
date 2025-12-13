@@ -159,7 +159,26 @@
     }
   }
 
-  function renderTable() {
+  function renderTable(showTable = false) {
+    const tableContainer = document.querySelector(".marks-table-container");
+    
+    if (!showTable) {
+        const message = {
+           en: "Select an exam to enter marks",
+           si: "ලකුණු ඇතුළු කිරීම සඳහා විභාගයක් තෝරන්න",
+           ta: "மதிப்பெண்களை உள்ளிட ஒரு தேர்வைத் தேர்ந்தெடுக்கவும்"
+        };
+        const lang = getLang();
+        tableContainer.innerHTML = `<empty-state-message message="${message[lang] || message.en}" icon="fas fa-edit"></empty-state-message>`;
+        // Hide submit button when no table
+        document.querySelector(".action-buttons").style.display = "none";
+        return;
+    }
+
+    // Restore table structure if it was replaced
+    tableContainer.innerHTML = '<table class="marks-table"></table>';
+    document.querySelector(".action-buttons").style.display = "flex";
+
     const table = document.querySelector(".marks-table");
     // Students are already filtered by class from the API
     const classStudents = students;
@@ -416,6 +435,8 @@
         arrow.classList.remove("open");
         
         // Load marks for this exam
+        // Load marks for this exam
+        renderTable(true);
         loadMarks(selectedValue);
       }
     });
@@ -509,4 +530,6 @@
   
   // Attach event listeners
   document.getElementById("submitBtn").addEventListener("click", submitMarks);
+
 </script>
+<script src="../../js/components/EmptyStateMessage.js"></script>

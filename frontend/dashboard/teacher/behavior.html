@@ -421,9 +421,17 @@
         si: "වාර්තා කිසිවක් හමු නොවීය",
         ta: "பதிவுகள் எதுவும் கிடைக்கவில்லை",
       };
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center">${
-        messages[currentLanguage] || messages.en
-      }</td></tr>`;
+      const lang = localStorage.getItem("lang") || "en";
+      const message = messages[lang] || messages.en;
+
+      // Render empty state inside a TR/TD because it's in a TBODY
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="padding: 0; border: none;">
+             <empty-state-message message="${message}" icon="fas fa-clipboard-list"></empty-state-message>
+          </td>
+        </tr>
+      `;
       updateRecordsPaginationControls(0);
       return;
     }
@@ -719,7 +727,9 @@
   }
 
   initializePage();
+
 </script>
+<script src="../../js/components/EmptyStateMessage.js"></script>
 
 <style>
   .filter-group {

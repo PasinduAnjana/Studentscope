@@ -216,20 +216,15 @@
 
         // Update current class tile with active slot info
         if (isWeekend) {
-          // On weekends, don't show any current class
-          document.getElementById("current-class-name").textContent = "-";
-          const subjectElement = document.getElementById(
-            "current-subject-name"
-          );
-          subjectElement.setAttribute("data-en", "Weekend");
-          subjectElement.setAttribute("data-si", "සතියාන්ද");
-          subjectElement.setAttribute("data-ta", "வார இறுதி");
-          subjectElement.textContent = "Weekend";
-          document.getElementById("current-time-range").textContent = "";
-          // Apply current language
-          if (typeof applyDirectLanguageAttributes === "function") {
-            applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
-          }
+          // On weekends, show empty state in current class tile
+          const currentClassTile = document.getElementById("current-class").querySelector("div:last-child");
+          const message = {
+             en: "Weekend",
+             si: "සති අන්තය",
+             ta: "வார இறுதி"
+          };
+          const lang = localStorage.getItem("lang") || "en";
+          currentClassTile.innerHTML = `<empty-state-message message="${message[lang] || message.en}" icon="fas fa-couch"></empty-state-message>`;
         } else if (activeEntry) {
           document.getElementById(
             "current-class-name"
@@ -316,13 +311,22 @@
       const container = document.getElementById("dashboard-attendance-content");
       container.innerHTML = "";
       if (!attendanceMarked) {
-        // Show mark attendance button
+        // Show mark attendance button with empty state
+        const message = {
+           en: "Attendance not marked",
+           si: "පැමිණීම සලකුණු කර නැත",
+           ta: "வருகை குறிக்கப்படவில்லை"
+        };
+        const lang = localStorage.getItem("lang") || "en";
+        
         container.innerHTML = `
-          <h3 class="tile-value text-error" data="teacher.attendance_not_marked"></h3>
-          <button class="btn" onclick="window.location.href = 'layout.html?role=teacher&page=attendance'">
-            <i class="fas fa-user-check"></i>
-            <span data="teacher.mark_attendance"></span>
-          </button>
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 10px;">
+            <empty-state-message message="${message[lang] || message.en}" icon="fas fa-exclamation-circle" style="height: auto; min-height: unset; padding: 0;"></empty-state-message>
+            <button class="btn" onclick="window.location.href = 'layout.html?role=teacher&page=attendance'">
+              <i class="fas fa-user-check"></i>
+              <span data="teacher.mark_attendance"></span>
+            </button>
+          </div>
         `;
         if (typeof applyTranslations === "function") applyTranslations();
       } else {
@@ -415,17 +419,19 @@
         const announcementsList = document.getElementById("announcements-list");
 
         if (!announcements || announcements.length === 0) {
-          const noAnnouncementsLi = document.createElement("li");
-          noAnnouncementsLi.className = "text-sm";
-          noAnnouncementsLi.setAttribute("data-en", "No announcements");
-          noAnnouncementsLi.setAttribute("data-si", "නිවේදන නැත");
-          noAnnouncementsLi.setAttribute("data-ta", "அறிவிப்புகள் இல்லை");
-          noAnnouncementsLi.textContent = "No announcements";
-          announcementsList.appendChild(noAnnouncementsLi);
-          // Apply current language
-          if (typeof applyDirectLanguageAttributes === "function") {
-            applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
-          }
+          const message = {
+             en: "No announcements",
+             si: "නිවේදන නැත",
+             ta: "அறிவிப்புகள் இல்லை"
+          };
+          const lang = localStorage.getItem("lang") || "en";
+          // Use empty-state-message component
+          // Since it expects to live in a flex container for centering, we might want to clear list styles
+          // But here we are appending to a UL. We should probably clear UL styling or just put it inside a LI wrapping it?
+          // Actually, better to empty the UL and append this element directly if the CSS allows, 
+          // OR replace UL content with this. 
+          // Let's replace list content.
+          announcementsList.innerHTML = `<empty-state-message message="${message[lang] || message.en}" icon="fas fa-bullhorn"></empty-state-message>`;
           return;
         }
 
@@ -487,17 +493,13 @@
         const todosList = document.getElementById("dashboard-todos-list");
 
         if (!todos || todos.length === 0) {
-          const noTodosLi = document.createElement("li");
-          noTodosLi.className = "text-sm";
-          noTodosLi.setAttribute("data-en", "No pending tasks");
-          noTodosLi.setAttribute("data-si", "අපේක්ෂිත කාර්යයන් නැත");
-          noTodosLi.setAttribute("data-ta", "நிலுவையில் உள்ள பணிகள் இல்லை");
-          noTodosLi.textContent = "No pending tasks";
-          todosList.appendChild(noTodosLi);
-          // Apply current language
-          if (typeof applyDirectLanguageAttributes === "function") {
-            applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
-          }
+          const message = {
+             en: "No pending tasks",
+             si: "අපේක්ෂිත කාර්යයන් නැත",
+             ta: "நிலுவையில் உள்ள பணிகள் இல்லை"
+          };
+          const lang = localStorage.getItem("lang") || "en";
+          todosList.innerHTML = `<empty-state-message message="${message[lang] || message.en}" icon="fas fa-tasks"></empty-state-message>`;
           return;
         }
 
@@ -561,16 +563,13 @@
         resetsList.innerHTML = "";
 
         if (resets.length === 0) {
-          const noResetLi = document.createElement("li");
-          noResetLi.className = "text-sm";
-          noResetLi.setAttribute("data-en", "No pending requests");
-          noResetLi.setAttribute("data-si", "පිටුවිලි ඉල්ලීම් නැත");
-          noResetLi.setAttribute(
-            "data-ta",
-            "நிலுவையில் உள்ள கோரிக்கைகள் இல்லை"
-          );
-          noResetLi.textContent = "No pending requests";
-          resetsList.appendChild(noResetLi);
+          const message = {
+             en: "No pending requests",
+             si: "පිටුවිලි ඉල්ලීම් නැත",
+             ta: "நிலுவையில் உள்ள கோரிக்கைகள் இல்லை"
+          };
+          const lang = localStorage.getItem("lang") || "en";
+          resetsList.innerHTML = `<empty-state-message message="${message[lang] || message.en}" icon="fas fa-key"></empty-state-message>`;
           return;
         }
 
@@ -654,4 +653,6 @@
     }
     initDashboard();
   </script>
+
+  <script src="../../js/components/EmptyStateMessage.js"></script>
 </div>
