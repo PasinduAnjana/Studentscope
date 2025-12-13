@@ -574,9 +574,29 @@
       si: "ඔබට මෙම වාර්තා මකා දැමීමට අවශ්‍ය බව විශ්වාසද?",
       ta: "இந்த பதிவை நீக்க விரும்புகிறீர்களா?",
     };
-    if (confirm(messages[currentLanguage] || messages.en)) {
-      deleteRecordConfirmed(recordId);
-    }
+    
+    const confirmText = {
+      en: "Delete",
+      si: "මකන්න",
+      ta: "நீக்கு"
+    };
+
+    const cancelText = {
+      en: "Cancel",
+      si: "අවලංගු කරන්න",
+      ta: "ரத்து"
+    };
+
+    toast(
+      messages[currentLanguage] || messages.en,
+      "fa-solid fa-trash",
+      {
+        confirm: true,
+        confirmText: confirmText[currentLanguage] || "Delete",
+        cancelText: cancelText[currentLanguage] || "Cancel",
+        onConfirm: () => deleteRecordConfirmed(recordId)
+      }
+    );
   }
 
   async function deleteRecordConfirmed(recordId) {
