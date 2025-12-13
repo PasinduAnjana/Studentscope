@@ -49,7 +49,7 @@ async function run() {
     }
 
     // 2️⃣ Classes
-    const grades = [1, 6, 10, 12];
+    const grades = Array.from({ length: 13 }, (_, i) => i + 1);
     const classNames = ["A", "B"];
     const classes = [];
     for (const grade of grades) {
@@ -172,16 +172,15 @@ async function run() {
     }
 
     // 5️⃣ Class subjects (mandatory)
-    const classSubjectsMapping = {
-      1: subjectsByGrade["1-5"],
-      6: subjectsByGrade["6-9"],
-      10: subjectsByGrade["10-11"],
-      12: subjectsByGrade["12-13"],
-    };
     for (const grade of grades) {
+      let subjects = [];
+      if (grade <= 5) subjects = subjectsByGrade["1-5"];
+      else if (grade <= 9) subjects = subjectsByGrade["6-9"];
+      else if (grade <= 11) subjects = subjectsByGrade["10-11"];
+      else subjects = subjectsByGrade["12-13"];
+
       for (const name of classNames) {
         const classId = classIds[`${grade}-${name}`];
-        const subjects = classSubjectsMapping[grade];
         for (let i = 0; i < subjects.length; i++) {
           const subId = subjectIdsMap[subjects[i]];
           await pool.query(
@@ -194,13 +193,13 @@ async function run() {
     }
 
     // 6️⃣ Grade subject rules (elective counts)
-    const gradeRules = [
-      [1, 0],
-      [6, 1],
-      [10, 3],
-      [12, 3],
-    ];
-    for (const [grade, electiveCount] of gradeRules) {
+    // 6️⃣ Grade subject rules (elective counts)
+    for (const grade of grades) {
+      let electiveCount = 0;
+      if (grade <= 5) electiveCount = 0;
+      else if (grade <= 9) electiveCount = 1;
+      else electiveCount = 3;
+
       await pool.query(
         `INSERT INTO grade_subject_rules (grade, elective_count) VALUES ($1, $2)`,
         [grade, electiveCount]
@@ -208,20 +207,22 @@ async function run() {
     }
 
     // 7️⃣ Insert elective subjects into grade_subjects
-    const electiveMapping = {
-      6: studentElectives["6-9"],
-      10: studentElectives["10-11"],
-      12: studentElectives["12-13"],
-    };
-    for (const grade in electiveMapping) {
-      const electives = electiveMapping[grade];
-      for (let i = 0; i < electives.length; i++) {
-        const subId = subjectIdsMap[electives[i]];
-        await pool.query(
-          `INSERT INTO grade_subjects (grade, subject_id, type, display_order)
-           VALUES ($1, $2, 'elective', $3)`,
-          [grade, subId, i + 1]
-        );
+    // 7️⃣ Insert elective subjects into grade_subjects
+    for (const grade of grades) {
+      let electives = [];
+      if (grade >= 6 && grade <= 9) electives = studentElectives["6-9"];
+      else if (grade >= 10 && grade <= 11) electives = studentElectives["10-11"];
+      else if (grade >= 12 && grade <= 13) electives = studentElectives["12-13"];
+      
+      if (electives.length > 0) {
+        for (let i = 0; i < electives.length; i++) {
+          const subId = subjectIdsMap[electives[i]];
+          await pool.query(
+            `INSERT INTO grade_subjects (grade, subject_id, type, display_order)
+             VALUES ($1, $2, 'elective', $3)`,
+            [grade, subId, i + 1]
+          );
+        }
       }
     }
 
@@ -250,120 +251,57 @@ async function run() {
     }
 
     // 🔹 Teacher Details
-    const teacherDetailsData = [
-      {
-        full_name: "Mr. Jayasuriya Perera",
-        nic: "123456789V",
-        address: "456 Palm Street, Colombo",
-        phone_number: "+94-71-234-5678",
-        past_schools: "Royal College, Colombo",
-        appointment_date: "2018-06-15",
-        first_appointment_date: "2015-01-10",
-        level: 2,
-        birthday: "1980-03-20",
-      },
-      {
-        full_name: "Mrs. Kumari Silva",
-        nic: "987654321V",
-        address: "789 Hill Road, Kandy",
-        phone_number: "+94-81-234-5678",
-        past_schools: "Kandy High School",
-        appointment_date: "2019-08-20",
-        first_appointment_date: "2016-05-15",
-        level: 2,
-        birthday: "1982-07-14",
-      },
-      {
-        full_name: "Mr. Ruwan Fernando",
-        nic: "456789123V",
-        address: "321 Beach Lane, Galle",
-        phone_number: "+94-91-234-5678",
-        past_schools: "Galle Central College",
-        appointment_date: "2017-02-10",
-        first_appointment_date: "2014-09-01",
-        level: 3,
-        birthday: "1978-11-25",
-      },
-      {
-        full_name: "Miss. Nimal Jayasuriya",
-        nic: "789456123V",
-        address: "654 Temple Road, Matara",
-        phone_number: "+94-41-234-5678",
-        past_schools: "Matara Convent",
-        appointment_date: "2020-01-15",
-        first_appointment_date: "2017-07-20",
-        level: 1,
-        birthday: "1985-09-08",
-      },
-      {
-        full_name: "Dr. Anusha Wijesinghe",
-        nic: "321789456V",
-        address: "987 Garden Avenue, Kurunegala",
-        phone_number: "+94-37-234-5678",
-        past_schools: "Kurunegala National School",
-        appointment_date: "2016-11-20",
-        first_appointment_date: "2013-03-10",
-        level: 3,
-        birthday: "1976-05-12",
-      },
-      {
-        full_name: "Mr. Saman Gunawardena",
-        nic: "654123789V",
-        address: "147 Sunset Drive, Negombo",
-        phone_number: "+94-31-234-5678",
-        past_schools: "Negombo High School",
-        appointment_date: "2019-03-25",
-        first_appointment_date: "2015-10-05",
-        level: 2,
-        birthday: "1981-12-30",
-      },
-      {
-        full_name: "Miss. Dilani Rajapaksha",
-        nic: "159357852V",
-        address: "369 North Street, Jaffna",
-        phone_number: "+94-21-234-5678",
-        past_schools: "Jaffna Central College",
-        appointment_date: "2021-06-10",
-        first_appointment_date: "2018-02-14",
-        level: 1,
-        birthday: "1987-04-22",
-      },
-      {
-        full_name: "Mr. Chathura Dissanayake",
-        nic: "258369147V",
-        address: "741 Mountain View, Badulla",
-        phone_number: "+94-55-234-5678",
-        past_schools: "Badulla National School",
-        appointment_date: "2018-09-05",
-        first_appointment_date: "2015-12-01",
-        level: 2,
-        birthday: "1979-08-17",
-      },
-    ];
+    // 🔹 Helper Arrays for Random Generation
+    const firstNamesMale = ["Amal", "Kamal", "Sunil", "Nimal", "Sajith", "Ruwan", "Chathura", "Thilina", "Dinusha", "Pasindu", "Isuru", "Kasun", "Suresh", "Prasad", "Nuwan", "Harsha", "Janith", "Ravindu", "Sahan", "Mahesh", "Lahiru", "Shehan", "Dilshan", "Asela", "Chamara"];
+    const firstNamesFemale = ["Kumari", "Anusha", "Hashini", "Shanika", "Manori", "Gayathri", "Sandeepa", "Nadeesha", "Rashmi", "Tharushi", "Sanduni", "Malsha", "Sithara", "Nimesha", "Chathuni", "Thilini", "Dulakshi", "Dilani", "Chamari", "Kavindi", "Purnima", "Ishara", "Malki"];
+    const lastNames = ["Perera", "Silva", "Fernando", "Jayasuriya", "Wijesinghe", "Gunawardena", "Rajapaksha", "Dissanayake", "Bandara", "Ranasinghe", "Karunaratne", "Ekanayake", "Herath", "Jayawardena", "Liyanage", "Gamage", "Senanayake", "Rathnayake"];
+    const cities = ["Colombo", "Kandy", "Galle", "Matara", "Kurunegala", "Negombo", "Jaffna", "Badulla", "Anuradhapura", "Ratnapura", "Trincomalee", "Batticaloa", "Gampaha", "Kalutara", "Matale"];
+    
+    function getRandomElement(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
 
-    let teacherDetailIdx = 0;
+    function generateRandomPerson(role) {
+        const isMale = Math.random() > 0.5;
+        const firstName = isMale ? getRandomElement(firstNamesMale) : getRandomElement(firstNamesFemale);
+        const lastName = getRandomElement(lastNames);
+        const city = getRandomElement(cities);
+        
+        return {
+            full_name: role === 'teacher' ? `${isMale ? 'Mr.' : 'Ms.'} ${firstName} ${lastName}` : `${firstName} ${lastName}`,
+            gender: isMale ? 'M' : 'F',
+            address: `${Math.floor(Math.random() * 100) + 1} Main St, ${city}`,
+            city: city,
+            nationality: "Sri Lankan"
+        };
+    }
+
+    // 🔹 Generate Teacher Details Dynamically
     for (const classKey in teacherIds) {
       const tId = teacherIds[classKey];
-      const detailData =
-        teacherDetailsData[teacherDetailIdx % teacherDetailsData.length];
+      const person = generateRandomPerson('teacher');
+      const birthYear = 1970 + Math.floor(Math.random() * 20); // 1970-1990
+      
       await pool.query(
         `INSERT INTO teacher_details (teacher_id, full_name, nic, address, phone_number, past_schools, appointment_date, first_appointment_date, level, birthday)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
         [
           tId,
-          detailData.full_name,
-          detailData.nic,
-          detailData.address,
-          detailData.phone_number,
-          detailData.past_schools,
-          detailData.appointment_date,
-          detailData.first_appointment_date,
-          detailData.level,
-          detailData.birthday,
+          person.full_name,
+          `${Math.floor(100000000 + Math.random() * 900000000)}V`, // Random NIC
+          person.address,
+          `+94-7${Math.floor(Math.random() * 9)}-${Math.floor(1000000 + Math.random() * 9000000)}`,
+          `${person.city} Central College`,
+          `${2015 + Math.floor(Math.random() * 8)}-01-15`,
+          `${2010 + Math.floor(Math.random() * 5)}-05-20`,
+          Math.floor(Math.random() * 3) + 1, // Level 1-3
+          `${birthYear}-${String(Math.floor(Math.random() * 12) + 1).padStart(2,'0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2,'0')}`,
         ]
       );
-      teacherDetailIdx++;
     }
+
+    // Old teacher loop removed since we do it above dynamically
+
 
     // 8.5️⃣ Clerk Details
     const clerkDetailsData = {
@@ -415,347 +353,78 @@ async function run() {
 
     // 9️⃣ Students
     // Unique student info for each class
-    const uniqueStudentsList = [
-      [
-        {
-          full_name: "Amal Perera",
-          birthday: "2012-01-10",
-          address: "Colombo",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Kamal Silva",
-          birthday: "2012-03-15",
-          address: "Kandy",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Nimal Fernando",
-          birthday: "2012-05-20",
-          address: "Galle",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Sunil Jayasuriya",
-          birthday: "2012-07-25",
-          address: "Matara",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Anusha Wijesinghe",
-          birthday: "2012-09-30",
-          address: "Kurunegala",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-      ],
-      [
-        {
-          full_name: "Sajith Gunawardena",
-          birthday: "2011-02-12",
-          address: "Negombo",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Ishara Rajapaksha",
-          birthday: "2011-04-18",
-          address: "Jaffna",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Dilshan Dissanayake",
-          birthday: "2011-06-22",
-          address: "Badulla",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Hashini Perera",
-          birthday: "2011-08-29",
-          address: "Colombo",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Ruwan Silva",
-          birthday: "2011-10-05",
-          address: "Kandy",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-      ],
-      [
-        {
-          full_name: "Chathura Fernando",
-          birthday: "2010-01-10",
-          address: "Galle",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Lakshan Jayasuriya",
-          birthday: "2010-03-15",
-          address: "Matara",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Shanika Wijesinghe",
-          birthday: "2010-05-20",
-          address: "Kurunegala",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Thilina Gunawardena",
-          birthday: "2010-07-25",
-          address: "Negombo",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Manori Rajapaksha",
-          birthday: "2010-09-30",
-          address: "Jaffna",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-      ],
-      [
-        {
-          full_name: "Dinusha Dissanayake",
-          birthday: "2009-02-12",
-          address: "Badulla",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Gayathri Perera",
-          birthday: "2009-04-18",
-          address: "Colombo",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Pasindu Silva",
-          birthday: "2009-06-22",
-          address: "Kandy",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Sandeepa Fernando",
-          birthday: "2009-08-29",
-          address: "Galle",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Isuru Jayasuriya",
-          birthday: "2009-10-05",
-          address: "Matara",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-      ],
-      [
-        {
-          full_name: "Kasun Wijesinghe",
-          birthday: "2008-01-10",
-          address: "Kurunegala",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Nadeesha Gunawardena",
-          birthday: "2008-03-15",
-          address: "Negombo",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Rashmi Rajapaksha",
-          birthday: "2008-05-20",
-          address: "Jaffna",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Suresh Dissanayake",
-          birthday: "2008-07-25",
-          address: "Badulla",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Tharushi Perera",
-          birthday: "2008-09-30",
-          address: "Colombo",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-      ],
-      [
-        {
-          full_name: "Prasad Silva",
-          birthday: "2007-02-12",
-          address: "Kandy",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Nuwan Fernando",
-          birthday: "2007-04-18",
-          address: "Galle",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Harsha Jayasuriya",
-          birthday: "2007-06-22",
-          address: "Matara",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Sanduni Wijesinghe",
-          birthday: "2007-08-29",
-          address: "Kurunegala",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Malsha Gunawardena",
-          birthday: "2007-10-05",
-          address: "Negombo",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-      ],
-      [
-        {
-          full_name: "Janith Rajapaksha",
-          birthday: "2006-01-10",
-          address: "Jaffna",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Sithara Dissanayake",
-          birthday: "2006-03-15",
-          address: "Badulla",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Ravindu Perera",
-          birthday: "2006-05-20",
-          address: "Colombo",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Nimesha Silva",
-          birthday: "2006-07-25",
-          address: "Kandy",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Chathuni Fernando",
-          birthday: "2006-09-30",
-          address: "Galle",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-      ],
-      [
-        {
-          full_name: "Sahan Jayasuriya",
-          birthday: "2005-02-12",
-          address: "Matara",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Thilini Wijesinghe",
-          birthday: "2005-04-18",
-          address: "Kurunegala",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Dulakshi Gunawardena",
-          birthday: "2005-06-22",
-          address: "Negombo",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Ravindu Rajapaksha",
-          birthday: "2005-08-29",
-          address: "Jaffna",
-          gender: "M",
-          nationality: "Sri Lankan",
-        },
-        {
-          full_name: "Nimesha Dissanayake",
-          birthday: "2005-10-05",
-          address: "Badulla",
-          gender: "F",
-          nationality: "Sri Lankan",
-        },
-      ],
-    ];
-    const studentsByClass = {};
-    let nameIdx = 0;
+    // 🔹 Generate Students Dynamically per Class
+    const studentIds = {};
+    let studentIndexCounter = 1000;
+    
+    // We want about 35-40 students per class
+    // 13 grades * 2 classes = 26 classes.
+    
     for (const grade of grades) {
       for (const name of classNames) {
         const classKey = `${grade}-${name}`;
-        studentsByClass[classKey] =
-          uniqueStudentsList[nameIdx % uniqueStudentsList.length];
-        nameIdx++;
+        studentIds[classKey] = [];
+        const classId = classIds[classKey];
+        
+        // Generate between 30 and 40 students per class
+        const studentCount = 30 + Math.floor(Math.random() * 10); 
+        
+        for (let i = 0; i < studentCount; i++) {
+            const student = generateRandomPerson('student');
+            const indexNumber = `S${studentIndexCounter++}`;
+            
+            // Birthday based on grade (approximate)
+            // Grade 1 is approx 6 years old. Grade 13 is approx 18.
+            // Current year is roughly 2025 (as per metadata), so birth year = 2025 - (grade + 5)
+            const birthYear = 2025 - (grade + 5);
+            const birthDate = `${birthYear}-${String(Math.floor(Math.random() * 12) + 1).padStart(2,'0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2,'0')}`;
+            
+            // Create user
+            const sId = await createUser(indexNumber, "123", "student", classId);
+            studentIds[classKey].push(sId);
+            
+            // Parent
+            // Just picking a random parent from our generated list is complex if parents aren't linked. 
+            // The original code assigned from a 'parentIds' list. We need to make sure 'parentIds' is populated sufficiently or reuse them.
+            // Let's reuse the existing parent logic or make it cleaner.
+            // Since we haven't touched the parent generation code yet, we assume 'parentIds' exists.
+            // However, the original code had a fixed 'uniqueStudentsList' loop.
+            
+            // Pick a random parent ID
+            const parentId = parentIds[Math.floor(Math.random() * parentIds.length)];
+
+            await pool.query(
+              `INSERT INTO students (user_id, full_name, birthday, address, gender, nationality, parent_id)
+               VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+              [
+                sId,
+                student.full_name,
+                birthDate,
+                student.address,
+                student.gender,
+                student.nationality,
+                parentId
+              ]
+            );
+        }
       }
     }
-    const studentIds = {};
-    let studentIndexCounter = 1000;
-    for (const classKey in studentsByClass) {
-      studentIds[classKey] = [];
-      for (let i = 0; i < studentsByClass[classKey].length; i++) {
-        const student = studentsByClass[classKey][i];
-        const indexNumber = `S${studentIndexCounter++}`;
-        // Create user with index number as username
-        const sId = await createUser(
-          indexNumber,
-          "123",
-          "student",
-          classIds[classKey]
-        );
-        studentIds[classKey].push(sId);
-        // Assign parent (round robin)
-        const parentId = parentIds[(i + nameIdx) % parentIds.length];
-        // Insert student details
-        await pool.query(
-          `INSERT INTO students (user_id, full_name, birthday, address, gender, nationality, parent_id)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-          [
-            sId,
-            student.full_name,
-            student.birthday,
-            student.address,
-            student.gender,
-            student.nationality,
-            parentId,
-          ]
-        );
-      }
-    }
+
+    // Helper function to get mandatory subjects
+    const getMandatorySubjects = (grade) => {
+      if (grade <= 5) return subjectsByGrade["1-5"];
+      if (grade <= 9) return subjectsByGrade["6-9"];
+      if (grade <= 11) return subjectsByGrade["10-11"];
+      return subjectsByGrade["12-13"];
+    };
+
+    // Helper function to get electives
+    const getElectives = (grade) => {
+        if (grade >= 6 && grade <= 9) return studentElectives["6-9"];
+        if (grade >= 10 && grade <= 11) return studentElectives["10-11"];
+        if (grade >= 12 && grade <= 13) return studentElectives["12-13"];
+        return [];
+    };
 
     // 🔟 Teacher-Subjects mapping (teachers cover compulsory subjects)
     for (const classKey in teacherIds) {
@@ -763,7 +432,7 @@ async function run() {
       const classId = classIds[classKey];
       // Extract grade from classKey
       const grade = parseInt(classKey.split("-")[0]);
-      const subjects = classSubjectsMapping[grade];
+      const subjects = getMandatorySubjects(grade);
       // Assign all compulsory subjects in their own class
       for (const subName of subjects) {
         await pool.query(
@@ -783,7 +452,7 @@ async function run() {
         const otherClassKey = shuffled[i];
         const otherClassId = classIds[otherClassKey];
         const otherGrade = parseInt(otherClassKey.split("-")[0]);
-        const otherSubjects = classSubjectsMapping[otherGrade];
+        const otherSubjects = getMandatorySubjects(otherGrade);
         // Pick a random subject from compulsory subjects
         const randomSub =
           otherSubjects[Math.floor(Math.random() * otherSubjects.length)];
@@ -795,29 +464,39 @@ async function run() {
     }
 
     // 1️⃣1️⃣ Assign elective subjects to students
-    const assignElectives = [
-      [6, 1],
-      [10, 3],
-      [12, 3],
-    ];
-    for (const [grade, count] of assignElectives) {
-      for (const name of classNames) {
-        const classKey = `${grade}-${name}`;
-        studentIds[classKey].forEach((sId, i) => {
-          const values = [];
-          for (let j = 0; j < count; j++) {
-            const subId =
-              subjectIdsMap[
-                electiveMapping[grade][(i + j) % electiveMapping[grade].length]
-              ];
-            values.push(`(${sId},${subId})`);
-          }
-          const query = `INSERT INTO student_subjects (student_id, subject_id) VALUES ${values.join(
-            ","
-          )}`;
-          pool.query(query);
-        });
-      }
+    for (const grade of grades) {
+       let electiveCount = 0;
+       if (grade >= 6 && grade <= 9) electiveCount = 1;
+       else if (grade >= 10) electiveCount = 3; // 10-13
+
+       if (electiveCount === 0) continue;
+
+       const electives = getElectives(grade);
+       if (!electives || electives.length === 0) continue;
+
+       for (const name of classNames) {
+         const classKey = `${grade}-${name}`;
+         if (!studentIds[classKey]) continue; // Safety check
+
+         const students = studentIds[classKey];
+         // Iterate sequentially through students to handle async loops if needed, 
+         // essentially just need to insert for each student.
+         // Using for...of loop for async/await inside if desired, or map/promise.all
+         for (let i = 0; i < students.length; i++) {
+           const sId = students[i];
+           const values = [];
+           for (let j = 0; j < electiveCount; j++) {
+             // Round robin selection
+             const subName = electives[(i + j) % electives.length];
+             const subId = subjectIdsMap[subName];
+             values.push(`(${sId},${subId})`);
+           }
+           if (values.length > 0) {
+              const query = `INSERT INTO student_subjects (student_id, subject_id) VALUES ${values.join(",")}`;
+              await pool.query(query);
+           }
+         }
+       }
     }
 
     // 1️⃣2️⃣ Timetable
@@ -827,7 +506,7 @@ async function run() {
         const classKey = `${grade}-${name}`;
         const classId = classIds[classKey];
         const tId = teacherIds[classKey];
-        const subjects = classSubjectsMapping[grade].map(
+        const subjects = getMandatorySubjects(grade).map(
           (name) => subjectIdsMap[name]
         );
         let idx = 0;
