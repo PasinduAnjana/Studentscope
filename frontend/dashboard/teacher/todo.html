@@ -84,13 +84,7 @@
   </div>
 </template>
 
-<!-- Empty State Template -->
-<template id="empty-state-template">
-  <div class="empty-state">
-    <i class="fas fa-clipboard-check"></i>
-    <p class="empty-text"></p>
-  </div>
-</template>
+
 
 <script>
   let todos = [];
@@ -169,14 +163,12 @@
   function renderTodos() {
     const container = document.getElementById("todosContainer");
     const todoTemplate = document.getElementById("todo-template");
-    const emptyStateTemplate = document.getElementById("empty-state-template");
+
     
     container.innerHTML = "";
 
     if (todos.length === 0) {
-      const clone = emptyStateTemplate.content.cloneNode(true);
-      clone.querySelector(".empty-text").textContent = t("noTodos");
-      container.appendChild(clone);
+      container.innerHTML = `<empty-state-message message="${t('noTodos')}" icon="fas fa-clipboard-check"></empty-state-message>`;
       return;
     }
 
@@ -395,6 +387,7 @@
 
   loadTodos();
 </script>
+<script src="../../js/components/EmptyStateMessage.js"></script>
 
 <style>
   .todo-input-wrapper {
@@ -558,26 +551,4 @@
     }
   }
 
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    text-align: center;
-    background-color: transparent;
-    box-shadow: none;
-  }
 
-  .empty-state i {
-    font-size: 32px;
-    color: var(--color-subtext);
-    margin-bottom: 20px;
-  }
-
-  .empty-text {
-    font-size: 16px;
-    color: var(--color-subtext);
-    margin: 0;
-  }
-</style>

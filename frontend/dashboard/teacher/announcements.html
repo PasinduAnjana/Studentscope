@@ -34,28 +34,7 @@
       color: var(--color-primary);
     }
 
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-      text-align: center;
-      background-color: transparent;
-      box-shadow: none;
-    }
 
-    .empty-state i {
-      font-size: 32px;
-      color: var(--color-subtext);
-      margin-bottom: 20px;
-    }
-
-    .empty-text {
-      font-size: 16px;
-      color: var(--color-subtext);
-      margin: 0;
-    }
   </style>
   <div class="card-grid">
     <!-- My Announcements Card -->
@@ -186,26 +165,15 @@
     const container = document.querySelector(`#${containerId}`);
     container.innerHTML = "";
     if (!announcements.length) {
-      const emptyStateDiv = document.createElement("div");
-      emptyStateDiv.className = "empty-state";
+      const iconClass = containerId === "received-announcements-container" ? "fas fa-inbox" : "fas fa-bullhorn";
+      const message = {
+        en: "No announcements found",
+        si: "නිවේදන කිසිවක් සොයා ගත නොහැකි විය",
+        ta: "அறிவிப்புகள் எதுவும் கிடைக்கவில்லை"
+      };
+      const lang = localStorage.getItem("lang") || "en";
       
-      const iconClass = containerId === "received-announcements-container" ? "fa-inbox" : "fa-bullhorn";
-      
-      emptyStateDiv.innerHTML = `
-        <i class="fas ${iconClass}"></i>
-        <p class="empty-text" 
-           data-en="No announcements found" 
-           data-si="නිවේදන කිසිවක් සොයා ගත නොහැකි විය" 
-           data-ta="அறிவிப்புகள் எதுவும் கிடைக்கவில்லை">
-           No announcements found
-        </p>
-      `;
-      
-      container.appendChild(emptyStateDiv);
-      // Apply current language
-      if (typeof applyDirectLanguageAttributes === "function") {
-        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
-      }
+      container.innerHTML = `<empty-state-message message="${message[lang] || message.en}" icon="${iconClass}"></empty-state-message>`;
       return;
     }
 
@@ -323,21 +291,13 @@
       .catch((err) => {
         console.error("Error fetching my announcements:", err);
         const container = document.querySelector("#my-announcements-container");
-        container.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-exclamation-circle" style="color: var(--color-error);"></i>
-            <p class="empty-text" 
-               data-en="Error loading announcements" 
-               data-si="නිවේදන පූරණය කිරීමේ දෝෂයක්" 
-               data-ta="அறிவிப்புகளை ஏற்றுவதில் பிழை">
-               Error loading announcements
-            </p>
-          </div>
-        `;
-        // Apply current language
-        if (typeof applyDirectLanguageAttributes === "function") {
-          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
-        }
+        const messages = {
+          en: "Error loading announcements",
+          si: "නිවේදන පූරණය කිරීමේ දෝෂයක්",
+          ta: "அறிவிப்புகளை ஏற்றுவதில் பிழை"
+        };
+        const lang = localStorage.getItem("lang") || "en";
+        container.innerHTML = `<empty-state-message message="${messages[lang] || messages.en}" icon="fas fa-exclamation-circle"></empty-state-message>`;
       });
   }
 
@@ -362,21 +322,13 @@
         const container = document.querySelector(
           "#received-announcements-container"
         );
-        container.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-exclamation-circle" style="color: var(--color-error);"></i>
-            <p class="empty-text" 
-               data-en="Error loading announcements" 
-               data-si="නිවේදන පූරණය කිරීමේ දෝෂයක්" 
-               data-ta="அறிவிப்புகளை ஏற்றுவதில் பிழை">
-               Error loading announcements
-            </p>
-          </div>
-        `;
-        // Apply current language
-        if (typeof applyDirectLanguageAttributes === "function") {
-          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
-        }
+        const messages = {
+          en: "Error loading announcements",
+          si: "නිවේදන පූරණය කිරීමේ දෝෂයක්",
+          ta: "அறிவிப்புகளை ஏற்றுவதில் பிழை"
+        };
+        const lang = localStorage.getItem("lang") || "en";
+        container.innerHTML = `<empty-state-message message="${messages[lang] || messages.en}" icon="fas fa-exclamation-circle"></empty-state-message>`;
       });
   }
 
@@ -583,4 +535,6 @@
   fetchMyAnnouncements();
   fetchReceivedAnnouncements();
   setupAddButton();
+
 </script>
+<script src="../../js/components/EmptyStateMessage.js"></script>
