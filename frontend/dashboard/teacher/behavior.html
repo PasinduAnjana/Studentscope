@@ -11,130 +11,7 @@
 
 <div style="display: flex; flex-direction: column; gap: 24px">
   <!-- 📋 Add Behavior Record Form -->
-  <div class="card dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-plus-circle icon"></i>
-      <p
-        data-en="Add Behavior Record"
-        data-si="හැසිරීම් වාර්තා එක් කරන්න"
-        data-ta="நடத்தை பதிவைச் சேர்க்கவும்"
-      >
-        Add Behavior Record
-      </p>
-    </div>
-    <div class="filter-group">
-      <div>
-        <label
-          data-en="Select Student"
-          data-si="ශිෂ්‍ය තෝරා ගන්න"
-          data-ta="மாணவரைத் தேர்ந்தெடுக்கவும்"
-        >
-          Select Student
-        </label>
-        <select id="student-select" class="dropdown-select">
-          <option value="" data-en="Choose a student">Choose a student</option>
-        </select>
-      </div>
-      <div>
-        <label
-          data-en="Behavior Type"
-          data-si="හැසිරීමේ වර්ගය"
-          data-ta="நடத்தை வகை"
-        >
-          Behavior Type
-        </label>
-        <select id="behavior-type" class="dropdown-select">
-          <option
-            value=""
-            data-en="Select Type"
-            data-si="වර්ගය තෝරන්න"
-            data-ta="வகையைத் தேர்ந்தெடு"
-          >
-            Select Type
-          </option>
-          <option value="Good" data-en="Good" data-si="හොඳ" data-ta="நல்ல">
-            Good
-          </option>
-          <option
-            value="Disciplinary"
-            data-en="Disciplinary"
-            data-si="අධ්‍යාපනික"
-            data-ta="கட்டுப்பாட்டு"
-          >
-            Disciplinary
-          </option>
-          <option
-            value="Reward"
-            data-en="Reward"
-            data-si="ත්‍යාගය"
-            data-ta="வெகுமதி"
-          >
-            Reward
-          </option>
-        </select>
-      </div>
-      <div>
-        <label data-en="Severity" data-si="බරපතුතාව" data-ta="கடுமை">
-          Severity
-        </label>
-        <select id="behavior-severity" class="dropdown-select">
-          <option
-            value=""
-            data-en="N/A"
-            data-si="නොපැනවීම"
-            data-ta="பொருந்தாது"
-          >
-            N/A
-          </option>
-          <option value="Minor" data-en="Minor" data-si="සුළු" data-ta="சிறிய">
-            Minor
-          </option>
-          <option
-            value="Serious"
-            data-en="Serious"
-            data-si="බැරෑරුම්"
-            data-ta="தீவிரமான"
-          >
-            Serious
-          </option>
-        </select>
-      </div>
-    </div>
-    <div style="margin-bottom: 20px">
-      <label data-en="Description" data-si="විස්තරණ" data-ta="விளக்கம்">
-        Description
-      </label>
-      <textarea
-        id="behavior-description"
-        class="form-input"
-        rows="4"
-        placeholder="Enter behavior description..."
-        data-en="Enter behavior description..."
-        data-si="හැසිරීම් විස්තරය ඇතුල් කරන්න..."
-        data-ta="நடத்தை விளக்கத்தை உள்ளீடு செய்யவும்..."
-        style="
-          width: 100%;
-          padding: 10px;
-          border: 1px solid var(--color-border);
-          border-radius: 4px;
-          background-color: var(--color-bg);
-          color: var(--color-text);
-        "
-      ></textarea>
-    </div>
-    <div style="display: flex; gap: 10px; justify-content: flex-end">
-      <button class="btn btn-primary" onclick="submitBehaviorRecord()">
-        <i class="fas fa-check"></i>
-        <span
-          data-en="Submit Record"
-          data-si="වාර්තා ඉදිරිපත් කරන්න"
-          data-ta="பதிவை சமர்ப்பிக்கவும்"
-        >
-          Submit Record
-        </span>
-      </button>
-    </div>
-  </div>
+
 
   <!-- 📋 My Behavior Records -->
   <div class="card dashboard-tile">
@@ -168,6 +45,12 @@
           <option value="25" selected>25</option>
           <option value="50">50</option>
         </select>
+      </div>
+      <div style="margin-left: auto; padding-bottom: 2px;">
+          <button id="add-record-btn" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            <span data-en="Add New" data-si="අලුත් එකක් එකතු කරන්න" data-ta="புதியதைச் சேர்">Add New</span>
+          </button>
       </div>
     </div>
     <div class="table-container">
@@ -239,7 +122,126 @@
   </div>
 </div>
 
-<script src="../../js/dropdown.js"></script>
+<!-- Add Behavior Record Modal -->
+<modal-dialog id="add-behavior-modal" title="Add Behavior Record">
+    <div style="padding: 20px;">
+        <div class="filter-group" style="flex-direction: column !important; align-items: stretch;">
+          <div style="width: 100%;">
+            <label
+              data-en="Select Student"
+              data-si="ශිෂ්‍ය තෝරා ගන්න"
+              data-ta="மாணவரைத் தேர்ந்தெடுக்கவும்"
+            >
+              Select Student
+            </label>
+            <select id="student-select" class="dropdown-select" style="width: 100%;">
+              <option value="" data-en="Choose a student">Choose a student</option>
+            </select>
+          </div>
+          <div style="width: 100%;">
+            <label
+              data-en="Behavior Type"
+              data-si="හැසිරීමේ වර්ගය"
+              data-ta="நடத்தை வகை"
+            >
+              Behavior Type
+            </label>
+            <select id="behavior-type" class="dropdown-select" style="width: 100%;">
+              <option
+                value=""
+                data-en="Select Type"
+                data-si="වර්ගය තෝරන්න"
+                data-ta="வகையைத் தேர்ந்தெடு"
+              >
+                Select Type
+              </option>
+              <option value="Good" data-en="Good" data-si="හොඳ" data-ta="நல்ல">
+                Good
+              </option>
+              <option
+                value="Disciplinary"
+                data-en="Disciplinary"
+                data-si="අධ්‍යාපනික"
+                data-ta="கட்டுப்பாட்டு"
+              >
+                Disciplinary
+              </option>
+              <option
+                value="Reward"
+                data-en="Reward"
+                data-si="ත්‍යාගය"
+                data-ta="வெகுமதி"
+              >
+                Reward
+              </option>
+            </select>
+          </div>
+          <div style="width: 100%;">
+            <label data-en="Severity" data-si="බරපතුතාව" data-ta="கடுமை">
+              Severity
+            </label>
+            <select id="behavior-severity" class="dropdown-select" style="width: 100%;">
+              <option
+                value=""
+                data-en="N/A"
+                data-si="නොපැනවීම"
+                data-ta="பொருந்தாது"
+              >
+                N/A
+              </option>
+              <option value="Minor" data-en="Minor" data-si="සුළු" data-ta="சிறிய">
+                Minor
+              </option>
+              <option
+                value="Serious"
+                data-en="Serious"
+                data-si="බැරෑරුම්"
+                data-ta="தீவிரமான"
+              >
+                Serious
+              </option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom: 20px">
+          <label data-en="Description" data-si="විස්තරණ" data-ta="விளக்கம்">
+            Description
+          </label>
+          <textarea
+            id="behavior-description"
+            class="form-input"
+            rows="4"
+            placeholder="Enter behavior description..."
+            data-en="Enter behavior description..."
+            data-si="හැසිරීම් විස්තරය ඇතුල් කරන්න..."
+            data-ta="நடத்தை விளக்கத்தை உள்ளீடு செய்யவும்..."
+           
+          ></textarea>
+        </div>
+    </div>
+    <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 20px; border-top: 1px solid var(--color-border);">
+      <button
+        id="add-behavior-cancel"
+        class="btn btn-secondary"
+        data-en="Cancel"
+        data-si="අවලංගු කරන්න"
+        data-ta="ரத்து செய்ய"
+      >
+        Cancel
+      </button>
+      <button
+        id="add-behavior-confirm"
+        class="btn btn-primary"
+        data-en="Submit Record"
+        data-si="වාර්තා ඉදිරිපත් කරන්න"
+        data-ta="பதிவை சமர்ப்பிக்கவும்"
+      >
+        Submit Record
+      </button>
+    </div>
+</modal-dialog>
+
+
 <script>
   let classStudents = [];
   let myBehaviorRecords = [];
@@ -397,6 +399,9 @@
       );
       resetBehaviorForm();
       loadMyBehaviorRecords();
+      // Close modal
+      const modal = document.getElementById("add-behavior-modal");
+      if (modal) modal.close();
     } catch (err) {
       console.error("Error submitting record:", err);
       const messages = {
@@ -610,6 +615,22 @@
     document.getElementById("behavior-type").value = "";
     document.getElementById("behavior-severity").value = "";
     document.getElementById("behavior-description").value = "";
+    // Clear searchable dropdown inputs if they exist
+    // This part depends on how dropdown.js implementation stores the search text
+    // Assuming standard implementation:
+    const dropdowns = document.querySelectorAll(".dropdown-select");
+     dropdowns.forEach((select) => {
+        // Reset displayed text for custom dropdowns
+        const container = select.closest('.custom-select-container');
+        if(container) {
+             const selectedDiv = container.querySelector('.select-selected');
+             if(selectedDiv) {
+                 // Use the text from the first option (Choose a student/Select Type)
+                 selectedDiv.textContent = select.options[0].textContent; 
+             }
+        }
+    });
+
   }
 
   // Show toast notification
@@ -723,13 +744,47 @@
       await loadMyBehaviorRecords();
       initializeSearchableDropdowns();
       setupPaginationEvents();
+      setupAddBehaviorModal();
     }
+  }
+
+  function setupAddBehaviorModal() {
+      const addBtn = document.getElementById("add-record-btn");
+      const modal = document.getElementById("add-behavior-modal");
+      const cancelBtn = document.getElementById("add-behavior-cancel");
+      const confirmBtn = document.getElementById("add-behavior-confirm");
+
+      if (addBtn) {
+          addBtn.addEventListener("click", () => {
+              // Translations for title
+              if (modal.titleElement) {
+                  modal.titleElement.setAttribute("data-en", "Add Behavior Record");
+                  modal.titleElement.setAttribute("data-si", "හැසිරීම් වාර්තා එක් කරන්න");
+                  modal.titleElement.setAttribute("data-ta", "நடத்தை பதிவைச் சேர்க்கவும்");
+              }
+               // Apply language if function exists
+              if (typeof applyDirectLanguageAttributes === "function") {
+                  applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+              }
+              modal.open();
+          });
+      }
+
+      if (cancelBtn) {
+          cancelBtn.addEventListener("click", () => {
+              modal.close();
+          });
+      }
+
+      if (confirmBtn) {
+          confirmBtn.addEventListener("click", submitBehaviorRecord);
+      }
   }
 
   initializePage();
 
 </script>
-<script src="../../js/components/EmptyStateMessage.js"></script>
+
 
 <style>
   .filter-group {
