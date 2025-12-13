@@ -8,49 +8,55 @@
 </div>
 
 <!-- Modal for assigning class teacher -->
-<div class="modal" id="assignTeacherModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="modalTitle">Assign Class Teacher</h3>
-      <button class="modal-close" onclick="closeModal()">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group" id="classNameGroup" style="display: none">
-        <label for="classNameInput">Class Name:</label>
-        <input type="text" id="classNameInput" placeholder="Enter class name" />
+<modal-dialog id="assignTeacherModal" title="Assign Class Teacher">
+  <div style="display: flex; flex-direction: column; gap: 20px;">
+    
+    <div class="form-group mb-0" id="classNameGroup" style="display: none;">
+      <label for="classNameInput" style="display: block; font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 8px;">Class Name</label>
+       <div style="position: relative;">
+        <input type="text" id="classNameInput" placeholder="Enter class name (e.g. A, B, C)" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--color-border); background-color: var(--color-bg); font-size: 15px;" />
       </div>
-      <div class="form-group">
-        <label for="teacherSelect">Select Teacher:</label>
-        <select id="teacherSelect">
+    </div>
+
+    <div class="form-group mb-0">
+      <label for="teacherSelect" style="display: block; font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 8px;">Teacher</label>
+       <div style="position: relative;">
+         <select id="teacherSelect" style="width: 100%; padding: 12px; border-radius: 12px; background-color: var(--color-bg); border: 1px solid var(--color-border); font-size: 15px; appearance: none; -webkit-appearance: none;">
           <option value="">-- Select a teacher --</option>
         </select>
+        <i class="fas fa-chalkboard-teacher" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--color-subtext); pointer-events: none;"></i>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button
-        class="btn-danger"
-        id="deleteBtn"
-        onclick="deleteClass()"
-        style="display: none"
-      >
-        Delete Class
-      </button>
-      <button class="btn-primary" onclick="saveTeacherAssignment()">
-        Save
-      </button>
-      <button
-        class="btn-danger"
+
+    <!-- Conditional Buttons (Delete / Remove) -->
+     <div id="additionalActions" style="display: flex; gap: 12px; margin-top: 8px;">
+        <button
+        class="btn btn-outline"
         id="removeTeacherBtn"
         onclick="removeTeacher()"
-        style="display: none; margin-left: 10px"
+        style="display: none; width: 100%; justify-content: center; font-size: 14px; border-style: dashed;"
       >
-        Remove Teacher
+        <i class="fas fa-user-minus"></i> Remove Teacher
       </button>
-    </div>
-  </div>
-</div>
+       <button
+        class="btn btn-outline"
+        id="deleteBtn"
+        onclick="deleteClass()"
+        style="display: none; width: 100%; justify-content: center; color: var(--color-error); border-color: var(--color-error); font-size: 14px; border-style: dashed;"
+      >
+         <i class="fas fa-trash"></i> Delete Class
+      </button>
+     </div>
 
+     <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+      <button class="btn" onclick="closeModal()" style="background: transparent; color: var(--color-subtext); padding: 10px 20px;">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTeacherAssignment()" style="padding: 10px 24px; border-radius: 12px; font-weight: 600;">Save</button>
+    </div>
+
+  </div>
+</modal-dialog>
+
+<script src="/js/ModalDialog.js"></script>
 <script>
   let currentClassData = null;
   let allTeachers = [];
@@ -183,22 +189,21 @@
 
   function openModal(classItem) {
     const modal = document.getElementById("assignTeacherModal");
-    const modalTitle = document.getElementById("modalTitle");
     const teacherSelect = document.getElementById("teacherSelect");
 
     if (classItem.class_name) {
-      modalTitle.textContent = `Assign Teacher - Grade ${classItem.grade} ${classItem.class_name}`;
+      modal.setTitle(`Assign Teacher - Grade ${classItem.grade} ${classItem.class_name}`);
       document.getElementById("classNameGroup").style.display = "none";
-      document.getElementById("deleteBtn").style.display = "inline-block";
+      document.getElementById("deleteBtn").style.display = "flex";
       
       // Show remove teacher button if a teacher is assigned
       if (classItem.teacher_id) {
-        document.getElementById("removeTeacherBtn").style.display = "inline-block";
+        document.getElementById("removeTeacherBtn").style.display = "flex";
       } else {
         document.getElementById("removeTeacherBtn").style.display = "none";
       }
     } else {
-      modalTitle.textContent = `Add New Class - Grade ${classItem.grade}`;
+       modal.setTitle(`Add New Class - Grade ${classItem.grade}`);
       document.getElementById("classNameGroup").style.display = "block";
       document.getElementById("classNameInput").value = "";
       document.getElementById("deleteBtn").style.display = "none";
@@ -238,8 +243,13 @@
       // update display to reflect selected option
       updateSearchableDisplay("teacherSelect");
     }
+    modal.open();
+  }
 
-    modal.classList.add("active");
+  function closeModal() {
+    const modal = document.getElementById("assignTeacherModal");
+    modal.close();
+    currentClassData = null;
   }
 
   function closeModal() {
@@ -388,13 +398,14 @@
     });
   }
 
-  // Close modal when clicking outside
-  window.addEventListener("click", (event) => {
-    const modal = document.getElementById("assignTeacherModal");
-    if (event.target === modal) {
-      closeModal();
-    }
-  });
+  // Close modal when clicking outside - Handled by ModalDialog component
+  // window.addEventListener("click", (event) => {
+  //   const modal = document.getElementById("assignTeacherModal");
+  //   if (event.target === modal) {
+  //     closeModal();
+  //   }
+  // });
 
   loadClasses();
 </script>
+

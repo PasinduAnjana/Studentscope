@@ -28,32 +28,37 @@
 </div>
 
 <!-- Assignment Modal -->
-<div id="assignment-modal" class="modal" style="display: none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Assign to Slot</h3>
-      <span class="modal-close">&times;</span>
+<!-- Assignment Modal -->
+<modal-dialog id="assignment-modal" title="Assign to Slot">
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <div class="form-group mb-0">
+          <label for="assign-subject" style="display: block; font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 8px;">Subject</label>
+          <div style="position: relative;">
+            <select id="assign-subject" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--color-border); background-color: var(--color-bg); font-size: 15px; appearance: none; -webkit-appearance: none;">
+              <option value="">Select Subject</option>
+            </select>
+            <i class="fas fa-book-open" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--color-subtext); pointer-events: none;"></i>
+          </div>
+        </div>
+
+        <div class="form-group mb-0">
+          <label for="assign-teacher" style="display: block; font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 8px;">Teacher</label>
+           <div style="position: relative;">
+            <select id="assign-teacher" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--color-border); background-color: var(--color-bg); font-size: 15px; appearance: none; -webkit-appearance: none;">
+              <option value="">Select Teacher</option>
+            </select>
+            <i class="fas fa-chalkboard-teacher" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--color-subtext); pointer-events: none;"></i>
+          </div>
+        </div>
+
     </div>
-    <div class="modal-body">
-      <div class="input-group">
-        <label for="assign-subject">Subject:</label>
-        <select id="assign-subject">
-          <option value="">Select Subject</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label for="assign-teacher">Teacher:</label>
-        <select id="assign-teacher">
-          <option value="">Select Teacher</option>
-        </select>
-      </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+      <button onclick="closeModal()" class="btn" style="background: transparent; color: var(--color-subtext); padding: 10px 20px;">Cancel</button>
+      <button id="modal-save" class="btn btn-primary" style="padding: 10px 24px; border-radius: 12px; font-weight: 600;">Assign</button>
     </div>
-    <div class="modal-footer">
-      <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
-      <button id="modal-save" class="btn btn-primary">Assign</button>
-    </div>
-  </div>
-</div>
+</modal-dialog>
 
 <script>
   let currentClass = null;
@@ -99,7 +104,14 @@
           "class-select",
           (val, text) => {
             currentClass = val;
-            loadTimetable();
+            if (val) {
+              loadTimetable();
+            } else {
+              // Clear timetable when no class is selected
+              const timetableContainer = document.getElementById("timetable");
+              timetableContainer.innerHTML =
+                '<div class="timetable-row"><div class="timetable-cell">Please select a class</div></div>';
+            }
           }
         );
       }
@@ -165,12 +177,8 @@
   async function loadTimetable() {
     if (!currentClass) {
       const timetableContainer = document.getElementById("timetable");
-      timetableContainer.innerHTML = `
-        <div class="empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center;">
-            <i class="fas fa-calendar-alt" style="font-size: 32px; color: var(--color-subtext); margin-bottom: 20px;"></i>
-            <p style="font-size: 16px; color: var(--color-subtext); margin: 0;">Please select a class from the dropdown above to view and assign the timetable.</p>
-        </div>
-      `;
+      timetableContainer.innerHTML =
+        '<div class="timetable-row"><div class="timetable-cell">Please select a class</div></div>';
       return;
     }
 
@@ -280,11 +288,29 @@
 
   function openAssignmentModal(day, period) {
     currentSlot = { day, period };
-    document.getElementById("assignment-modal").style.display = "flex";
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+    const dayName = days[day - 1]; // Assuming day 1-5
+    const modal = document.getElementById("assignment-modal");
+    
+    // Create or update subtitle slot
+    const subtitle = document.createElement("p");
+    subtitle.style.cssText = "color: var(--color-subtext); font-size: 14px; margin-top: 4px; margin-bottom: 0;";
+    // Assuming we have slot text, otherwise default
+    subtitle.textContent = `${dayName} • Select subject and teacher`;
+    
+    // We can inject this into the slot we defined in the component
+    const slot = modal.querySelector("#modal-subtitle-slot");
+    if(slot) {
+        slot.innerHTML = '';
+        slot.appendChild(subtitle);
+    }
+    
+    modal.open();
   }
 
   function closeModal() {
-    document.getElementById("assignment-modal").style.display = "none";
+    const modal = document.getElementById("assignment-modal");
+    modal.close();
     currentSlot = null;
   }
 
@@ -326,17 +352,17 @@
   loadClasses();
   loadSubjects();
   loadTeachers();
-  loadTimetable(); // Initial empty state
 
   // Modal event listeners
-  document
-    .querySelector("#assignment-modal .modal-close")
-    .addEventListener("click", closeModal);
-  document.getElementById("modal-cancel").addEventListener("click", closeModal);
+  // document
+  //   .querySelector("#assignment-modal .modal-close")
+  //   .addEventListener("click", closeModal);
+  // document.getElementById("modal-cancel").addEventListener("click", closeModal);
   document
     .getElementById("modal-save")
     .addEventListener("click", saveAssignment);
-  document.getElementById("assignment-modal").addEventListener("click", (e) => {
-    if (e.target === document.getElementById("assignment-modal")) closeModal();
-  });
+  // document.getElementById("assignment-modal").addEventListener("click", (e) => {
+  //   if (e.target === document.getElementById("assignment-modal")) closeModal();
+  // });
 </script>
+

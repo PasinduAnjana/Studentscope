@@ -1,92 +1,4 @@
 <style>
-  /* Modal Styles */
-  .modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-content {
-    background-color: var(--color-card);
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .modal-header h3 {
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  .modal-close {
-    font-size: 28px;
-    font-weight: bold;
-    color: var(--color-subtext);
-    cursor: pointer;
-    line-height: 1;
-  }
-
-  .modal-close:hover {
-    color: var(--color-text);
-  }
-
-  .modal-body {
-    padding: 20px;
-  }
-
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 20px;
-    border-top: 1px solid var(--color-border);
-  }
-
-  .input-group {
-    margin-bottom: 15px;
-  }
-
-  .input-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: var(--color-text);
-  }
-
-  .input-group input,
-  .input-group select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    background-color: var(--color-bg);
-    color: var(--color-text);
-  }
-
-  .input-group input:focus,
-  .input-group select:focus {
-    border-color: var(--color-primary);
-    outline: none;
-  }
-
   /* Action buttons styling */
   .action-buttons {
     display: flex;
@@ -199,13 +111,7 @@
 </section>
 
 <!-- Add/Edit Teacher Modal -->
-<div id="teacher-modal" class="modal" style="display: none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="modal-title">Add Teacher</h3>
-      <span class="modal-close">&times;</span>
-    </div>
-    <div class="modal-body">
+<modal-dialog id="teacher-modal" title="Add Teacher">
       <div class="teacher-form-grid">
         <div class="input-group">
           <label for="teacher-full-name">Full Name:</label>
@@ -282,13 +188,12 @@
           <input type="date" id="teacher-first-appointment-date" />
         </div>
       </div>
-    </div>
-    <div class="modal-footer">
+    
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
       <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
       <button id="modal-save" class="btn btn-primary">Save</button>
     </div>
-  </div>
-</div>
+</modal-dialog>
 
 <script>
   let allTeachers = [];
@@ -331,11 +236,12 @@
   // Global helper so inline onclick fallback can open the modal reliably
   function openAddTeacherModal() {
     editingTeacher = null;
-    const titleEl = document.getElementById("modal-title");
-    if (titleEl) titleEl.textContent = "Add Teacher";
-    clearModal();
     const modal = document.getElementById("teacher-modal");
-    if (modal) modal.style.display = "flex";
+    if (modal) {
+        modal.setTitle("Add Teacher");
+        clearModal();
+        modal.open();    
+    }
   }
 
   function renderTeachers(filtered) {
@@ -531,10 +437,11 @@
     // helper to open modal
     function openAddModal() {
       editingTeacher = null;
-      const titleEl = document.getElementById("modal-title");
-      if (titleEl) titleEl.textContent = "Add Teacher";
-      clearModal();
-      if (modal) modal.style.display = "flex";
+        if (modal) {
+            modal.setTitle("Add Teacher");
+            clearModal();
+            modal.open();
+        }
     }
 
     // If the button exists at setup time, attach directly. Otherwise use delegation (works when page is injected later).
@@ -549,21 +456,21 @@
       });
     }
 
-    const closeBtn = document.querySelector("#teacher-modal .modal-close");
+    // const closeBtn = document.querySelector("#teacher-modal .modal-close");
     const cancelBtn = document.getElementById("modal-cancel");
 
     const closeModal = () => {
-      if (modal) modal.style.display = "none";
+      if (modal) modal.close();
     };
 
-    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+    // if (closeBtn) closeBtn.addEventListener("click", closeModal);
     if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
 
-    if (modal) {
-      modal.addEventListener("click", (e) => {
-        if (e.target === modal) closeModal();
-      });
-    }
+    // if (modal) {
+    //   modal.addEventListener("click", (e) => {
+    //     if (e.target === modal) closeModal();
+    //   });
+    // }
 
     if (saveBtn) saveBtn.addEventListener("click", saveTeacher);
   }
@@ -724,7 +631,8 @@
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error("Failed to save teacher");
-      document.getElementById("teacher-modal").style.display = "none";
+      if (!res.ok) throw new Error("Failed to save teacher");
+      document.getElementById("teacher-modal").close();
       toast("Teacher saved successfully", "fa-solid fa-check-circle");
       fetchTeachers();
     } catch (err) {
@@ -740,7 +648,7 @@
       return;
     }
     editingTeacher = teacher;
-    document.getElementById("modal-title").textContent = "Edit Teacher";
+    // document.getElementById("modal-title").textContent = "Edit Teacher";
     document.getElementById("teacher-full-name").value = teacher.full_name;
     document.getElementById("teacher-nic").value = teacher.nic;
     document.getElementById("teacher-birthday").value = teacher.birthday
@@ -761,7 +669,11 @@
         : "";
     // update searchable display to reflect selected level
     updateSearchableDisplay("teacher-level");
-    document.getElementById("teacher-modal").style.display = "flex";
+    const modal = document.getElementById("teacher-modal");
+    if(modal) {
+        modal.setTitle("Edit Teacher");
+        modal.open();
+    }
   }
 
   function deleteTeacher(id) {
@@ -923,3 +835,4 @@
   setupSearch();
   setupAddButton();
 </script>
+

@@ -76,13 +76,8 @@
 </section>
 
 <!-- Add/Edit Announcement Modal -->
-<div id="announcement-modal" class="modal" style="display: none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="modal-title">Add Announcement</h3>
-      <span class="modal-close">&times;</span>
-    </div>
-    <div class="modal-body">
+<!-- Add/Edit Announcement Modal -->
+<modal-dialog id="announcement-modal" title="Add Announcement">
       <div class="mb-2">
         <label for="announcement-title">Title:</label>
         <input
@@ -116,13 +111,12 @@
         <label>Select Classes:</label>
         <div id="class-checkboxes" class="mt-1"></div>
       </div>
-    </div>
-    <div class="modal-footer">
+    
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
       <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
       <button id="modal-save" class="btn btn-primary">Save</button>
     </div>
-  </div>
-</div>
+</modal-dialog>
 
 <script>
   let announcements = [];
@@ -373,31 +367,33 @@
   function setupAddButton() {
     const addBtn = document.getElementById("add-announcement-btn");
     const modal = document.getElementById("announcement-modal");
-    const closeBtn = document.querySelector("#announcement-modal .modal-close");
+    // const closeBtn = document.querySelector("#announcement-modal .modal-close");
     const cancelBtn = document.getElementById("modal-cancel");
     const saveBtn = document.getElementById("modal-save");
     const audienceSelect = document.getElementById("announcement-audience");
 
     addBtn.addEventListener("click", () => {
       editingAnnouncement = null;
-      document.getElementById("modal-title").textContent = "Add Announcement";
-      clearModal();
-      modal.style.display = "flex";
+      if (modal) {
+        modal.setTitle("Add Announcement");
+        clearModal();
+        modal.open();
+      }
     });
 
     const closeModal = () => {
-      modal.style.display = "none";
+      if (modal) modal.close();
     };
 
-    closeBtn.addEventListener("click", closeModal);
+    // closeBtn.addEventListener("click", closeModal);
     cancelBtn.addEventListener("click", closeModal);
     audienceSelect.addEventListener("change", handleAudienceChange);
 
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        closeModal();
-      }
-    });
+    // modal.addEventListener("click", (e) => {
+    //   if (e.target === modal) {
+    //     closeModal();
+    //   }
+    // });
 
     saveBtn.addEventListener("click", saveAnnouncement);
   }
@@ -556,7 +552,8 @@
         return res.json();
       })
       .then(() => {
-        document.getElementById("announcement-modal").style.display = "none";
+        const modal = document.getElementById("announcement-modal");
+        if(modal) modal.close();
         toast("Announcement saved successfully", "fa-solid fa-check-circle");
         fetchAnnouncements();
       })
@@ -601,7 +598,12 @@
     }
 
     editingAnnouncement = announcement;
-    document.getElementById("modal-title").textContent = "Edit Announcement";
+    const modal = document.getElementById("announcement-modal");
+    if(modal) {
+        modal.setTitle("Edit Announcement");
+        // ...populate fields...
+    }
+    
     document.getElementById("announcement-title").value = announcement.title;
     document.getElementById("announcement-description").value =
       announcement.description;
@@ -653,7 +655,7 @@
       }
     }
 
-    document.getElementById("announcement-modal").style.display = "flex";
+    if(modal) modal.open();
     console.log("Modal should now be visible");
   }
 

@@ -1,97 +1,4 @@
 <style>
-  /* Modal Styles */
-  .modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-content {
-    background-color: var(--color-card);
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .modal-header h3 {
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  .modal-close {
-    font-size: 28px;
-    font-weight: bold;
-    color: var(--color-subtext);
-    cursor: pointer;
-    line-height: 1;
-  }
-
-  .modal-close:hover {
-    color: var(--color-text);
-  }
-
-  .modal-body {
-    padding: 20px;
-  }
-
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 20px;
-    border-top: 1px solid var(--color-border);
-  }
-
-  .input-group {
-    margin-bottom: 15px;
-  }
-
-  .input-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: var(--color-text);
-  }
-
-  .input-group input,
-  .input-group select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    background-color: var(--color-bg);
-    color: var(--color-text);
-  }
-
-  .input-group input:focus,
-  .input-group select:focus {
-    border-color: var(--color-primary);
-    outline: none;
-  }
-
-  .required {
-    color: #e74c3c;
-    font-weight: bold;
-  }
-
   /* Action buttons styling */
   .action-buttons {
     display: flex;
@@ -204,16 +111,10 @@
 </section>
 
 <!-- Add/Edit Student Modal -->
-<div id="student-modal" class="modal" style="display: none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="modal-title">Add Student</h3>
-      <span class="modal-close">&times;</span>
-    </div>
-    <div class="modal-body">
+<modal-dialog id="student-modal" title="Add Student">
       <div class="student-form-grid">
         <div class="input-group">
-          <label for="student-full-name">Full Name: <span class="required">*</span></label>
+          <label for="student-full-name">Full Name: <span class="required" style="color: #e74c3c; font-weight: bold;">*</span></label>
           <input
             type="text"
             id="student-full-name"
@@ -226,7 +127,7 @@
           />
         </div>
         <div class="input-group">
-          <label for="student-username">Index Number (Username): <span class="required">*</span></label>
+          <label for="student-username">Index Number (Username): <span class="required" style="color: #e74c3c; font-weight: bold;">*</span></label>
           <input
             type="text"
             id="student-username"
@@ -239,7 +140,7 @@
           />
         </div>
         <div class="input-group">
-          <label for="student-birthday">Birthday: <span class="required">*</span></label>
+          <label for="student-birthday">Birthday: <span class="required" style="color: #e74c3c; font-weight: bold;">*</span></label>
           <input
             type="date"
             id="student-birthday"
@@ -247,7 +148,7 @@
           />
         </div>
         <div class="input-group">
-          <label for="student-gender">Gender: <span class="required">*</span></label>
+          <label for="student-gender">Gender: <span class="required" style="color: #e74c3c; font-weight: bold;">*</span></label>
           <select id="student-gender" required>
             <option value="">Select Gender</option>
             <option value="M">Male</option>
@@ -255,7 +156,7 @@
           </select>
         </div>
         <div class="input-group">
-          <label for="student-address">Address: <span class="required">*</span></label>
+          <label for="student-address">Address: <span class="required" style="color: #e74c3c; font-weight: bold;">*</span></label>
           <input
             type="text"
             id="student-address"
@@ -266,7 +167,7 @@
           />
         </div>
         <div class="input-group">
-          <label for="student-class">Class: <span class="required">*</span></label>
+          <label for="student-class">Class: <span class="required" style="color: #e74c3c; font-weight: bold;">*</span></label>
           <select id="student-class" required>
             <option value="">Select Class</option>
           </select>
@@ -303,13 +204,12 @@
           />
         </div>
       </div>
-    </div>
-    <div class="modal-footer">
+    
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
       <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
       <button id="modal-save" class="btn btn-primary">Save</button>
     </div>
-  </div>
-</div>
+</modal-dialog>
 
 <script>
   let allStudents = [];
@@ -341,11 +241,12 @@
   // Global helper so inline onclick fallback can open the modal reliably
   function openAddStudentModal() {
     editingStudent = null;
-    const titleEl = document.getElementById("modal-title");
-    if (titleEl) titleEl.textContent = "Add Student";
-    clearModal();
     const modal = document.getElementById("student-modal");
-    if (modal) modal.style.display = "flex";
+    if(modal) {
+        modal.setTitle("Add Student");
+        clearModal();
+        modal.open();
+    }
   }
 
   function renderStudents(filtered) {
@@ -693,10 +594,11 @@
     // helper to open modal
     function openAddModal() {
       editingStudent = null;
-      const titleEl = document.getElementById("modal-title");
-      if (titleEl) titleEl.textContent = "Add Student";
-      clearModal();
-      if (modal) modal.style.display = "flex";
+      if (modal) {
+        modal.setTitle("Add Student");
+        clearModal();
+        modal.open();
+      }
     }
 
     // If the button exists at setup time, attach directly. Otherwise use delegation (works when page is injected later).
@@ -711,21 +613,21 @@
       });
     }
 
-    const closeBtn = document.querySelector("#student-modal .modal-close");
+    // const closeBtn = document.querySelector("#student-modal .modal-close");
     const cancelBtn = document.getElementById("modal-cancel");
 
     const closeModal = () => {
-      if (modal) modal.style.display = "none";
+      if (modal) modal.close();
     };
 
-    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+    // if (closeBtn) closeBtn.addEventListener("click", closeModal);
     if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
 
-    if (modal) {
-      modal.addEventListener("click", (e) => {
-        if (e.target === modal) closeModal();
-      });
-    }
+    // if (modal) {
+    //   modal.addEventListener("click", (e) => {
+    //     if (e.target === modal) closeModal();
+    //   });
+    // }
 
     if (saveBtn) saveBtn.addEventListener("click", saveStudent);
 
@@ -981,7 +883,7 @@
       return;
     }
     editingStudent = student;
-    document.getElementById("modal-title").textContent = "Edit Student";
+    // document.getElementById("modal-title").textContent = "Edit Student";
     document.getElementById("student-full-name").value = student.full_name;
     document.getElementById("student-username").value = student.username;
     // Format birthday to YYYY-MM-DD format for date input
@@ -1001,10 +903,16 @@
     // update searchable display to reflect selected class and gender
     updateSearchableDisplay("student-class");
     updateSearchableDisplay("student-gender");
+    
     document.getElementById("parent-name").value = student.parent?.name || "";
     document.getElementById("parent-address").value =
       student.parent?.address || "";
-    document.getElementById("student-modal").style.display = "flex";
+      
+    const modal = document.getElementById("student-modal");
+    if(modal) {
+        modal.setTitle("Edit Student");
+        modal.open();
+    }
   }
 
   function deleteStudent(id) {
@@ -1040,3 +948,4 @@
   setupSearch();
   setupAddButton();
 </script>
+

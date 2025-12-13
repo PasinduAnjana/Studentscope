@@ -34,31 +34,26 @@
   </div>
 
   <!-- Modal using shared styles (from announcements.css) -->
-  <div id="achievementModal" class="modal" style="display: none">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modalTitle">Add Achievement</h3>
-        <span class="modal-close" onclick="closeModal()">&times;</span>
-      </div>
-      <div class="modal-body">
+  <modal-dialog id="achievementModal" title="Add Achievement">
+      <div style="display: flex; flex-direction: column; gap: 15px;">
         <form id="achievementForm" onsubmit="handleSave(event)">
           <input type="hidden" id="achievementId" />
           
           <div class="form-group">
             <label for="studentSelect">Student</label>
-            <select id="studentSelect" required>
+            <select id="studentSelect" required style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text);">
               <option value="">Select Student...</option>
             </select>
           </div>
 
           <div class="form-group">
             <label for="titleInput">Title</label>
-            <input type="text" id="titleInput" required placeholder="e.g. Mathematics Competition Winner" />
+            <input type="text" id="titleInput" required placeholder="e.g. Mathematics Competition Winner" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text);" />
           </div>
 
           <div class="form-group">
             <label for="descInput">Description</label>
-            <textarea id="descInput" rows="3" required placeholder="Details about the achievement..."></textarea>
+            <textarea id="descInput" rows="3" required placeholder="Details about the achievement..." style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text);"></textarea>
           </div>
 
           <div class="form-group">
@@ -75,16 +70,15 @@
 
           <div class="form-group">
             <label for="dateInput">Date</label>
-            <input type="date" id="dateInput" required />
+            <input type="date" id="dateInput" required style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text);" />
           </div>
         </form>
       </div>
-      <div class="modal-footer">
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
         <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
         <button type="button" class="btn btn-primary" onclick="document.getElementById('achievementForm').dispatchEvent(new Event('submit'))">Save</button>
       </div>
-    </div>
-  </div>
+  </modal-dialog>
 
   <script>
     let students = [];
@@ -183,38 +177,45 @@
 
     function openModal() {
       isEditing = false;
-      document.getElementById("modalTitle").textContent = "Add Achievement";
-      document.getElementById("achievementForm").reset();
-      document.getElementById("achievementId").value = "";
-      document.getElementById("dateInput").valueAsDate = new Date();
-      
-      // Reset Web Component
-      const toggle = document.querySelector('toggle-select');
-      if(toggle) toggle.value = ""; 
-      document.getElementById('categorySelect').value = "";
+      const modal = document.getElementById("achievementModal");
+      if(modal) {
+        modal.setTitle("Add Achievement");
+        document.getElementById("achievementForm").reset();
+        document.getElementById("achievementId").value = "";
+        document.getElementById("dateInput").valueAsDate = new Date();
+        
+        // Reset Web Component
+        const toggle = document.querySelector('toggle-select');
+        if(toggle) toggle.value = ""; 
+        document.getElementById('categorySelect').value = "";
 
-      document.getElementById("achievementModal").style.display = "flex";
+        modal.open();
+      }
     }
 
     function openEditModal(item) {
       isEditing = true;
-      document.getElementById("modalTitle").textContent = "Edit Achievement";
-      document.getElementById("achievementId").value = item.id;
-      document.getElementById("studentSelect").value = item.student_id; 
-      document.getElementById("titleInput").value = item.title;
-      document.getElementById("descInput").value = item.description;
-      document.getElementById("categorySelect").value = item.category;
-      document.getElementById("dateInput").value = item.achieved_at.split('T')[0];
-      
-      // Set Web Component value
-      const toggle = document.querySelector('toggle-select');
-      if(toggle) toggle.value = item.category;
-      
-      document.getElementById("achievementModal").style.display = "flex";
+      const modal = document.getElementById("achievementModal");
+      if(modal) {
+          modal.setTitle("Edit Achievement");
+          document.getElementById("achievementId").value = item.id;
+          document.getElementById("studentSelect").value = item.student_id; 
+          document.getElementById("titleInput").value = item.title;
+          document.getElementById("descInput").value = item.description;
+          document.getElementById("categorySelect").value = item.category;
+          document.getElementById("dateInput").value = item.achieved_at.split('T')[0];
+          
+          // Set Web Component value
+          const toggle = document.querySelector('toggle-select');
+          if(toggle) toggle.value = item.category;
+          
+          modal.open();
+      }
     }
 
     function closeModal() {
-      document.getElementById("achievementModal").style.display = "none";
+      const modal = document.getElementById("achievementModal");
+      if(modal) modal.close();
     }
 
     async function handleSave(e) {
