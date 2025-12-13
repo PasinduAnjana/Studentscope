@@ -97,6 +97,10 @@ const api = {
     marks: {
       getData: () => api.request("/teacher/marks/data"),
       save: (data) => api.request("/teacher/marks", "POST", data),
+      get: (classId, subjectId, examId) => api.request(`/teacher/marks?classId=${classId}&subjectId=${subjectId}&examId=${examId}`),
+    },
+    exams: {
+      getAll: () => api.request("/teacher/exams"),
     },
     behavior: {
       getRecords: () => api.request("/teacher/behavior/records"),

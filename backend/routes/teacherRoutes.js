@@ -141,20 +141,6 @@ module.exports = (req, res) => {
     );
   }
 
-  // Get teacher data for marks dashboard
-  if (req.method === "GET" && req.url === "/api/teacher/marks/data") {
-    return protect("teacher")(req, res, async () => {
-      try {
-        const teacherService = require("../services/teacherService");
-        const data = await teacherService.getTeacherMarksData(req.user.userId);
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(data));
-      } catch (err) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: err.message }));
-      }
-    });
-  }
 
   // Grade rules routes
   if (
@@ -278,7 +264,66 @@ module.exports = (req, res) => {
   }
 
 
+  // Get all exams
+  if (req.method === "GET" && req.url === "/api/teacher/exams") {
+    return protect("teacher")(req, res, async () => {
+      try {
+        const teacherService = require("../services/teacherService");
+        const exams = await teacherService.getAllExams();
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(exams));
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
+  }
+
   // Marks routes
+  if (req.method === "GET") {
+    if (req.url === "/api/teacher/marks/data") {
+        return protect("teacher")(req, res, async () => {
+        try {
+            const teacherService = require("../services/teacherService");
+            const data = await teacherService.getTeacherMarksData(req.user.userId);
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify(data));
+        } catch (err) {
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: err.message }));
+        }
+        });
+    }
+
+    if (req.url.startsWith("/api/teacher/marks?")) {
+        return protect("teacher")(req, res, async () => {
+        try {
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const classId = url.searchParams.get("classId");
+            const subjectId = url.searchParams.get("subjectId");
+            const examId = url.searchParams.get("examId");
+
+            if (classId && subjectId && examId) {
+            const teacherService = require("../services/teacherService");
+            const marks = await teacherService.getMarks(
+                classId,
+                subjectId,
+                examId
+            );
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify(marks));
+            } else {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: "Missing required parameters" }));
+            }
+        } catch (err) {
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: err.message }));
+        }
+        });
+    }
+  }
+
   if (req.method === "POST" && req.url === "/api/teacher/marks") {
     return protect("teacher")(req, res, async () => {
       try {

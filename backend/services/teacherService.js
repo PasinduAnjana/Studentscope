@@ -634,6 +634,16 @@ exports.getAllClassSubjects = async (classId) => {
   return result.rows;
 };
 
+// Get all available exams
+exports.getAllExams = async () => {
+  const result = await pool.query(`
+    SELECT id, name, year
+    FROM exams
+    ORDER BY year DESC, name ASC
+  `);
+  return result.rows;
+};
+
 // Save marks for students
 exports.saveMarks = async (marksData) => {
   const client = await pool.connect();
@@ -642,18 +652,18 @@ exports.saveMarks = async (marksData) => {
     await client.query("BEGIN");
 
     for (const mark of marksData) {
-      const { student_id, subject_id, mark: markValue, exam_type } = mark;
+      const { student_id, subject_id, mark: markValue, exam_id } = mark;
 
       if (markValue !== null && markValue !== undefined) {
         // Insert or update mark
         await client.query(
           `
-          INSERT INTO marks (student_id, subject_id, marks, exam_type, year)
-          VALUES ($1, $2, $3, $4, EXTRACT(YEAR FROM CURRENT_DATE))
-          ON CONFLICT (student_id, subject_id, exam_type, year)
+          INSERT INTO marks (student_id, subject_id, marks, exam_id)
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT (student_id, subject_id, exam_id)
           DO UPDATE SET marks = EXCLUDED.marks
           `,
-          [student_id, subject_id, markValue, exam_type]
+          [student_id, subject_id, markValue, exam_id]
         );
       }
     }
@@ -668,6 +678,19 @@ exports.saveMarks = async (marksData) => {
   }
 };
 
+// Get marks for a specific class, subject, and exam
+exports.getMarks = async (classId, subjectId, examId) => {
+  const result = await pool.query(
+    `
+    SELECT student_id, marks
+    FROM marks
+    WHERE subject_id = $1 AND exam_id = $2
+    AND student_id IN (SELECT id FROM users WHERE class_id = $3)
+    `,
+    [subjectId, examId, classId]
+  );
+  return result.rows;
+};
 // Announcement functions
 exports.getAnnouncementsByClass = async (classId) => {
   const result = await pool.query(

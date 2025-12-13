@@ -63,79 +63,8 @@
               data-si="පරීක්ෂණ වර්ගය සොයන්න..."
               data-ta="தேர்வு வகையைத் தேடு..."
             />
-            <div class="dropdown-options">
-              <div
-                class="dropdown-item"
-                data-value="Term Test 1"
-                data-en="Term Test 1"
-                data-si="නියම පරීක්ෂණය 1"
-                data-ta="செமஸ்டர் தேர்வு 1"
-              >
-                Term Test 1
-              </div>
-              <div
-                class="dropdown-item"
-                data-value="Term Test 2"
-                data-en="Term Test 2"
-                data-si="නියම පරීක්ෂණය 2"
-                data-ta="செமஸ்டர் தேர்வு 2"
-              >
-                Term Test 2
-              </div>
-              <div
-                class="dropdown-item"
-                data-value="Term Test 3"
-                data-en="Term Test 3"
-                data-si="නියම පරීක්ෂණය 3"
-                data-ta="செமஸ்டர் தேர்வு 3"
-              >
-                Term Test 3
-              </div>
-              <div
-                class="dropdown-item"
-                data-value="Midterm Exam"
-                data-en="Midterm Exam"
-                data-si="මධ්‍යම පරීක්ෂණය"
-                data-ta="நடுத்தர தேர்வு"
-              >
-                Midterm Exam
-              </div>
-              <div
-                class="dropdown-item"
-                data-value="Final Exam"
-                data-en="Final Exam"
-                data-si="අවසාන පරීක්ෂණය"
-                data-ta="இறுதி தேர்வு"
-              >
-                Final Exam
-              </div>
-              <div
-                class="dropdown-item"
-                data-value="Unit Test 1"
-                data-en="Unit Test 1"
-                data-si="ඒකක පරීක්ෂණය 1"
-                data-ta="அலகு தேர்வு 1"
-              >
-                Unit Test 1
-              </div>
-              <div
-                class="dropdown-item"
-                data-value="Unit Test 2"
-                data-en="Unit Test 2"
-                data-si="ඒකක පරීක්ෂණය 2"
-                data-ta="அலகு தேர்வு 2"
-              >
-                Unit Test 2
-              </div>
-              <div
-                class="dropdown-item"
-                data-value="Unit Test 3"
-                data-en="Unit Test 3"
-                data-si="ඒකක පරීක්ෂණය 3"
-                data-ta="அலகு தேர்வு 3"
-              >
-                Unit Test 3
-              </div>
+            <div class="dropdown-options" id="examOptions">
+              <!-- Options populated via JS -->
             </div>
           </div>
         </div>
@@ -150,16 +79,7 @@
   </div>
 
   <div class="action-buttons">
-    <button
-      type="button"
-      class="btn-secondary"
-      id="saveDraftBtn"
-      data-en="Save Draft"
-      data-si="කටුව සුරක්ෂිත කරන්න"
-      data-ta="வரைவை சேமிக்கவும்"
-    >
-      Save Draft
-    </button>
+
     <button
       type="button"
       class="btn-primary"
@@ -324,6 +244,38 @@
     });
   }
 
+  async function loadMarks(examId) {
+    if (!classId || !subjects.length || !examId) return;
+
+    try {
+      // Clear current inputs
+      document.querySelectorAll(".mark-input").forEach(input => input.value = "");
+
+      // For each subject, fetch marks
+      for (const subject of subjects) {
+        const response = await api.teacher.marks.get(classId, subject.id, examId);
+        if (response.ok) {
+          const marks = await response.json();
+          // Populate inputs
+          marks.forEach(record => {
+            const input = document.querySelector(`.mark-input[data-student="${record.student_id}"][data-subject="${subject.id}"]`);
+            if (input) {
+              input.value = record.marks;
+            }
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Error loading marks:", err);
+      const messages = {
+        en: "Error loading marks",
+        si: "ලකුණු ලබා ගැනීමේ දෝෂයක්",
+        ta: "மதிப்பெண்களை ஏற்றுவதில் பிழை",
+      };
+      toast(messages[getLang()] || messages.en, "fas fa-exclamation-circle");
+    }
+  }
+
   function addInputHighlighting() {
     const table = document.querySelector(".marks-table");
     table.addEventListener("focusin", (e) => {
@@ -359,7 +311,7 @@
             table
               .querySelectorAll(".highlight-student, .highlight-subject")
               .forEach((el) =>
-                el.classList.remove("highlight-student, highlight-subject")
+                el.classList.remove("highlight-student", "highlight-subject")
               );
           }
         }, 50);
@@ -367,8 +319,7 @@
     });
   }
 
-  // Initialize exam dropdown
-  function initExamDropdown() {
+  async function initExamDropdown() {
     const container = document.querySelector("#examDropdown");
     const display = container.querySelector(".dropdown-display");
     const list = container.querySelector(".dropdown-list");
@@ -377,6 +328,28 @@
     const arrow = container.querySelector(".dropdown-arrow");
     const span = container.querySelector("#selectedExam");
     let selectedValue = "";
+
+    // Load exams from API
+    try {
+      const response = await api.teacher.exams.getAll(); // We need to add this to api wrapper or calls fetch directly
+      if(!response.ok) throw new Error("Failed to load exams");
+      const exams = await response.json();
+      
+      options.innerHTML = exams.map(exam => `
+        <div class="dropdown-item" data-value="${exam.id}">${exam.name}</div>
+      `).join('');
+    } catch(err) {
+      console.error("Error loading exams:", err);
+      // Fallback or explicit fetch if api wrapper isn't updated
+      try {
+          const res = await fetch('/api/teacher/exams', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
+          const exams = await res.json();
+          options.innerHTML = exams.map(exam => `
+            <div class="dropdown-item" data-value="${exam.id}">${exam.name}</div>
+          `).join('');
+      } catch(e) { console.error("Double fail", e); }
+    }
+
 
     // Toggle dropdown
     display.addEventListener("click", () => {
@@ -404,9 +377,13 @@
       const item = e.target.closest(".dropdown-item");
       if (item) {
         selectedValue = item.dataset.value;
-        span.textContent = selectedValue;
+        span.textContent = item.textContent;
+        span.dataset.selectedId = selectedValue; // Store ID
         list.style.display = "none";
         arrow.classList.remove("open");
+        
+        // Load marks for this exam
+        loadMarks(selectedValue);
       }
     });
 
@@ -419,76 +396,19 @@
     });
   }
 
-  function saveDraft() {
-    const table = document.querySelector(".marks-table");
-    const examType = document.querySelector("#selectedExam").textContent;
 
-    if (
-      examType === "Select Exam Type" ||
-      examType === "පරීක්ෂණ වර්ගය තෝරන්න" ||
-      examType === "தேர்வு வகையைத் தேர்ந்தெடுக்கவும்"
-    ) {
-      const messages = {
-        en: "Please select an exam type first",
-        si: "කරුණාකර පළමුව පරීක්ෂණ වර්ගය තෝරන්න",
-        ta: "முதலில் தேர்வு வகையைத் தேர்ந்தெடுக்கவும்",
-      };
-      alert(messages[currentLanguage] || messages.en);
-      return;
-    }
-
-    const inputs = table.querySelectorAll(".mark-input");
-    const data = Array.from(inputs).map((input) => ({
-      student_id: input.dataset.student,
-      subject_id: input.dataset.subject,
-      mark: input.value ? parseInt(input.value) : null,
-      exam_type: examType,
-    }));
-
-    // Send to backend
-    api.teacher.marks
-      .save(data)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((result) => {
-        console.log("Draft saved:", result);
-        const messages = {
-          en: "Draft Saved",
-          si: "කටුව සුරක්ෂිත කරන ලදී",
-          ta: "வரைவு சேமிக்கப்பட்டது",
-        };
-        showStatus(messages[currentLanguage] || messages.en, "draft");
-      })
-      .catch((err) => {
-        console.error("Error saving draft:", err);
-        const messages = {
-          en: "Error saving draft",
-          si: "කටුව සුරක්ෂිත කිරීමේ දෝෂයක්",
-          ta: "வரைவை சேமிப்பதில் பிழை",
-        };
-        showStatus(messages[currentLanguage] || messages.en, "error");
-      });
-  }
 
   function submitMarks() {
     const table = document.querySelector(".marks-table");
-    const examType = document.querySelector("#selectedExam").textContent;
+    const selectedExamId = document.querySelector("#selectedExam").dataset.selectedId;
 
-    if (
-      examType === "Select Exam Type" ||
-      examType === "පරීක්ෂණ වර්ගය තෝරන්න" ||
-      examType === "தேர்வு வகையைத் தேர்ந்தெடுக்கவும்"
-    ) {
+    if (!selectedExamId) {
       const messages = {
-        en: "Please select an exam type first",
-        si: "කරුණාකර පළමුව පරීක්ෂණ වර්ගය තෝරන්න",
-        ta: "முதலில் தேர்வு வகையைத் தேர்ந்தெடுக்கவும்",
+        en: "Please select an exam first",
+        si: "කරුණාකර පළමුව පරීක්ෂණයක් තෝරන්න",
+        ta: "முதலில் ஒரு தேர்வைத் தேர்ந்தெடுக்கவும்",
       };
-      alert(messages[currentLanguage] || messages.en);
+      alert(messages[getLang()] || messages.en);
       return;
     }
 
@@ -497,48 +417,63 @@
       student_id: input.dataset.student,
       subject_id: input.dataset.subject,
       mark: input.value ? parseInt(input.value) : null,
-      exam_type: examType,
+      exam_id: selectedExamId,
     }));
 
-    // Send to backend
-    api.teacher.marks
-      .save(data)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+    const confirmMessages = {
+      en: "Are you sure you want to submit marks?",
+      si: "ලකුණු ඉදිරිපත් කිරීමට ඔබට විශ්වාසද?",
+      ta: "மதிப்பெண்களைச் சமர்ப்பிக்க விரும்புகிறீர்களா?",
+    };
+
+    toast(
+      confirmMessages[getLang()] || confirmMessages.en,
+      "fas fa-question-circle",
+      {
+        confirm: true,
+        center: true,
+        onConfirm: () => {
+          // Send to backend
+          api.teacher.marks
+            .save(data)
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then((result) => {
+              console.log("Marks submitted:", result);
+              const messages = {
+                en: "Submitted",
+                si: "ඉදිරිපත් කරන ලදී",
+                ta: "சமர்ப்பிக்கப்பட்டது",
+              };
+              toast(messages[getLang()] || messages.en, "fas fa-check-circle");
+            })
+            .catch((err) => {
+              console.error("Error submitting marks:", err);
+              const messages = {
+                en: "Error submitting marks",
+                si: "ලකුණු ඉදිරිපත් කිරීමේ දෝෂයක්",
+                ta: "மதிப்பெண்களை சமர்ப்பிப்பதில் பிழை",
+              };
+              toast(messages[getLang()] || messages.en, "fas fa-exclamation-triangle");
+            });
         }
-        return response.json();
-      })
-      .then((result) => {
-        console.log("Marks submitted:", result);
-        const messages = {
-          en: "Submitted",
-          si: "ඉදිරිපත් කරන ලදී",
-          ta: "சமர்ப்பிக்கப்பட்டது",
-        };
-        showStatus(messages[currentLanguage] || messages.en, "submitted");
-      })
-      .catch((err) => {
-        console.error("Error submitting marks:", err);
-        const messages = {
-          en: "Error submitting marks",
-          si: "ලකුණු ඉදිරිපත් කිරීමේ දෝෂයක්",
-          ta: "மதிப்பெண்களை சமர்ப்பிப்பதில் பிழை",
-        };
-        showStatus(messages[currentLanguage] || messages.en, "error");
-      });
+      }
+    );
   }
 
-  function showStatus(text, type) {
-    const actionsDiv = document.querySelector(".marks-actions");
-    const badge = document.createElement("span");
-    badge.className = `status-badge status-${type}`;
-    badge.textContent = text;
-    actionsDiv.insertBefore(badge, actionsDiv.firstChild);
-    setTimeout(() => badge.remove(), 3000);
+  // Get current language safely
+  function getLang() {
+    return window.currentLanguage || 'en';
   }
 
   // Initialize
   loadData();
   initExamDropdown();
+  
+  // Attach event listeners
+  document.getElementById("submitBtn").addEventListener("click", submitMarks);
 </script>

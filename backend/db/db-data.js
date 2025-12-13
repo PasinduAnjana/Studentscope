@@ -535,6 +535,21 @@ async function run() {
       }
     }
 
+    // 1️⃣3️⃣ Exams (Term Tests)
+    const currentYear = new Date().getFullYear();
+    const exams = [
+      `1st Term Test ${currentYear}`,
+      `2nd Term Test ${currentYear}`,
+      `3rd Term Test ${currentYear}`,
+    ];
+    
+    for (const examName of exams) {
+      await pool.query(
+        `INSERT INTO exams (name, year) VALUES ($1, $2)`,
+        [examName, currentYear]
+      );
+    }
+
     // 1️⃣3️⃣ Attendance for last 10 days
     const today = new Date();
     for (let i = 9; i >= 0; i--) {

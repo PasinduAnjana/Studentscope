@@ -146,7 +146,8 @@ END $$;
         student_id BIGINT REFERENCES users(id),
         subject_id BIGINT REFERENCES subjects(id),
         marks INTEGER NOT NULL,
-        exam_id BIGINT REFERENCES exams(id)
+        exam_id BIGINT REFERENCES exams(id),
+        UNIQUE(student_id, subject_id, exam_id)
       );
     `);
 
