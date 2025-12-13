@@ -7,30 +7,7 @@
     data-ta="மதிப்பெண்கள் உள்ளிடுக"
     >Enter Marks</span
   >
-  <a
-    href="#"
-    onclick="goBack(event)"
-    class="btn btn-secondary btn-sm"
-    style="margin-left: 1rem"
-  >
-    <i class="fas fa-arrow-left"></i>
-    <span
-      data-en="Back to Overview"
-      data-si="දෘශ්‍යයට ආපසු"
-      data-ta="கண்ணோட்டத்திற்கு திரும்பு"
-      >Back to Overview</span
-    >
-  </a>
 
-  <script>
-    function goBack(e) {
-      e.preventDefault();
-      const url = new URL(window.location.href);
-      url.searchParams.set("page", "marks");
-      window.history.pushState({}, "", url);
-      loadPage("teacher", "marks");
-    }
-  </script>
 </h2>
 
 <div class="marks-entry">
