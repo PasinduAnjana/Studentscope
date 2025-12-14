@@ -125,7 +125,12 @@
         tbody.innerHTML = "";
         
         if (data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="text-center">No achievements found</td></tr>`;
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" style="padding: 0; border: none;">
+                <empty-state-message message="No achievements found" icon="fas fa-trophy"></empty-state-message>
+              </td>
+            </tr>`;
           return;
         }
 
@@ -161,7 +166,12 @@
         });
 
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-error">Error loading data</td></tr>`;
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="padding: 0; border: none;">
+              <empty-state-message message="Error loading data" icon="fas fa-exclamation-triangle"></empty-state-message>
+            </td>
+          </tr>`;
         toast("Error loading achievements", "fa-solid fa-circle-exclamation");
       }
     }

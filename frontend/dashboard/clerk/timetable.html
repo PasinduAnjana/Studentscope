@@ -110,7 +110,7 @@
               // Clear timetable when no class is selected
               const timetableContainer = document.getElementById("timetable");
               timetableContainer.innerHTML =
-                '<div class="timetable-row"><div class="timetable-cell">Please select a class</div></div>';
+                '<empty-state-message message="Select a class to view timetable" icon="fas fa-chalkboard"></empty-state-message>';
             }
           }
         );
@@ -178,7 +178,7 @@
     if (!currentClass) {
       const timetableContainer = document.getElementById("timetable");
       timetableContainer.innerHTML =
-        '<div class="timetable-row"><div class="timetable-cell">Please select a class</div></div>';
+        '<empty-state-message message="Select a class to view timetable" icon="fas fa-chalkboard"></empty-state-message>';
       return;
     }
 
@@ -282,7 +282,7 @@
       console.error(err);
       const timetableContainer = document.getElementById("timetable");
       timetableContainer.innerHTML =
-        '<div class="error">Unable to load timetable</div>';
+        '<empty-state-message message="Unable to load timetable" icon="fas fa-exclamation-triangle"></empty-state-message>';
     }
   }
 
@@ -352,6 +352,7 @@
   loadClasses();
   loadSubjects();
   loadTeachers();
+  loadTimetable();
 
   // Modal event listeners
   // document

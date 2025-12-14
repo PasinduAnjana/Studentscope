@@ -248,7 +248,12 @@
     const tbody = document.querySelector("#teacher-table tbody");
     tbody.innerHTML = "";
     if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center">No teachers found</td></tr>`;
+      tbody.innerHTML = `
+        <tr>
+            <td colspan="7" style="padding: 0; border: none;">
+                <empty-state-message message="No teachers found" icon="fas fa-users-slash"></empty-state-message>
+            </td>
+        </tr>`;
       updatePaginationControls(0);
       return;
     }
@@ -406,7 +411,12 @@
     } catch (err) {
       console.error(err);
       const tbody = document.querySelector("#teacher-table tbody");
-      tbody.innerHTML = `<tr><td colspan="7" class="text-error">Error loading teachers</td></tr>`;
+      tbody.innerHTML = `
+        <tr>
+            <td colspan="7" style="padding: 0; border: none;">
+                <empty-state-message message="Error loading teachers" icon="fas fa-exclamation-triangle"></empty-state-message>
+            </td>
+        </tr>`;
     }
   }
 
