@@ -98,11 +98,9 @@ class DataTable extends HTMLElement {
                 </div>
             </div>
 
-            <!-- Export Modal Overlay -->
-            <div id="dt-export-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
-                <div style="background: var(--color-card); padding: 24px; border-radius: 12px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
-                    <h3 style="margin: 0; font-size: 18px; color: var(--color-text);">Export Data</h3>
-                    
+            <!-- Export Modal using ModalDialog component -->
+            <modal-dialog id="dt-export-modal" title="Export Data">
+                <div style="display: flex; flex-direction: column; gap: 16px;">
                     <div>
                         <p style="margin: 0 0 8px 0; font-weight: 600; font-size: 14px; color: var(--color-text);">Select Columns:</p>
                         <div id="dt-export-columns" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
@@ -127,7 +125,7 @@ class DataTable extends HTMLElement {
                         <button id="dt-export-confirm" class="btn btn-primary">Download</button>
                     </div>
                 </div>
-            </div>
+            </modal-dialog>
 
             <style>
                 .pagination-controls {
@@ -146,7 +144,40 @@ class DataTable extends HTMLElement {
                     #dt-pages { display: none !important; }
                     #dt-mobile-page { display: inline-block !important; }
                     #dt-info { display: none !important; }
-                    #dt-prev span, #dt-next span { display: none; } /* Hide text "Previous"/"Next" to save space if needed, or keep it */
+                    #dt-prev span, #dt-next span { display: none; }
+                }
+
+                /* Toggle Button Styles for Export Modal */
+                #dt-export-columns .toggle-btn {
+                    padding: 6px 12px;
+                    border-radius: 6px;
+                    background: var(--color-background); /* fallback or card bg */
+                    border: 1px solid var(--color-border);
+                    color: var(--color-text);
+                    transition: all 0.2s ease;
+                    font-size: 13px;
+                    font-weight: 500;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    user-select: none;
+                    flex: 1 0 auto; /* Grow to fill */
+                    box-sizing: border-box;
+                    background-color: transparent; 
+                }
+                #dt-export-columns .toggle-btn:hover {
+                    border-color: var(--color-primary);
+                    background-color:  rgba(var(--color-primary-rgb, 79, 70, 229), 0.05);
+                }
+                #dt-export-columns .toggle-btn.active {
+                    background-color: var(--color-primary);
+                    color: #fff;
+                    border-color: var(--color-primary);
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                #dt-export-columns .toggle-btn.active:hover span {
+                    color: #fff;
                 }
             </style>
 
@@ -221,7 +252,7 @@ class DataTable extends HTMLElement {
         }
         if (exportCancel) {
             exportCancel.addEventListener('click', () => {
-                if (exportModal) exportModal.style.display = 'none';
+                if (exportModal && typeof exportModal.close === 'function') exportModal.close();
             });
         }
         if (exportConfirm) {
@@ -235,45 +266,64 @@ class DataTable extends HTMLElement {
         if (!modal || !container) return;
 
         container.innerHTML = '';
+        
+        // Create a toggle-group container for styling consistency
+        const toggleGroup = document.createElement('div');
+        toggleGroup.className = 'toggle-group';
+        toggleGroup.style.display = 'flex';
+        toggleGroup.style.flexWrap = 'wrap';
+        toggleGroup.style.gap = '8px';
+        toggleGroup.style.padding = '4px'; // Add padding to prevent shadow clipping
+
         this.columns.forEach((col, index) => {
             // Skip action columns or columns without headers
             if (!col.header || col.key === 'actions') return;
 
-            const label = document.createElement('label');
-            label.style.display = 'flex';
-            label.style.alignItems = 'center';
-            label.style.gap = '8px';
-            label.style.cursor = 'pointer';
+            const btn = document.createElement('div');
+            btn.className = 'toggle-btn active'; // Default to active
+            btn.dataset.value = col.key;
+            btn.dataset.header = col.header;
+            btn.dataset.index = index;
             
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.value = col.key; // Store key to identify column
-            checkbox.checked = true; // Default to checked
-            checkbox.dataset.header = col.header;
-            checkbox.dataset.index = index; // Store index to access render function if needed
+            const span = document.createElement('span');
+            span.textContent = col.header;
 
-            label.appendChild(checkbox);
-            label.appendChild(document.createTextNode(col.header));
-            container.appendChild(label);
+            btn.appendChild(span);
+
+            // Toggle logic
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+            });
+
+            toggleGroup.appendChild(btn);
         });
 
-        modal.style.display = 'flex';
+        container.appendChild(toggleGroup);
+
+        if (typeof modal.open === 'function') {
+            modal.open();
+        } else {
+             // Fallback if component not ready or upgraded
+             modal.style.display = 'flex';
+        }
     }
 
     executeExport() {
         const modal = this.querySelector('#dt-export-modal');
         const format = this.querySelector('input[name="export-format"]:checked').value;
-        const checkboxes = Array.from(this.querySelectorAll('#dt-export-columns input[type="checkbox"]:checked'));
         
-        if (checkboxes.length === 0) {
+        // Find all active toggle buttons
+        const activeBtns = Array.from(this.querySelectorAll('#dt-export-columns .toggle-btn.active'));
+        
+        if (activeBtns.length === 0) {
             alert("Please select at least one column.");
             return;
         }
 
-        const selectedColumns = checkboxes.map(cb => ({
-            key: cb.value,
-            header: cb.dataset.header,
-            index: parseInt(cb.dataset.index)
+        const selectedColumns = activeBtns.map(btn => ({
+            key: btn.dataset.value,
+            header: btn.dataset.header,
+            index: parseInt(btn.dataset.index)
         }));
 
         if (format === 'csv') {
@@ -282,7 +332,7 @@ class DataTable extends HTMLElement {
             this.exportToPDF(selectedColumns);
         }
 
-        modal.style.display = 'none';
+        if (modal && typeof modal.close === 'function') modal.close();
     }
 
     exportToCSV(selectedColumns) {
