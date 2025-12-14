@@ -24,6 +24,29 @@ exports.getStudentsByClass = async (req, res) => {
       return res.end(JSON.stringify({ error: "Invalid class ID" }));
     }
 
+    // Access Control: Allow if Class Teacher of this class OR Subject Teacher of this class
+    let hasAccess = false;
+
+    // 1. Check if they are the Class Teacher for this specific class
+    if (req.user.is_class_teacher && String(req.user.class_id) === String(classId)) {
+        hasAccess = true;
+    } 
+    
+    // 2. Check if they teach any subject in this class
+    if (!hasAccess) {
+        const teacherSubjects = await teacherService.getTeacherClassSubjects(req.user.userId, classId);
+        if (teacherSubjects && teacherSubjects.length > 0) {
+            hasAccess = true;
+        }
+    }
+
+    if (!hasAccess) {
+      res.writeHead(403, { "Content-Type": "application/json" });
+      return res.end(
+        JSON.stringify({ error: "You do not have access to this class's students" })
+      );
+    }
+
     const students = await teacherService.getStudentsByClass(classId);
 
     res.writeHead(200, { "Content-Type": "application/json" });

@@ -77,13 +77,7 @@
                     <option value="" data-en="Select Class" data-si="පන්තිය තෝරන්න" data-ta="வகுப்பைத் தேர்ந்தெடுக்கவும்">Select Class</option>
                 </select>
             </div>
-            <div class="input-group" style="width: auto; margin-bottom: 0;">
-                <select id="gender-filter" class="dropdown-select">
-                    <option value="" data-en="All Genders" data-si="සියලු ලිංග" data-ta="அனைத்து பாலினங்களும்">All Genders</option>
-                    <option value="Male" data-en="Male" data-si="පුරුෂ" data-ta="ஆண்">Male</option>
-                    <option value="Female" data-en="Female" data-si="ස්ත්‍රී" data-ta="பெண்">Female</option>
-                </select>
-            </div>
+
         </div>
     </data-table>
   </div>
@@ -115,23 +109,12 @@
 
     // Add filters
     const classSelect = document.getElementById("class-select");
-    const genderSelect = document.getElementById("gender-filter");
 
-    if (classSelect) {
-        classSelect.addEventListener("change", () => {
-             // Fetch specific class data when class filter changes
-             fetchStudents(classSelect.value);
-        });
-    }
 
-    if (genderSelect) {
-         genderSelect.addEventListener("change", () => {
-             const val = genderSelect.value;
-             table.addFilter("gender", (row) => {
-                 return val === "" || row.gender === val;
-             });
-         });
-    }
+    // Class filter event listener moved to fetchClasses to handle dynamic loading
+
+
+
   }
 
   async function fetchStudents(classId) {
@@ -164,9 +147,15 @@
     try {
       const res = await api.teacher.classes.getAll();
       if (!res.ok) throw new Error("Failed to fetch classes");
-      const classes = await res.json();
+      let classes = await res.json();
       const classSelect = document.getElementById("class-select");
       classSelect.innerHTML = `<option value="" data-en="Select Class" data-si="පන්තිය තෝරන්න" data-ta="வகுப்பைத் தேர்ந்தெடுக்கவும்">Select Class</option>`;
+      
+      // If restricted to a specific class, filter the list
+      if (selectedClassId) {
+          classes = classes.filter(cls => String(cls.id) === selectedClassId);
+      }
+
       classes.forEach(cls => {
         const option = document.createElement("option");
         option.value = cls.id;
@@ -177,7 +166,25 @@
       // If a class is pre-selected (e.g., for class teachers), set it and fetch students
       if (selectedClassId) {
         classSelect.value = selectedClassId;
+        classSelect.disabled = true; // Disable selection for class teachers
+        // Fetch students immediately if class is selected
         fetchStudents(selectedClassId);
+      }
+
+      // Initialize searchable dropdown for class-select after options are loaded and value is set
+      // Only make it searchable/interactive if not disabled
+      if (!selectedClassId) {
+          if (typeof makeSearchableDropdown === "function") {
+              makeSearchableDropdown("class-select", (val) => {
+                   // When dropdown changes, fetch new students
+                   fetchStudents(val);
+              });
+          } else {
+              // Fallback event listener
+              classSelect.addEventListener("change", () => {
+                   fetchStudents(classSelect.value);
+              });
+          }
       }
     } catch (err) {
       console.error("Error fetching classes:", err);
