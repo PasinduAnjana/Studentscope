@@ -14,111 +14,37 @@
 
 
   <!-- 📋 My Behavior Records -->
-  <div class="card dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-list icon"></i>
-      <p
-        data-en="My Behavior Records"
-        data-si="මගේ හැසිරීම් වාර්තා"
-        data-ta="எனது நடத்தை பதிவுகள்"
-      >
-        My Behavior Records
-      </p>
-    </div>
-    <div class="filter-group">
-      <div class="search-group" style="max-width: 350px">
-        <input
-          type="text"
-          id="records-search"
-          class="search-input"
-          placeholder="Search records..."
-          data-en="Search records..."
-          data-si="වාර්තා සොයන්න..."
-          data-ta="பதிவுகளைத் தேடு..."
-        />
-        <span class="search-icon"><i class="fas fa-search"></i></span>
-      </div>
-      <div>
-        <select id="my-records-page-size" class="dropdown-select">
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="25" selected>25</option>
-          <option value="50">50</option>
-        </select>
-      </div>
-      <div style="margin-left: auto; padding-bottom: 2px;">
-          <button id="add-record-btn" class="btn btn-primary">
+  <div class="card behavior-list">
+    <div class="header-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 class="title" style="margin: 0; font-size: 1.25rem;">
+            <i class="fas fa-list icon"></i>
+            <span data-en="My Behavior Records" data-si="මගේ හැසිරීම් වාර්තා" data-ta="எனது நடத்தை பதிவுகள்">My Behavior Records</span>
+        </h2>
+        <button id="add-record-btn" class="btn btn-primary">
             <i class="fas fa-plus"></i>
             <span data-en="Add New" data-si="අලුත් එකක් එකතු කරන්න" data-ta="புதியதைச் சேர்">Add New</span>
-          </button>
-      </div>
+        </button>
     </div>
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th data-en="Class" data-si="පන්තිය" data-ta="வகுப்பு">Class</th>
-            <th data-en="Student" data-si="ශිෂ්‍ය" data-ta="மாணவர்">Student</th>
-            <th data-en="Date" data-si="දිනය" data-ta="தேதி">Date</th>
-            <th data-en="Type" data-si="වර්ගය" data-ta="வகை">Type</th>
-            <th data-en="Severity" data-si="බරපතුතාව" data-ta="கடுமை">
-              Severity
-            </th>
-            <th data-en="Description" data-si="විස්තරණ" data-ta="விளக்கம்">
-              Description
-            </th>
-            <th data-en="Action" data-si="ක්‍රියාව" data-ta="செயல்">Action</th>
-          </tr>
-        </thead>
-        <tbody id="my-records-tbody"></tbody>
-      </table>
-    </div>
-    <!-- Pagination -->
-    <div
-      class="pagination-controls"
-      style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        margin-top: 20px;
-        flex-wrap: nowrap;
-      "
-    >
-      <button
-        id="my-records-prev-page"
-        class="btn btn-secondary"
-        disabled
-        title="Previous"
-      >
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <div
-        id="my-records-page-numbers"
-        style="
-          display: flex;
-          gap: 5px;
-          flex-wrap: wrap;
-          justify-content: center;
-        "
-      ></div>
-      <button
-        id="my-records-next-page"
-        class="btn btn-secondary"
-        disabled
-        title="Next"
-      >
-        <i class="fas fa-chevron-right"></i>
-      </button>
-      <span
-        id="my-records-page-info"
-        style="
-          margin-left: 20px;
-          color: var(--color-subtext);
-          white-space: nowrap;
-        "
-      ></span>
-    </div>
+
+    <data-table id="behavior-table">
+        <div slot="filters" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <div class="input-group" style="margin-bottom: 0;">
+                <select id="filter-type">
+                <option value="" data-en="All Types" data-si="සියලු වර්ග" data-ta="அனைத்து வகைகளும்">All Types</option>
+                <option value="Good" data-en="Good" data-si="හොඳ" data-ta="நல்ல">Good</option>
+                <option value="Disciplinary" data-en="Disciplinary" data-si="අධ්‍යාපනික" data-ta="கட்டுப்பாட்டு">Disciplinary</option>
+                <option value="Reward" data-en="Reward" data-si="ත්‍යාගය" data-ta="வெகுமதி">Reward</option>
+                </select>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <select id="filter-severity">
+                <option value="" data-en="All Severities" data-si="සියලු බරපතලකම්" data-ta="அனைத்து தீவிரத்தன்மையும்">All Severities</option>
+                <option value="Minor" data-en="Minor" data-si="සුළු" data-ta="சிறிய">Minor</option>
+                <option value="Serious" data-en="Serious" data-si="බැරෑරුම්" data-ta="தீவிரமான">Serious</option>
+                </select>
+            </div>
+        </div>
+    </data-table>
   </div>
 </div>
 
@@ -162,7 +88,7 @@
                 value="Disciplinary"
                 data-en="Disciplinary"
                 data-si="අධ්‍යාපනික"
-                data-ta="கட்டுப்பாட்டு"
+                data-ta="කட்டுපාටු"
               >
                 Disciplinary
               </option>
@@ -245,13 +171,7 @@
 <script>
   let classStudents = [];
   let myBehaviorRecords = [];
-  let filteredRecords = [];
   let teacherUserId = null;
-
-  // Pagination variables
-  let currentPage = 1;
-  let pageSize = 25;
-  let totalPages = 1;
 
   // Language variable
   let currentLanguage = localStorage.getItem("lang") || "en";
@@ -312,16 +232,16 @@
   }
 
   // Load teacher's behavior records
-  async function loadMyBehaviorRecords() {
+  async function loadMyRecords() {
+    const table = document.getElementById("behavior-table");
     try {
-      const response = await api.teacher.behavior.getRecords();
-      if (!response.ok) throw new Error("Failed to fetch behavior records");
-      myBehaviorRecords = await response.json();
-      filteredRecords = myBehaviorRecords;
-      currentPage = 1;
-      renderRecordsTable();
+      const res = await api.teacher.behavior.getRecords();
+      if (!res.ok) throw new Error("Failed to load records");
+      myBehaviorRecords = await res.json();
+      table.setData(myBehaviorRecords);
     } catch (err) {
-      console.error("Error loading behavior records:", err);
+      console.error(err);
+      table.setEmptyState("Error loading records", "fas fa-exclamation-triangle");
       showToast("Error loading records", "fa-solid fa-circle-exclamation");
     }
   }
@@ -398,7 +318,7 @@
         "fa-solid fa-check-circle"
       );
       resetBehaviorForm();
-      loadMyBehaviorRecords();
+      loadMyRecords();
       // Close modal
       const modal = document.getElementById("add-behavior-modal");
       if (modal) modal.close();
@@ -416,155 +336,68 @@
     }
   }
 
-  // Render records table with pagination
-  function renderRecordsTable() {
-    const tbody = document.getElementById("my-records-tbody");
+  function initTable() {
+    const table = document.getElementById("behavior-table");
+    table.setColumns([
+        { 
+            key: "date", 
+            header: "Date",
+            render: (row) => new Date(row.date).toLocaleDateString()
+        },
+        { key: "student", header: "Student", searchable: true },
+        { 
+            key: "type", 
+            header: "Type", 
+            render: (row) => {
+                const color = row.type === 'Good' || row.type === 'Reward' ? 'green' : 'red';
+                return `<span class="badge badge-${color}">${row.type}</span>`; 
+            }
+        },
+        { key: "severity", header: "Severity", render: (row) => row.severity || '-' },
+        { key: "description", header: "Description", searchable: true },
+        { 
+            key: "actions", 
+            header: "Actions",
+            render: (row) => {
+                 // Inline onclick needs to pass ID carefully
+                 return `
+                    <button class="btn-icon btn-delete" onclick="deleteRecord(${row.id})" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                 `;
+            }
+        }
+    ]);
+    table.setEmptyState("No behavior records found", "fas fa-clipboard-list");
 
-    if (!filteredRecords.length) {
-      const messages = {
-        en: "No records found",
-        si: "වාර්තා කිසිවක් හමු නොවීය",
-        ta: "பதிவுகள் எதுவும் கிடைக்கவில்லை",
-      };
-      const lang = localStorage.getItem("lang") || "en";
-      const message = messages[lang] || messages.en;
+    const filterType = document.getElementById("filter-type");
+    const filterSeverity = document.getElementById("filter-severity");
 
-      // Render empty state inside a TR/TD because it's in a TBODY
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="7" style="padding: 0; border: none;">
-             <empty-state-message message="${message}" icon="fas fa-clipboard-list"></empty-state-message>
-          </td>
-        </tr>
-      `;
-      updateRecordsPaginationControls(0);
-      return;
+    if (filterType) {
+        if (typeof makeSearchableDropdown === "function") {
+            makeSearchableDropdown("filter-type", (val) => {
+                table.addFilter("type", (row) => val === "" || row.type === val);
+            });
+        } else {
+            filterType.addEventListener("change", () => {
+                const val = filterType.value;
+                table.addFilter("type", (row) => val === "" || row.type === val);
+            });
+        }
     }
 
-    totalPages = Math.ceil(filteredRecords.length / pageSize);
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const recordsToShow = filteredRecords.slice(startIndex, endIndex);
-
-    tbody.innerHTML = recordsToShow
-      .map(
-        (record) => `
-      <tr>
-        <td>${record.class}</td>
-        <td>${record.student}</td>
-        <td>${record.date}</td>
-        <td>${record.type}</td>
-        <td>${record.severity || "—"}</td>
-        <td>${record.description}</td>
-        <td>
-          <button class="btn-icon btn-delete" onclick="deleteRecord(${
-            record.id
-          })" title="Delete">
-            <i class="fas fa-trash"></i>
-          </button>
-        </td>
-      </tr>
-    `
-      )
-      .join("");
-
-    updateRecordsPaginationControls(filteredRecords.length);
-  }
-
-  // Update pagination controls
-  function updateRecordsPaginationControls(totalItems) {
-    const prevBtn = document.getElementById("my-records-prev-page");
-    const nextBtn = document.getElementById("my-records-next-page");
-    const pageNumbers = document.getElementById("my-records-page-numbers");
-    const pageInfo = document.getElementById("my-records-page-info");
-
-    if (!prevBtn || !nextBtn || !pageNumbers || !pageInfo) return;
-
-    prevBtn.disabled = currentPage <= 1;
-    nextBtn.disabled = currentPage >= totalPages;
-
-    const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
-    const endItem = Math.min(currentPage * pageSize, totalItems);
-    pageInfo.textContent = `Showing ${startItem}-${endItem} of ${totalItems} records`;
-
-    pageNumbers.innerHTML = "";
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    if (filterSeverity) {
+        if (typeof makeSearchableDropdown === "function") {
+            makeSearchableDropdown("filter-severity", (val) => {
+                table.addFilter("severity", (row) => val === "" || row.severity === val);
+            });
+        } else {
+            filterSeverity.addEventListener("change", () => {
+                const val = filterSeverity.value;
+                table.addFilter("severity", (row) => val === "" || row.severity === val);
+            });
+        }
     }
-
-    if (startPage > 1) {
-      const firstBtn = document.createElement("button");
-      firstBtn.className = "btn btn-secondary";
-      firstBtn.textContent = "1";
-      firstBtn.onclick = () => goToPage(1);
-      pageNumbers.appendChild(firstBtn);
-
-      if (startPage > 2) {
-        const ellipsis = document.createElement("span");
-        ellipsis.textContent = "...";
-        ellipsis.style.margin = "0 5px";
-        pageNumbers.appendChild(ellipsis);
-      }
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      const pageBtn = document.createElement("button");
-      pageBtn.className = `btn ${
-        i === currentPage ? "btn-primary" : "btn-secondary"
-      }`;
-      pageBtn.textContent = i;
-      pageBtn.onclick = () => goToPage(i);
-      pageNumbers.appendChild(pageBtn);
-    }
-
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        const ellipsis = document.createElement("span");
-        ellipsis.textContent = "...";
-        ellipsis.style.margin = "0 5px";
-        pageNumbers.appendChild(ellipsis);
-      }
-
-      const lastBtn = document.createElement("button");
-      lastBtn.className = "btn btn-secondary";
-      lastBtn.textContent = totalPages;
-      lastBtn.onclick = () => goToPage(totalPages);
-      pageNumbers.appendChild(lastBtn);
-    }
-  }
-
-  // Navigate to page
-  function goToPage(page) {
-    if (page >= 1 && page <= totalPages) {
-      currentPage = page;
-      renderRecordsTable();
-    }
-  }
-
-  // Search behavior records
-  function searchRecords(searchTerm) {
-    const term = searchTerm.toLowerCase().trim();
-
-    if (!term) {
-      filteredRecords = myBehaviorRecords;
-    } else {
-      filteredRecords = myBehaviorRecords.filter((record) => {
-        return (
-          record.student.toLowerCase().includes(term) ||
-          record.class.toLowerCase().includes(term) ||
-          record.type.toLowerCase().includes(term) ||
-          record.severity?.toLowerCase().includes(term) ||
-          record.description.toLowerCase().includes(term)
-        );
-      });
-    }
-
-    currentPage = 1;
-    renderRecordsTable();
   }
 
   // Delete behavior record
@@ -587,7 +420,7 @@
       ta: "ரத்து"
     };
 
-    toast(
+    showToast(
       messages[currentLanguage] || messages.en,
       "fa-solid fa-trash",
       {
@@ -614,7 +447,7 @@
         messages[currentLanguage] || messages.en,
         "fa-solid fa-check-circle"
       );
-      loadMyBehaviorRecords();
+      loadMyRecords();
     } catch (err) {
       console.error("Error deleting record:", err);
       const messages = {
@@ -654,118 +487,22 @@
   }
 
   // Show toast notification
-  function showToast(message, icon) {
+  function showToast(message, icon, options = {}) {
     if (typeof toast === "function") {
-      toast(message, icon);
+      toast(message, icon, options);
     } else {
       alert(message);
     }
   }
 
-  // Initialize searchable dropdowns
-  function initializeSearchableDropdowns() {
-    const dropdowns = document.querySelectorAll(".dropdown-select");
-    dropdowns.forEach((select) => {
-      // Skip my-records-page-size as it's handled separately in setupPaginationEvents
-      if (select.id === "my-records-page-size") return;
-
-      if (typeof makeSearchableDropdown === "function") {
-        makeSearchableDropdown(select.id);
-      }
-    });
-  }
-
-  // Setup pagination events
-  function setupPaginationEvents() {
-    const pageSizeElement = document.getElementById("my-records-page-size");
-    if (pageSizeElement) {
-      pageSize = parseInt(pageSizeElement.value);
-
-      // Make page size dropdown searchable with callback
-      if (typeof makeSearchableDropdown === "function") {
-        makeSearchableDropdown("my-records-page-size", (val, text) => {
-          pageSize = parseInt(val);
-          currentPage = 1;
-          renderRecordsTable();
-        });
-      }
-
-      // Page size change event (fallback)
-      pageSizeElement.addEventListener("change", (e) => {
-        pageSize = parseInt(e.target.value);
-        currentPage = 1;
-        renderRecordsTable();
-      });
-    }
-
-    const prevBtn = document.getElementById("my-records-prev-page");
-    const nextBtn = document.getElementById("my-records-next-page");
-
-    if (prevBtn) {
-      prevBtn.addEventListener("click", () => goToPage(currentPage - 1));
-    }
-
-    if (nextBtn) {
-      nextBtn.addEventListener("click", () => goToPage(currentPage + 1));
-    }
-
-    // Setup search input
-    const searchInput = document.getElementById("records-search");
-    if (searchInput) {
-      searchInput.addEventListener("input", (e) => {
-        searchRecords(e.target.value);
-      });
-    }
-  }
-
-  // Update language text
-  function updateText(lang) {
-    document.querySelectorAll("[data-en],[data-si],[data-ta]").forEach((el) => {
-      el.textContent =
-        el.getAttribute(`data-${lang}`) || el.getAttribute("data-en");
-    });
-  }
-
-  window.addEventListener("storage", (e) => {
-    if (e.key === "lang") {
-      currentLanguage = e.newValue || "en";
-      updateText(currentLanguage);
-    }
-  });
-
-  window.addEventListener("languageChange", (e) => {
-    currentLanguage = e.detail.lang || "en";
-    updateText(currentLanguage);
-  });
-
-  let lastLang = localStorage.getItem("lang") || "en";
-  setInterval(() => {
-    const currentLang = localStorage.getItem("lang") || "en";
-    if (currentLang !== lastLang) {
-      currentLanguage = currentLang;
-      updateText(currentLang);
-      lastLang = currentLang;
-    }
-  }, 300);
-
-  updateText(currentLanguage);
-
   // Initialize on page load
   async function initializePage() {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", async () => {
-        await loadClassStudents();
-        await loadMyBehaviorRecords();
-        initializeSearchableDropdowns();
-        setupPaginationEvents();
-      });
-    } else {
       await loadClassStudents();
-      await loadMyBehaviorRecords();
-      initializeSearchableDropdowns();
-      setupPaginationEvents();
+      initTable();
+      await loadMyRecords();
       setupAddBehaviorModal();
-    }
+      // Initialize dropdowns locally if needed, or let global script handle generic ones
+      // initializeSearchableDropdowns(); // Redundant if makeSearchableDropdown used inside initTable
   }
 
   function setupAddBehaviorModal() {
@@ -806,41 +543,4 @@
 </script>
 
 
-<style>
-  .filter-group {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px;
-    margin-bottom: 20px;
-    align-items: flex-end;
-    width: auto;
-  }
-  .filter-group > div {
-    flex: 0 0 auto;
-    min-width: 200px;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-  .filter-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: var(--color-text);
-  }
-  .pagination-controls {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-    flex-wrap: nowrap;
-  }
-  #my-records-page-numbers {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-</style>
+

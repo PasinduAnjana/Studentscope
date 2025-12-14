@@ -70,902 +70,118 @@
   </h2>
   <div class="card students">
     <h1 class="title" data="sidebar.students"></h1>
-    <!-- Search Bar and Class Dropdown -->
-    <div
-      class="flex mb-2"
-      style="gap: 16px; align-items: center; flex-wrap: wrap"
-    >
-      <div class="search-group" style="max-width: 350px">
-        <input
-          type="text"
-          id="student-search"
-          class="search-input"
-          placeholder="Search students..."
-          data-en="Search students..."
-          data-si="ශිෂ්‍යයින් සොයන්න..."
-          data-ta="மாணவர்களைத் தேடு..."
-        />
-        <span class="search-icon"><i class="fas fa-search"></i></span>
-      </div>
-      <div class="input-group">
-        <span style="font-weight: 500"
-          >Class: <span id="class-name"></span
-        ></span>
-      </div>
-      <div style="display: flex; gap: 10px; margin-left: auto">
-        <button id="export-pdf-btn" class="btn btn-primary">
-          <i class="fas fa-file-pdf"></i>
-          <span
-            data-en="Export PDF"
-            data-si="PDF අපනයනය කරන්න"
-            data-ta="PDF ஏற்றுமதி"
-            >Export PDF</span
-          >
-        </button>
-        <button id="export-btn" class="btn btn-primary">
-          <i class="fas fa-download"></i>
-          <span
-            data-en="Export CSV"
-            data-si="CSV අපනයනය කරන්න"
-            data-ta="CSV ஏற்றுமதி"
-            >Export CSV</span
-          >
-        </button>
-      </div>
-    </div>
-    <div class="table-responsive">
-      <table id="student-table">
-        <thead>
-          <tr>
-            <th data-en="Name" data-si="නම" data-ta="பெயர்">Name</th>
-            <th
-              data-en="Index No"
-              data-si="දෙපත් අංකය"
-              data-ta="குறியீட்டு எண்"
-            >
-              Index No
-            </th>
-            <th data-en="Grade" data-si="ශ්‍රේණිය" data-ta="தரம்">Grade</th>
-            <th data-en="Birthday" data-si="උපන් දිනය" data-ta="பிறந்த தேதி">
-              Birthday
-            </th>
-            <th data-en="Address" data-si="ලිපිනය" data-ta="முகவரி">Address</th>
-            <th data-en="Gender" data-si="ලිංගභේදය" data-ta="பாலினம்">
-              Gender
-            </th>
-            <th data-en="Nationality" data-si="ජාතිය" data-ta="தேசியம்">
-              Nationality
-            </th>
-            <th
-              data-en="Parent Name"
-              data-si="දෙමවුපියන්ගේ නම"
-              data-ta="பெற்றோர் பெயர்"
-            >
-              Parent Name
-            </th>
-            <th
-              data-en="Parent Address"
-              data-si="දෙමවුපියන්ගේ ලිපිනය"
-              data-ta="பெற்றோர் முகவரி"
-            >
-              Parent Address
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Students will be loaded here dynamically -->
-        </tbody>
-      </table>
-    </div>
+    <data-table id="students-table">
+        <div slot="filters" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <div class="input-group" style="width: auto; min-width: 200px; margin-bottom: 0;">
+                <select id="class-select" class="dropdown-select">
+                    <option value="" data-en="Select Class" data-si="පන්තිය තෝරන්න" data-ta="வகுப்பைத் தேர்ந்தெடுக்கவும்">Select Class</option>
+                </select>
+            </div>
+            <div class="input-group" style="width: auto; margin-bottom: 0;">
+                <select id="gender-filter" class="dropdown-select">
+                    <option value="" data-en="All Genders" data-si="සියලු ලිංග" data-ta="அனைத்து பாலினங்களும்">All Genders</option>
+                    <option value="Male" data-en="Male" data-si="පුරුෂ" data-ta="ஆண்">Male</option>
+                    <option value="Female" data-en="Female" data-si="ස්ත්‍රී" data-ta="பெண்">Female</option>
+                </select>
+            </div>
+        </div>
+    </data-table>
   </div>
 </section>
 
-<!-- Export Modal -->
-<modal-dialog id="export-modal" title="Export Students to CSV">
-    <div style="padding: 20px;">
-      <p
-        data-en="Select the fields you want to include in the CSV export:"
-        data-si="CSV අපනයනයේ ඇතුළත් කිරීමට අවශ්‍ය ක්ෂේත්‍ර තෝරන්න:"
-        data-ta="CSV ஏற்றுமதியில் சேர்க்க விரும்பும் புலங்களைத் தேர்ந்தெடுக்கவும்:"
-      >
-        Select the fields you want to include in the CSV export:
-      </p>
-      <div class="export-fields">
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-name" checked />
-          <span class="checkmark"></span>
-          <span data-en="Name" data-si="නම" data-ta="பெயர்">Name</span>
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-index" checked />
-          <span class="checkmark"></span>
-          <span
-            data-en="Index Number"
-            data-si="දෙපත් අංකය"
-            data-ta="குறியீட்டு எண்"
-            >Index Number</span
-          >
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-grade" checked />
-          <span class="checkmark"></span>
-          <span data-en="Grade" data-si="ශ්‍රේණිය" data-ta="தரம்">Grade</span>
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-birthday" />
-          <span class="checkmark"></span>
-          <span data-en="Birthday" data-si="උපන් දිනය" data-ta="பிறந்த தேதி"
-            >Birthday</span
-          >
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-address" />
-          <span class="checkmark"></span>
-          <span data-en="Address" data-si="ලිපිනය" data-ta="முகவரி"
-            >Address</span
-          >
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-gender" />
-          <span class="checkmark"></span>
-          <span data-en="Gender" data-si="ලිංගභේදය" data-ta="பாலினம்"
-            >Gender</span
-          >
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-nationality" />
-          <span class="checkmark"></span>
-          <span data-en="Nationality" data-si="ජාතිය" data-ta="தேசியம்"
-            >Nationality</span
-          >
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-parent-name" />
-          <span class="checkmark"></span>
-          <span
-            data-en="Parent Name"
-            data-si="දෙමවුපියන්ගේ නම"
-            data-ta="பெற்றோர் பெயர்"
-            >Parent Name</span
-          >
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-parent-address" />
-          <span class="checkmark"></span>
-          <span
-            data-en="Parent Address"
-            data-si="දෙමවුපියන්ගේ ලිපිනය"
-            data-ta="பெற்றோர் முகவரி"
-            >Parent Address</span
-          >
-        </label>
-      </div>
-    </div>
-    <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 20px; border-top: 1px solid var(--color-border);">
-      <button
-        id="export-cancel"
-        class="btn btn-secondary"
-        data-en="Cancel"
-        data-si="අවලංගු කරන්න"
-        data-ta="ரத்து செய்ய"
-      >
-        Cancel
-      </button>
-      <button
-        id="export-confirm"
-        class="btn btn-primary"
-        data-en="Export"
-        data-si="අපනයනය කරන්න"
-        data-ta="ஏற்றுமதி"
-      >
-        Export
-      </button>
-    </div>
-</modal-dialog>
-
-<!-- Export PDF Modal -->
-<modal-dialog id="export-pdf-modal" title="Export Students to PDF">
-    <div style="padding: 20px;">
-      <div class="input-group" style="margin-bottom: 15px">
-        <label
-          for="pdf-heading"
-          data-en="Heading:"
-          data-si="ශීර්ෂය:"
-          data-ta="தலைப்பு:"
-          >Heading:</label
-        >
-        <input
-          type="text"
-          id="pdf-heading"
-          class="input"
-          placeholder="Enter heading..."
-          data-en="Enter heading..."
-          data-si="ශීර්ෂය ඇතුල් කරන්න..."
-          data-ta="தலைப்பை உள்ளீடு செய்ய..."
-        />
-      </div>
-      <div class="input-group" style="margin-bottom: 15px">
-        <label
-          for="pdf-subheading"
-          data-en="Subheading:"
-          data-si="උපශීර්ෂය:"
-          data-ta="துணைத் தலைப்பு:"
-          >Subheading:</label
-        >
-        <input
-          type="text"
-          id="pdf-subheading"
-          class="input"
-          placeholder="Enter subheading..."
-          data-en="Enter subheading..."
-          data-si="උපශීර්ෂය ඇතුල් කරන්න..."
-          data-ta="துணைத் தலைப்பை உள்ளீடு செய்ய..."
-        />
-      </div>
-      <div class="input-group" style="margin-bottom: 15px">
-        <label
-          for="pdf-empty-columns"
-          data-en="Number of Empty Columns (for signatures, etc.):"
-          data-si="හිස් තීරු ගණන (අත්සන් සඳහා, ආදිය.):"
-          data-ta="காலியான நெடுவரிசைகளின் எண்ணிக்கை (கையொப்பங்கள் போன்றவை):"
-          >Number of Empty Columns (for signatures, etc.):</label
-        >
-        <input
-          type="number"
-          id="pdf-empty-columns"
-          class="input"
-          placeholder="0"
-          min="0"
-          max="10"
-        />
-      </div>
-      <div class="input-group" style="margin-bottom: 15px">
-        <label
-          for="pdf-empty-titles"
-          data-en="Empty Column Titles (comma-separated, e.g., Signature, Date, Notes):"
-          data-si="හිස් තීරු මාතෘකා (කොමාවෙන් වෙන්කර හඳුනා ඇත, උදා., අත්සන, දිනය, සටහන්):"
-          data-ta="காலியான நெடுவரிசை தலைப்புகள் (கமா-பிரிக்கப்பட்ட, எ.கா., கையொப்பம், தேதி, குறிப்புகள்):"
-          >Empty Column Titles (comma-separated, e.g., Signature, Date,
-          Notes):</label
-        >
-        <input
-          type="text"
-          id="pdf-empty-titles"
-          class="input"
-          placeholder="Signature, Date, Notes"
-          data-en="Signature, Date, Notes"
-          data-si="අත්සන, දිනය, සටහන්"
-          data-ta="கையொப்பம், தேதி, குறிப்புகள்"
-        />
-      </div>
-      <p
-        data-en="Select the fields you want to include in the PDF export:"
-        data-si="PDF අපනයනයේ ඇතුළත් කිරීමට අවශ්‍ය ක්ෂේත්‍ර තෝරන්න:"
-        data-ta="PDF ஏற்றுமதியில் சேர்க்க விரும்பும் புலங்களைத் தேர்ந்தெடுக்கவும்:"
-      >
-        Select the fields you want to include in the PDF export:
-      </p>
-      <div class="export-fields">
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-name" checked />
-          <span class="checkmark"></span>
-          <span data-en="Name" data-si="නම" data-ta="பெயர்">Name</span>
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-index" checked />
-          <span class="checkmark"></span>
-          <span
-            data-en="Index Number"
-            data-si="දෙපත් අංකය"
-            data-ta="குறியீட்டு எண்"
-            >Index Number</span
-          >
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-grade" checked />
-          <span class="checkmark"></span>
-          <span data-en="Grade" data-si="ශ්‍රේණිය" data-ta="தரம்">Grade</span>
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-birthday" />
-          <span class="checkmark"></span>
-          <span data-en="Birthday" data-si="උපන් දිනය" data-ta="பிறந்த தேதி"
-            >Birthday</span
-          >
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-address" />
-          <span class="checkmark"></span>
-          <span data-en="Address" data-si="ලිපිනය" data-ta="முகவரி"
-            >Address</span
-          >
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-gender" />
-          <span class="checkmark"></span>
-          <span data-en="Gender" data-si="ලිංගභේදය" data-ta="பாலினம்"
-            >Gender</span
-          >
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-nationality" />
-          <span class="checkmark"></span>
-          <span data-en="Nationality" data-si="ජාතිය" data-ta="தேசியம்"
-            >Nationality</span
-          >
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-parent-name" />
-          <span class="checkmark"></span>
-          <span
-            data-en="Parent Name"
-            data-si="දෙමවුපියන්ගේ නම"
-            data-ta="பெற்றோர் பெயர்"
-            >Parent Name</span
-          >
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-parent-address" />
-          <span class="checkmark"></span>
-          <span
-            data-en="Parent Address"
-            data-si="දෙමවුපියන්ගේ ලිපිනය"
-            data-ta="பெற்றோர் முகவரி"
-            >Parent Address</span
-          >
-        </label>
-      </div>
-    </div>
-    <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 20px; border-top: 1px solid var(--color-border);">
-      <button
-        id="export-pdf-cancel"
-        class="btn btn-secondary"
-        data-en="Cancel"
-        data-si="අවලංගු කරන්න"
-        data-ta="ரத்து செய்ய"
-      >
-        Cancel
-      </button>
-      <button
-        id="export-pdf-confirm"
-        class="btn btn-primary"
-        data-en="Export PDF"
-        data-si="PDF අපනයනය කරන්න"
-        data-ta="PDF ஏற்றுமதி"
-      >
-        Export PDF
-      </button>
-    </div>
-</modal-dialog>
 
 <script>
   let allStudents = [];
   let selectedClassId = "";
 
-  function renderStudents(filtered) {
-    const tbody = document.querySelector("#student-table tbody");
-    tbody.innerHTML = "";
-    if (!filtered.length) {
-      const messages = {
-        en: "No students found",
-        si: "ශිෂ්‍යයින් සොයා ගත නොහැකි විය",
-        ta: "மாணவர்கள் கிடைக்கவில்லை",
-      };
+  function initTable() {
+    const table = document.getElementById("students-table");
+    table.setColumns([
+        { key: "full_name", header: "Name", searchable: true },
+        { key: "index_number", header: "Index No", searchable: true },
+        { key: "class_name", header: "Grade" },
+        { 
+            key: "birthday", 
+            header: "Birthday",
+            render: (row) => row.birthday ? new Date(row.birthday).toLocaleDateString() : ""
+        },
+        { key: "gender", header: "Gender" },
+        { key: "nationality", header: "Nationality" },
+        { key: "parent_name", header: "Parent Name", searchable: true },
+        { key: "address", header: "Address" },
+        { key: "parent_address", header: "Parent Address" }
+    ]);
+    table.setEmptyState("No students found in this class", "fas fa-user-graduate");
+
+    // Add filters
+    const classSelect = document.getElementById("class-select");
+    const genderSelect = document.getElementById("gender-filter");
+
+    if (classSelect) {
+        classSelect.addEventListener("change", () => {
+             // Fetch specific class data when class filter changes
+             fetchStudents(classSelect.value);
+        });
+    }
+
+    if (genderSelect) {
+         genderSelect.addEventListener("change", () => {
+             const val = genderSelect.value;
+             table.addFilter("gender", (row) => {
+                 return val === "" || row.gender === val;
+             });
+         });
+    }
+  }
+
+  async function fetchStudents(classId) {
+    if (!classId) return;
+    const table = document.getElementById("students-table");
+    
+    // Show empty state while loading could be handled by component if it had loading state, 
+    // or we just clear data.
+    table.setData([]); 
+
+    try {
+      // Use API module
+      const res = await api.teacher.students.getByClass(classId); // Using existing teacher endpoint or generic? teacher.students.getByClass matches previous logic: /api/teacher/students/class/:id
+      if (!res.ok) throw new Error("Failed to fetch students");
+      allStudents = await res.json();
       
-      const lang = localStorage.getItem("lang") || "en";
-      const message = messages[lang] || messages.en;
+      // Enrich data with class_name if needed, though they are all same class
+      const className = document.getElementById("class-select").options[document.getElementById("class-select").selectedIndex]?.text || "";
+      const enriched = allStudents.map(s => ({...s, class_name: className}));
 
-      // We need to render this inside a TR/TD to be valid HTML inside TBODY, 
-      // or we can replace the whole table content if we prefer. 
-      // Let's replace the whole table body content with a row that spans all columns.
-      // But since empty-state-message is a block element, we put it inside a TD.
-      
-      const noStudentsRow = document.createElement("tr");
-      const noStudentsCell = document.createElement("td");
-      noStudentsCell.colSpan = 9;
-      noStudentsCell.style.padding = "0"; // Remove padding to let component control spacing
-      noStudentsCell.style.border = "none";
-      
-      noStudentsCell.innerHTML = `<empty-state-message message="${message}" icon="fas fa-users-slash"></empty-state-message>`;
-      
-      noStudentsRow.appendChild(noStudentsCell);
-      tbody.appendChild(noStudentsRow);
-      return;
+      table.setData(enriched);
+    } catch (err) {
+      console.error(err);
+      table.setEmptyState("Error loading students", "fas fa-exclamation-triangle");
+      toast("Error loading students", "fa-solid fa-circle-exclamation");
     }
-    function formatDate(dateStr) {
-      if (!dateStr) return "";
-      const d = new Date(dateStr);
-      if (isNaN(d)) return dateStr;
-      return d.toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
+  }
+
+  async function fetchClasses() {
+    try {
+      const res = await api.teacher.classes.getAll();
+      if (!res.ok) throw new Error("Failed to fetch classes");
+      const classes = await res.json();
+      const classSelect = document.getElementById("class-select");
+      classSelect.innerHTML = `<option value="" data-en="Select Class" data-si="පන්තිය තෝරන්න" data-ta="வகுப்பைத் தேர்ந்தெடுக்கவும்">Select Class</option>`;
+      classes.forEach(cls => {
+        const option = document.createElement("option");
+        option.value = cls.id;
+        option.textContent = `${cls.name} (Grade ${cls.grade})`;
+        classSelect.appendChild(option);
       });
-    }
-    filtered.forEach((student) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${student.full_name || student.name || ""}</td>
-        <td>${student.index_number || ""}</td>
-        <td>${student.grade ?? ""} - ${student.class_name ?? ""}</td>
-        <td>${formatDate(student.birthday)}</td>
-        <td>${student.address || ""}</td>
-        <td>${student.gender || ""}</td>
-        <td>${student.nationality || ""}</td>
-        <td>${student.parent?.name || ""}</td>
-        <td>${student.parent?.address || ""}</td>
-      `;
-      tbody.appendChild(row);
-    });
-  }
 
-  function filterAndRender() {
-    const q = (document.getElementById("student-search")?.value || "")
-      .trim()
-      .toLowerCase();
-    const classId = selectedClassId;
-    let filtered = allStudents;
-    if (classId) {
-      filtered = filtered.filter((s) => String(s.class_id) === String(classId));
-    }
-    if (q) {
-      filtered = filtered.filter((student) => {
-        return (
-          (student.full_name && student.full_name.toLowerCase().includes(q)) ||
-          (student.index_number &&
-            student.index_number.toLowerCase().includes(q)) ||
-          (student.grade && String(student.grade).toLowerCase().includes(q)) ||
-          (student.class_name && student.class_name.toLowerCase().includes(q))
-        );
-      });
-    }
-    renderStudents(filtered);
-  }
-
-  function fetchStudents() {
-    api.teacher.students.getAll()
-      .then((res) => {
-        if (!res.ok) throw new Error(res.body || "Failed to fetch students");
-        return res.json();
-      })
-      .then((data) => {
-        allStudents = data;
-        filterAndRender();
-      })
-      .catch((err) => {
-        console.error(err);
-        const tbody = document.querySelector("#student-table tbody");
-        const messages = {
-          en: "Error loading students",
-          si: "ශිෂ්‍යයින් පූරණය කිරීමේ දෝෂයක්",
-          ta: "மாணவர்களை ஏற்றுவதில் பிழை",
-        };
-        const lang = localStorage.getItem("lang") || "en";
-        const message = messages[lang] || messages.en;
-
-        const errorRow = document.createElement("tr");
-        const errorCell = document.createElement("td");
-        errorCell.colSpan = 9;
-        errorCell.style.padding = "0";
-        errorCell.style.border = "none";
-        
-        errorCell.innerHTML = `<empty-state-message message="${message}" icon="fas fa-exclamation-triangle"></empty-state-message>`;
-        
-        errorRow.appendChild(errorCell);
-        tbody.appendChild(errorRow);
-      });
-  }
-
-  // Setup search input event
-  function setupSearchInput() {
-    const searchInput = document.getElementById("student-search");
-    if (searchInput) {
-      searchInput.addEventListener("input", filterAndRender);
-    }
-  }
-
-  // Setup export functionality
-  function setupExport() {
-    const exportBtn = document.getElementById("export-btn");
-    const modal = document.getElementById("export-modal");
-    const closeBtn = document.querySelector("#export-modal .modal-close");
-    const cancelBtn = document.getElementById("export-cancel");
-    const confirmBtn = document.getElementById("export-confirm");
-
-    // Show modal
-    exportBtn.addEventListener("click", () => {
-      // Translations for title
-      if (modal.titleElement) {
-          modal.titleElement.setAttribute("data-en", "Export Students to CSV");
-          modal.titleElement.setAttribute("data-si", "ශිෂ්‍යයින් CSV වෙත අපනයනය කරන්න");
-          modal.titleElement.setAttribute("data-ta", "மாணவர்களை CSV-க்கு ஏற்றுமதி செய்ய");
+      // If a class is pre-selected (e.g., for class teachers), set it and fetch students
+      if (selectedClassId) {
+        classSelect.value = selectedClassId;
+        fetchStudents(selectedClassId);
       }
-      // Apply language if function exists
-      if (typeof applyDirectLanguageAttributes === "function") {
-          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
-      }
-      modal.open();
-    });
-
-    // Hide modal
-    const closeModal = () => {
-      modal.close();
-    };
-
-    // Close button handles itself in component
-    cancelBtn.addEventListener("click", closeModal);
-    // Outside click handled by component
-
-    // Export functionality
-    confirmBtn.addEventListener("click", () => {
-      const selectedFields = getSelectedFields();
-      if (selectedFields.length === 0) {
-        const alertMessage =
-          getNestedValue(window.currentTranslations, "alerts.selectFields") ||
-          "Please select at least one field to export.";
-        alert(alertMessage);
-        return;
-      }
-
-      const filteredStudents = getFilteredStudents();
-      exportToCSV(filteredStudents, selectedFields);
-      closeModal();
-    });
-  }
-
-  // Setup PDF export functionality
-  function setupExportPDF() {
-    const exportPdfBtn = document.getElementById("export-pdf-btn");
-    const modal = document.getElementById("export-pdf-modal");
-    const closeBtn = document.querySelector("#export-pdf-modal .modal-close");
-    const cancelBtn = document.getElementById("export-pdf-cancel");
-    const confirmBtn = document.getElementById("export-pdf-confirm");
-
-    // Show modal
-    exportPdfBtn.addEventListener("click", () => {
-      // Translations for title
-      if (modal.titleElement) {
-          modal.titleElement.setAttribute("data-en", "Export Students to PDF");
-          modal.titleElement.setAttribute("data-si", "ශිෂ්‍යයින් PDF වෙත අපනයනය කරන්න");
-          modal.titleElement.setAttribute("data-ta", "மாணவர்களை PDF-க்கு ஏற்றுமதி செய்ய");
-      }
-      // Apply language if function exists
-      if (typeof applyDirectLanguageAttributes === "function") {
-          applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
-      }
-      modal.open();
-    });
-
-    // Hide modal
-    const closeModal = () => {
-      modal.close();
-    };
-
-    // Close button handles itself in component
-    cancelBtn.addEventListener("click", closeModal);
-    // Outside click handled by component
-
-    // Export PDF functionality
-    confirmBtn.addEventListener("click", () => {
-      const heading = document.getElementById("pdf-heading").value.trim();
-      const subheading = document.getElementById("pdf-subheading").value.trim();
-      const emptyColumns =
-        parseInt(document.getElementById("pdf-empty-columns").value) || 0;
-      const emptyTitles = document
-        .getElementById("pdf-empty-titles")
-        .value.split(",")
-        .map((t) => t.trim())
-        .filter((t) => t);
-      const selectedFields = getSelectedPDFFields();
-      if (selectedFields.length === 0) {
-        const alertMessage =
-          getNestedValue(window.currentTranslations, "alerts.selectFields") ||
-          "Please select at least one field to export.";
-        alert(alertMessage);
-        return;
-      }
-      const filteredStudents = getFilteredStudents();
-      exportToPDF(
-        filteredStudents,
-        selectedFields,
-        heading,
-        subheading,
-        emptyColumns,
-        emptyTitles
-      );
-      closeModal();
-    });
-  }
-
-  // Get selected fields from checkboxes
-  function getSelectedFields() {
-    const fields = [];
-    const checkboxes = document.querySelectorAll(
-      "#export-modal input[type='checkbox']"
-    );
-
-    checkboxes.forEach((checkbox) => {
-      if (checkbox.checked) {
-        const fieldId = checkbox.id.replace("export-", "");
-        fields.push(fieldId);
-      }
-    });
-
-    return fields;
-  }
-
-  // Get selected fields from PDF checkboxes
-  function getSelectedPDFFields() {
-    const fields = [];
-    const checkboxes = document.querySelectorAll(
-      "#export-pdf-modal input[type='checkbox']"
-    );
-
-    checkboxes.forEach((checkbox) => {
-      if (checkbox.checked) {
-        const fieldId = checkbox.id.replace("pdf-export-", "");
-        fields.push(fieldId);
-      }
-    });
-
-    return fields;
-  }
-
-  // Get currently filtered students
-  function getFilteredStudents() {
-    const q = (document.getElementById("student-search")?.value || "")
-      .trim()
-      .toLowerCase();
-    const classId = selectedClassId;
-    let filtered = allStudents;
-
-    if (classId) {
-      filtered = filtered.filter((s) => String(s.class_id) === String(classId));
-    }
-
-    if (q) {
-      filtered = filtered.filter((student) => {
-        return (
-          (student.full_name && student.full_name.toLowerCase().includes(q)) ||
-          (student.index_number &&
-            student.index_number.toLowerCase().includes(q)) ||
-          (student.grade && String(student.grade).toLowerCase().includes(q)) ||
-          (student.class_name && student.class_name.toLowerCase().includes(q))
-        );
-      });
-    }
-
-    return filtered;
-  }
-
-  // Export to CSV
-  function exportToCSV(students, fields) {
-    if (students.length === 0) {
-      const alertMessage =
-        getNestedValue(window.currentTranslations, "alerts.noStudents") ||
-        "No students to export.";
-      alert(alertMessage);
-      return;
-    }
-
-    // Create CSV header
-    const headers = fields.map((field) => getFieldDisplayName(field));
-    let csvContent = headers.join(",") + "\n";
-
-    // Add data rows
-    students.forEach((student) => {
-      const row = fields.map((field) => {
-        let value = getFieldValue(student, field);
-        // Escape commas and quotes in CSV
-        if (
-          typeof value === "string" &&
-          (value.includes(",") || value.includes('"') || value.includes("\n"))
-        ) {
-          value = '"' + value.replace(/"/g, '""') + '"';
-        }
-        return value;
-      });
-      csvContent += row.join(",") + "\n";
-    });
-
-    // Download the file
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute(
-        "download",
-        `students_export_${new Date().toISOString().split("T")[0]}.csv`
-      );
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  }
-
-  // Export to PDF
-  function exportToPDF(
-    students,
-    fields,
-    heading,
-    subheading,
-    emptyColumns,
-    emptyTitles
-  ) {
-    if (students.length === 0) {
-      const alertMessage =
-        getNestedValue(window.currentTranslations, "alerts.noStudents") ||
-        "No students to export.";
-      alert(alertMessage);
-      return;
-    }
-
-    // Create HTML content
-    let htmlContent = `
-      <html>
-        <head>
-          <title>Students Export</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1 { text-align: center; }
-            h2 { text-align: center; margin-bottom: 20px; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-          </style>
-        </head>
-        <body>
-    `;
-
-    if (heading) {
-      htmlContent += `<h1>${heading}</h1>`;
-    }
-    if (subheading) {
-      htmlContent += `<h2>${subheading}</h2>`;
-    }
-
-    htmlContent += `
-          <table>
-            <thead>
-              <tr>
-    `;
-
-    // Add headers based on selected fields
-    fields.forEach((field) => {
-      htmlContent += `<th>${getFieldDisplayName(field)}</th>`;
-    });
-
-    // Add empty column headers with titles
-    for (let i = 0; i < emptyColumns; i++) {
-      const title = emptyTitles[i] || "";
-      htmlContent += `<th>${title}</th>`;
-    }
-
-    htmlContent += `
-              </tr>
-            </thead>
-            <tbody>
-    `;
-
-    // Add data rows
-    students.forEach((student) => {
-      htmlContent += `<tr>`;
-      fields.forEach((field) => {
-        const value = getFieldValue(student, field);
-        htmlContent += `<td>${value}</td>`;
-      });
-      // Add empty cells
-      for (let i = 0; i < emptyColumns; i++) {
-        htmlContent += `<td></td>`;
-      }
-      htmlContent += `</tr>`;
-    });
-
-    htmlContent += `
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
-
-    // Open new window and print
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-    printWindow.print();
-  }
-
-  // Get display name for field
-  function getFieldDisplayName(field) {
-    const currentLang = localStorage.getItem("lang") || "en";
-    const fieldNames = {
-      name: {
-        en: "Name",
-        si: "නම",
-        ta: "பெயர்",
-      },
-      index: {
-        en: "Index Number",
-        si: "දෙපත් අංකය",
-        ta: "குறியீட்டு எண்",
-      },
-      grade: {
-        en: "Grade",
-        si: "ශ්‍රේණිය",
-        ta: "தரம்",
-      },
-      birthday: {
-        en: "Birthday",
-        si: "උපන් දිනය",
-        ta: "பிறந்த தேதி",
-      },
-      address: {
-        en: "Address",
-        si: "ලිපිනය",
-        ta: "முகவரி",
-      },
-      gender: {
-        en: "Gender",
-        si: "ලිංගභේදය",
-        ta: "பாலினம்",
-      },
-      nationality: {
-        en: "Nationality",
-        si: "ජාතිය",
-        ta: "தேசியம்",
-      },
-      "parent-name": {
-        en: "Parent Name",
-        si: "දෙමවුපියන්ගේ නම",
-        ta: "பெற்றோர் பெயர்",
-      },
-      "parent-address": {
-        en: "Parent Address",
-        si: "දෙමවුපියන්ගේ ලිපිනය",
-        ta: "பெற்றோர் முகவரி",
-      },
-    };
-    return fieldNames[field]
-      ? fieldNames[field][currentLang] || fieldNames[field].en
-      : field;
-  }
-
-  // Get field value from student object
-  function getFieldValue(student, field) {
-    switch (field) {
-      case "name":
-        return student.full_name || student.name || "";
-      case "index":
-        return student.index_number || "";
-      case "grade":
-        return `${student.grade ?? ""} - ${student.class_name ?? ""}`.trim();
-      case "birthday":
-        if (student.birthday) {
-          const d = new Date(student.birthday);
-          if (!isNaN(d)) {
-            return d.toLocaleDateString(undefined, {
-              year: "numeric",
-              month: "short",
-              day: "2-digit",
-            });
-          }
-        }
-        return "";
-      case "address":
-        return student.address || "";
-      case "gender":
-        return student.gender || "";
-      case "nationality":
-        return student.nationality || "";
-      case "parent-name":
-        return student.parent?.name || "";
-      case "parent-address":
-        return student.parent?.address || "";
-      default:
-        return "";
+    } catch (err) {
+      console.error("Error fetching classes:", err);
+      toast("Error loading classes", "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -975,21 +191,16 @@
     .then((user) => {
       if (user && user.is_class_teacher && user.class_id) {
         selectedClassId = String(user.class_id);
-        document.getElementById("class-name").textContent = user.class_name
-          ? `${user.class_name} (Grade ${user.class_grade})`
-          : "";
       }
-      fetchStudents();
-      setupSearchInput();
-      setupExport();
-      setupExportPDF();
+      // Initial Load
+      initTable();
+      fetchClasses();
     })
-    .catch(() => {
-      fetchStudents();
-      setupSearchInput();
-      setupExport();
-      setupExportPDF();
+    .catch((err) => {
+      console.error("Error fetching user data:", err);
+      // Still try to load classes and table even if user data fails
+      initTable();
+      fetchClasses();
     });
 
 </script>
-
