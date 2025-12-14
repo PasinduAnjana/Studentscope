@@ -38,75 +38,15 @@
       </button>
     </div>
     <!-- Search Bar and Class Dropdown -->
-    <div
-      class="flex mb-2 filter-controls"
-      style="gap: 16px; align-items: baseline; flex-wrap: wrap"
-    >
-      <div class="search-group" style="max-width: 350px">
-        <input
-          type="text"
-          id="student-search"
-          class="search-input"
-          placeholder="Search students..."
-        />
-        <span class="search-icon"><i class="fas fa-search"></i></span>
-      </div>
-      <div class="input-group">
-        <select id="class-filter">
-          <option value="">All Classes</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <select id="page-size">
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="25" selected>25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-      </div>
-    </div>
-    <div class="table-responsive">
-      <table id="student-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Index Number</th>
-            <th>Class</th>
-            <th>Birthday</th>
-            <th>Gender</th>
-            <th>Parent</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Students will be loaded here -->
-        </tbody>
-      </table>
-    </div>
-    <!-- Pagination Controls -->
-    <div
-      class="pagination-controls"
-      style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        margin-top: 20px;
-      "
-    >
-      <button id="prev-page" class="btn btn-secondary" disabled>
-        <i class="fas fa-chevron-left"></i> Previous
-      </button>
-      <div id="page-numbers" style="display: flex; gap: 5px"></div>
-      <button id="next-page" class="btn btn-secondary" disabled>
-        Next <i class="fas fa-chevron-right"></i>
-      </button>
-      <span
-        id="page-info"
-        style="margin-left: 20px; color: var(--color-subtext)"
-      ></span>
-    </div>
+    <data-table id="students-table">
+        <div slot="filters">
+             <div class="input-group">
+                <select id="class-filter">
+                  <option value="">All Classes</option>
+                </select>
+            </div>
+        </div>
+    </data-table>
   </div>
 </section>
 
@@ -215,11 +155,7 @@
   let allStudents = [];
   let allClasses = [];
   let editingStudent = null;
-  // Pagination variables
-  let currentPage = 1;
-  let pageSize = 25;
-  let totalPages = 1;
-  // references to searchable dropdown wrappers so we can destroy/recreate when class lists change
+  // References to searchable dropdown wrappers so we can destroy/recreate when class lists change
   let searchableClassFilter = null;
   let searchableClassSelect = null;
   let searchableGenderSelect = null;
@@ -238,173 +174,59 @@
     }
   }
 
-  // Global helper so inline onclick fallback can open the modal reliably
-  function openAddStudentModal() {
-    editingStudent = null;
-    const modal = document.getElementById("student-modal");
-    if(modal) {
-        modal.setTitle("Add Student");
-        clearModal();
-        modal.open();
+  function initTable() {
+    const table = document.getElementById("students-table");
+    table.setColumns([
+        { key: "full_name", header: "Name", searchable: true },
+        { key: "username", header: "Index Number", searchable: true },
+        { 
+            key: "class_id", 
+            header: "Class", 
+            render: (row) => {
+                const cls = allClasses.find((c) => c.id == row.class_id);
+                return cls ? `${cls.grade} - ${cls.class_name}` : "";
+            }
+        },
+        { 
+            key: "birthday", 
+            header: "Birthday", 
+            render: (row) => row.birthday ? new Date(row.birthday).toLocaleDateString() : ""
+        },
+        { key: "gender", header: "Gender" },
+        { 
+            key: "parent", 
+            header: "Parent", 
+            render: (row) => row.parent ? row.parent.name : "" 
+        },
+        {
+            key: "actions",
+            header: "Actions",
+            render: (row) => {
+                const div = document.createElement("div");
+                div.className = "action-buttons";
+                div.innerHTML = `
+                    <button class="btn-icon btn-edit" onclick="editStudent(${row.id})" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon btn-delete" onclick="deleteStudent(${row.id})" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                return div;
+            }
+        }
+    ]);
+
+    // Setup Class Filter
+    const classFilter = document.getElementById("class-filter");
+    if(classFilter) {
+        classFilter.addEventListener("change", () => {
+             const val = classFilter.value;
+             table.addFilter("class", (row) => {
+                 return val === "" || row.class_id == val;
+             });
+        });
     }
-  }
-
-  function renderStudents(filtered) {
-    const tbody = document.querySelector("#student-table tbody");
-    tbody.innerHTML = "";
-    if (!filtered.length) {
-      tbody.innerHTML = `
-        <tr>
-            <td colspan="7" style="padding: 0; border: none;">
-                <empty-state-message message="No students found" icon="fas fa-users-slash"></empty-state-message>
-            </td>
-        </tr>`;
-      updatePaginationControls(0);
-      return;
-    }
-
-    // Calculate pagination
-    totalPages = Math.ceil(filtered.length / pageSize);
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const studentsToShow = filtered.slice(startIndex, endIndex);
-
-    studentsToShow.forEach((student) => {
-      const row = document.createElement("tr");
-      const className =
-        allClasses.find((c) => c.id == student.class_id)?.class_name || "";
-      const grade =
-        allClasses.find((c) => c.id == student.class_id)?.grade || "";
-      row.innerHTML = `
-        <td>${student.full_name}</td>
-        <td>${student.username}</td>
-        <td>${grade} - ${className}</td>
-        <td>${
-          student.birthday
-            ? new Date(student.birthday).toLocaleDateString()
-            : ""
-        }</td>
-        <td>${student.gender}</td>
-        <td>${student.parent?.name || ""}</td>
-        <td>
-          <div class="action-buttons">
-            <button class="btn-icon btn-edit" onclick="editStudent(${
-              student.id
-            })" title="Edit">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn-icon btn-delete" onclick="deleteStudent(${
-              student.id
-            })" title="Delete">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </td>
-      `;
-      tbody.appendChild(row);
-    });
-
-    updatePaginationControls(filtered.length);
-  }
-
-  function updatePaginationControls(totalItems) {
-    const prevBtn = document.getElementById("prev-page");
-    const nextBtn = document.getElementById("next-page");
-    const pageNumbers = document.getElementById("page-numbers");
-    const pageInfo = document.getElementById("page-info");
-
-    // Update button states
-    prevBtn.disabled = currentPage <= 1;
-    nextBtn.disabled = currentPage >= totalPages;
-
-    // Update page info
-    const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
-    const endItem = Math.min(currentPage * pageSize, totalItems);
-    pageInfo.textContent = `Showing ${startItem}-${endItem} of ${totalItems} students`;
-
-    // Generate page number buttons
-    pageNumbers.innerHTML = "";
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    // Add first page button if not in range
-    if (startPage > 1) {
-      const firstBtn = document.createElement("button");
-      firstBtn.className = "btn btn-secondary";
-      firstBtn.textContent = "1";
-      firstBtn.onclick = () => goToPage(1);
-      pageNumbers.appendChild(firstBtn);
-
-      if (startPage > 2) {
-        const ellipsis = document.createElement("span");
-        ellipsis.textContent = "...";
-        ellipsis.style.margin = "0 5px";
-        pageNumbers.appendChild(ellipsis);
-      }
-    }
-
-    // Add page number buttons
-    for (let i = startPage; i <= endPage; i++) {
-      const pageBtn = document.createElement("button");
-      pageBtn.className = `btn ${
-        i === currentPage ? "btn-primary" : "btn-secondary"
-      }`;
-      pageBtn.textContent = i;
-      pageBtn.onclick = () => goToPage(i);
-      pageNumbers.appendChild(pageBtn);
-    }
-
-    // Add last page button if not in range
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        const ellipsis = document.createElement("span");
-        ellipsis.textContent = "...";
-        ellipsis.style.margin = "0 5px";
-        pageNumbers.appendChild(ellipsis);
-      }
-
-      const lastBtn = document.createElement("button");
-      lastBtn.className = "btn btn-secondary";
-      lastBtn.textContent = totalPages;
-      lastBtn.onclick = () => goToPage(totalPages);
-      pageNumbers.appendChild(lastBtn);
-    }
-  }
-
-  function goToPage(page) {
-    if (page >= 1 && page <= totalPages) {
-      currentPage = page;
-      filterAndRender();
-    }
-  }
-
-  function filterAndRender(resetPage = false) {
-    const q = document
-      .getElementById("student-search")
-      .value.trim()
-      .toLowerCase();
-    const classId = document.getElementById("class-filter").value;
-    let filtered = allStudents;
-    if (classId) {
-      filtered = filtered.filter((s) => s.class_id == classId);
-    }
-    if (q) {
-      filtered = filtered.filter(
-        (student) =>
-          student.full_name.toLowerCase().includes(q) ||
-          student.username.toLowerCase().includes(q)
-      );
-    }
-    // Reset to page 1 only when filters actually change, not on every render
-    if (resetPage) {
-      currentPage = 1;
-    }
-    renderStudents(filtered);
   }
 
   async function fetchStudents() {
@@ -412,16 +234,14 @@
       const res = await fetch("/api/clerk/students");
       if (!res.ok) throw new Error("Failed to fetch students");
       allStudents = await res.json();
-      filterAndRender();
+      document.getElementById("students-table").setData(allStudents);
     } catch (err) {
       console.error(err);
-      const tbody = document.querySelector("#student-table tbody");
-      tbody.innerHTML = `
-        <tr>
-            <td colspan="7" style="padding: 0; border: none;">
-                <empty-state-message message="Error loading students" icon="fas fa-exclamation-triangle"></empty-state-message>
-            </td>
-        </tr>`;
+      // Let component handle empty/error or manually set empty
+      // But for now, just setData([]) if fail? Or maybe component has error state?
+      // Since setData triggers filterData which triggers renderRows, and we filtered to [], empty state shows.
+      document.getElementById("students-table").setData([]);
+      toast("Error loading students", "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -433,6 +253,7 @@
       populateClassFilter();
       populateClassSelect();
       populateGenderSelect();
+      initTable(); // Re-init table to ensure renderers have access to class data
     } catch (err) {
       console.error(err);
     }
@@ -463,28 +284,14 @@
           // ensure the underlying select value is set and trigger filtering
           const sel = document.getElementById("class-filter");
           if (sel) sel.value = val;
-          filterAndRender(true);
+          // Trigger change event to update table filter
+          sel.dispatchEvent(new Event('change'));
         }
       );
     }
   }
 
-  function setupSearch() {
-    document
-      .getElementById("student-search")
-      .addEventListener("input", () => filterAndRender(true));
-    document.getElementById("page-size").addEventListener("change", (e) => {
-      pageSize = parseInt(e.target.value);
-      currentPage = 1; // Reset to first page when page size changes
-      filterAndRender();
-    });
-    document
-      .getElementById("prev-page")
-      .addEventListener("click", () => goToPage(currentPage - 1));
-    document
-      .getElementById("next-page")
-      .addEventListener("click", () => goToPage(currentPage + 1));
-  }
+
 
   function populateClassSelect() {
     const select = document.getElementById("student-class");
@@ -547,55 +354,11 @@
   }
 
   function populatePageSizeSelect() {
-    const select = document.getElementById("page-size");
-    // destroy previous searchable instance if any
-    if (
-      searchablePageSize &&
-      typeof searchablePageSize.destroy === "function"
-    ) {
-      searchablePageSize.destroy();
-      searchablePageSize = null;
-    }
-    select.innerHTML = "";
-    const pageSizeOptions = [
-      { value: "5", text: "5" },
-      { value: "10", text: "10" },
-      { value: "25", text: "25" },
-      { value: "50", text: "50" },
-      { value: "100", text: "100" }
-    ];
-    pageSizeOptions.forEach((option) => {
-      const opt = document.createElement("option");
-      opt.value = option.value;
-      opt.textContent = option.text;
-      if (option.value === "25") opt.selected = true; // Default to 25
-      select.appendChild(opt);
-    });
-    // transform into searchable dropdown
-    if (typeof makeSearchableDropdown === "function") {
-      searchablePageSize = makeSearchableDropdown(
-        "page-size",
-        (val, text) => {
-          // Update pageSize and refresh display
-          pageSize = parseInt(val);
-          currentPage = 1; // Reset to first page when page size changes
-          filterAndRender();
-        }
-      );
-    }
+      // Clean up manually controlled page size logic as component handles it
+      // This function might be called by dashboard.js, so we keep it empty or remove calls
   }
 
-  function setupSearch() {
-    document
-      .getElementById("student-search")
-      .addEventListener("input", () => filterAndRender(true));
-    document
-      .getElementById("prev-page")
-      .addEventListener("click", () => goToPage(currentPage - 1));
-    document
-      .getElementById("next-page")
-      .addEventListener("click", () => goToPage(currentPage + 1));
-  }
+
 
   function setupAddButton() {
     const modal = document.getElementById("student-modal");
@@ -951,11 +714,10 @@
   }
 
   // Initialize
-  populatePageSizeSelect();
-  pageSize = parseInt(document.getElementById("page-size").value);
+
   fetchClasses();
   fetchStudents();
-  setupSearch();
+
   setupAddButton();
 </script>
 
