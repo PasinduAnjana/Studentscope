@@ -135,7 +135,41 @@ const api = {
     },
     students: {
       getAll: () => api.request("/clerk/students"),
+      create: (data) => api.request("/clerk/students", "POST", data),
+      update: (id, data) => api.request(`/clerk/students/${id}`, "PUT", data),
+      delete: (id) => api.request(`/clerk/students/${id}`, "DELETE"),
     },
+    classes: {
+      getAll: () => api.request("/clerk/classes"),
+      create: (data) => api.request("/clerk/classes", "POST", data),
+      update: (id, data) => api.request(`/clerk/classes/${id}`, "PUT", data),
+      delete: (id) => api.request(`/clerk/classes/${id}`, "DELETE"),
+    },
+    teachers: {
+      getAll: () => api.request("/clerk/teachers"),
+      create: (data) => api.request("/clerk/teachers", "POST", data),
+      update: (id, data) => api.request(`/clerk/teachers/${id}`, "PUT", data),
+      delete: (id) => api.request(`/clerk/teachers/${id}`, "DELETE"),
+    },
+    notices: {
+      getAll: () => api.request("/clerk/notices"),
+      create: (data) => api.request("/clerk/notices", "POST", data),
+      update: (id, data) => api.request(`/clerk/notices/${id}`, "PUT", data),
+      delete: (id) => api.request(`/clerk/notices/${id}`, "DELETE"),
+    },
+    announcements: {
+      getAll: () => api.request("/clerk/announcements"),
+      create: (data) => api.request("/clerk/announcements", "POST", data),
+      delete: (id) => api.request(`/clerk/announcements/${id}`, "DELETE"),
+    },
+    profile: {
+      get: () => api.request("/clerk/profile"),
+      update: (data) => api.request("/clerk/profile", "PUT", data),
+      changePassword: (data) => api.request("/clerk/change-password", "PUT", data),
+    },
+    dashboard: {
+      getStats: () => api.request("/clerk/stats"),
+    }
   },
 
   // Student endpoints

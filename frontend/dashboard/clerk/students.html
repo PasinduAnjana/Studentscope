@@ -231,34 +231,41 @@
     table.setEmptyState("No students found", "fas fa-users-slash");
   }
 
-  async function fetchStudents() {
-    try {
-      const res = await fetch("/api/clerk/students");
-      if (!res.ok) throw new Error("Failed to fetch students");
-      allStudents = await res.json();
-      document.getElementById("students-table").setData(allStudents);
-    } catch (err) {
-      console.error(err);
-      // Let component handle empty/error or manually set empty
-      // But for now, just setData([]) if fail? Or maybe component has error state?
-      // Since setData triggers filterData which triggers renderRows, and we filtered to [], empty state shows.
-      document.getElementById("students-table").setData([]);
-      toast("Error loading students", "fa-solid fa-circle-exclamation");
-    }
+  function fetchStudents() {
+    api.clerk.students.getAll()
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch students");
+        return res.json();
+      })
+      .then((data) => {
+        allStudents = data;
+        document.getElementById("students-table").setData(allStudents);
+      })
+      .catch((err) => {
+        console.error(err);
+        document.getElementById("students-table").setData([]);
+        document.getElementById("students-table").setEmptyState("Error loading students", "fas fa-exclamation-triangle");
+        toast("Error loading students", "fa-solid fa-circle-exclamation");
+      });
   }
 
-  async function fetchClasses() {
-    try {
-      const res = await fetch("/api/clerk/classes");
-      if (!res.ok) throw new Error("Failed to fetch classes");
-      allClasses = await res.json();
-      populateClassFilter();
-      populateClassSelect();
-      populateGenderSelect();
-      initTable(); // Re-init table to ensure renderers have access to class data
-    } catch (err) {
-      console.error(err);
-    }
+  function fetchClasses() {
+    api.clerk.classes.getAll()
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch classes");
+        return res.json();
+      })
+      .then((data) => {
+        allClasses = data;
+        populateClassFilter();
+        populateClassSelect();
+        populateGenderSelect();
+        initTable();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast("Error loading classes", "fa-solid fa-circle-exclamation");
+      });
   }
 
   function populateClassFilter() {
@@ -631,24 +638,21 @@
       return;
     }
 
-    try {
-      const method = editingStudent ? "PUT" : "POST";
-      const url = editingStudent
-        ? `/api/clerk/students/${editingStudent.id}`
-        : "/api/clerk/students";
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+    const action = editingStudent
+        ? api.clerk.students.update(editingStudent.id, data)
+        : api.clerk.students.create(data);
+
+    action
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to save student");
+        document.getElementById("student-modal").close(); // Using component method
+        toast("Student saved successfully", "fa-solid fa-check-circle");
+        fetchStudents();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast("Error saving student", "fa-solid fa-circle-exclamation");
       });
-      if (!res.ok) throw new Error("Failed to save student");
-      document.getElementById("student-modal").style.display = "none";
-      toast("Student saved successfully", "fa-solid fa-check-circle");
-      fetchStudents();
-    } catch (err) {
-      console.error(err);
-      toast("Error saving student", "fa-solid fa-circle-exclamation");
-    }
   }
 
   function editStudent(id) {
@@ -698,18 +702,17 @@
         confirm: true,
         confirmText: "Delete",
         cancelText: "Cancel",
-        onConfirm: async () => {
-          try {
-            const res = await fetch(`/api/clerk/students/${id}`, {
-              method: "DELETE",
+        onConfirm: () => {
+          api.clerk.students.delete(id)
+            .then((res) => {
+              if (!res.ok) throw new Error("Failed to delete student");
+              toast("Student deleted successfully", "fa-solid fa-check-circle");
+              fetchStudents();
+            })
+            .catch((err) => {
+              console.error(err);
+              toast("Error deleting student", "fa-solid fa-circle-exclamation");
             });
-            if (!res.ok) throw new Error("Failed to delete student");
-            toast("Student deleted successfully", "fa-solid fa-check-circle");
-            fetchStudents();
-          } catch (err) {
-            console.error(err);
-            toast("Error deleting student", "fa-solid fa-circle-exclamation");
-          }
         },
       }
     );

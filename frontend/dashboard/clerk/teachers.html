@@ -402,22 +402,26 @@
     renderTeachers(filtered);
   }
 
-  async function fetchTeachers() {
-    try {
-      const res = await fetch("/api/clerk/teachers");
-      if (!res.ok) throw new Error("Failed to fetch teachers");
-      allTeachers = await res.json();
-      filterAndRender();
-    } catch (err) {
-      console.error(err);
-      const tbody = document.querySelector("#teacher-table tbody");
-      tbody.innerHTML = `
-        <tr>
-            <td colspan="7" style="padding: 0; border: none;">
-                <empty-state-message message="Error loading teachers" icon="fas fa-exclamation-triangle"></empty-state-message>
-            </td>
-        </tr>`;
-    }
+  function fetchTeachers() {
+    api.clerk.teachers.getAll()
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch teachers");
+        return res.json();
+      })
+      .then((data) => {
+        allTeachers = data;
+        filterAndRender();
+      })
+      .catch((err) => {
+        console.error(err);
+        const tbody = document.querySelector("#teacher-table tbody");
+        tbody.innerHTML = `
+          <tr>
+              <td colspan="7" style="padding: 0; border: none;">
+                  <empty-state-message message="Error loading teachers" icon="fas fa-exclamation-triangle"></empty-state-message>
+              </td>
+          </tr>`;
+      });
   }
 
   function setupSearch() {
@@ -630,25 +634,21 @@
       ).value,
     };
 
-    try {
-      const method = editingTeacher ? "PUT" : "POST";
-      const url = editingTeacher
-        ? `/api/clerk/teachers/${editingTeacher.teacher_id}`
-        : "/api/clerk/teachers";
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+    const action = editingTeacher
+        ? api.clerk.teachers.update(editingTeacher.teacher_id, data)
+        : api.clerk.teachers.create(data);
+
+    action
+      .then((res) => {
+         if (!res.ok) throw new Error("Failed to save teacher");
+         document.getElementById("teacher-modal").close();
+         toast("Teacher saved successfully", "fa-solid fa-check-circle");
+         fetchTeachers();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast("Error saving teacher", "fa-solid fa-circle-exclamation");
       });
-      if (!res.ok) throw new Error("Failed to save teacher");
-      if (!res.ok) throw new Error("Failed to save teacher");
-      document.getElementById("teacher-modal").close();
-      toast("Teacher saved successfully", "fa-solid fa-check-circle");
-      fetchTeachers();
-    } catch (err) {
-      console.error(err);
-      toast("Error saving teacher", "fa-solid fa-circle-exclamation");
-    }
   }
 
   function editTeacher(id) {
@@ -694,18 +694,17 @@
         confirm: true,
         confirmText: "Delete",
         cancelText: "Cancel",
-        onConfirm: async () => {
-          try {
-            const res = await fetch(`/api/clerk/teachers/${id}`, {
-              method: "DELETE",
+        onConfirm: () => {
+          api.clerk.teachers.delete(id)
+            .then((res) => {
+                if (!res.ok) throw new Error("Failed to delete teacher");
+                toast("Teacher deleted successfully", "fa-solid fa-check-circle");
+                fetchTeachers();
+            })
+            .catch((err) => {
+                console.error(err);
+                toast("Error deleting teacher", "fa-solid fa-circle-exclamation");
             });
-            if (!res.ok) throw new Error("Failed to delete teacher");
-            toast("Teacher deleted successfully", "fa-solid fa-check-circle");
-            fetchTeachers();
-          } catch (err) {
-            console.error(err);
-            toast("Error deleting teacher", "fa-solid fa-circle-exclamation");
-          }
         },
       }
     );

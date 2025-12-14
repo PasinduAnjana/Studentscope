@@ -101,13 +101,15 @@
         if (res.ok) {
           students = await res.json();
           const select = document.getElementById("studentSelect");
-          select.innerHTML = '<option value="">Select Student...</option>';
-          students.forEach(s => {
-            const option = document.createElement("option");
-            option.value = s.user_id; 
-            option.textContent = `${s.full_name} (${s.username || 'No ID'})`;
-            select.appendChild(option);
-          });
+          if(select) {
+              select.innerHTML = '<option value="">Select Student...</option>';
+              students.forEach(s => {
+                const option = document.createElement("option");
+                option.value = s.id; // Use s.id based on other files, or s.user_id if different
+                option.textContent = `${s.full_name} (${s.username || 'No ID'})`;
+                select.appendChild(option);
+              });
+          }
         }
       } catch (err) {
         console.error("Failed to load students", err);
