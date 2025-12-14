@@ -34,79 +34,15 @@
         <i class="fas fa-user-plus"></i> Add Teacher
       </button>
     </div>
-    <!-- Search Bar -->
-    <div
-      class="flex mb-2 filter-controls"
-      style="gap: 16px; align-items: baseline; flex-wrap: wrap"
-    >
-      <div class="search-group" style="max-width: 350px">
-        <input
-          type="text"
-          id="teacher-search"
-          class="search-input"
-          placeholder="Search teachers..."
-        />
-        <span class="search-icon"><i class="fas fa-search"></i></span>
-      </div>
-      <div class="input-group">
-        <select id="level-filter">
-          <option value="all">All Grades</option>
-          <option value="1">Grade 1</option>
-          <option value="2">Grade 2</option>
-          <option value="3">Grade 3</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <select id="page-size">
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="25" selected>25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-      </div>
-    </div>
-    <div class="table-responsive">
-      <table id="teacher-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>NIC</th>
-            <th>Grade</th>
-            <th>Birthday</th>
-            <th>Phone</th>
-            <th>Appointment Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Teachers will be loaded here -->
-        </tbody>
-      </table>
-    </div>
-    <!-- Pagination Controls -->
-    <div
-      class="pagination-controls"
-      style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        margin-top: 20px;
-      "
-    >
-      <button id="prev-page" class="btn btn-secondary" disabled>
-        <i class="fas fa-chevron-left"></i> Previous
-      </button>
-      <div id="page-numbers" style="display: flex; gap: 5px"></div>
-      <button id="next-page" class="btn btn-secondary" disabled>
-        Next <i class="fas fa-chevron-right"></i>
-      </button>
-      <span
-        id="page-info"
-        style="margin-left: 20px; color: var(--color-subtext)"
-      ></span>
-    </div>
+    <data-table id="teachers-table">
+        <div slot="filters">
+            <div class="input-group">
+                <select id="level-filter">
+                    <option value="all">All Grades</option>
+                </select>
+            </div>
+        </div>
+    </data-table>
   </div>
 </section>
 
@@ -198,251 +134,77 @@
 <script>
   let allTeachers = [];
   let editingTeacher = null;
-  // Pagination variables
-  let currentPage = 1;
-  let pageSize = 25;
-  let totalPages = 1;
-  // references to searchable dropdown wrappers so we can destroy/recreate when lists change
   let searchableLevelFilter = null;
-  let searchablePageSize = null;
   let searchableTeacherLevel = null;
 
-  function updateSearchableDisplay(selectId) {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-    const wrapper = select.previousElementSibling;
-    if (wrapper && wrapper.classList.contains("searchable-select")) {
-      const displaySpan = wrapper.querySelector(".dropdown-display span");
-      const opt =
-        select.options[select.selectedIndex] ||
-        Array.from(select.options).find((o) => o.value);
-      if (displaySpan) displaySpan.textContent = opt ? opt.text : "";
-    }
-  }
-
-  function updateSearchableDisplay(selectId) {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-    const wrapper = select.previousElementSibling;
-    if (wrapper && wrapper.classList.contains("searchable-select")) {
-      const displaySpan = wrapper.querySelector(".dropdown-display span");
-      const opt =
-        select.options[select.selectedIndex] ||
-        Array.from(select.options).find((o) => o.value);
-      if (displaySpan) displaySpan.textContent = opt ? opt.text : "";
-    }
-  }
-
-  // Global helper so inline onclick fallback can open the modal reliably
-  function openAddTeacherModal() {
-    editingTeacher = null;
-    const modal = document.getElementById("teacher-modal");
-    if (modal) {
-        modal.setTitle("Add Teacher");
-        clearModal();
-        modal.open();    
-    }
-  }
-
-  function renderTeachers(filtered) {
-    const tbody = document.querySelector("#teacher-table tbody");
-    tbody.innerHTML = "";
-    if (!filtered.length) {
-      tbody.innerHTML = `
-        <tr>
-            <td colspan="7" style="padding: 0; border: none;">
-                <empty-state-message message="No teachers found" icon="fas fa-users-slash"></empty-state-message>
-            </td>
-        </tr>`;
-      updatePaginationControls(0);
-      return;
+  function initTable() {
+    const table = document.getElementById("teachers-table");
+    table.setColumns([
+        { key: "full_name", header: "Name", searchable: true },
+        { key: "nic", header: "NIC", searchable: true },
+        { key: "level", header: "Grade" },
+        { 
+            key: "birthday", 
+            header: "Birthday", 
+            render: (row) => row.birthday ? new Date(row.birthday).toLocaleDateString() : "" 
+        },
+        { key: "phone_number", header: "Phone" },
+        { 
+            key: "appointment_date", 
+            header: "Appointment Date", 
+            render: (row) => row.appointment_date ? new Date(row.appointment_date).toLocaleDateString() : "" 
+        },
+        {
+            key: "actions",
+            header: "Actions",
+            render: (row) => {
+                const div = document.createElement("div");
+                div.className = "action-buttons";
+                div.innerHTML = `
+                    <button class="btn-icon btn-edit" onclick="editTeacher(${row.teacher_id})" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon btn-delete" onclick="deleteTeacher(${row.teacher_id})" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                return div;
+            }
+        }
+    ]);
+    
+    // Setup Level Filter
+    const levelFilter = document.getElementById("level-filter");
+    if(levelFilter) {
+        levelFilter.addEventListener("change", () => {
+             const val = levelFilter.value;
+             table.addFilter("level", (row) => {
+                 return val === "all" || val === "" || row.level == val;
+             });
+        });
     }
 
-    // Calculate pagination
-    totalPages = Math.ceil(filtered.length / pageSize);
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const teachersToShow = filtered.slice(startIndex, endIndex);
-
-    teachersToShow.forEach((teacher) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${teacher.full_name}</td>
-        <td>${teacher.nic || ""}</td>
-        <td>${teacher.level || ""}</td>
-        <td>${
-          teacher.birthday
-            ? new Date(teacher.birthday).toLocaleDateString()
-            : ""
-        }</td>
-        <td>${teacher.phone_number || ""}</td>
-        <td>${
-          teacher.appointment_date
-            ? new Date(teacher.appointment_date).toLocaleDateString()
-            : ""
-        }</td>
-        <td>
-          <div class="action-buttons">
-            <button class="btn-icon btn-edit" onclick="editTeacher(${
-              teacher.teacher_id
-            })" title="Edit">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn-icon btn-delete" onclick="deleteTeacher(${
-              teacher.teacher_id
-            })" title="Delete">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </td>
-      `;
-      tbody.appendChild(row);
-    });
-
-    updatePaginationControls(filtered.length);
-  }
-
-  function updatePaginationControls(totalItems) {
-    const prevBtn = document.getElementById("prev-page");
-    const nextBtn = document.getElementById("next-page");
-    const pageNumbers = document.getElementById("page-numbers");
-    const pageInfo = document.getElementById("page-info");
-
-    // Update button states
-    prevBtn.disabled = currentPage <= 1;
-    nextBtn.disabled = currentPage >= totalPages;
-
-    // Update page info
-    const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
-    const endItem = Math.min(currentPage * pageSize, totalItems);
-    pageInfo.textContent = `Showing ${startItem}-${endItem} of ${totalItems} teachers`;
-
-    // Generate page number buttons
-    pageNumbers.innerHTML = "";
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    // Add first page button if not in range
-    if (startPage > 1) {
-      const firstBtn = document.createElement("button");
-      firstBtn.className = "btn btn-secondary";
-      firstBtn.textContent = "1";
-      firstBtn.onclick = () => goToPage(1);
-      pageNumbers.appendChild(firstBtn);
-
-      if (startPage > 2) {
-        const ellipsis = document.createElement("span");
-        ellipsis.textContent = "...";
-        ellipsis.style.margin = "0 5px";
-        pageNumbers.appendChild(ellipsis);
-      }
-    }
-
-    // Add page number buttons
-    for (let i = startPage; i <= endPage; i++) {
-      const pageBtn = document.createElement("button");
-      pageBtn.className = `btn ${
-        i === currentPage ? "btn-primary" : "btn-secondary"
-      }`;
-      pageBtn.textContent = i;
-      pageBtn.onclick = () => goToPage(i);
-      pageNumbers.appendChild(pageBtn);
-    }
-
-    // Add last page button if not in range
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        const ellipsis = document.createElement("span");
-        ellipsis.textContent = "...";
-        ellipsis.style.margin = "0 5px";
-        pageNumbers.appendChild(ellipsis);
-      }
-
-      const lastBtn = document.createElement("button");
-      lastBtn.className = "btn btn-secondary";
-      lastBtn.textContent = totalPages;
-      lastBtn.onclick = () => goToPage(totalPages);
-      pageNumbers.appendChild(lastBtn);
-    }
-  }
-
-  function goToPage(page) {
-    if (page >= 1 && page <= totalPages) {
-      currentPage = page;
-      filterAndRender();
-    }
-  }
-
-  function filterAndRender(resetPage = false) {
-    const q = document
-      .getElementById("teacher-search")
-      .value.trim()
-      .toLowerCase();
-    const level = document.getElementById("level-filter").value;
-    let filtered = allTeachers;
-    if (level && level !== "all") {
-      filtered = filtered.filter((t) => t.level == level);
-    }
-    if (q) {
-      filtered = filtered.filter(
-        (teacher) =>
-          teacher.full_name.toLowerCase().includes(q) ||
-          (teacher.nic && teacher.nic.toLowerCase().includes(q))
-      );
-    }
-    // Reset to page 1 only when filters actually change, not on every render
-    if (resetPage) {
-      currentPage = 1;
-    }
-    renderTeachers(filtered);
+    table.setEmptyState("No teachers found", "fas fa-users-slash");
   }
 
   function fetchTeachers() {
-    api.clerk.teachers.getAll()
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch teachers");
-        return res.json();
-      })
-      .then((data) => {
-        allTeachers = data;
-        filterAndRender();
-      })
-      .catch((err) => {
-        console.error(err);
-        const tbody = document.querySelector("#teacher-table tbody");
-        tbody.innerHTML = `
-          <tr>
-              <td colspan="7" style="padding: 0; border: none;">
-                  <empty-state-message message="Error loading teachers" icon="fas fa-exclamation-triangle"></empty-state-message>
-              </td>
-          </tr>`;
-      });
-  }
+      api.clerk.teachers.getAll()
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch teachers");
+          return res.json();
+        })
+        .then((data) => {
+          allTeachers = data;
+          document.getElementById("teachers-table").setData(allTeachers);
+        })
+        .catch((err) => {
+          console.error(err);
+          document.getElementById("teachers-table").setData([]);
+          document.getElementById("teachers-table").setEmptyState("Error loading teachers", "fas fa-exclamation-triangle");
+        });
+    }
 
-  function setupSearch() {
-    document
-      .getElementById("teacher-search")
-      .addEventListener("input", () => filterAndRender(true));
-    document
-      .getElementById("level-filter")
-      .addEventListener("change", () => filterAndRender(true));
-    document.getElementById("page-size").addEventListener("change", (e) => {
-      pageSize = parseInt(e.target.value);
-      currentPage = 1; // Reset to first page when page size changes
-      filterAndRender();
-    });
-    document
-      .getElementById("prev-page")
-      .addEventListener("click", () => goToPage(currentPage - 1));
-    document
-      .getElementById("next-page")
-      .addEventListener("click", () => goToPage(currentPage + 1));
-  }
+  // No manual setupSearch needed for data-table
 
   function setupAddButton() {
     const modal = document.getElementById("teacher-modal");
@@ -711,23 +473,6 @@
   }
 
   function setupSearch() {
-    document
-      .getElementById("teacher-search")
-      .addEventListener("input", () => filterAndRender(true));
-    document
-      .getElementById("level-filter")
-      .addEventListener("change", () => filterAndRender(true));
-    document.getElementById("page-size").addEventListener("change", (e) => {
-      pageSize = parseInt(e.target.value);
-      currentPage = 1; // Reset to first page when page size changes
-      filterAndRender();
-    });
-    document
-      .getElementById("prev-page")
-      .addEventListener("click", () => goToPage(currentPage - 1));
-    document
-      .getElementById("next-page")
-      .addEventListener("click", () => goToPage(currentPage + 1));
   }
 
   function populateLevelFilter() {
@@ -757,50 +502,17 @@
       searchableLevelFilter = makeSearchableDropdown(
         "level-filter",
         (val, text) => {
-          // ensure the underlying select value is set and trigger filtering
           const sel = document.getElementById("level-filter");
-          if (sel) sel.value = val;
-          filterAndRender(true);
+          if (sel) { 
+              sel.value = val;
+              sel.dispatchEvent(new Event('change'));
+          }
         }
       );
     }
   }
 
-  function populatePageSizeSelect() {
-    const select = document.getElementById("page-size");
-    // destroy previous searchable instance if any
-    if (
-      searchablePageSize &&
-      typeof searchablePageSize.destroy === "function"
-    ) {
-      searchablePageSize.destroy();
-      searchablePageSize = null;
-    }
-    select.innerHTML = "";
-    const pageSizeOptions = [
-      { value: "5", text: "5" },
-      { value: "10", text: "10" },
-      { value: "25", text: "25" },
-      { value: "50", text: "50" },
-      { value: "100", text: "100" },
-    ];
-    pageSizeOptions.forEach((option) => {
-      const opt = document.createElement("option");
-      opt.value = option.value;
-      opt.textContent = option.text;
-      if (option.value === "25") opt.selected = true; // Default to 25
-      select.appendChild(opt);
-    });
-    // transform into searchable dropdown
-    if (typeof makeSearchableDropdown === "function") {
-      searchablePageSize = makeSearchableDropdown("page-size", (val, text) => {
-        // Update pageSize and refresh display
-        pageSize = parseInt(val);
-        currentPage = 1; // Reset to first page when page size changes
-        filterAndRender();
-      });
-    }
-  }
+
 
   function populateTeacherLevelSelect() {
     const select = document.getElementById("teacher-level");
@@ -837,11 +549,8 @@
 
   // Initialize
   populateLevelFilter();
-  populatePageSizeSelect();
   populateTeacherLevelSelect();
-  pageSize = parseInt(document.getElementById("page-size").value);
-  fetchTeachers();
-  setupSearch();
+  initTable(); 
+  fetchTeachers(); 
   setupAddButton();
 </script>
-

@@ -82,11 +82,8 @@ class DataTable extends HTMLElement {
                     <slot name="filters"></slot>
                 </div>
 
-                <div class="input-group" style="margin-left: auto; display: flex; gap: 8px;">
-                     <button id="dt-export-btn" class="btn btn-secondary" style="padding: 8px 12px;">
-                        <i class="fas fa-download"></i> Export
-                    </button>
-                    <div class="input-group">
+                <div class="input-group" style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
+                    <div class="input-group" style="margin-bottom: 0;">
                         <select id="dt-page-size" class="dropdown-select">
                             <option value="5">5</option>
                             <option value="10">10</option>
@@ -95,6 +92,9 @@ class DataTable extends HTMLElement {
                             <option value="100">100</option>
                         </select>
                     </div>
+                     <button id="dt-export-btn" class="btn btn-secondary" style="padding: 8px 12px; height: 100%;">
+                        <i class="fas fa-download"></i> Export
+                    </button>
                 </div>
             </div>
 

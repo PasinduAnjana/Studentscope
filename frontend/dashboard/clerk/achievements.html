@@ -13,24 +13,22 @@
         <i class="fas fa-plus"></i> Add Achievement
       </button>
     </div>
-    <div class="table-responsive">
-      <table>
-        <thead>
-          <tr>
-            <th>Student</th>
-            <th>Achievement</th>
-            <th>Category</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="achievements-table-body">
-          <tr>
-            <td colspan="5" class="text-center">Loading...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <data-table id="achievements-table">
+        <div slot="filters" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <div class="input-group" style="min-width: 150px; margin-bottom: 0;">
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="academic">Academic</option>
+                    <option value="sports">Sports</option>
+                    <option value="arts">Arts</option>
+                </select>
+            </div>
+
+            <div class="input-group" style="min-width: 150px; margin-bottom: 0;">
+                 <input type="date" id="dateFilter" placeholder="Filter by Date" style="margin-bottom: 0;">
+            </div>
+        </div>
+    </data-table>
   </div>
 
   <!-- Modal using shared styles (from announcements.css) -->
@@ -92,6 +90,7 @@
 
     async function init() {
       await loadStudents();
+      initTable();
       loadAchievements();
     }
 
@@ -117,64 +116,105 @@
       }
     }
 
-    async function loadAchievements() {
-      const tbody = document.getElementById("achievements-table-body");
+  function initTable() {
+    const table = document.getElementById("achievements-table");
+    table.setColumns([
+        { key: "student_name", header: "Student", searchable: true, render: (row) => row.student_name || 'Unknown Student' },
+        { 
+            key: "title", 
+            header: "Title / Description", 
+            searchable: true,
+            render: (row) => `<div>${row.title}</div><div class="text-sm">${row.description}</div>`
+        },
+        { 
+            key: "category", 
+            header: "Category", 
+            render: (row) => {
+                const icon = getCategoryIcon(row.category);
+                return `<span><i class="fas ${icon}"></i> ${row.category}</span>`;
+            }
+        },
+        { 
+            key: "achieved_at", 
+            header: "Date", 
+            render: (row) => new Date(row.achieved_at).toLocaleDateString()
+        },
+        {
+            key: "actions",
+            header: "Actions",
+            render: (row) => {
+                const div = document.createElement("div");
+                div.className = "action-buttons flex-center";
+                
+                const btnEdit = document.createElement("button");
+                btnEdit.className = "btn-icon btn-edit";
+                btnEdit.title = "Edit";
+                btnEdit.innerHTML = '<i class="fas fa-edit"></i>';
+                btnEdit.onclick = () => openEditModal(row);
+
+                const btnDelete = document.createElement("button");
+                btnDelete.className = "btn-icon btn-delete";
+                btnDelete.title = "Delete";
+                btnDelete.innerHTML = '<i class="fas fa-trash"></i>';
+                btnDelete.onclick = () => handleDelete(row.id);
+                
+                div.appendChild(btnEdit);
+                div.appendChild(btnDelete);
+                return div;
+            }
+        }
+    ]);
+    table.setEmptyState("No achievements found", "fas fa-trophy");
+
+    // Filters
+    // const studentFilter = document.getElementById("studentFilter");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const dateFilter = document.getElementById("dateFilter");
+
+    // Make category filter searchable
+    if (typeof makeSearchableDropdown === 'function' && categoryFilter) {
+        makeSearchableDropdown('categoryFilter', (val) => {
+             // Dispatch change event manually or call method
+             // makeSearchableDropdown usually updates value but we need to trigger logic
+             // But here we can just add filter directly in the callback or rely on the fact that value changes.
+             // The callback (val) => ... is usually for selection handling.
+             
+             // Simplest way: update table filter immediately
+             table.addFilter("category", (row) => {
+                return val === "" || row.category === val;
+            });
+        });
+    } else if (categoryFilter) {
+        // Fallback standard listener
+        categoryFilter.addEventListener("change", () => {
+            const val = categoryFilter.value;
+            table.addFilter("category", (row) => {
+                return val === "" || row.category === val;
+            });
+        });
+    }
+
+    if (dateFilter) {
+        dateFilter.addEventListener("change", () => {
+            const val = dateFilter.value;
+            table.addFilter("date", (row) => {
+                if(!val) return true;
+                return row.achieved_at.startsWith(val);
+            });
+        });
+    }
+  }
+
+  async function loadAchievements() {
       try {
         const res = await api.clerk.achievements.getAll();
         if (!res.ok) throw new Error("Failed");
         const data = await res.json();
-        
-        tbody.innerHTML = "";
-        
-        if (data.length === 0) {
-          tbody.innerHTML = `
-            <tr>
-              <td colspan="5" style="padding: 0; border: none;">
-                <empty-state-message message="No achievements found" icon="fas fa-trophy"></empty-state-message>
-              </td>
-            </tr>`;
-          return;
-        }
-
-        data.forEach(item => {
-          const date = new Date(item.achieved_at).toLocaleDateString();
-          const icon = getCategoryIcon(item.category);
-          
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${item.student_name || 'Unknown Student'}</td>
-            <td>
-              <div>${item.title}</div>
-              <div class="text-sm">${item.description}</div>
-            </td>
-            <td>
-              <span>
-                <i class="fas ${icon}"></i> ${item.category}
-              </span>
-            </td>
-            <td>${date}</td>
-            <td>
-              <div class="action-buttons flex-center">
-                <button class="btn-icon btn-edit" onclick='openEditModal(${JSON.stringify(item).replace(/'/g, "&#39;")})' title="Edit">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="handleDelete(${item.id})" title="Delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-
+        document.getElementById("achievements-table").setData(data);
       } catch (err) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5" style="padding: 0; border: none;">
-              <empty-state-message message="Error loading data" icon="fas fa-exclamation-triangle"></empty-state-message>
-            </td>
-          </tr>`;
-        toast("Error loading achievements", "fa-solid fa-circle-exclamation");
+        console.error(err);
+        document.getElementById("achievements-table").setData([]);
+        document.getElementById("achievements-table").setEmptyState("Error loading achievements", "fas fa-exclamation-triangle");
       }
     }
 
