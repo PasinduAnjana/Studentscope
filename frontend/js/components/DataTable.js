@@ -8,6 +8,8 @@ class DataTable extends HTMLElement {
         this.pageSize = 25;
         this.filteredData = [];
         this.externalFilters = {}; // Function-based filters
+        this.emptyStateMessage = "No records found";
+        this.emptyStateIcon = "fas fa-search";
     }
 
     connectedCallback() {
@@ -60,6 +62,11 @@ class DataTable extends HTMLElement {
     addFilter(name, filterFn) {
         this.externalFilters[name] = filterFn;
         this.filterData();
+    }
+
+    setEmptyState(message, icon) {
+        if (message) this.emptyStateMessage = message;
+        if (icon) this.emptyStateIcon = icon;
     }
 
     renderStructure() {
@@ -208,11 +215,11 @@ class DataTable extends HTMLElement {
                 td.colSpan = this.columns.length || 1;
                 td.style.padding = '0';
                 td.style.border = 'none';
-                td.innerHTML = `<empty-state-message message="No records found" icon="fas fa-search"></empty-state-message>`;
+                td.innerHTML = `<empty-state-message message="${this.emptyStateMessage}" icon="${this.emptyStateIcon}"></empty-state-message>`;
                 tr.appendChild(td);
                 tbody.appendChild(tr);
             } else {
-                tbody.innerHTML = `<tr><td colspan="${this.columns.length || 1}" class="text-center">No records found</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${this.columns.length || 1}" class="text-center">${this.emptyStateMessage}</td></tr>`;
             }
             return;
         }
