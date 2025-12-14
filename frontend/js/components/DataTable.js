@@ -82,14 +82,50 @@ class DataTable extends HTMLElement {
                     <slot name="filters"></slot>
                 </div>
 
-                <div class="input-group">
-                    <select id="dt-page-size" class="dropdown-select">
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="25" selected>25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
+                <div class="input-group" style="margin-left: auto; display: flex; gap: 8px;">
+                     <button id="dt-export-btn" class="btn btn-secondary" style="padding: 8px 12px;">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <div class="input-group">
+                        <select id="dt-page-size" class="dropdown-select">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Modal Overlay -->
+            <div id="dt-export-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+                <div style="background: var(--color-card); padding: 24px; border-radius: 12px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+                    <h3 style="margin: 0; font-size: 18px; color: var(--color-text);">Export Data</h3>
+                    
+                    <div>
+                        <p style="margin: 0 0 8px 0; font-weight: 600; font-size: 14px; color: var(--color-text);">Select Columns:</p>
+                        <div id="dt-export-columns" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                            <!-- Checkboxes injected here -->
+                        </div>
+                    </div>
+
+                    <div>
+                        <p style="margin: 0 0 8px 0; font-weight: 600; font-size: 14px; color: var(--color-text);">Format:</p>
+                        <div style="display: flex; gap: 16px;">
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="export-format" value="csv" checked> CSV
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="export-format" value="pdf"> PDF (Print)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
+                        <button id="dt-export-cancel" class="btn btn-secondary">Cancel</button>
+                        <button id="dt-export-confirm" class="btn btn-primary">Download</button>
+                    </div>
                 </div>
             </div>
 
@@ -173,6 +209,173 @@ class DataTable extends HTMLElement {
         const nextBtn = this.querySelector('#dt-next');
         if (prevBtn) prevBtn.addEventListener('click', () => this.changePage(this.currentPage - 1));
         if (nextBtn) nextBtn.addEventListener('click', () => this.changePage(this.currentPage + 1));
+
+        // Export
+        const exportBtn = this.querySelector('#dt-export-btn');
+        const exportModal = this.querySelector('#dt-export-modal');
+        const exportCancel = this.querySelector('#dt-export-cancel');
+        const exportConfirm = this.querySelector('#dt-export-confirm');
+
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => this.openExportModal());
+        }
+        if (exportCancel) {
+            exportCancel.addEventListener('click', () => {
+                if (exportModal) exportModal.style.display = 'none';
+            });
+        }
+        if (exportConfirm) {
+            exportConfirm.addEventListener('click', () => this.executeExport());
+        }
+    }
+
+    openExportModal() {
+        const modal = this.querySelector('#dt-export-modal');
+        const container = this.querySelector('#dt-export-columns');
+        if (!modal || !container) return;
+
+        container.innerHTML = '';
+        this.columns.forEach((col, index) => {
+            // Skip action columns or columns without headers
+            if (!col.header || col.key === 'actions') return;
+
+            const label = document.createElement('label');
+            label.style.display = 'flex';
+            label.style.alignItems = 'center';
+            label.style.gap = '8px';
+            label.style.cursor = 'pointer';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = col.key; // Store key to identify column
+            checkbox.checked = true; // Default to checked
+            checkbox.dataset.header = col.header;
+            checkbox.dataset.index = index; // Store index to access render function if needed
+
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(col.header));
+            container.appendChild(label);
+        });
+
+        modal.style.display = 'flex';
+    }
+
+    executeExport() {
+        const modal = this.querySelector('#dt-export-modal');
+        const format = this.querySelector('input[name="export-format"]:checked').value;
+        const checkboxes = Array.from(this.querySelectorAll('#dt-export-columns input[type="checkbox"]:checked'));
+        
+        if (checkboxes.length === 0) {
+            alert("Please select at least one column.");
+            return;
+        }
+
+        const selectedColumns = checkboxes.map(cb => ({
+            key: cb.value,
+            header: cb.dataset.header,
+            index: parseInt(cb.dataset.index)
+        }));
+
+        if (format === 'csv') {
+            this.exportToCSV(selectedColumns);
+        } else {
+            this.exportToPDF(selectedColumns);
+        }
+
+        modal.style.display = 'none';
+    }
+
+    exportToCSV(selectedColumns) {
+        const headers = selectedColumns.map(col => col.header).join(',');
+        const rows = this.filteredData.map(row => {
+            return selectedColumns.map(col => {
+                // Get display value
+                let val = row[col.key];
+                // If there's a specific render function, we might want to use it, 
+                // but usually render returns HTML. For CSV we want raw data or clean text.
+                // We'll stick to the raw data property if possible, or try to strip HTML from render if absolutely needed.
+                // For simplicity/robustness in vanilla, let's use the raw data value or a simple string representation.
+                const columnDef = this.columns[col.index];
+                if (columnDef && columnDef.render && !val) {
+                    // If val is null/undefined but there is a render function, maybe the data is composite
+                    // Try to execute render and strip tags (basic)
+                    const rendered = columnDef.render(row);
+                    if (typeof rendered === 'string') {
+                         val = rendered.replace(/<[^>]*>?/gm, ''); // Basic strip tags
+                    } else if (rendered instanceof HTMLElement) {
+                         val = rendered.textContent;
+                    }
+                }
+                
+                // Escape quotes and wrap in quotes
+                val = String(val || '').replace(/"/g, '""');
+                return `"${val}"`;
+            }).join(',');
+        });
+
+        const csvContent = [headers, ...rows].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'export.csv');
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    exportToPDF(selectedColumns) {
+        // Vanilla "PDF" = Print View
+        let printWindow = window.open('', '', 'height=600,width=800');
+        if (!printWindow) {
+            alert("Please allow popups to export options.");
+            return;
+        }
+
+        const headers = selectedColumns.map(c => `<th>${c.header}</th>`).join('');
+        const rows = this.filteredData.map(row => {
+            const cells = selectedColumns.map(col => {
+                let val = row[col.key];
+                 const columnDef = this.columns[col.index];
+                 if (columnDef && columnDef.render) {
+                    const rendered = columnDef.render(row);
+                    if (typeof rendered === 'string') {
+                         val = rendered; // Keep HTML for PDF/Print view!
+                    } else if (rendered instanceof HTMLElement) {
+                         val = rendered.outerHTML;
+                    }
+                 }
+                 return `<td>${val || ''}</td>`;
+            }).join('');
+            return `<tr>${cells}</tr>`;
+        }).join('');
+
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Export Data</title>
+                <style>
+                    body { font-family: sans-serif; padding: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+                    th { background-color: #f2f2f2; font-weight: bold; }
+                    h1 { font-size: 18px; margin-bottom: 20px; }
+                </style>
+            </head>
+            <body>
+                <h1>Exported Data</h1>
+                <table>
+                    <thead><tr>${headers}</tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+                <script>
+                    window.onload = function() { window.print(); }
+                </script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
     }
 
     filterData() {
