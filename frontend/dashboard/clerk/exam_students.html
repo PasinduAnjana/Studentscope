@@ -1,0 +1,305 @@
+<style>
+  .action-buttons {
+    display: flex;
+    gap: 5px;
+  }
+  .controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+      align-items: center;
+  }
+</style>
+
+<section class="section">
+  <div class="flex-between mb-2">
+      <button class="btn btn-secondary" onclick="window.history.back()">
+          <i class="fas fa-arrow-left"></i> Back
+      </button>
+      <h2 class="heading">
+        <i class="fas fa-users-cog"></i>
+        <span>Exam Enrollment</span>
+      </h2>
+  </div>
+
+  <div class="card">
+    <div class="flex-between mb-2">
+      <h1 class="title" id="exam-title">Exam Students</h1>
+      <button class="btn btn-primary" onclick="openEnrollModal()">
+        <i class="fas fa-user-plus"></i> Enroll Students
+      </button>
+      <button class="btn btn-secondary" onclick="document.getElementById('file-upload').click()">
+        <i class="fas fa-file-upload"></i> Import CSV
+      </button>
+      <button class="btn btn-outline" onclick="downloadTemplate()">
+        <i class="fas fa-file-download"></i> Template
+      </button>
+      <input type="file" id="file-upload" accept=".csv" style="display: none;" onchange="handleFileUpload(this)">
+    </div>
+    
+    <data-table id="students-table">
+    </data-table>
+  </div>
+</section>
+
+
+<modal-dialog id="enroll-modal" title="Enroll Students">
+    <div slot="body">
+        <div class="controls">
+            <select id="filter-class" onchange="fetchEligibleStudents()">
+                <option value="">All Classes</option>
+            </select>
+            <button class="btn btn-secondary" onclick="selectAll()">Select All</button>
+        </div>
+        <ul id="eligible-list" style="max-height: 300px; overflow-y: auto; list-style: none; padding: 0;">
+            <!-- List items -->
+        </ul>
+    </div>
+    <div slot="footer">
+        <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="enrollSelected()">Enroll</button>
+    </div>
+</modal-dialog> 
+
+
+<script>
+    // ... existing vars ...
+    const urlParams = new URLSearchParams(window.location.search);
+    const examId = urlParams.get('examId');
+    let enrolledStudents = [];
+    // ...
+
+
+
+    function downloadTemplate() {
+        const csvContent = "Username,Index Number\nS1000,Index-001\nS1001,Index-002\nS1002,Index-003";
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        if (link.download !== undefined) { 
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "exam_enrollment_template.csv");
+            link.style.visibility = "hidden";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+    
+    function handleFileUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = e.target.result;
+            const lines = text.split('\n');
+            const data = [];
+            
+            // Expected format: Username, IndexNumber (or just 2 columns)
+            // Skip header if present? Let's check first row.
+            // Be flexible: allow "Admission Number, Index Number"
+            
+            lines.forEach((line, index) => {
+                const parts = line.split(',');
+                if (parts.length >= 2) {
+                    const username = parts[0].trim();
+                    const idx = parts[1].trim();
+                     // Simple heuristic to skip header: if first row and idx contains "Index"
+                    if (index === 0 && (username.toLowerCase().includes('username') || idx.toLowerCase().includes('index'))) {
+                        return;
+                    }
+                    if (username && idx) {
+                        data.push({ username: username, index_number: idx });
+                    }
+                }
+            });
+            
+            if (data.length === 0) {
+                toast("No valid data found in CSV", "fa-solid fa-circle-exclamation");
+                return;
+            }
+            
+            if (confirm(`Found ${data.length} records. Import?`)) {
+                api.clerk.exams.importEnrollments(examId, data)
+                .then(res => {
+                    if (!res.ok) throw new Error("Failed");
+                    return res.json();
+                })
+                .then(result => {
+                    toast(`Imported ${result.enrolled_count} students.`, "fa-solid fa-check-circle");
+                    if (result.not_found && result.not_found.length > 0) {
+                         alert(`Could not find students with these usernames:\n${result.not_found.join('\n')}`);
+                    }
+                    fetchEnrolled();
+                })
+                .catch(err => {
+                    console.error(err);
+                    toast("Import failed", "fa-solid fa-circle-exclamation");
+                });
+            }
+            
+            // Reset input
+            input.value = "";
+        };
+        reader.readAsText(file);
+    }
+    
+    // ... existing functions ...
+
+    function initTable() {
+        const table = document.getElementById("students-table");
+        table.setColumns([
+            { key: "full_name", header: "Name", searchable: true },
+            { 
+              key: "index_number", 
+              header: "Exam Index Number", 
+              render: (row) => `<input type="text" value="${row.index_number || ''}" onblur="updateIndex(${row.id}, this.value)" placeholder="Enter Index" class="form-control" style="max-width: 150px;">` 
+            },
+            { key: "system_id", header: "System ID" },
+            { 
+                key: "class_name", 
+                header: "Class",
+                render: (row) => row.class_grade && row.class_name ? `${row.class_grade}-${row.class_name}` : 'N/A'
+            },
+             {
+                key: "actions",
+                header: "Actions",
+                render: (row) => `<button class="btn-icon btn-delete" title="Remove"><i class="fas fa-trash"></i></button>`
+            }
+        ]);
+        table.setEmptyState("No students enrolled", "fas fa-users-slash");
+    }
+
+    function fetchEnrolled() {
+        api.clerk.exams.getStudents(examId)
+        .then(res => res.json())
+        .then(data => {
+            enrolledStudents = data;
+            document.getElementById("students-table").setData(data);
+        })
+        .catch(err => console.error(err));
+    }
+    
+    function fetchClasses() {
+        api.clerk.classes.getAll()
+        .then(res => res.json())
+        .then(data => {
+            allClasses = data;
+            const sel = document.getElementById("filter-class");
+            if (!sel) return;
+            
+            // Clear existing options except first? Or is it static?
+            // Static first option.
+            
+            data.forEach(c => {
+                 const opt = document.createElement("option");
+                 opt.value = c.id;
+                 opt.textContent = `${c.grade}-${c.class_name}`;
+                 sel.appendChild(opt);
+            });
+        });
+    }
+
+    function fetchEligibleStudents() {
+        // Fetch all students and filter locally or by class API
+        // Ideally we should have an API to get students NOT enrolled, but for now fetch all
+        api.clerk.students.getAll()
+        .then(res => res.json())
+        .then(data => {
+            const filterEl = document.getElementById("filter-class");
+            const classFilter = filterEl ? filterEl.value : "";
+            
+            let filtered = data;
+            if (classFilter) {
+                filtered = data.filter(s => s.class_id == classFilter);
+            }
+            
+            // Exclude already enrolled
+           const enrolledIds = new Set(enrolledStudents.map(e => e.student_id));
+           eligibleStudents = filtered.filter(s => !enrolledIds.has(s.user_id));
+           
+           renderEligibleList();
+        });
+    }
+    
+    function renderEligibleList() {
+        const list = document.getElementById("eligible-list");
+        list.innerHTML = "";
+        eligibleStudents.forEach(s => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <label style="display: flex; gap: 10px; align-items: center; padding: 5px;">
+                    <input type="checkbox" class="enroll-check" value="${s.user_id}">
+                    <span>${s.full_name} (${s.username})</span>
+                </label>
+            `;
+            list.appendChild(li);
+        });
+    }
+    
+    function selectAll() {
+        document.querySelectorAll(".enroll-check").forEach(cb => cb.checked = true);
+    }
+    
+    function enrollSelected() {
+        const checked = Array.from(document.querySelectorAll(".enroll-check:checked")).map(cb => cb.value);
+        if (checked.length === 0) return;
+        
+        const students = checked.map(uid => ({
+            student_id: uid,
+            index_number: null // Optional default?
+        }));
+        
+        api.clerk.exams.enrollStudents(examId, students)
+        .then(res => {
+            if(!res.ok) throw new Error("Failed");
+             document.getElementById("enroll-modal").close();
+             toast("Students enrolled", "fa-solid fa-check-circle");
+             fetchEnrolled();
+        })
+        .catch(err => {
+            console.error(err);
+            toast("Error enrolling", "fa-solid fa-circle-exclamation");
+        });
+    }
+    
+    function updateIndex(rowId, val) {
+        // rowId is from exam_students table ID? 
+        // In getEnrolledStudents service, selection is result.rows (es.*) so yes, id is exam_students.id
+        // Wait, to update index we need to re-enroll or have update endpoint?
+        // enrollment endpoint is upsert. So we can use it.
+        // But we need student_id, not exam_student id.
+        const student = enrolledStudents.find(s => s.id == rowId);
+        if (!student) return;
+        
+        api.clerk.exams.enrollStudents(examId, [{
+            student_id: student.student_id,
+            index_number: val
+        }]).then(res => {
+             if(res.ok) toast("Index updated", "fa-solid fa-check-circle");
+        });
+    }
+
+    function openEnrollModal() {
+        const modal = document.getElementById("enroll-modal");
+        if(modal) {
+             fetchEligibleStudents();
+             modal.open();
+        } else {
+            console.error("Enroll modal not found");
+        }
+    }
+    
+    const cancelBtn = document.getElementById("modal-cancel");
+    if(cancelBtn) {
+        cancelBtn.addEventListener("click", () => {
+             const m = document.getElementById("enroll-modal");
+             if(m) m.close();
+        });
+    }
+
+    initTable();
+    fetchEnrolled();
+    fetchClasses();
+</script>

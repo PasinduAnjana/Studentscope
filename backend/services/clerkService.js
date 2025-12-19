@@ -1096,7 +1096,62 @@ module.exports = {
   getPendingPasswordResets,
   approvePasswordReset,
   rejectPasswordReset,
+  // Exam functions
+  getAllExams,
+  createExam,
+  enrollStudents,
+  getEnrolledStudents,
+  enrollStudents,
+  getEnrolledStudents,
+  saveExamMarks,
+  getExamMarks,
+  importExamEnrollments,
 };
+
+// ... existing code ...
+
+async function importExamEnrollments(examId, csvData) {
+    // csvData: [{ username, index_number }]
+    if (!csvData || csvData.length === 0) return { success: true, count: 0 };
+    
+    // Resolve user IDs from usernames
+    const usernames = [...new Set(csvData.map(d => d.username))];
+    const userRes = await pool.query(
+        "SELECT id, username FROM users WHERE username = ANY($1)", 
+        [usernames]
+    );
+    
+    const userMap = {}; // username -> id
+    userRes.rows.forEach(r => userMap[r.username] = r.id);
+    
+    const studentsToEnroll = [];
+    const notFound = [];
+    
+    csvData.forEach(row => {
+        // Case-insensitive match or direct? Users table usually lowercase username?
+        // Let's assume input matches exactly or we can try lowercase map if needed.
+        // Usually, 'username' is index/admission number.
+        const uid = userMap[row.username];
+        if (uid) {
+            studentsToEnroll.push({
+                student_id: uid,
+                index_number: row.index_number
+            });
+        } else {
+            notFound.push(row.username);
+        }
+    });
+    
+    if (studentsToEnroll.length > 0) {
+        await enrollStudents(examId, studentsToEnroll);
+    }
+    
+    return { 
+        success: true, 
+        enrolled_count: studentsToEnroll.length, 
+        not_found: notFound 
+    };
+}
 
 // Password reset functions
 async function getPendingPasswordResets() {
@@ -1172,3 +1227,136 @@ async function rejectPasswordReset(resetId, rejectedBy) {
     return { success: false, error: "Failed to reject password reset" };
   }
 }
+
+// Exam functions
+async function getAllExams() {
+  const result = await pool.query("SELECT * FROM exams ORDER BY year DESC, name");
+  return result.rows;
+}
+
+async function createExam({ name, type, sub_type, year, target_grade }) {
+  const result = await pool.query(
+    "INSERT INTO exams (name, type, sub_type, year, target_grade) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+    [name, type, sub_type, year, target_grade]
+  );
+  return result.rows[0];
+}
+
+async function enrollStudents(examId, students) {
+  // students = [{ student_id, index_number }]
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    for (const student of students) {
+        // Upsert index number
+        await client.query(
+            `INSERT INTO exam_students (exam_id, student_id, index_number)
+             VALUES ($1, $2, $3)
+             ON CONFLICT (exam_id, student_id)
+             DO UPDATE SET index_number = EXCLUDED.index_number`,
+            [examId, student.student_id, student.index_number]
+        );
+    }
+    await client.query("COMMIT");
+    return { success: true };
+  } catch(e) {
+      await client.query("ROLLBACK");
+      throw e;
+  } finally {
+      client.release();
+  }
+}
+
+async function getEnrolledStudents(examId) {
+    const result = await pool.query(`
+        SELECT es.*, s.full_name, u.username as system_id, c.name as class_name, c.grade as class_grade
+        FROM exam_students es
+        JOIN students s ON es.student_id = s.user_id 
+        JOIN users u ON s.user_id = u.id
+        LEFT JOIN classes c ON u.class_id = c.id
+        WHERE es.exam_id = $1
+        ORDER BY s.full_name
+    `, [examId]);
+    return result.rows;
+}
+
+async function saveExamMarks(examId, marksData) {
+    // marksData = [{ student_id, subject_id, marks }] (marks is string)
+    // Identify subject_id. For Grade 5, subject_id might be null or we ignored it. 
+    // But DB requires UNIQUE(student_id, subject_id, exam_id). 
+    // If subject_id is null, unique constraint might treat nulls as distinct (in Postgres multiple nulls not equal).
+    // So for Grade 5 we should probably use a dummy or ensure one entry.
+    // However, prompts says "after marks are out clerk can enter the marks".
+    // Let's assume for now marksData includes valid subject_id or null if handled.
+    // The marks table allows null subject_id? 
+    // Actually, `marks` table definition used `subject_id BIGINT REFERENCES subjects(id)`. 
+    // I'll assume standard behavior.
+    
+    const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    for (const mark of marksData) {
+      const { student_id, subject_id, marks } = mark;
+
+      if (marks !== null && marks !== undefined) {
+          if (subject_id) {
+            // Standard flow with valid subject_id
+            await client.query(
+              `
+              INSERT INTO marks (student_id, subject_id, marks, exam_id)
+              VALUES ($1, $2, $3, $4)
+              ON CONFLICT (student_id, subject_id, exam_id)
+              DO UPDATE SET marks = EXCLUDED.marks
+              `,
+              [student_id, subject_id, marks, examId]
+            );
+          } else {
+            // Null subject_id (e.g., Grade 5 Scholarship)
+            // Cannot use ON CONFLICT with NULL in unique constraint (standard PG).
+            // Manually check if row exists.
+            
+            // Note: We assume only ONE row per student per exam has NULL subject_id.
+            // This is a "Special Mark" row.
+            
+            const existing = await client.query(
+                `SELECT id FROM marks WHERE student_id = $1 AND exam_id = $2 AND subject_id IS NULL`,
+                [student_id, examId]
+            );
+            
+            if (existing.rows.length > 0) {
+                // Update
+                await client.query(
+                    `UPDATE marks SET marks = $1 WHERE id = $2`,
+                    [marks, existing.rows[0].id]
+                );
+            } else {
+                // Insert
+                await client.query(
+                    `INSERT INTO marks (student_id, subject_id, marks, exam_id) VALUES ($1, NULL, $2, $3)`,
+                    [student_id, marks, examId]
+                );
+            }
+          }
+      }
+    }
+
+    await client.query("COMMIT");
+    return { success: true, message: "Marks saved successfully" };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+async function getExamMarks(examId) {
+    const result = await pool.query(
+        "SELECT student_id, subject_id, marks FROM marks WHERE exam_id = $1",
+        [examId]
+    );
+    return result.rows;
+}
+
+

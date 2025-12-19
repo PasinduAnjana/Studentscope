@@ -6,6 +6,7 @@ const timetableController = require("../controllers/clerk/timetableController");
 const profileController = require("../controllers/clerk/profileController");
 const announcementsController = require("../controllers/clerk/announcementsController");
 const achievementsController = require("../controllers/achievementsController");
+const examsController = require("../controllers/clerk/examsController");
 const clerkService = require("../services/clerkService");
 
 module.exports = async (req, res) => {
@@ -242,6 +243,64 @@ module.exports = async (req, res) => {
     const id = req.url.split("/").pop();
     return protect("clerk")(req, res, () =>
       achievementsController.delete(req, res, id)
+    );
+  }
+
+  // Exam routes
+  if (req.method === "GET" && req.url === "/api/clerk/exams") {
+    return protect("clerk")(req, res, () =>
+      examsController.getAllExams(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url === "/api/clerk/exams") {
+    return protect("clerk")(req, res, () =>
+      examsController.createExam(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.match(/^\/api\/clerk\/exams\/\d+\/students$/)
+  ) {
+    return protect("clerk")(req, res, () =>
+      examsController.getExamStudents(req, res)
+    );
+  }
+
+  if (
+    req.method === "POST" &&
+    req.url.match(/^\/api\/clerk\/exams\/\d+\/students$/)
+  ) {
+    return protect("clerk")(req, res, () =>
+      examsController.enrollStudents(req, res)
+    );
+  }
+
+  if (
+    req.method === "POST" &&
+    req.url.match(/^\/api\/clerk\/exams\/\d+\/import$/)
+  ) {
+    return protect("clerk")(req, res, () =>
+      examsController.importEnrollments(req, res)
+    );
+  }
+
+  if (
+    req.method === "POST" &&
+    req.url.match(/^\/api\/clerk\/exams\/\d+\/marks$/)
+  ) {
+    return protect("clerk")(req, res, () =>
+      examsController.saveMarks(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.match(/^\/api\/clerk\/exams\/\d+\/marks$/)
+  ) {
+    return protect("clerk")(req, res, () =>
+      examsController.getMarks(req, res)
     );
   }
 

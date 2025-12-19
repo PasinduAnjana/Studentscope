@@ -48,53 +48,7 @@
       classAssignments[assignment.class].push(assignment.subject);
     });
 
-    // Class teacher card
-    if (teacherData.classTeacherOf) {
-      const card = document.createElement("a");
-      const url = new URL(window.location.href);
-      url.searchParams.set("page", "marks/entry");
-      url.searchParams.set("class", teacherData.classTeacherOf);
-      url.searchParams.set("type", "class_teacher");
-      card.href = "#";
-      card.onclick = (e) => {
-        e.preventDefault();
-        const url = new URL(window.location.href);
-        url.searchParams.set("page", "marks/entry");
-        url.searchParams.set("class", teacherData.classTeacherOf);
-        url.searchParams.set("type", "class_teacher");
-        window.history.pushState({}, "", url);
-        loadPage("teacher", "marks/entry");
-      };
-      card.className = "marks-card class-teacher";
-
-      card.innerHTML = `
-        <div class="marks-card-header">
-          <div>
-            <h3 class="marks-card-title">
-              <i class="fas fa-chalkboard-teacher"></i> Class ${
-                teacherData.classTeacherOf
-              }
-            </h3>
-            <p class="marks-card-subtitle" data-en="Class Teacher - All Subjects" data-si="පන්ති ගුරුවරයා - සියලුම විෂයයන්" data-ta="வகுப்பு ஆசிரியர் - அனைத்து பாடங்களும்">Class Teacher - All Subjects</p>
-            <div class="subject-tags">
-              ${
-                classAssignments[teacherData.classTeacherOf]
-                  ?.map(
-                    (subject) => `<span class="subject-tag">${subject}</span>`
-                  )
-                  .join("") || ""
-              }
-            </div>
-            <span class="status pending" data-en="Pending Marks" data-si="අපේක්ෂිත ලකුණු" data-ta="நிலுவையில் உள்ள மதிப்பெண்கள்">Pending Marks</span>
-          </div>
-        </div>
-      `;
-
-      container.appendChild(card);
-
-      // Remove the class teacher's class from regular assignments
-      delete classAssignments[teacherData.classTeacherOf];
-    }
+    // special class teacher card removed. All classes will be rendered in the loop below.
 
     // One card per class with subject tags
     Object.entries(classAssignments).forEach(([className, subjects]) => {

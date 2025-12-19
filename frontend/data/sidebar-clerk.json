@@ -16,6 +16,11 @@
     "page": "timetable",
     "icon": "fas fa-calendar-alt"
   },
+  {
+    "label": "Exams",
+    "page": "exams",
+    "icon": "fas fa-file-signature"
+  },
 
   {
     "label": "sidebar.announcements",

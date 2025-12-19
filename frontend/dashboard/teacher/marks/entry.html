@@ -111,17 +111,10 @@
         return response.json();
       };
 
-      // Get subjects based on teacher type
-      let subjectsPromise;
-      if (type === "class_teacher") {
-        subjectsPromise = api.teacher.classes
-          .getAllSubjects(classId)
-          .then(handleResponse);
-      } else {
-        subjectsPromise = api.teacher.classes
+      // Always get subjects based on teacher assignments
+      let subjectsPromise = api.teacher.classes
           .getTeacherSubjects(classId)
           .then(handleResponse);
-      }
 
       [students, subjects, classInfo] = await Promise.all([
         api.teacher.students.getByClass(classId).then(handleResponse),
@@ -144,17 +137,18 @@
     const infoDiv = document.getElementById("classInfo");
     const pageTitle = document.getElementById("pageTitle");
 
-    if (type === "class_teacher") {
-      pageTitle.textContent = `Enter Marks - Class ${className}`;
-      infoDiv.innerHTML = `
-        <h3>Class ${className}</h3>
-        <p>Class Teacher - All Subjects</p>
-      `;
-    } else {
+    if (subject) {
       pageTitle.textContent = `Enter Marks - Class ${className} ${subject}`;
       infoDiv.innerHTML = `
         <h3>Class ${className}</h3>
         <p>Subject Teacher - ${subject}</p>
+      `;
+    } else {
+        // Fallback for generic entry or if multiple subjects (though usually driven by specific subject selection)
+      pageTitle.textContent = `Enter Marks - Class ${className}`;
+      infoDiv.innerHTML = `
+        <h3>Class ${className}</h3>
+        <p>Subject Teacher</p>
       `;
     }
   }

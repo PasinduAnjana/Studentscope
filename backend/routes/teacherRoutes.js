@@ -114,25 +114,7 @@ module.exports = (req, res) => {
     });
   }
 
-  if (
-    req.method === "GET" &&
-    req.url.startsWith("/api/teacher/classes/") &&
-    req.url.endsWith("/subjects/all")
-  ) {
-    const urlParts = req.url.split("/");
-    const classId = urlParts[urlParts.length - 3]; // Get class ID before "/subjects/all"
-    return protect("teacher")(req, res, async () => {
-      try {
-        const teacherService = require("../services/teacherService");
-        const subjects = await teacherService.getAllClassSubjects(classId);
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(subjects));
-      } catch (err) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: err.message }));
-      }
-    });
-  }
+
 
   // Get classes assigned to the authenticated teacher (no teacherId in URL)
   if (req.method === "GET" && req.url === "/api/teacher/classes/teacher") {

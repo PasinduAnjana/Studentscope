@@ -116,6 +116,7 @@ async function run() {
         "Agriculture & Food Technology",
         "ICT",
         "Health & Physical Education",
+        // 2️⃣ Subjects (No changes needed, reference)
         "Aesthetic Subjects",
         "Home Science",
         "Technical Subjects",
@@ -536,17 +537,21 @@ async function run() {
     }
 
     // 1️⃣3️⃣ Exams (Term Tests)
+    // 1️⃣3️⃣ Exams (Term Tests and Gov Exams)
     const currentYear = new Date().getFullYear();
     const exams = [
-      `1st Term Test ${currentYear}`,
-      `2nd Term Test ${currentYear}`,
-      `3rd Term Test ${currentYear}`,
+      { name: `1st Term Test ${currentYear}`, type: 'term', sub_type: 'Term1', year: currentYear },
+      { name: `2nd Term Test ${currentYear}`, type: 'term', sub_type: 'Term2', year: currentYear },
+      { name: `3rd Term Test ${currentYear}`, type: 'term', sub_type: 'Term3', year: currentYear },
+      { name: `GCE O/L ${currentYear}`, type: 'gov', sub_type: 'OL', year: currentYear, target_grade: 11 },
+      { name: `GCE A/L ${currentYear}`, type: 'gov', sub_type: 'AL', year: currentYear, target_grade: 13 },
+      { name: `Grade 5 Scholarship ${currentYear}`, type: 'gov', sub_type: 'Grade5', year: currentYear, target_grade: 5 },
     ];
     
-    for (const examName of exams) {
+    for (const exam of exams) {
       await pool.query(
-        `INSERT INTO exams (name, year) VALUES ($1, $2)`,
-        [examName, currentYear]
+        `INSERT INTO exams (name, type, sub_type, year, target_grade) VALUES ($1, $2, $3, $4, $5)`,
+        [exam.name, exam.type, exam.sub_type, exam.year, exam.target_grade || null]
       );
     }
 

@@ -118,7 +118,20 @@ END $$;
       CREATE TABLE IF NOT EXISTS exams (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         name TEXT NOT NULL,
-        year INTEGER NOT NULL
+        type TEXT NOT NULL CHECK (type IN ('term', 'gov')),
+        sub_type TEXT, -- 'OL', 'AL', 'Grade5', 'Term1', 'Term2', 'Term3'
+        year INTEGER NOT NULL,
+        target_grade INTEGER -- For gov exams (5, 11, 13)
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS exam_students (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        exam_id BIGINT REFERENCES exams(id) ON DELETE CASCADE,
+        student_id BIGINT REFERENCES users(id),
+        index_number TEXT,
+        UNIQUE(exam_id, student_id)
       );
     `);
 
@@ -145,7 +158,7 @@ END $$;
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         student_id BIGINT REFERENCES users(id),
         subject_id BIGINT REFERENCES subjects(id),
-        marks INTEGER NOT NULL,
+        marks TEXT, -- Changed to TEXT to support 'A', 'B', etc.
         exam_id BIGINT REFERENCES exams(id),
         UNIQUE(student_id, subject_id, exam_id)
       );
