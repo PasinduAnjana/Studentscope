@@ -636,8 +636,53 @@ async function run() {
       }
     }
 
+    // 1️⃣5️⃣ Seed Marks and Enrollments for Term 1 and Term 2
+    console.log("📝 Seeding marks and enrollments...");
+    const termExamsRes = await pool.query("SELECT id, sub_type FROM exams WHERE type = 'term' AND year = $1", [currentYear]);
+    const targetExams = termExamsRes.rows.filter(e => e.sub_type === 'Term1' || e.sub_type === 'Term2');
+
+    for (const classKey in studentIds) {
+        const classId = classIds[classKey];
+        const grade = parseInt(classKey.split("-")[0]);
+        const students = studentIds[classKey];
+        
+        // Mandatory subjects for this class
+        const mandSubjects = getMandatorySubjects(grade);
+        const mandSubIds = mandSubjects.map(name => subjectIdsMap[name]);
+
+        for (const sId of students) {
+            // Get electives for this student
+            const elecRes = await pool.query("SELECT subject_id FROM student_subjects WHERE student_id = $1", [sId]);
+            const elecSubIds = elecRes.rows.map(r => r.subject_id);
+            const allSubIds = [...mandSubIds, ...elecSubIds];
+
+            for (const exam of targetExams) {
+                // 1. Enroll
+                await pool.query(
+                    `INSERT INTO exam_students (exam_id, student_id, index_number) 
+                     VALUES ($1, $2, $3)
+                     ON CONFLICT (exam_id, student_id) DO NOTHING`,
+                    [exam.id, sId, `INDEX-${sId}`] // Simple index number
+                );
+
+                // 2. Add Marks
+                for (const subId of allSubIds) {
+                    // Generate marks (skewed towards 40-90)
+                    const marks = Math.floor(Math.random() * 60) + 35; // 35 to 94
+                    
+                    await pool.query(
+                        `INSERT INTO marks (student_id, subject_id, marks, exam_id)
+                         VALUES ($1, $2, $3, $4)
+                         ON CONFLICT DO NOTHING`,
+                        [sId, subId, marks.toString(), exam.id]
+                    );
+                }
+            }
+        }
+    }
+
     console.log(
-      "🎉 Database seeded successfully with behavior records, timetable, and attendance!"
+      "🎉 Database seeded successfully with behavior records, timetable, attendance, and exam marks!"
     );
   } catch (err) {
     console.error("❌ Seeding error:", err);
