@@ -4,6 +4,28 @@
 </h2>
 
 <div class="card-grid">
+  <!-- Select Term Test Card -->
+  <div class="card w-1 h-1 dashboard-tile" id="selectTermCard">
+    <div class="icon-title">
+      <i class="fas fa-calendar-alt icon"></i>
+      <p
+        class="tile-label"
+        data-en="Select Term Test"
+        data-si="වාර පරීක්ෂණය තෝරන්න"
+        data-ta="பருவ தேர்வை தேர்ந்தெடுக்கவும்"
+      >
+        Select Term Test
+      </p>
+    </div>
+    <div class="stats-content" style="justify-content: center;">
+      <div class="input-group" style="width: 100%;">
+        <select id="termTestSelect" style="display: none;">
+          <option value="">Loading...</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
   <!-- Class Rank Card -->
   <div class="card w-1 h-1 dashboard-tile" id="classRankCard">
     <div class="icon-title">
@@ -34,12 +56,110 @@
       </div>
     </div>
   </div>
+
+  <!-- Average Marks Card -->
+  <div class="card w-1 h-1 dashboard-tile" id="averageMarksCard">
+    <div class="icon-title">
+      <i class="fas fa-chart-line icon"></i>
+      <p
+        class="tile-label"
+        data-en="Average Marks"
+        data-si="සාමාන්‍ය ලකුණු"
+        data-ta="சராசரி மதிப்பெண்கள்"
+      >
+        Average Marks
+      </p>
+    </div>
+    <div class="stats-content">
+      <div class="stat-item">
+        <span class="stat-number" id="averageMarks">Loading...</span>
+        <span
+          class="stat-label"
+          id="subjectCountLabel"
+          data-en="- subjects"
+          data-si="විෂයයන්"
+          data-ta="பாடங்கள்"
+          >- subjects</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Total Marks Card -->
+  <div class="card w-1 h-1 dashboard-tile" id="totalMarksCard">
+    <div class="icon-title">
+      <i class="fas fa-calculator icon"></i>
+      <p
+        class="tile-label"
+        data-en="Total Marks"
+        data-si="මුළු ලකුණු"
+        data-ta="மொத்த மதிப்பெண்கள்"
+      >
+        Total Marks
+      </p>
+    </div>
+    <div class="stats-content">
+      <div class="stat-item">
+        <span class="stat-number" id="totalMarks">Loading...</span>
+        <span
+          class="stat-label"
+          id="maxMarksLabel"
+          data-en="Out of -"
+          data-si="- න්"
+          data-ta="- இல்"
+          >Out of -</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Term Test Marks Card -->
+  <div class="card w-2 h-2 dashboard-tile" id="termTestMarksCard">
+    <div class="icon-title">
+      <i class="fas fa-chart-bar icon"></i>
+      <p
+        class="tile-label"
+        data-en="Term Test Marks"
+        data-si="වාර පරීක්ෂණ ලකුණු"
+        data-ta="பருவ தேர்வு மதிப்பெண்கள்"
+      >
+        Term Test Marks
+      </p>
+    </div>
+    <div id="termTestChartContainer" style="width: 100%; flex: 1; min-height: 200px;">
+      <canvas id="termTestMarksChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Performance Trend Card -->
+  <div class="card w-2 h-2 dashboard-tile" id="trendCard">
+    <div class="icon-title">
+      <i class="fas fa-chart-line icon"></i>
+      <p
+        class="tile-label"
+        data-en="Performance Trend"
+        data-si="කාර්ය සාධන ප්‍රවණතාව"
+        data-ta="செயல்திறன் போக்கு"
+      >
+        Performance Trend
+      </p>
+    </div>
+    <div id="trendChartContainer" style="width: 100%; flex: 1; min-height: 200px;">
+      <canvas id="trendChart"></canvas>
+    </div>
+  </div>
 </div>
 
 <script>
-  async function loadMarksData() {
+  const rootStyles = getComputedStyle(document.documentElement);
+  const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
+
+  let termTestChart = null;
+
+  async function loadMarksData(examId = null) {
     try {
-      const response = await api.student.marks.getRank();
+      const hideLoader = loader("classRankCard");
+      const response = await api.student.marks.getRank(examId);
       if (response.ok) {
         const data = await response.json();
         
@@ -65,18 +185,492 @@
         totalLabel.setAttribute("data-ta", `${data.totalStudents} இல் அதிகமாக`);
         
         // Trigger translation update if function exists, or manually update English
-        // Assuming a translation function exists or it defaults to English initially
         totalLabel.textContent = `Out of ${data.totalStudents}`; 
       } else {
         console.error("Failed to fetch rank data");
         document.getElementById("classRank").textContent = "Error";
       }
+      
+      if (hideLoader) hideLoader();
     } catch (error) {
       console.error("Error loading marks data:", error);
       document.getElementById("classRank").textContent = "Error";
     }
   }
 
-  // Load marks data on page load
-  loadMarksData();
+  async function loadAverageMarks(examId = null) {
+    try {
+      const hideLoader = loader("averageMarksCard");
+      const response = await api.student.marks.getAverage(examId);
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update Average
+        const avgElement = document.getElementById("averageMarks");
+        if (data.average !== null) {
+          avgElement.textContent = Math.round(data.average * 100) / 100;
+        } else {
+          avgElement.textContent = "N/A";
+        }
+
+        // Update Subject Count
+        const subjectLabel = document.getElementById("subjectCountLabel");
+        const count = data.subjectCount || 0;
+        subjectLabel.setAttribute("data-en", `${count} subjects`);
+        subjectLabel.setAttribute("data-si", `විෂයයන් ${count}`);
+        subjectLabel.setAttribute("data-ta", `${count} பாடங்கள்`);
+        subjectLabel.textContent = `${count} subjects`; 
+      } else {
+        console.error("Failed to fetch average marks");
+        document.getElementById("averageMarks").textContent = "Error";
+      }
+      
+      if (hideLoader) hideLoader();
+    } catch (error) {
+      console.error("Error loading average marks:", error);
+      document.getElementById("averageMarks").textContent = "Error";
+    }
+  }
+
+  async function loadTermTests() {
+    try {
+      const response = await api.student.marks.getTermTests();
+      if (response.ok) {
+        const termTests = await response.json();
+        const select = document.getElementById("termTestSelect");
+        
+        select.innerHTML = "";
+        
+        if (termTests.length === 0) {
+          select.innerHTML = '<option value="">No term tests available</option>';
+          return;
+        }
+        
+        // Add placeholder option
+        const placeholderOption = document.createElement("option");
+        placeholderOption.value = "";
+        placeholderOption.textContent = "Select a term test";
+        select.appendChild(placeholderOption);
+        
+        // Add term test options
+        termTests.forEach(test => {
+          const option = document.createElement("option");
+          option.value = test.id;
+          option.textContent = test.name;
+          select.appendChild(option);
+        });
+        
+        // Initialize searchable dropdown
+        makeSearchableDropdown("termTestSelect", onTermTestSelect);
+        
+        // Auto-select the first term test if available
+        if (termTests.length > 0) {
+          select.value = termTests[0].id;
+          // Trigger select update for searchable dropdown
+          const display = document.querySelector("#termTestSelect + .searchable-select .dropdown-display span");
+          if (display) {
+            display.textContent = termTests[0].name;
+          }
+          // Load chart, rank, and average for the first term test
+          loadTermTestMarks(termTests[0].id);
+          loadMarksData(termTests[0].id);
+          loadAverageMarks(termTests[0].id);
+        }
+      } else {
+        console.error("Failed to fetch term tests");
+      }
+    } catch (error) {
+      console.error("Error loading term tests:", error);
+    }
+  }
+
+  function onTermTestSelect(value, text) {
+    if (value) {
+      // Update all tiles based on selected term test
+      loadTermTestMarks(value);
+      loadMarksData(value);
+      loadAverageMarks(value);
+    }
+  }
+
+  async function loadTermTestMarks(examId) {
+    try {
+      const hideLoader = loader("termTestMarksCard");
+      const hideTotalLoader = loader("totalMarksCard");
+      
+      const response = await api.student.marks.getTermTestMarks(examId);
+      if (response.ok) {
+        const marksData = await response.json();
+        renderTermTestChart(marksData);
+        updateTotalMarks(marksData);
+      } else {
+        console.error("Failed to fetch term test marks");
+        renderEmptyChart();
+        updateTotalMarks([]);
+      }
+      
+      if (hideLoader) hideLoader();
+      if (hideTotalLoader) hideTotalLoader();
+    } catch (error) {
+      console.error("Error loading term test marks:", error);
+      renderEmptyChart();
+      updateTotalMarks([]);
+    }
+  }
+
+  function updateTotalMarks(marksData) {
+    const totalElement = document.getElementById("totalMarks");
+    const maxLabel = document.getElementById("maxMarksLabel");
+    
+    if (!marksData || marksData.length === 0) {
+      totalElement.textContent = "N/A";
+      maxLabel.setAttribute("data-en", "Out of -");
+      maxLabel.setAttribute("data-si", "- න්");
+      maxLabel.setAttribute("data-ta", "- இல்");
+      maxLabel.textContent = "Out of -";
+      return;
+    }
+    
+    // Calculate total marks (sum of numeric marks)
+    let total = 0;
+    let validSubjects = 0;
+    
+    marksData.forEach(item => {
+      const numericMark = parseFloat(item.marks);
+      if (!isNaN(numericMark)) {
+        total += numericMark;
+        validSubjects++;
+      }
+    });
+    
+    // Maximum possible marks (each subject out of 100)
+    const maxMarks = validSubjects * 100;
+    
+    totalElement.textContent = Math.round(total);
+    maxLabel.setAttribute("data-en", `Out of ${maxMarks}`);
+    maxLabel.setAttribute("data-si", `${maxMarks} න්`);
+    maxLabel.setAttribute("data-ta", `${maxMarks} இல்`);
+    maxLabel.textContent = `Out of ${maxMarks}`;
+  }
+
+  function renderTermTestChart(marksData) {
+    const ctx = document.getElementById("termTestMarksChart");
+    
+    // Destroy existing chart if it exists
+    if (termTestChart) {
+      termTestChart.destroy();
+    }
+    
+    if (!marksData || marksData.length === 0) {
+      renderEmptyChart();
+      return;
+    }
+    
+    // Prepare data for the chart
+    const labels = marksData.map(item => item.subject_name);
+    const marks = marksData.map(item => {
+      // Handle non-numeric marks (e.g., 'A', 'B', etc.)
+      const numericMark = parseFloat(item.marks);
+      return isNaN(numericMark) ? 0 : numericMark;
+    });
+    
+    // Create gradient colors based on marks
+    const backgroundColors = marks.map(mark => {
+      if (mark >= 75) return primaryColor;
+      if (mark >= 50) return primaryColor + "CC";
+      if (mark >= 35) return primaryColor + "80";
+      return primaryColor + "40";
+    });
+    
+    const currentLang = localStorage.getItem("lang") || "en";
+    
+    termTestChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: {
+              en: "Marks",
+              si: "ලකුණු",
+              ta: "மதிப்பெண்கள்"
+            }[currentLang] || "Marks",
+            data: marks,
+            backgroundColor: backgroundColors,
+            borderRadius: 6,
+            maxBarThickness: 50,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: false,
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const originalMark = marksData[context.dataIndex].marks;
+                return `${context.dataset.label}: ${originalMark}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            title: {
+              display: true,
+              text: {
+                en: "Marks",
+                si: "ලකුණු",
+                ta: "மதிப்பெண்கள்"
+              }[currentLang] || "Marks",
+            },
+          },
+          x: {
+            title: {
+              display: true,
+              text: {
+                en: "Subjects",
+                si: "විෂයයන්",
+                ta: "பாடங்கள்"
+              }[currentLang] || "Subjects",
+            },
+            ticks: {
+              maxRotation: 45,
+              minRotation: 45,
+            }
+          },
+        },
+      },
+    });
+  }
+
+  function renderEmptyChart() {
+    const ctx = document.getElementById("termTestMarksChart");
+    
+    // Destroy existing chart if it exists
+    if (termTestChart) {
+      termTestChart.destroy();
+    }
+    
+    const currentLang = localStorage.getItem("lang") || "en";
+    
+    termTestChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: [{
+          en: "No Data",
+          si: "දත්ත නැත",
+          ta: "தரவு இல்லை"
+        }[currentLang] || "No Data"],
+        datasets: [
+          {
+            label: "Marks",
+            data: [0],
+            backgroundColor: [primaryColor + "40"],
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+          },
+        },
+      },
+    });
+  }
+
+  let trendChart = null;
+
+  async function loadTrendData() {
+    try {
+      const hideLoader = loader("trendCard");
+      
+      const response = await api.student.marks.getTrend();
+      if (response.ok) {
+        const trendData = await response.json();
+        renderTrendChart(trendData);
+      } else {
+        console.error("Failed to fetch trend data");
+        renderEmptyTrendChart();
+      }
+      
+      if (hideLoader) hideLoader();
+    } catch (error) {
+      console.error("Error loading trend data:", error);
+      renderEmptyTrendChart();
+    }
+  }
+
+  function renderTrendChart(trendData) {
+    const ctx = document.getElementById("trendChart");
+    
+    // Destroy existing chart if it exists
+    if (trendChart) {
+      trendChart.destroy();
+    }
+    
+    if (!trendData || trendData.length === 0) {
+      renderEmptyTrendChart();
+      return;
+    }
+    
+    // Filter out terms with no marks
+    const dataWithMarks = trendData.filter(item => item.average !== null);
+    
+    if (dataWithMarks.length === 0) {
+      renderEmptyTrendChart();
+      return;
+    }
+    
+    // Prepare data for the chart
+    const labels = trendData.map(item => {
+      // Shorten the label (e.g., "Term 1" instead of "1st Term Test 2025")
+      const termMatch = item.sub_type.match(/Term(\d)/);
+      return termMatch ? `Term ${termMatch[1]}` : item.exam_name;
+    });
+    
+    const averages = trendData.map(item => 
+      item.average !== null ? parseFloat(item.average).toFixed(1) : null
+    );
+    
+    const currentLang = localStorage.getItem("lang") || "en";
+    
+    trendChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: {
+              en: "Average Marks",
+              si: "සාමාන්‍ය ලකුණු",
+              ta: "சராசரி மதிப்பெண்கள்"
+            }[currentLang] || "Average Marks",
+            data: averages,
+            borderColor: primaryColor,
+            backgroundColor: primaryColor + "40",
+            tension: 0.3,
+            fill: true,
+            pointBackgroundColor: primaryColor,
+            pointBorderColor: "#fff",
+            pointRadius: 6,
+            pointHoverRadius: 8,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const value = context.raw;
+                return value ? `${context.dataset.label}: ${value}%` : 'No data';
+              },
+              title: function(context) {
+                const idx = context[0].dataIndex;
+                return trendData[idx].exam_name;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            title: {
+              display: true,
+              text: {
+                en: "Average (%)",
+                si: "සාමාන්‍ය (%)",
+                ta: "சராசரி (%)"
+              }[currentLang] || "Average (%)",
+            },
+          },
+          x: {
+            title: {
+              display: true,
+              text: {
+                en: "Term Test",
+                si: "වාර පරීක්ෂණය",
+                ta: "பருவ தேர்வு"
+              }[currentLang] || "Term Test",
+            },
+          },
+        },
+      },
+    });
+  }
+
+  function renderEmptyTrendChart() {
+    const ctx = document.getElementById("trendChart");
+    
+    // Destroy existing chart if it exists
+    if (trendChart) {
+      trendChart.destroy();
+    }
+    
+    const currentLang = localStorage.getItem("lang") || "en";
+    
+    trendChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: [{
+          en: "No Data",
+          si: "දත්ත නැත",
+          ta: "தரவு இல்லை"
+        }[currentLang] || "No Data"],
+        datasets: [
+          {
+            label: "Average Marks",
+            data: [0],
+            borderColor: primaryColor + "40",
+            backgroundColor: primaryColor + "20",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+          },
+        },
+      },
+    });
+  }
+
+  // Initialize
+  async function init() {
+    // loadMarksData is called from loadTermTests after selecting the first term test
+    await loadTermTests();
+    // Load trend data (independent of term test selection)
+    await loadTrendData();
+  }
+  
+  init();
 </script>
+
+

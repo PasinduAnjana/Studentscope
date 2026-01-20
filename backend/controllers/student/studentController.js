@@ -138,7 +138,11 @@ exports.getAverageMarks = async (req, res) => {
       return;
     }
 
-    const marksData = await studentService.getAverageMarks(session.userId);
+    // Parse optional examId from query string
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const examId = url.searchParams.get("examId");
+
+    const marksData = await studentService.getAverageMarks(session.userId, examId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(marksData));
   } catch (err) {
@@ -321,12 +325,113 @@ exports.getClassRank = async (req, res) => {
       return;
     }
 
-    const rankData = await studentService.getClassRank(session.userId);
+    // Parse optional examId from query string
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const examId = url.searchParams.get("examId");
+
+    const rankData = await studentService.getClassRank(session.userId, examId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(rankData));
   } catch (err) {
     console.error("Database error:", err);
     res.writeHead(500, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Failed to fetch class rank" }));
+  }
+};
+
+exports.getTermTests = async (req, res) => {
+  try {
+    const cookie = req.headers.cookie || "";
+    const match = cookie.match(/sessionToken=([^;]+)/);
+    const sessionToken = match ? match[1] : null;
+
+    if (!sessionToken) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "No session token" }));
+      return;
+    }
+
+    const session = await authService.getSession(sessionToken);
+    if (!session) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      return;
+    }
+
+    const termTests = await studentService.getTermTests();
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(termTests));
+  } catch (err) {
+    console.error("Database error:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch term tests" }));
+  }
+};
+
+exports.getTermTestMarks = async (req, res) => {
+  try {
+    const cookie = req.headers.cookie || "";
+    const match = cookie.match(/sessionToken=([^;]+)/);
+    const sessionToken = match ? match[1] : null;
+
+    if (!sessionToken) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "No session token" }));
+      return;
+    }
+
+    const session = await authService.getSession(sessionToken);
+    if (!session) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      return;
+    }
+
+    // Parse examId from query string
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const examId = url.searchParams.get("examId");
+
+    if (!examId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "examId is required" }));
+      return;
+    }
+
+    const marks = await studentService.getTermTestMarks(session.userId, examId);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(marks));
+  } catch (err) {
+    console.error("Database error:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch term test marks" }));
+  }
+};
+
+exports.getTermTestTrend = async (req, res) => {
+  try {
+    const cookie = req.headers.cookie || "";
+    const match = cookie.match(/sessionToken=([^;]+)/);
+    const sessionToken = match ? match[1] : null;
+
+    if (!sessionToken) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "No session token" }));
+      return;
+    }
+
+    const session = await authService.getSession(sessionToken);
+    if (!session) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      return;
+    }
+
+    const trend = await studentService.getTermTestTrend(session.userId);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(trend));
+  } catch (err) {
+    console.error("Database error:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch term test trend" }));
   }
 };

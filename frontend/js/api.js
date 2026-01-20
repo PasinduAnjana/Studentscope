@@ -186,7 +186,11 @@ const api = {
       getAll: () => api.request("/student/achievements"),
     },
     marks: {
-      getRank: () => api.request("/student/marks/rank"),
+      getRank: (examId) => api.request(examId ? `/student/marks/rank?examId=${examId}` : "/student/marks/rank"),
+      getAverage: (examId) => api.request(examId ? `/student/marks/average?examId=${examId}` : "/student/marks/average"),
+      getTermTests: () => api.request("/student/marks/term-tests"),
+      getTermTestMarks: (examId) => api.request(`/student/marks/term-test?examId=${examId}`),
+      getTrend: () => api.request("/student/marks/trend"),
     },
   },
 

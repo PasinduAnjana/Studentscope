@@ -83,17 +83,31 @@ exports.getPresentDays = async (studentId) => {
   return parseInt(result.rows[0].present_days);
 };
 
-exports.getAverageMarks = async (studentId) => {
-  const result = await pool.query(
-    `
-    SELECT
-      AVG(m.marks) as average,
-      COUNT(DISTINCT m.subject_id) as subject_count
-    FROM marks m
-    WHERE m.student_id = $1
-    `,
-    [studentId]
-  );
+exports.getAverageMarks = async (studentId, examId = null) => {
+  let query;
+  let params;
+
+  if (examId) {
+    query = `
+      SELECT
+        AVG(CASE WHEN m.marks ~ '^[0-9]+(\\.[0-9]+)?$' THEN CAST(m.marks AS NUMERIC) ELSE NULL END) as average,
+        COUNT(DISTINCT m.subject_id) as subject_count
+      FROM marks m
+      WHERE m.student_id = $1 AND m.exam_id = $2
+    `;
+    params = [studentId, examId];
+  } else {
+    query = `
+      SELECT
+        AVG(CASE WHEN m.marks ~ '^[0-9]+(\\.[0-9]+)?$' THEN CAST(m.marks AS NUMERIC) ELSE NULL END) as average,
+        COUNT(DISTINCT m.subject_id) as subject_count
+      FROM marks m
+      WHERE m.student_id = $1
+    `;
+    params = [studentId];
+  }
+
+  const result = await pool.query(query, params);
 
   const data = result.rows[0];
   return {
@@ -248,7 +262,7 @@ exports.getAnnouncementsForStudent = async (studentId) => {
   return result.rows;
 };
 
-exports.getClassRank = async (studentId) => {
+exports.getClassRank = async (studentId, examId = null) => {
   // 1. Get Student's Class ID
   const studentRes = await pool.query(
     "SELECT class_id FROM users WHERE id = $1",
@@ -266,27 +280,54 @@ exports.getClassRank = async (studentId) => {
   }
 
   // 2. Calculate Rank based on Average Marks
-  // We use CTE to calculate average per student, then rank them
-  const rankQuery = `
-    WITH StudentAverages AS (
-      SELECT
-        u.id as student_id,
-        AVG(CASE WHEN m.marks ~ '^[0-9]+(\.[0-9]+)?$' THEN CAST(m.marks AS NUMERIC) ELSE NULL END) as avg_mark
-      FROM users u
-      LEFT JOIN marks m ON u.id = m.student_id
-      WHERE u.class_id = $1 
-      GROUP BY u.id
-    ),
-    Rankings AS (
-      SELECT
-        student_id,
-        RANK() OVER (ORDER BY avg_mark DESC NULLS LAST) as rank
-      FROM StudentAverages
-    )
-    SELECT rank FROM Rankings WHERE student_id = $2;
-  `;
+  // If examId is provided, calculate rank based on that specific exam
+  // Otherwise, calculate based on all marks
+  let rankQuery;
+  let queryParams;
 
-  const rankResult = await pool.query(rankQuery, [classId, studentId]);
+  if (examId) {
+    rankQuery = `
+      WITH StudentAverages AS (
+        SELECT
+          u.id as student_id,
+          AVG(CASE WHEN m.marks ~ '^[0-9]+(\\.[0-9]+)?$' THEN CAST(m.marks AS NUMERIC) ELSE NULL END) as avg_mark
+        FROM users u
+        LEFT JOIN marks m ON u.id = m.student_id AND m.exam_id = $3
+        WHERE u.class_id = $1 
+        GROUP BY u.id
+      ),
+      Rankings AS (
+        SELECT
+          student_id,
+          RANK() OVER (ORDER BY avg_mark DESC NULLS LAST) as rank
+        FROM StudentAverages
+      )
+      SELECT rank FROM Rankings WHERE student_id = $2;
+    `;
+    queryParams = [classId, studentId, examId];
+  } else {
+    rankQuery = `
+      WITH StudentAverages AS (
+        SELECT
+          u.id as student_id,
+          AVG(CASE WHEN m.marks ~ '^[0-9]+(\\.[0-9]+)?$' THEN CAST(m.marks AS NUMERIC) ELSE NULL END) as avg_mark
+        FROM users u
+        LEFT JOIN marks m ON u.id = m.student_id
+        WHERE u.class_id = $1 
+        GROUP BY u.id
+      ),
+      Rankings AS (
+        SELECT
+          student_id,
+          RANK() OVER (ORDER BY avg_mark DESC NULLS LAST) as rank
+        FROM StudentAverages
+      )
+      SELECT rank FROM Rankings WHERE student_id = $2;
+    `;
+    queryParams = [classId, studentId];
+  }
+
+  const rankResult = await pool.query(rankQuery, queryParams);
 
   // 3. Get total students in class
   const countResult = await pool.query(
@@ -298,4 +339,67 @@ exports.getClassRank = async (studentId) => {
   const totalStudents = parseInt(countResult.rows[0].total);
 
   return { rank, totalStudents };
+};
+
+exports.getTermTests = async () => {
+  const result = await pool.query(
+    `
+    SELECT id, name, sub_type, year
+    FROM exams
+    WHERE type = 'term'
+    ORDER BY year DESC, 
+      CASE sub_type 
+        WHEN 'Term1' THEN 1 
+        WHEN 'Term2' THEN 2 
+        WHEN 'Term3' THEN 3 
+      END
+    `
+  );
+  return result.rows;
+};
+
+exports.getTermTestMarks = async (studentId, examId) => {
+  // Get the student's marks for the specified term test
+  const result = await pool.query(
+    `
+    SELECT 
+      s.name as subject_name,
+      m.marks,
+      s.id as subject_id
+    FROM marks m
+    JOIN subjects s ON m.subject_id = s.id
+    WHERE m.student_id = $1 AND m.exam_id = $2
+    ORDER BY s.name
+    `,
+    [studentId, examId]
+  );
+  
+  return result.rows;
+};
+
+exports.getTermTestTrend = async (studentId) => {
+  // Get average marks for each term test
+  const result = await pool.query(
+    `
+    SELECT 
+      e.id as exam_id,
+      e.name as exam_name,
+      e.sub_type,
+      e.year,
+      AVG(CASE WHEN m.marks ~ '^[0-9]+(\\.[0-9]+)?$' THEN CAST(m.marks AS NUMERIC) ELSE NULL END) as average
+    FROM exams e
+    LEFT JOIN marks m ON e.id = m.exam_id AND m.student_id = $1
+    WHERE e.type = 'term'
+    GROUP BY e.id, e.name, e.sub_type, e.year
+    ORDER BY e.year, 
+      CASE e.sub_type 
+        WHEN 'Term1' THEN 1 
+        WHEN 'Term2' THEN 2 
+        WHEN 'Term3' THEN 3 
+      END
+    `,
+    [studentId]
+  );
+  
+  return result.rows;
 };

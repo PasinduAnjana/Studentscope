@@ -33,7 +33,7 @@ module.exports = (req, res) => {
     );
   }
 
-  if (req.method === "GET" && req.url === "/api/student/marks/average") {
+  if (req.method === "GET" && (req.url === "/api/student/marks/average" || req.url.startsWith("/api/student/marks/average?"))) {
     return protect("student")(req, res, () =>
       studentController.getAverageMarks(req, res)
     );
@@ -45,9 +45,27 @@ module.exports = (req, res) => {
     );
   }
 
-  if (req.method === "GET" && req.url === "/api/student/marks/rank") {
+  if (req.method === "GET" && (req.url === "/api/student/marks/rank" || req.url.startsWith("/api/student/marks/rank?"))) {
     return protect("student")(req, res, () =>
       studentController.getClassRank(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url === "/api/student/marks/term-tests") {
+    return protect("student")(req, res, () =>
+      studentController.getTermTests(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url.startsWith("/api/student/marks/term-test?")) {
+    return protect("student")(req, res, () =>
+      studentController.getTermTestMarks(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url === "/api/student/marks/trend") {
+    return protect("student")(req, res, () =>
+      studentController.getTermTestTrend(req, res)
     );
   }
 
