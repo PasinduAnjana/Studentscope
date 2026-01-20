@@ -45,6 +45,12 @@ module.exports = (req, res) => {
     );
   }
 
+  if (req.method === "GET" && req.url === "/api/student/marks/rank") {
+    return protect("student")(req, res, () =>
+      studentController.getClassRank(req, res)
+    );
+  }
+
   if (req.method === "GET" && req.url === "/api/student/announcements") {
     return protect("student")(req, res, () =>
       studentController.getAnnouncements(req, res)

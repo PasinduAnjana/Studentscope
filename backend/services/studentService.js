@@ -247,3 +247,55 @@ exports.getAnnouncementsForStudent = async (studentId) => {
   );
   return result.rows;
 };
+
+exports.getClassRank = async (studentId) => {
+  // 1. Get Student's Class ID
+  const studentRes = await pool.query(
+    "SELECT class_id FROM users WHERE id = $1",
+    [studentId]
+  );
+
+  if (studentRes.rows.length === 0) {
+    throw new Error("Student not found");
+  }
+
+  const classId = studentRes.rows[0].class_id;
+
+  if (!classId) {
+    return { rank: "N/A", totalStudents: 0 };
+  }
+
+  // 2. Calculate Rank based on Average Marks
+  // We use CTE to calculate average per student, then rank them
+  const rankQuery = `
+    WITH StudentAverages AS (
+      SELECT
+        u.id as student_id,
+        AVG(CASE WHEN m.marks ~ '^[0-9]+(\.[0-9]+)?$' THEN CAST(m.marks AS NUMERIC) ELSE NULL END) as avg_mark
+      FROM users u
+      LEFT JOIN marks m ON u.id = m.student_id
+      WHERE u.class_id = $1 
+      GROUP BY u.id
+    ),
+    Rankings AS (
+      SELECT
+        student_id,
+        RANK() OVER (ORDER BY avg_mark DESC NULLS LAST) as rank
+      FROM StudentAverages
+    )
+    SELECT rank FROM Rankings WHERE student_id = $2;
+  `;
+
+  const rankResult = await pool.query(rankQuery, [classId, studentId]);
+
+  // 3. Get total students in class
+  const countResult = await pool.query(
+    "SELECT COUNT(*) as total FROM users WHERE class_id = $1",
+    [classId]
+  );
+
+  const rank = rankResult.rows.length > 0 ? rankResult.rows[0].rank : "N/A";
+  const totalStudents = parseInt(countResult.rows[0].total);
+
+  return { rank, totalStudents };
+};

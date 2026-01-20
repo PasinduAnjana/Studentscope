@@ -4,22 +4,6 @@
 </h2>
 
 <div class="card-grid">
-  <!-- Overall Performance Summary -->
-  <div class="card w-1 h-1 dashboard-tile" id="performanceSummary">
-    <div class="icon-title">
-      <i class="fas fa-trophy icon"></i>
-      <p
-        class="tile-label"
-        data-en="Overall Performance"
-        data-si="සමස්ත කාර්ය සාධනය"
-        data-ta="ஒட்டுமொத்த செயல்திறன்"
-      >
-        Overall Performance
-      </p>
-    </div>
-    <canvas id="performanceChart" height="120"></canvas>
-  </div>
-
   <!-- Class Rank Card -->
   <div class="card w-1 h-1 dashboard-tile" id="classRankCard">
     <div class="icon-title">
@@ -27,7 +11,7 @@
       <p
         class="tile-label"
         data-en="Class Rank"
-        data-si="පන්තිය තරඹ"
+        data-si="පන්තිය "
         data-ta="வகுப்பு தரம்"
       >
         Class Rank
@@ -38,576 +22,59 @@
         <div class="stat-icon">
           <i class="fas fa-hashtag"></i>
         </div>
-        <span class="stat-number" id="classRank">5th</span>
+        <span class="stat-number" id="classRank">Loading...</span>
         <span
           class="stat-label"
-          data-en="Out of 35"
-          data-si="35 න් එක"
-          data-ta="35 இல் அதிகமாக"
-          >Out of 35</span
+          id="totalStudentsLabel"
+          data-en="Out of -"
+          data-si="- න්"
+          data-ta="- இல் அதிகமாக"
+          >Out of -</span
         >
-      </div>
-    </div>
-  </div>
-
-  <!-- Test Statistics -->
-  <div class="card w-1 h-1 dashboard-tile" id="testStats">
-    <div class="icon-title">
-      <i class="fas fa-clipboard-check icon"></i>
-      <p
-        class="tile-label"
-        data-en="Test Statistics"
-        data-si="පරීක්ෂණ සංඛ්‍යා"
-        data-ta="தேர்வு புள்ளிவிவரங்கள்"
-      >
-        Test Statistics
-      </p>
-    </div>
-    <div class="stats-content">
-      <div class="stat-item">
-        <div class="stat-icon">
-          <i class="fas fa-file-alt"></i>
-        </div>
-        <span class="stat-number" id="totalTests">24</span>
-        <span
-          class="stat-label"
-          data-en="Total Tests"
-          data-si="මුළු පරීක්ෂණ"
-          data-ta="மொத்த சோதனைகள்"
-          >Total Tests</span
-        >
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon">
-          <i class="fas fa-award"></i>
-        </div>
-        <span class="stat-number" id="passedTests">22</span>
-        <span
-          class="stat-label"
-          data-en="Passed"
-          data-si="සමත්"
-          data-ta="தேர்ச்சி"
-          >Passed</span
-        >
-      </div>
-    </div>
-  </div>
-
-  <!-- Term Test Performance -->
-  <div class="card w-1 h-1 dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-chart-bar icon"></i>
-      <p
-        class="tile-label"
-        data-en="Term Test Performance"
-        data-si="පද තේරණ ක්‍රියාකාරිත්ව"
-        data-ta="கால சோதனை செயல்திறன்"
-      >
-        Term Test Performance
-      </p>
-    </div>
-    <canvas id="termTestChart" height="120"></canvas>
-  </div>
-
-  <!-- Monthly Test Trends -->
-  <div class="card w-1 h-1 dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-chart-line icon"></i>
-      <p
-        class="tile-label"
-        data-en="Monthly Test Trends"
-        data-si="මාසික පරීක්ෂණ ප්‍රවණතා"
-        data-ta="மாসிक சோதனை போக்குகள்"
-      >
-        Monthly Test Trends
-      </p>
-    </div>
-    <canvas id="monthlyTrendsChart" height="120"></canvas>
-  </div>
-
-  <!-- Subject-wise Performance -->
-  <div class="card w-1 h-1 dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-book icon"></i>
-      <p
-        class="tile-label"
-        data-en="Subject-wise Performance"
-        data-si="විෂයට අනුව කාර්ය සාධනය"
-        data-ta="பாட-வாரியான செயல்திறன்"
-      >
-        Subject-wise Performance
-      </p>
-    </div>
-    <div id="subjectPerformance">
-      <div class="subject-list">
-        <div class="subject-item">
-          <span class="subject-name">Mathematics</span>
-          <div class="subject-score">
-            <span class="score">85%</span>
-            <span class="grade">A</span>
-          </div>
-        </div>
-        <div class="subject-item">
-          <span class="subject-name">Science</span>
-          <div class="subject-score">
-            <span class="score">78%</span>
-            <span class="grade">B+</span>
-          </div>
-        </div>
-        <div class="subject-item">
-          <span class="subject-name">English</span>
-          <div class="subject-score">
-            <span class="score">92%</span>
-            <span class="grade">A+</span>
-          </div>
-        </div>
-        <div class="subject-item">
-          <span class="subject-name">History</span>
-          <div class="subject-score">
-            <span class="score">76%</span>
-            <span class="grade">B</span>
-          </div>
-        </div>
-        <div class="subject-item">
-          <span class="subject-name">Geography</span>
-          <div class="subject-score">
-            <span class="score">81%</span>
-            <span class="grade">A-</span>
-          </div>
-        </div>
-        <div class="subject-item">
-          <span class="subject-name">Art</span>
-          <div class="subject-score">
-            <span class="score">88%</span>
-            <span class="grade">A</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Recent Test Results -->
-  <div class="card w-1 h-1 dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-history icon"></i>
-      <p
-        class="tile-label"
-        data-en="Recent Test Results"
-        data-si="මෑත සෙයුම් ප්‍රතිඵල"
-        data-ta="சமீபத்திய சோதனை முடிவுகள்"
-      >
-        Recent Test Results
-      </p>
-    </div>
-    <div id="recentTests">
-      <div class="test-results-list">
-        <div class="test-result-item">
-          <div class="test-info">
-            <span class="test-name">Mathematics Term Test 3</span>
-            <span class="test-date">Oct 15, 2025</span>
-          </div>
-          <div class="test-score">
-            <span class="score">85/100</span>
-            <span class="percentage">85%</span>
-          </div>
-        </div>
-        <div class="test-result-item">
-          <div class="test-info">
-            <span class="test-name">Science Monthly Test</span>
-            <span class="test-date">Oct 10, 2025</span>
-          </div>
-          <div class="test-score">
-            <span class="score">78/100</span>
-            <span class="percentage">78%</span>
-          </div>
-        </div>
-        <div class="test-result-item">
-          <div class="test-info">
-            <span class="test-name">English Term Test 3</span>
-            <span class="test-date">Oct 8, 2025</span>
-          </div>
-          <div class="test-score">
-            <span class="score">92/100</span>
-            <span class="percentage">92%</span>
-          </div>
-        </div>
-        <div class="test-result-item">
-          <div class="test-info">
-            <span class="test-name">History Monthly Test</span>
-            <span class="test-date">Oct 5, 2025</span>
-          </div>
-          <div class="test-score">
-            <span class="score">76/100</span>
-            <span class="percentage">76%</span>
-          </div>
-        </div>
-        <div class="test-result-item">
-          <div class="test-info">
-            <span class="test-name">Geography Term Test 2</span>
-            <span class="test-date">Sep 28, 2025</span>
-          </div>
-          <div class="test-score">
-            <span class="score">81/100</span>
-            <span class="percentage">81%</span>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </div>
 
-<style>
-  .subject-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .subject-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    background-color: var(--color-hover);
-    border-radius: 6px;
-  }
-
-  .subject-name {
-    font-weight: 500;
-    color: var(--color-text);
-  }
-
-  .subject-score {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .subject-score .score {
-    font-weight: bold;
-    color: var(--color-primary);
-  }
-
-  .subject-score .grade {
-    background-color: var(--color-primary);
-    color: white;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-  }
-
-  .test-results-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .test-result-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 12px;
-    background-color: var(--color-hover);
-    border-radius: 6px;
-  }
-
-  .test-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .test-name {
-    font-weight: 500;
-    color: var(--color-text);
-  }
-
-  .test-date {
-    font-size: 12px;
-    color: var(--color-subtext);
-  }
-
-  .test-score {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-  }
-
-  .test-score .score {
-    font-weight: bold;
-    color: var(--color-primary);
-  }
-
-  .test-score .percentage {
-    font-size: 12px;
-    color: var(--color-subtext);
-  }
-</style>
-
 <script>
-  const rootStyles = getComputedStyle(document.documentElement);
-  const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
-  const secondaryColor = rootStyles.getPropertyValue("--color-border").trim();
-  const accentColor = rootStyles.getPropertyValue("--color-accent")
-    ? rootStyles.getPropertyValue("--color-accent").trim()
-    : primaryColor;
+  async function loadMarksData() {
+    try {
+      const response = await api.student.marks.getRank();
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update Rank
+        const rankElement = document.getElementById("classRank");
+        if (data.rank && data.rank !== "N/A") {
+          // Format rank with ordinal suffix (1st, 2nd, 3rd, etc.)
+          const j = data.rank % 10,
+            k = data.rank % 100;
+          let suffix = "th";
+          if (j == 1 && k != 11) suffix = "st";
+          if (j == 2 && k != 12) suffix = "nd";
+          if (j == 3 && k != 13) suffix = "rd";
+          rankElement.textContent = data.rank + suffix;
+        } else {
+          rankElement.textContent = "N/A";
+        }
 
-  // Create distinctive color variations
-  const primaryLight = primaryColor + "40";
-  const primaryMedium = primaryColor + "80";
-  const primaryDark = primaryColor + "CC";
-  const accentLight = accentColor + "40";
-  const accentMedium = accentColor + "80";
-  const accentDark = accentColor + "CC";
-
-  // Dummy data for charts
-  const dummyData = {
-    overallPerformance: {
-      excellent: 15, // A grades
-      good: 6, // B grades
-      average: 2, // C grades
-      poor: 1, // D/F grades
-    },
-    termTests: {
-      labels: ["Term 1", "Term 2", "Term 3"],
-      mathematics: [82, 85, 85],
-      science: [75, 78, 78],
-      english: [88, 90, 92],
-      history: [70, 73, 76],
-      geography: [78, 80, 81],
-      art: [85, 86, 88],
-    },
-    monthlyTests: {
-      labels: ["Jul", "Aug", "Sep", "Oct"],
-      average: [78, 81, 79, 83],
-    },
-  };
-
-  function loadMarksData() {
-    // Overall Performance Doughnut Chart
-    const performanceData = {
-      labels: [
-        "Excellent (A)",
-        "Good (B)",
-        "Average (C)",
-        "Needs Improvement (D/F)",
-      ],
-      datasets: [
-        {
-          data: [
-            dummyData.overallPerformance.excellent,
-            dummyData.overallPerformance.good,
-            dummyData.overallPerformance.average,
-            dummyData.overallPerformance.poor,
-          ],
-          backgroundColor: [
-            primaryColor,
-            accentColor,
-            primaryMedium,
-            accentMedium,
-          ],
-          borderRadius: 20,
-        },
-      ],
-    };
-
-    // Custom plugin for center text
-    const centerTextPlugin = {
-      id: "centerText",
-      beforeDraw(chart, args, options) {
-        if (chart.config.type !== "doughnut") return;
-        const { ctx, width, height } = chart;
-        ctx.save();
-        const fontSize = (height / 160).toFixed(2);
-        ctx.font = `${fontSize}em sans-serif`;
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        ctx.fillStyle = options.color || primaryColor;
-        const text = options.text || "";
-        ctx.fillText(
-          text,
-          width / 2,
-          chart.getDatasetMeta(0).data[0]?.y || height / 2
-        );
-        ctx.restore();
-      },
-    };
-
-    const totalTests = Object.values(dummyData.overallPerformance).reduce(
-      (a, b) => a + b,
-      0
-    );
-    const excellentPercentage = Math.round(
-      (dummyData.overallPerformance.excellent / totalTests) * 100
-    );
-
-    new Chart(document.getElementById("performanceChart"), {
-      type: "doughnut",
-      data: performanceData,
-      options: {
-        responsive: true,
-        cutout: "85%",
-        borderColor: "transparent",
-        plugins: {
-          legend: {
-            position: "bottom",
-            labels: { boxWidth: 12, font: { size: 11 } },
-          },
-          title: {
-            display: true,
-            text: (() => {
-              const lang = localStorage.getItem("lang") || "en";
-              const titles = {
-                en: "Grade Distribution",
-                si: "ශ්‍රේණි බෙදාම",
-                ta: "தர விநியோகம்",
-              };
-              return titles[lang] || "Grade Distribution";
-            })(),
-            font: { size: 14, weight: "bold" },
-            position: "bottom",
-          },
-          centerText: {
-            text: `${excellentPercentage}% A`,
-            color: primaryColor,
-          },
-        },
-      },
-      plugins: [centerTextPlugin],
-    });
-
-    // Term Test Performance Chart
-    const termTestData = {
-      labels: dummyData.termTests.labels,
-      datasets: [
-        {
-          label: "Mathematics",
-          data: dummyData.termTests.mathematics,
-          borderColor: primaryColor,
-          backgroundColor: primaryLight,
-          tension: 0.4,
-          fill: true,
-        },
-        {
-          label: "Science",
-          data: dummyData.termTests.science,
-          borderColor: accentColor,
-          backgroundColor: accentLight,
-          tension: 0.4,
-          fill: true,
-        },
-        {
-          label: "English",
-          data: dummyData.termTests.english,
-          borderColor: primaryDark,
-          backgroundColor: primaryMedium,
-          tension: 0.4,
-          fill: true,
-        },
-      ],
-    };
-
-    new Chart(document.getElementById("termTestChart"), {
-      type: "line",
-      data: termTestData,
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: "top" },
-          title: {
-            display: true,
-            text: (() => {
-              const lang = localStorage.getItem("lang") || "en";
-              const titles = {
-                en: "Core Subject Performance Trends",
-                si: "ප්‍රධාන විෂය කර්ම ප්‍රවණතා",
-                ta: "முக்கிய பாட செயல்திறன் போக்குகள்",
-              };
-              return titles[lang] || "Core Subject Performance Trends";
-            })(),
-            font: { size: 14, weight: "bold" },
-          },
-        },
-        scales: {
-          y: {
-            beginAtZero: false,
-            min: 60,
-            max: 100,
-            ticks: {
-              callback: function (value) {
-                return value + "%";
-              },
-            },
-          },
-        },
-      },
-    });
-
-    // Monthly Test Trends Chart
-    const monthlyTrendsData = {
-      labels: dummyData.monthlyTests.labels,
-      datasets: [
-        {
-          label: (() => {
-            const lang = localStorage.getItem("lang") || "en";
-            const labels = {
-              en: "Average Score",
-              si: "සාමාන්‍ය ලකුණු",
-              ta: "சராசரி மதிப்பெண்",
-            };
-            return labels[lang] || "Average Score";
-          })(),
-          data: dummyData.monthlyTests.average,
-          borderColor: accentColor,
-          backgroundColor: accentLight,
-          borderWidth: 3,
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: accentColor,
-          pointBorderColor: "#fff",
-          pointBorderWidth: 2,
-          pointRadius: 6,
-        },
-      ],
-    };
-
-    new Chart(document.getElementById("monthlyTrendsChart"), {
-      type: "line",
-      data: monthlyTrendsData,
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          title: {
-            display: true,
-            text: (() => {
-              const lang = localStorage.getItem("lang") || "en";
-              const titles = {
-                en: "Monthly Performance Trend",
-                si: "මාසික කාර්ය සාධනය ප්‍රවණතා",
-                ta: "மாசிக செயல்திறன் போக்கு",
-              };
-              return titles[lang] || "Monthly Performance Trend";
-            })(),
-            font: { size: 14, weight: "bold" },
-          },
-        },
-        scales: {
-          y: {
-            beginAtZero: false,
-            min: 70,
-            max: 90,
-            ticks: {
-              callback: function (value) {
-                return value + "%";
-              },
-            },
-          },
-        },
-      },
-    });
+        // Update Total Students
+        const totalLabel = document.getElementById("totalStudentsLabel");
+        totalLabel.setAttribute("data-en", `Out of ${data.totalStudents}`);
+        totalLabel.setAttribute("data-si", `${data.totalStudents} න් එක`);
+        totalLabel.setAttribute("data-ta", `${data.totalStudents} இல் அதிகமாக`);
+        
+        // Trigger translation update if function exists, or manually update English
+        // Assuming a translation function exists or it defaults to English initially
+        totalLabel.textContent = `Out of ${data.totalStudents}`; 
+      } else {
+        console.error("Failed to fetch rank data");
+        document.getElementById("classRank").textContent = "Error";
+      }
+    } catch (error) {
+      console.error("Error loading marks data:", error);
+      document.getElementById("classRank").textContent = "Error";
+    }
   }
 
   // Load marks data on page load

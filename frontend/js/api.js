@@ -185,6 +185,9 @@ const api = {
     achievements: {
       getAll: () => api.request("/student/achievements"),
     },
+    marks: {
+      getRank: () => api.request("/student/marks/rank"),
+    },
   },
 
   data: {

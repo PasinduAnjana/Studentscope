@@ -301,3 +301,32 @@ exports.changePassword = async (req, res) => {
     res.end(JSON.stringify({ error: "Failed to change password" }));
   }
 };
+
+exports.getClassRank = async (req, res) => {
+  try {
+    const cookie = req.headers.cookie || "";
+    const match = cookie.match(/sessionToken=([^;]+)/);
+    const sessionToken = match ? match[1] : null;
+
+    if (!sessionToken) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "No session token" }));
+      return;
+    }
+
+    const session = await authService.getSession(sessionToken);
+    if (!session) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      return;
+    }
+
+    const rankData = await studentService.getClassRank(session.userId);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(rankData));
+  } catch (err) {
+    console.error("Database error:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch class rank" }));
+  }
+};
