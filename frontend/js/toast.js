@@ -28,29 +28,59 @@ window.toast = function (message, iconClass, options = {}) {
     const btnConfirm = document.createElement("button");
     btnConfirm.textContent = options.confirmText || "Confirm";
     btnConfirm.className = "toast-confirm";
-    btnConfirm.onclick = function () {
+
+    // Helper to close
+    const closeToast = () => {
       toast.remove();
       if (overlay) overlay.remove();
+      if (previousActiveElement) previousActiveElement.focus();
+    };
+
+    btnConfirm.onclick = function () {
+      closeToast();
       if (typeof options.onConfirm === "function") {
         options.onConfirm();
       }
     };
-    toast.appendChild(btnConfirm);
 
     const btnCancel = document.createElement("button");
     btnCancel.textContent = options.cancelText || "Cancel";
     btnCancel.className = "toast-cancel";
     btnCancel.onclick = function () {
-      toast.remove();
-      if (overlay) overlay.remove();
+      closeToast();
       if (typeof options.onCancel === "function") {
         options.onCancel();
       }
     };
+
+    toast.appendChild(btnConfirm);
     toast.appendChild(btnCancel);
 
     // Remove auto-close animation for confirm toasts
     toast.style.animation = "toast-in 0.3s forwards";
+
+    // Accessibility: Focus management
+    const previousActiveElement = document.activeElement;
+
+    // Wait for DOM
+    setTimeout(() => {
+      btnConfirm.focus();
+    }, 0);
+
+    toast.addEventListener('keydown', function (e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        if (document.activeElement === btnConfirm) {
+          btnCancel.focus();
+        } else {
+          btnConfirm.focus();
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        btnCancel.click();
+      }
+    });
+
   } else {
     toast.style.animation =
       "toast-in 0.3s forwards, toast-out 0.3s 2.7s forwards";
