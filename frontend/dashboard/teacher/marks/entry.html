@@ -1,12 +1,7 @@
 <h2 class="heading">
   <i class="fas fa-pen"></i>
-  <span
-    id="pageTitle"
-    data-en="Enter Marks"
-    data-si="ලකුණු ඇතුල් කරන්න"
-    data-ta="மதிப்பெண்கள் உள்ளிடுக"
-    >Enter Marks</span
-  >
+  <span id="pageTitle" data-en="Enter Marks" data-si="ලකුණු ඇතුල් කරන්න" data-ta="மதிப்பெண்கள் உள்ளிடுக">Enter
+    Marks</span>
 
 </h2>
 
@@ -17,29 +12,16 @@
     </div>
     <div class="exam-selector">
       <div class="input-group">
-        <label data-en="Exam:" data-si="පරීක්ෂණය:" data-ta="தேர்வு:"
-          >Exam:</label
-        >
+        <label data-en="Exam:" data-si="පරීක්ෂණය:" data-ta="தேர்வு:">Exam:</label>
         <div class="searchable-select" id="examDropdown">
           <div class="dropdown-display">
-            <span
-              id="selectedExam"
-              data-en="Select Exam Type"
-              data-si="පරීක්ෂණ වර්ගය තෝරන්න"
-              data-ta="தேர்வு வகையைத் தேர்ந்தெடுக்கவும்"
-              >Select Exam Type</span
-            >
+            <span id="selectedExam" data-en="Select Exam Type" data-si="පරීක්ෂණ වර්ගය තෝරන්න"
+              data-ta="தேர்வு வகையைத் தேர்ந்தெடுக்கவும்">Select Exam Type</span>
             <i class="fas fa-chevron-down dropdown-arrow"></i>
           </div>
           <div class="dropdown-list" style="display: none">
-            <input
-              type="text"
-              class="dropdown-search"
-              placeholder="Search exam type..."
-              data-en="Search exam type..."
-              data-si="පරීක්ෂණ වර්ගය සොයන්න..."
-              data-ta="தேர்வு வகையைத் தேடு..."
-            />
+            <input type="text" class="dropdown-search" placeholder="Search exam type..." data-en="Search exam type..."
+              data-si="පරීක්ෂණ වර්ගය සොයන්න..." data-ta="தேர்வு வகையைத் தேடு..." />
             <div class="dropdown-options" id="examOptions">
               <!-- Options populated via JS -->
             </div>
@@ -57,14 +39,8 @@
 
   <div class="action-buttons">
 
-    <button
-      type="button"
-      class="btn-primary"
-      id="submitBtn"
-      data-en="Submit"
-      data-si="ඉදිරිපත් කරන්න"
-      data-ta="சமர்ப்பிக்கவும்"
-    >
+    <button type="button" class="btn-primary" id="submitBtn" data-en="Submit" data-si="ඉදිරිපත් කරන්න"
+      data-ta="சமர்ப்பிக்கவும்">
       Submit
     </button>
   </div>
@@ -113,8 +89,8 @@
 
       // Always get subjects based on teacher assignments
       let subjectsPromise = api.teacher.classes
-          .getTeacherSubjects(classId)
-          .then(handleResponse);
+        .getTeacherSubjects(classId)
+        .then(handleResponse);
 
       [students, subjects, classInfo] = await Promise.all([
         api.teacher.students.getByClass(classId).then(handleResponse),
@@ -144,7 +120,7 @@
         <p>Subject Teacher - ${subject}</p>
       `;
     } else {
-        // Fallback for generic entry or if multiple subjects (though usually driven by specific subject selection)
+      // Fallback for generic entry or if multiple subjects (though usually driven by specific subject selection)
       pageTitle.textContent = `Enter Marks - Class ${className}`;
       infoDiv.innerHTML = `
         <h3>Class ${className}</h3>
@@ -155,18 +131,18 @@
 
   function renderTable(showTable = false) {
     const tableContainer = document.querySelector(".marks-table-container");
-    
+
     if (!showTable) {
-        const message = {
-           en: "Select an exam to enter marks",
-           si: "ලකුණු ඇතුළු කිරීම සඳහා විභාගයක් තෝරන්න",
-           ta: "மதிப்பெண்களை உள்ளிட ஒரு தேர்வைத் தேர்ந்தெடுக்கவும்"
-        };
-        const lang = getLang();
-        tableContainer.innerHTML = `<empty-state-message message="${message[lang] || message.en}" icon="fas fa-edit"></empty-state-message>`;
-        // Hide submit button when no table
-        document.querySelector(".action-buttons").style.display = "none";
-        return;
+      const message = {
+        en: "Select an exam to enter marks",
+        si: "ලකුණු ඇතුළු කිරීම සඳහා විභාගයක් තෝරන්න",
+        ta: "மதிப்பெண்களை உள்ளிட ஒரு தேர்வைத் தேர்ந்தெடுக்கவும்"
+      };
+      const lang = getLang();
+      tableContainer.innerHTML = `<empty-state-message message="${message[lang] || message.en}" icon="fas fa-edit"></empty-state-message>`;
+      // Hide submit button when no table
+      document.querySelector(".action-buttons").style.display = "none";
+      return;
     }
 
     // Restore table structure if it was replaced
@@ -178,7 +154,12 @@
     const classStudents = students;
 
     // Subjects are already filtered based on teacher type in loadData
-    const tableSubjects = subjects;
+    let tableSubjects = subjects;
+
+    // Filter by selected subject from URL if present
+    if (subject) {
+      tableSubjects = subjects.filter(s => s.name === subject);
+    }
 
     // Create header row
     const headerRow = document.createElement("tr");
@@ -237,29 +218,29 @@
 
   function enableArrowNavigation() {
     const table = document.querySelector(".marks-table");
-    
+
     table.addEventListener("keydown", (e) => {
       // Only handle arrow keys on inputs
       if (!e.target.classList.contains("mark-input")) return;
       if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) return;
 
       e.preventDefault();
-      
+
       const currentInput = e.target;
       const currentCell = currentInput.closest("td");
       const currentRow = currentCell.closest("tr");
-      
+
       const rows = Array.from(table.rows);
       // Skip header row (index 0)
       const currentRowIndex = rows.indexOf(currentRow);
-      
+
       const cells = Array.from(currentRow.children);
       const currentCellIndex = cells.indexOf(currentCell);
 
       let targetRowIndex = currentRowIndex;
       let targetCellIndex = currentCellIndex;
 
-      switch(e.key) {
+      switch (e.key) {
         case "ArrowUp":
           targetRowIndex = Math.max(1, currentRowIndex - 1);
           break;
@@ -271,7 +252,7 @@
           targetCellIndex = Math.max(2, currentCellIndex - 1); // Skip index(0) and name(1)
           break;
         case "ArrowRight":
-           // Find next input cell
+          // Find next input cell
           targetCellIndex = Math.min(cells.length - 1, currentCellIndex + 1);
           break;
       }
@@ -378,22 +359,22 @@
     // Load exams from API
     try {
       const response = await api.teacher.exams.getAll(); // We need to add this to api wrapper or calls fetch directly
-      if(!response.ok) throw new Error("Failed to load exams");
+      if (!response.ok) throw new Error("Failed to load exams");
       const exams = await response.json();
-      
+
       options.innerHTML = exams.map(exam => `
         <div class="dropdown-item" data-value="${exam.id}">${exam.name}</div>
       `).join('');
-    } catch(err) {
+    } catch (err) {
       console.error("Error loading exams:", err);
       // Fallback or explicit fetch if api wrapper isn't updated
       try {
-          const res = await fetch('/api/teacher/exams', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
-          const exams = await res.json();
-          options.innerHTML = exams.map(exam => `
+        const res = await fetch('/api/teacher/exams', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+        const exams = await res.json();
+        options.innerHTML = exams.map(exam => `
             <div class="dropdown-item" data-value="${exam.id}">${exam.name}</div>
           `).join('');
-      } catch(e) { console.error("Double fail", e); }
+      } catch (e) { console.error("Double fail", e); }
     }
 
 
@@ -427,7 +408,7 @@
         span.dataset.selectedId = selectedValue; // Store ID
         list.style.display = "none";
         arrow.classList.remove("open");
-        
+
         // Load marks for this exam
         // Load marks for this exam
         renderTable(true);
@@ -521,9 +502,8 @@
   // Initialize
   loadData();
   initExamDropdown();
-  
+
   // Attach event listeners
   document.getElementById("submitBtn").addEventListener("click", submitMarks);
 
 </script>
-
