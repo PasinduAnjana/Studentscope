@@ -6,28 +6,14 @@
 <div class="mark-controls">
   <!-- Search Bar -->
   <div class="input-group search-group">
-    <input
-      type="text"
-      id="student-search"
-      class="search-input"
-      placeholder="Search students"
-    />
+    <input type="text" id="student-search" class="search-input" placeholder="Search students" />
     <i class="fas fa-search search-icon"></i>
   </div>
 
   <!-- Class Info Display (instead of dropdown) -->
-  <div
-    class="input-group class-info"
-    style="display: flex; align-items: center; gap: 8px; flex: 0 1 auto"
-  >
-    <label style="margin: 0; font-weight: 500; white-space: nowrap"
-      >Managing Class:</label
-    >
-    <span
-      id="current-class-display"
-      style="font-weight: 600; color: var(--color-primary); margin: 0"
-      >Loading...</span
-    >
+  <div class="input-group class-info" style="display: flex; align-items: center; gap: 8px; flex: 0 1 auto">
+    <label style="margin: 0; font-weight: 500; white-space: nowrap">Managing Class:</label>
+    <span id="current-class-display" style="font-weight: 600; color: var(--color-primary); margin: 0">Loading...</span>
   </div>
 
   <!-- Toggle Class Subjects -->
@@ -40,17 +26,14 @@
 </div>
 
 <!-- Error message -->
-<div
-  id="error-message"
-  style="
+<div id="error-message" style="
     display: none;
     color: red;
     padding: 10px;
     margin: 10px 0;
     border: 1px solid red;
     border-radius: 4px;
-  "
-></div>
+  "></div>
 
 <div class="marks-container">
   <div class="table-responsive">
@@ -69,6 +52,7 @@
   .hidden-subject {
     display: none;
   }
+
   .highlight-student {
     background: #ffffcc;
   }
@@ -274,10 +258,14 @@
       headerRow.innerHTML += `<th class="class-subject-cell">${subject.name}</th>`;
     });
 
+    // Check if we have buckets
+    const hasBuckets = electiveSubjects.some(s => s.bucket_id > 0);
+
     // Add headers for elective subjects based on grade rules
     const electiveCount = gradeRules.elective_count || 0;
+
     for (let i = 0; i < electiveCount; i++) {
-      headerRow.innerHTML += `<th>Elective ${i + 1}</th>`;
+      headerRow.innerHTML += `<th>Subject ${i + 1}</th>`;
     }
 
     table.appendChild(headerRow);
@@ -304,24 +292,33 @@
       });
 
       // Add elective subject dropdowns
+      // Check if we have buckets
+      const hasBuckets = electiveSubjects.some(s => s.bucket_id > 0);
+
       for (let i = 0; i < electiveCount; i++) {
         const id = `student-${student.id}-student-subject-${i}`;
         const selectedSubjectId = electiveIds[i] || "";
 
+        // Filter subjects for this dropdown
+        let filteredSubjects = electiveSubjects;
+        if (hasBuckets) {
+          // For buckets, we expect i=0 -> bucket=1, i=1 -> bucket=2 etc
+          const targetBucket = i + 1;
+          filteredSubjects = electiveSubjects.filter(s => s.bucket_id === targetBucket);
+        }
+
         subjectCells.push(`
           <td>
-            <select id="${id}" class="dropdown-select subject-select" data-student="${
-          student.id
-        }" data-elective-index="${i}">
+            <select id="${id}" class="dropdown-select subject-select" data-student="${student.id
+          }" data-elective-index="${i}">
               <option value="">Select subject</option>
-              ${electiveSubjects
-                .map(
-                  (sub) =>
-                    `<option value="${sub.id}" ${
-                      sub.id == selectedSubjectId ? "selected" : ""
-                    }>${sub.name}</option>`
-                )
-                .join("")}
+              ${filteredSubjects
+            .map(
+              (sub) =>
+                `<option value="${sub.id}" ${sub.id == selectedSubjectId ? "selected" : ""
+                }>${sub.name}</option>`
+            )
+            .join("")}
             </select>
           </td>
         `);
@@ -391,7 +388,7 @@
     // For each student, collect their selected subjects
     studentIds.forEach((studentId) => {
       const studentSelects = document.querySelectorAll(
-        `[data-student="${studentId}"]`
+        `.subject-select[data-student="${studentId}"]`
       );
       const subjectIds = Array.from(studentSelects)
         .map((select) => select.value)
@@ -498,4 +495,3 @@
 
   // Initialize the page
   loadSubjectAssignmentPage();
-</script>

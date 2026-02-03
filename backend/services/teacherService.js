@@ -321,12 +321,12 @@ exports.getElectiveSubjects = async (classId) => {
   // 2️⃣ Fetch elective subjects for this grade
   const result = await pool.query(
     `
-    SELECT s.id, s.name
+    SELECT s.id, s.name, gs.bucket_id
     FROM grade_subjects gs
     JOIN subjects s ON gs.subject_id = s.id
     WHERE gs.grade = $1
       AND gs.type = 'elective'
-    ORDER BY gs.display_order, s.name
+    ORDER BY gs.bucket_id, gs.display_order, s.name
     `,
     [grade]
   );
@@ -466,7 +466,7 @@ exports.getWeeklyAttendance = async (classId) => {
   const dayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
   const monday = new Date(today);
   monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-  
+
   const dates = [];
   const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   for (let i = 0; i < 5; i++) {
@@ -490,7 +490,7 @@ exports.getWeeklyAttendance = async (classId) => {
   // Aggregate results
   const present = new Array(5).fill(0);
   const absent = new Array(5).fill(0);
-  
+
   result.rows.forEach(row => {
     const dateIndex = dates.indexOf(row.date);
     if (dateIndex !== -1) {
@@ -516,7 +516,7 @@ exports.getMonthlyAttendance = async (classId) => {
   const year = today.getFullYear();
   const month = today.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  
+
   const dates = [];
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(year, month, day);
@@ -537,7 +537,7 @@ exports.getMonthlyAttendance = async (classId) => {
 
   // Aggregate results - only count present students
   const present = new Array(daysInMonth).fill(0);
-  
+
   result.rows.forEach(row => {
     const dateIndex = dates.indexOf(row.date);
     if (dateIndex !== -1 && row.status) {

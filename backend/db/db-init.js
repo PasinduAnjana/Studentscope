@@ -94,6 +94,7 @@ END $$;
         grade INT NOT NULL,
         subject_id BIGINT REFERENCES subjects(id),
         type TEXT NOT NULL CHECK (type IN ('compulsory','elective')),
+        bucket_id INT DEFAULT 0, -- 0 for no bucket, 1/2/3 for baskets
         display_order INT
       );
     `);
