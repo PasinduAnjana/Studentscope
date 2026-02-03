@@ -1,6 +1,14 @@
 [
-  { "label": "sidebar.dashboard", "page": "dashboard", "icon": "fas fa-home" },
-  { "label": "sidebar.students", "page": "students", "icon": "fas fa-users" },
+  {
+    "label": "sidebar.dashboard",
+    "page": "dashboard",
+    "icon": "fas fa-home"
+  },
+  {
+    "label": "sidebar.students",
+    "page": "students",
+    "icon": "fas fa-users"
+  },
   {
     "label": "sidebar.teachers",
     "page": "teachers",
@@ -17,17 +25,15 @@
     "icon": "fas fa-calendar-alt"
   },
   {
-    "label": "Exams",
-    "page": "exams",
-    "icon": "fas fa-file-signature"
-  },
-
-  {
     "label": "sidebar.announcements",
     "page": "announcements",
     "icon": "fas fa-bullhorn"
   },
-  { "label": "Achievements", "page": "achievements", "icon": "fas fa-trophy" },
+  {
+    "label": "Achievements",
+    "page": "achievements",
+    "icon": "fas fa-trophy"
+  },
   {
     "label": "sidebar.profile",
     "page": "profile",
