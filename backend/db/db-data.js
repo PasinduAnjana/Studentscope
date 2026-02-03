@@ -482,42 +482,23 @@ async function run() {
       return [];
     };
 
-    // 🔟 Teacher-Subjects mapping (teachers cover compulsory subjects)
-    for (const classKey in teacherIds) {
-      const tId = teacherIds[classKey];
-      const classId = classIds[classKey];
-      // Extract grade from classKey
-      const grade = parseInt(classKey.split("-")[0]);
-      const subjects = getMandatorySubjects(grade);
-      // Assign all compulsory subjects in their own class
-      for (const subName of subjects) {
-        await pool.query(
-          `INSERT INTO teacher_subjects (teacher_id, subject_id, class_id) VALUES ($1,$2,$3)`,
-          [tId, subjectIdsMap[subName], classId]
-        );
-      }
+    // Helper: Get ALL subjects for a grade (Mandatory + Flattened Electives)
+    const getAllSubjectsForGrade = (grade) => {
+      const mandatory = getMandatorySubjects(grade);
+      const electivesData = getElectives(grade);
+      let electives = [];
 
-      // Assign teacher to teach one subject in 2-3 other classes
-      const otherClassKeys = Object.keys(classIds).filter(
-        (k) => k !== classKey
-      );
-      // Shuffle and pick 2 or 3 other classes
-      const shuffled = otherClassKeys.sort(() => Math.random() - 0.5);
-      const numOtherClasses = Math.floor(Math.random() * 2) + 2; // 2 or 3
-      for (let i = 0; i < numOtherClasses && i < shuffled.length; i++) {
-        const otherClassKey = shuffled[i];
-        const otherClassId = classIds[otherClassKey];
-        const otherGrade = parseInt(otherClassKey.split("-")[0]);
-        const otherSubjects = getMandatorySubjects(otherGrade);
-        // Pick a random subject from compulsory subjects
-        const randomSub =
-          otherSubjects[Math.floor(Math.random() * otherSubjects.length)];
-        await pool.query(
-          `INSERT INTO teacher_subjects (teacher_id, subject_id, class_id) VALUES ($1,$2,$3)`,
-          [tId, subjectIdsMap[randomSub], otherClassId]
-        );
+      if (Array.isArray(electivesData)) {
+        electives = electivesData;
+      } else if (electivesData) {
+        // Flatten bucket objects
+        Object.values(electivesData).forEach(bucketList => {
+          electives = [...electives, ...bucketList];
+        });
       }
-    }
+      // Deduplicate
+      return [...new Set([...mandatory, ...electives])];
+    };
 
     // 1️⃣1️⃣ Assign elective subjects to students
     for (const grade of grades) {
@@ -579,35 +560,135 @@ async function run() {
 
     // 1️⃣2️⃣ Timetable
     // For each class, subject, teacher, find teacher_subject_id and use it for timetable
+    // 1️⃣2️⃣ Timetable (Realistic & Timetable-Driven)
+    // - Teachers specialize in specific subjects
+    // - Teachers move between classes in their grade
+    // - Free periods allowed
+
+    // Group teachers by grade for pooling
+    const teachersByGrade = {};
+    for (const classKey in teacherIds) {
+      const grade = parseInt(classKey.split("-")[0]);
+      if (!teachersByGrade[grade]) teachersByGrade[grade] = [];
+      teachersByGrade[grade].push(teacherIds[classKey]);
+    }
+
+    // Assign specialties and initialize schedule tracker
+
+
+    // Assign specialties and initialize schedule tracker
+    const teacherSpecialties = {};
+    const teacherSchedule = {}; // tId -> day -> slot -> true
+    const teacherAssignedSubjects = {}; // tId -> Set<subId> (Track unique subjects taught)
+
+    // Flatten all teachers
+    const allTeacherIds = Object.values(teacherIds);
+    for (const tId of allTeacherIds) {
+      teacherSchedule[tId] = {};
+      teacherAssignedSubjects[tId] = new Set();
+      for (let d = 1; d <= 5; d++) teacherSchedule[tId][d] = {};
+
+      // Assign random specialties (2-3 subjects) based on their assigned grade context
+      // Find which grade this teacher belongs to (roughly)
+      let grade = 10; // Default
+      for (const g in teachersByGrade) {
+        if (teachersByGrade[g].includes(tId)) { grade = parseInt(g); break; }
+      }
+      const subjects = getAllSubjectsForGrade(grade);
+      // Pick 3 random subjects
+      const shuffled = [...subjects].sort(() => 0.5 - Math.random());
+      teacherSpecialties[tId] = shuffled.slice(0, 3).map(name => subjectIdsMap[name]);
+    }
+
     for (const grade of grades) {
+      const subjectNames = getAllSubjectsForGrade(grade);
+      const subjectSeq = subjectNames.map(name => subjectIdsMap[name]);
+
       for (const name of classNames) {
         const classKey = `${grade}-${name}`;
         const classId = classIds[classKey];
-        const tId = teacherIds[classKey];
-        const subjects = getMandatorySubjects(grade).map(
-          (name) => subjectIdsMap[name]
-        );
-        let idx = 0;
+
+        // Standardize subject sequence for the class so it cycles through
+        let subIdx = 0;
+
         for (let day = 1; day <= 5; day++) {
           for (let slot = 1; slot <= 8; slot++) {
-            const subId = subjects[idx % subjects.length];
-            // Find teacher_subject_id for this teacher, subject, class
-            const tsRes = await pool.query(
-              `SELECT id FROM teacher_subjects WHERE teacher_id = $1 AND subject_id = $2 AND class_id = $3 LIMIT 1`,
-              [tId, subId, classId]
+
+            // 15% Chance of Free Period (only if not a primary grade where continuous supervision is needed)
+            if (grade > 5 && Math.random() < 0.15) {
+              continue; // Free period
+            }
+
+            const subId = subjectSeq[subIdx % subjectSeq.length];
+            subIdx++;
+
+            // Helper to check if teacher can take this subject
+            const canTeach = (tId) => {
+              const assigned = teacherAssignedSubjects[tId];
+              // YES if already teaching this subject OR has room for more (<4)
+              return assigned.has(subId) || assigned.size < 4;
+            };
+
+            // Find a teacher
+            // Criteria 1: Specializes in subject AND is free AND can take subject
+            const teacherPool = teachersByGrade[grade] || [];
+            let chosenTeacher = teacherPool.find(tId =>
+              teacherSpecialties[tId].includes(subId) &&
+              !teacherSchedule[tId][day][slot] &&
+              canTeach(tId)
             );
-            if (!tsRes.rows.length) {
-              throw new Error(
-                `teacher_subjects not found for teacher ${tId}, subject ${subId}, class ${classId}`
+
+            // Criteria 2: Fallback - Any free teacher in grade who satisfies subject constraint
+            if (!chosenTeacher) {
+              chosenTeacher = teacherPool.find(tId =>
+                !teacherSchedule[tId][day][slot] &&
+                canTeach(tId)
               );
             }
+
+            // Criteria 3: Last Resort - Any free teacher in system who satisfies subject constraint
+            if (!chosenTeacher) {
+              chosenTeacher = allTeacherIds.find(tId =>
+                !teacherSchedule[tId][day][slot] &&
+                canTeach(tId)
+              );
+            }
+
+            if (!chosenTeacher) {
+              // No teacher available? Skip slot (forced free period)
+              continue;
+            }
+
+            // Mark busy and track subject
+            teacherSchedule[chosenTeacher][day][slot] = true;
+            teacherAssignedSubjects[chosenTeacher].add(subId);
+
+            // 1. Ensure Teacher-Subject Assignment Exists
+            await pool.query(
+              `INSERT INTO teacher_subjects (teacher_id, subject_id, class_id) 
+                 VALUES ($1, $2, $3)
+                 ON CONFLICT (teacher_id, subject_id, class_id) DO NOTHING`,
+              [chosenTeacher, subId, classId]
+            );
+
+            // 2. Get the ID
+            const tsRes = await pool.query(
+              `SELECT id FROM teacher_subjects WHERE teacher_id = $1 AND subject_id = $2 AND class_id = $3 LIMIT 1`,
+              [chosenTeacher, subId, classId]
+            );
+
+            if (!tsRes.rows.length) {
+              // Should not happen due to insert above
+              continue;
+            }
             const teacherSubjectId = tsRes.rows[0].id;
+
+            // 3. Create Timetable Entry
             await pool.query(
               `INSERT INTO timetables (teacher_subject_id, day_of_week, slot)
                VALUES ($1,$2,$3)`,
               [teacherSubjectId, day, slot]
             );
-            idx++;
           }
         }
       }

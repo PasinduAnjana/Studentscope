@@ -141,7 +141,8 @@ END $$;
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         teacher_id BIGINT REFERENCES users(id),
         subject_id BIGINT REFERENCES subjects(id),
-        class_id BIGINT REFERENCES classes(id)
+        class_id BIGINT REFERENCES classes(id),
+        UNIQUE(teacher_id, subject_id, class_id)
       );
     `);
 

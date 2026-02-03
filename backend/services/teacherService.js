@@ -586,6 +586,7 @@ exports.getTeacherClassSubjects = async (teacherId, classId) => {
       s.name
     FROM teacher_subjects ts
     JOIN subjects s ON ts.subject_id = s.id
+    JOIN timetables t ON t.teacher_subject_id = ts.id
     WHERE ts.teacher_id = $1 AND ts.class_id = $2
     ORDER BY s.name
     `,
