@@ -1104,6 +1104,7 @@ module.exports = {
   saveExamMarks,
   getExamMarks,
   updateExamStudentIndex,
+  bulkUpdateExamIndexNumbers,
 };
 
 // ... existing code ...
@@ -1370,4 +1371,45 @@ async function updateExamStudentIndex(examId, studentId, indexNumber) {
     [indexNumber, examId, studentId]
   );
   return result.rows[0];
+}
+
+// Bulk update exam index numbers from CSV data
+async function bulkUpdateExamIndexNumbers(examId, entries) {
+  // entries: [{ admission_no, index_number }]
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    let updated = 0;
+    let notFound = [];
+
+    for (const entry of entries) {
+      // Find student by admission number (username)
+      const studentRes = await client.query(
+        `SELECT es.student_id FROM exam_students es
+         JOIN users u ON es.student_id = u.id
+         WHERE es.exam_id = $1 AND u.username = $2`,
+        [examId, entry.admission_no]
+      );
+
+      if (studentRes.rows.length === 0) {
+        notFound.push(entry.admission_no);
+        continue;
+      }
+
+      await client.query(
+        `UPDATE exam_students SET index_number = $1
+         WHERE exam_id = $2 AND student_id = $3`,
+        [entry.index_number, examId, studentRes.rows[0].student_id]
+      );
+      updated++;
+    }
+
+    await client.query("COMMIT");
+    return { updated, notFound };
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
 }

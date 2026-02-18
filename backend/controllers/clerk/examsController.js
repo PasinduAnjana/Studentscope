@@ -160,3 +160,31 @@ exports.updateStudentIndex = async (req, res) => {
         res.end(JSON.stringify({ error: "Internal Server Error" }));
     }
 };
+
+// Bulk import index numbers from CSV
+exports.bulkImportIndex = async (req, res) => {
+    try {
+        const examId = req.url.split("/")[4];
+        let body = "";
+        req.on("data", chunk => body += chunk);
+        req.on("end", async () => {
+            try {
+                const { entries } = JSON.parse(body);
+                if (!entries || !Array.isArray(entries) || entries.length === 0) {
+                    res.writeHead(400, { "Content-Type": "application/json" });
+                    return res.end(JSON.stringify({ error: "entries array is required" }));
+                }
+                const result = await clerkService.bulkUpdateExamIndexNumbers(examId, entries);
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify(result));
+            } catch (err) {
+                console.error("Error bulk importing index numbers:", err);
+                res.writeHead(500, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ error: "Failed to import index numbers" }));
+            }
+        });
+    } catch (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Internal Server Error" }));
+    }
+};

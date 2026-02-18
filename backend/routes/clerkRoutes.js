@@ -290,6 +290,12 @@ module.exports = async (req, res) => {
     );
   }
 
+  if (req.method === "POST" && req.url.match(/^\/api\/clerk\/exams\/\d+\/import-index$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.bulkImportIndex(req, res)
+    );
+  }
+
 
 
   res.writeHead(404);

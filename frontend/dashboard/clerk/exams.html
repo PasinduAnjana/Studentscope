@@ -77,6 +77,7 @@
           <option value="">Select Subject to Enter Marks</option>
         </select>
       </div>
+      <input type="file" id="csv-import-input" accept=".csv" style="display: none;" onchange="handleCSVImport(event)">
       <button class="btn btn-primary" onclick="openAssignStudentsModal()">
         <i class="fas fa-user-plus"></i> Assign Students
       </button>
@@ -95,6 +96,33 @@
 </section>
 
 </section>
+
+<!-- Import Index Modal -->
+<modal-dialog id="import-index-modal" title="Import Index Numbers">
+  <div style="margin-bottom: 16px;">
+    <p style="margin-bottom: 12px; color: var(--color-subtext);">Upload a CSV file containing student admission
+      numbers and their exam index numbers.</p>
+    <div
+      style="background: var(--color-bg); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; border: 1px solid var(--color-border);">
+      <p style="font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; color: var(--color-text);"><i
+          class="fas fa-info-circle" style="color: var(--color-primary); margin-right: 6px;"></i>Expected CSV Format</p>
+      <code
+        style="display: block; background: var(--color-card); padding: 10px 12px; border-radius: 6px; font-size: 0.85rem; line-height: 1.6; white-space: pre; color: var(--color-text); border: 1px solid var(--color-border);">admission_no,index_number
+S1432,AL-001
+S1458,AL-002</code>
+    </div>
+    <button class="btn btn-secondary" onclick="downloadSampleCSV()" style="width: 100%; margin-bottom: 12px;">
+      <i class="fas fa-download"></i> Download Sample CSV
+    </button>
+  </div>
+  <div style="display: flex; justify-content: flex-end; gap: 10px;">
+    <button class="btn btn-secondary" onclick="document.getElementById('import-index-modal').close()">Cancel</button>
+    <button class="btn btn-primary"
+      onclick="document.getElementById('import-index-modal').close(); document.getElementById('csv-import-input').click();">
+      <i class="fas fa-file-upload"></i> Choose CSV File
+    </button>
+  </div>
+</modal-dialog>
 
 <!-- Add Exam Modal -->
 <modal-dialog id="add-exam-modal" title="Add Government Exam">
@@ -354,6 +382,20 @@
     ];
 
     table.setColumns(columns);
+
+    // Inject Import button next to the Export button inside the data-table
+    setTimeout(() => {
+      const exportBtn = table.querySelector('[id^="dt-export-btn"]');
+      if (exportBtn && !table.querySelector('#dt-import-btn')) {
+        const importBtn = document.createElement('button');
+        importBtn.id = 'dt-import-btn';
+        importBtn.className = 'btn btn-secondary';
+        importBtn.style.cssText = 'padding: 8px 12px; height: 100%;';
+        importBtn.innerHTML = '<i class="fas fa-file-import"></i> Import';
+        importBtn.onclick = () => document.getElementById('import-index-modal').open();
+        exportBtn.parentElement.insertBefore(importBtn, exportBtn);
+      }
+    }, 0);
   }
 
   function fetchExamStudents() {
@@ -369,6 +411,111 @@
         }
       })
       .catch(err => toast("Error fetching students", "fa-solid fa-circle-exclamation"));
+  }
+
+  function handleCSVImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!currentExamId) {
+      toast("No exam selected", "fa-solid fa-exclamation-triangle");
+      event.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const text = e.target.result.trim();
+      if (!text) {
+        toast("CSV file is empty", "fa-solid fa-exclamation-triangle");
+        event.target.value = "";
+        return;
+      }
+
+      // Detect delimiter (comma or semicolon)
+      const firstLine = text.split("\n")[0];
+      const delimiter = firstLine.includes(";") ? ";" : ",";
+      const lines = text.split("\n").map(l => l.trim()).filter(l => l);
+
+      // Parse header to detect columns
+      const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_'));
+      let admCol = headers.findIndex(h => h.includes('admission') || h === 'admission_no' || h === 'username' || h === 'student_id');
+      let idxCol = headers.findIndex(h => h.includes('index') || h === 'index_number' || h === 'exam_index');
+
+      // Fallback: if no headers detected, assume first column = admission, second = index
+      if (admCol === -1 || idxCol === -1) {
+        if (headers.length >= 2) {
+          admCol = 0;
+          idxCol = 1;
+        } else {
+          toast("CSV must have at least 2 columns: Admission No and Index Number", "fa-solid fa-exclamation-triangle");
+          event.target.value = "";
+          return;
+        }
+      }
+
+      // Parse data rows (skip header)
+      const entries = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(delimiter).map(c => c.trim());
+        const admission_no = cols[admCol];
+        const index_number = cols[idxCol];
+        if (admission_no && index_number) {
+          entries.push({ admission_no, index_number });
+        }
+      }
+
+      if (entries.length === 0) {
+        toast("No valid entries found in CSV", "fa-solid fa-exclamation-triangle");
+        event.target.value = "";
+        return;
+      }
+
+      // Send to API
+      api.clerk.exams.bulkImportIndex(currentExamId, entries)
+        .then(res => res.json())
+        .then(result => {
+          let msg = `Updated ${result.updated} index number${result.updated !== 1 ? 's' : ''}`;
+          if (result.notFound && result.notFound.length > 0) {
+            msg += `. ${result.notFound.length} not found: ${result.notFound.slice(0, 5).join(', ')}`;
+            if (result.notFound.length > 5) msg += '...';
+            toast(msg, "fa-solid fa-exclamation-triangle");
+          } else {
+            toast(msg, "fa-solid fa-check-circle");
+          }
+          // Refresh the students table
+          fetchExamStudents();
+        })
+        .catch(err => {
+          toast("Failed to import index numbers", "fa-solid fa-circle-exclamation");
+        });
+
+      // Reset file input so the same file can be re-imported
+      event.target.value = "";
+    };
+
+    reader.readAsText(file);
+  }
+
+  function downloadSampleCSV() {
+    let csv = "admission_no,index_number\n";
+    // Pre-fill with current students if available
+    if (examStudents && examStudents.length > 0) {
+      examStudents.forEach(s => {
+        csv += `${s.username},${s.index_number || ""}\n`;
+      });
+    } else {
+      // Fallback sample rows
+      csv += "S1001,\nS1002,\n";
+    }
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "exam_index_numbers_sample.csv";
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   function loadMarksForSubject() {
