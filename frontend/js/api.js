@@ -176,6 +176,7 @@ const api = {
       assignStudents: (id, studentIds) => api.request(`/clerk/exams/${id}/students`, "POST", { student_ids: studentIds }),
       saveMarks: (id, marks) => api.request(`/clerk/exams/${id}/marks`, "POST", { marks }),
       getMarks: (id, subjectId) => api.request(`/clerk/exams/${id}/marks?subjectId=${subjectId}`),
+      updateIndex: (examId, studentId, indexNumber) => api.request(`/clerk/exams/${examId}/index`, "PATCH", { student_id: studentId, index_number: indexNumber }),
     },
 
   },

@@ -284,6 +284,12 @@ module.exports = async (req, res) => {
     );
   }
 
+  if (req.method === "PATCH" && req.url.match(/^\/api\/clerk\/exams\/\d+\/index$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.updateStudentIndex(req, res)
+    );
+  }
+
 
 
   res.writeHead(404);

@@ -115,20 +115,48 @@ exports.saveMarks = async (req, res) => {
 
 // Get marks
 exports.getMarks = async (req, res) => {
-  try {
-    const examId = req.url.split("/")[4];
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const subjectId = url.searchParams.get("subjectId");
-    if(!subjectId) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        return res.end(JSON.stringify({ error: "subjectId is required" }));
+    try {
+        const examId = req.url.split("/")[4];
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const subjectId = url.searchParams.get("subjectId");
+        if (!subjectId) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            return res.end(JSON.stringify({ error: "subjectId is required" }));
+        }
+        const marks = await clerkService.getExamMarks(examId, subjectId);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(marks));
+    } catch (err) {
+        console.error("Error fetching marks:", err);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Failed to fetch marks" }));
     }
-    const marks = await clerkService.getExamMarks(examId, subjectId);
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(marks));
-  } catch (err) {
-    console.error("Error fetching marks:", err);
-    res.writeHead(500, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "Failed to fetch marks" }));
-  }
+};
+
+// Update student index number for an exam
+exports.updateStudentIndex = async (req, res) => {
+    try {
+        const examId = req.url.split("/")[4];
+        let body = "";
+        req.on("data", chunk => body += chunk);
+        req.on("end", async () => {
+            try {
+                const { student_id, index_number } = JSON.parse(body);
+                if (!student_id) {
+                    res.writeHead(400, { "Content-Type": "application/json" });
+                    return res.end(JSON.stringify({ error: "student_id is required" }));
+                }
+                const result = await clerkService.updateExamStudentIndex(examId, student_id, index_number);
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify(result || { success: true }));
+            } catch (err) {
+                console.error("Error updating student index:", err);
+                res.writeHead(500, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ error: "Failed to update student index" }));
+            }
+        });
+    } catch (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Internal Server Error" }));
+    }
 };

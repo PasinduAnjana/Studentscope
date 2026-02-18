@@ -54,14 +54,15 @@
       </button>
     </div>
 
-    <div class="input-group" style="max-width: 200px; margin-bottom: 1rem;">
-      <label>Filter by Year</label>
-      <select id="year-filter" onchange="fetchExams()">
-        <option value="">All Years</option>
-      </select>
-    </div>
-
-    <data-table id="exams-table"></data-table>
+    <data-table id="exams-table">
+      <div slot="filters">
+        <div class="input-group">
+          <select id="year-filter" onchange="fetchExams()">
+            <option value="">All Years</option>
+          </select>
+        </div>
+      </div>
+    </data-table>
   </div>
 </section>
 
@@ -222,7 +223,7 @@
         allExams = data;
         document.getElementById("exams-table").setData(data);
       })
-      .catch(err => toast("Failed to load exams", "error"));
+      .catch(err => toast("Failed to load exams", "fa-solid fa-circle-exclamation"));
   }
 
   function openAddExamModal() {
@@ -260,7 +261,7 @@
     const targetGrade = document.getElementById("exam-target-grade").value;
 
     if (!type || !year) {
-      toast("Exam Type and Year are required", "warning");
+      toast("Exam Type and Year are required", "fa-solid fa-exclamation-triangle");
       return;
     }
 
@@ -279,11 +280,11 @@
         return res.json();
       })
       .then(() => {
-        toast("Exam created successfully", "success");
+        toast("Exam created successfully", "fa-solid fa-check-circle");
         document.getElementById("add-exam-modal").close();
         fetchExams();
       })
-      .catch(err => toast("Error creating exam", "error"));
+      .catch(err => toast("Error creating exam", "fa-solid fa-circle-exclamation"));
   }
 
   function showExamsList() {
@@ -304,93 +305,48 @@
     const saveBtn = document.querySelector("button[onclick='saveMarks()']");
     const assignBtn = document.querySelector("button[onclick='openAssignStudentsModal()']");
 
-    // Hide assign button for non-gov exams (term tests are auto-assigned)
-    if (exam.type !== 'gov') {
-      assignBtn.style.display = 'none';
-    } else {
-      assignBtn.style.display = 'inline-block';
-      assignBtn.innerHTML = '<i class="fas fa-user-plus"></i> Assign Students';
-    }
+    // Hide assign button for all exams (auto-assigned now)
+    assignBtn.style.display = 'none';
 
-    // Special handling for Grade 5 Scholarship
-    if (exam.name === "Grade 5 Scholarship") {
-      subjSelectDiv.style.display = "none";
-      // Auto-select the "Grade 5 Scholarship" subject
-      const scholarshipSubject = allSubjects.find(s => s.subject_name === "Grade 5 Scholarship");
-      if (scholarshipSubject) {
-        document.getElementById("exam-subject-select").value = scholarshipSubject.subject_id;
-        loadMarksForSubject(); // Load immediately
-      } else {
-        console.error("Grade 5 Scholarship subject not found!");
-        toast("System Error: Grade 5 Scholarship subject missing", "error");
-      }
-    } else {
-      // Normal behavior for other exams (O/L, A/L, Term Tests)
-      subjSelectDiv.style.display = "block";
+    // Hide subject select and save marks button as Clerk doesn't enter marks
+    subjSelectDiv.style.display = "none";
+    if (saveBtn) saveBtn.style.display = 'none';
 
-      // Populate Subject Select
-      const subjSelect = document.getElementById("exam-subject-select");
-      subjSelect.innerHTML = '<option value="">Select Subject to Enter Marks</option>';
-      allSubjects.forEach(s => {
-        // Optional: Filter subjects based on grade if needed, 
-        // but for now showing all is safe as teacher assigned subjects are handled elsewhere
-        // or clerk just picks the subject they are entering marks for.
-        const opt = document.createElement("option");
-        opt.value = s.subject_id;
-        opt.text = s.subject_name;
-        subjSelect.appendChild(opt);
-      });
-      document.getElementById("exam-subject-select").value = "";
-      currentMarks = {}; // Reset
-    }
-
-    initStudentTable(exam.name === "Grade 5 Scholarship");
+    initStudentTable();
     fetchExamStudents();
   }
 
-  function initStudentTable(isScholarship = false) {
+  function initStudentTable() {
     const table = document.getElementById("exam-students-table");
     const columns = [
-      { key: "index_number", header: "Index No", searchable: true },
+      { key: "username", header: "Admission No", searchable: true },
       { key: "full_name", header: "Name", searchable: true },
       { key: "class_name", header: "Class" },
       {
-        key: "marks",
-        header: isScholarship ? "Marks (Max 200)" : "Results / Marks",
+        key: "index_number",
+        header: "Exam Index No",
         render: (row) => {
-          const subjectId = document.getElementById("exam-subject-select").value;
           const input = document.createElement("input");
           input.type = "text";
-          input.className = "marks-input";
+          input.className = "marks-input"; // Reuse style
+          input.style.width = "120px";
+          input.placeholder = "Enter Index";
+          input.value = row.index_number || "";
 
-          if (isScholarship) {
-            input.placeholder = "Mark";
-            input.disabled = false; // Always enabled for scholarship as subject is pre-selected
-            input.style.width = "100px";
-          } else {
-            input.placeholder = subjectId ? "Mark" : "Select Subject";
-            input.disabled = !subjectId;
-          }
-
-          // Set value if exists in currentMarks
-          const existingMark = currentMarks[row.student_id];
-          input.value = existingMark || "";
-
-          input.dataset.studentId = row.student_id;
-          input.oninput = (e) => { // Changed to oninput for realtime feel, or keep onchange
-            // Validation for Grade 5
-            if (isScholarship) {
-              const val = parseInt(e.target.value);
-              if (val > 200) {
-                e.target.style.borderColor = "red";
-                toast("Max mark is 200", "warning"); // Optional: don't spam toasts
-              } else {
-                e.target.style.borderColor = "#ddd";
-              }
-            }
-          };
           input.onchange = (e) => {
-            currentMarks[row.student_id] = e.target.value;
+            const newIndex = e.target.value.trim();
+            if (newIndex === row.index_number) return;
+
+            api.clerk.exams.updateIndex(currentExamId, row.student_id, newIndex)
+              .then(res => {
+                if (!res.ok) throw new Error("Failed");
+                toast("Index updated", "fa-solid fa-check-circle");
+                row.index_number = newIndex; // Update local data
+              })
+              .catch(e => {
+                toast("Failed to update index", "fa-solid fa-circle-exclamation");
+                e.target.value = row.index_number || ""; // Revert
+              });
           };
           return input;
         }
@@ -412,7 +368,7 @@
           refreshTable();
         }
       })
-      .catch(err => toast("Error fetching students", "error"));
+      .catch(err => toast("Error fetching students", "fa-solid fa-circle-exclamation"));
   }
 
   function loadMarksForSubject() {
@@ -432,7 +388,7 @@
         });
         refreshTable();
       })
-      .catch(err => toast("Error loading marks", "error"));
+      .catch(err => toast("Error loading marks", "fa-solid fa-circle-exclamation"));
   }
 
   function refreshTable() {
@@ -524,7 +480,7 @@
     const ids = Array.from(checkboxes).map(cb => cb.value);
 
     if (ids.length === 0) {
-      toast("No students selected", "warning");
+      toast("No students selected", "fa-solid fa-exclamation-triangle");
       return;
     }
 
@@ -534,17 +490,17 @@
         return res.json();
       })
       .then(() => {
-        toast(`Assigned ${ids.length} students`, "success");
+        toast(`Assigned ${ids.length} students`, "fa-solid fa-check-circle");
         document.getElementById("assign-students-modal").close();
         fetchExamStudents();
       })
-      .catch(err => toast("Assignment failed", "error"));
+      .catch(err => toast("Assignment failed", "fa-solid fa-circle-exclamation"));
   }
 
   function saveMarks() {
     const subjectId = document.getElementById("exam-subject-select").value;
     if (!subjectId) {
-      toast("Please select a subject first", "warning");
+      toast("Please select a subject first", "fa-solid fa-exclamation-triangle");
       return;
     }
 
@@ -559,14 +515,14 @@
     }
 
     if (marksData.length === 0) {
-      toast("No marks to save", "info");
+      toast("No marks to save", "fa-solid fa-info-circle");
       return;
     }
 
     api.clerk.exams.saveMarks(currentExamId, marksData)
       .then(res => {
         if (!res.ok) throw new Error("Failed");
-        toast("Marks saved successfully", "success");
+        toast("Marks saved successfully", "fa-solid fa-check-circle");
       })
-      .catch(err => toast("Error saving marks", "error"));
+      .catch(err => toast("Error saving marks", "fa-solid fa-circle-exclamation"));
   }

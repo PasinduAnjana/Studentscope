@@ -1103,6 +1103,7 @@ module.exports = {
   getExamStudents,
   saveExamMarks,
   getExamMarks,
+  updateExamStudentIndex,
 };
 
 // ... existing code ...
@@ -1201,13 +1202,49 @@ async function getExams(year) {
 
 // Create a new exam
 async function createExam({ name, type = 'gov', sub_type, year, target_grade }) {
-  const result = await pool.query(
-    `INSERT INTO exams (name, type, sub_type, year, target_grade)
-     VALUES ($1, $2, $3, $4, $5)
-     RETURNING *`,
-    [name, type, sub_type, year, target_grade]
-  );
-  return result.rows[0];
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // 1. Create the exam
+    const res = await client.query(
+      `INSERT INTO exams (name, type, sub_type, year, target_grade)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [name, type, sub_type, year, target_grade]
+    );
+    const exam = res.rows[0];
+
+    // 2. If it's a government exam with a target grade, auto-assign students
+    if (type === 'gov' && target_grade) {
+      // Find students in that grade
+      const studentsRes = await client.query(`
+          SELECT u.id 
+          FROM users u
+          JOIN classes c ON u.class_id = c.id
+          WHERE c.grade = $1
+       `, [target_grade]);
+
+      const students = studentsRes.rows;
+      if (students.length > 0) {
+        for (const s of students) {
+          await client.query(`
+                   INSERT INTO exam_students (exam_id, student_id)
+                   VALUES ($1, $2)
+                   ON CONFLICT DO NOTHING
+               `, [exam.id, s.id]);
+        }
+      }
+    }
+
+    await client.query("COMMIT");
+    return exam;
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
 }
 
 // Assign students to exam
@@ -1323,6 +1360,14 @@ async function getExamMarks(examId, subjectId) {
   return result.rows;
 }
 
-
-
-
+// Update exam index number for a student
+async function updateExamStudentIndex(examId, studentId, indexNumber) {
+  const result = await pool.query(
+    `UPDATE exam_students 
+     SET index_number = $1
+     WHERE exam_id = $2 AND student_id = $3
+     RETURNING *`,
+    [indexNumber, examId, studentId]
+  );
+  return result.rows[0];
+}
