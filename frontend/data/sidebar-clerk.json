@@ -35,6 +35,11 @@
     "icon": "fas fa-trophy"
   },
   {
+    "label": "Exams",
+    "page": "exams",
+    "icon": "fas fa-file-signature"
+  },
+  {
     "label": "sidebar.profile",
     "page": "profile",
     "icon": "fas fa-user"

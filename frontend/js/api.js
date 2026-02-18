@@ -169,6 +169,14 @@ const api = {
     dashboard: {
       getStats: () => api.request("/clerk/stats"),
     },
+    exams: {
+      getAll: (year) => api.request(year ? `/clerk/exams?year=${year}` : "/clerk/exams"),
+      create: (data) => api.request("/clerk/exams", "POST", data),
+      getStudents: (id) => api.request(`/clerk/exams/${id}/students`),
+      assignStudents: (id, studentIds) => api.request(`/clerk/exams/${id}/students`, "POST", { student_ids: studentIds }),
+      saveMarks: (id, marks) => api.request(`/clerk/exams/${id}/marks`, "POST", { marks }),
+      getMarks: (id, subjectId) => api.request(`/clerk/exams/${id}/marks?subjectId=${subjectId}`),
+    },
 
   },
 

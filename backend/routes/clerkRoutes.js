@@ -8,6 +8,7 @@ const announcementsController = require("../controllers/clerk/announcementsContr
 const achievementsController = require("../controllers/achievementsController");
 
 const clerkService = require("../services/clerkService");
+const examsController = require("../controllers/clerk/examsController");
 
 module.exports = async (req, res) => {
   // Students CRUD routes
@@ -243,6 +244,43 @@ module.exports = async (req, res) => {
     const id = req.url.split("/").pop();
     return protect("clerk")(req, res, () =>
       achievementsController.delete(req, res, id)
+    );
+  }
+
+  // Exam routes
+  if (req.method === "GET" && (req.url === "/api/clerk/exams" || req.url.startsWith("/api/clerk/exams?"))) {
+    return protect("clerk")(req, res, () =>
+      examsController.getExams(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url === "/api/clerk/exams") {
+    return protect("clerk")(req, res, () =>
+      examsController.createExam(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url.match(/^\/api\/clerk\/exams\/\d+\/students$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.getExamStudents(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url.match(/^\/api\/clerk\/exams\/\d+\/students$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.assignStudents(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url.match(/^\/api\/clerk\/exams\/\d+\/marks$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.saveMarks(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url.match(/^\/api\/clerk\/exams\/\d+\/marks/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.getMarks(req, res)
     );
   }
 

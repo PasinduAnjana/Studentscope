@@ -1,0 +1,572 @@
+<style>
+  .action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .marks-input {
+    width: 60px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+  }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .student-selection-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    padding: 10px;
+    margin-top: 10px;
+  }
+
+  .student-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+</style>
+
+<section id="exams-list-section" class="section">
+  <h2 class="heading">
+    <i class="fas fa-file-signature"></i>
+    <span>Government Exams Management</span>
+  </h2>
+  <div class="card">
+    <div class="flex-between mb-2">
+      <h1 class="title">Exams</h1>
+      <button class="btn btn-primary" onclick="openAddExamModal()">
+        <i class="fas fa-plus"></i> Add Exam
+      </button>
+    </div>
+
+    <div class="input-group" style="max-width: 200px; margin-bottom: 1rem;">
+      <label>Filter by Year</label>
+      <select id="year-filter" onchange="fetchExams()">
+        <option value="">All Years</option>
+      </select>
+    </div>
+
+    <data-table id="exams-table"></data-table>
+  </div>
+</section>
+
+<section id="exam-details-section" class="section hidden">
+  <div class="toolbar">
+    <button class="btn btn-secondary" onclick="showExamsList()">
+      <i class="fas fa-arrow-left"></i> Back to Exams
+    </button>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <div class="input-group" style="margin-bottom: 0;">
+        <select id="exam-subject-select" onchange="loadMarksForSubject()">
+          <option value="">Select Subject to Enter Marks</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="openAssignStudentsModal()">
+        <i class="fas fa-user-plus"></i> Assign Students
+      </button>
+      <button class="btn btn-success" onclick="saveMarks()">
+        <i class="fas fa-save"></i> Save Marks
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h1 class="title" id="exam-title-display">Exam Details</h1>
+    <p id="exam-subtitle-display" class="text-muted mb-2"></p>
+
+    <data-table id="exam-students-table"></data-table>
+  </div>
+</section>
+
+</section>
+
+<!-- Add Exam Modal -->
+<modal-dialog id="add-exam-modal" title="Add Government Exam">
+  <div class="input-group">
+    <label>Exam Type <span class="required">*</span></label>
+    <select id="exam-type-select" onchange="updateTargetGrade()" required>
+      <option value="">Select Exam Type</option>
+      <option value="Grade 5 Scholarship">Grade 5 Scholarship</option>
+      <option value="GCE O/L">GCE O/L</option>
+      <option value="GCE A/L">GCE A/L</option>
+    </select>
+  </div>
+  <div class="input-group">
+    <label>Year <span class="required">*</span></label>
+    <input type="number" id="exam-year" required />
+  </div>
+  <div class="input-group">
+    <label>Target Grade</label>
+    <input type="text" id="exam-target-grade-display" disabled />
+    <input type="hidden" id="exam-target-grade" />
+  </div>
+
+  <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+    <button class="btn btn-secondary" onclick="document.getElementById('add-exam-modal').close()">Cancel</button>
+    <button class="btn btn-primary" onclick="createExam()">Create Exam</button>
+  </div>
+</modal-dialog>
+
+<!-- Assign Students Modal -->
+<modal-dialog id="assign-students-modal" title="Assign Students">
+  <div class="input-group">
+    <label>Filter by Class</label>
+    <select id="assign-class-filter" onchange="fetchStudentsForAssignment()">
+      <option value="">Select Class</option>
+    </select>
+  </div>
+
+  <div class="student-selection-list" id="student-selection-container">
+    <p class="text-center text-muted">Select a class to view students</p>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+    <div>
+      <span id="selected-count">0 students selected</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn btn-secondary"
+        onclick="document.getElementById('assign-students-modal').close()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAssignment()">Assign Selected</button>
+    </div>
+  </div>
+</modal-dialog>
+
+<script>
+  let currentExamId = null;
+  let allExams = [];
+  let examStudents = [];
+  let allClasses = [];
+  let allSubjects = [];
+  let currentMarks = {}; // Map studentId -> mark
+
+  // Initialize
+  initExams();
+  populateYears();
+  fetchSubjects();
+
+  function fetchSubjects() {
+    // Assuming api.request works or we add api.clerk.subjects.getAll()
+    // Checking routes: GET /api/clerk/subjects is available.
+    api.request("/clerk/subjects")
+      .then(res => res.json())
+      .then(data => {
+        allSubjects = data;
+      });
+  }
+
+  function initExams() {
+    // Populate year filter
+    const yearSelect = document.getElementById("year-filter");
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear + 1; y >= currentYear - 5; y--) {
+      const opt = document.createElement("option");
+      opt.value = y;
+      opt.text = y;
+      if (y === currentYear) opt.selected = true;
+      yearSelect.appendChild(opt);
+    }
+
+    // Init Table
+    const table = document.getElementById("exams-table");
+    table.setColumns([
+      { key: "name", header: "Exam Name", searchable: true },
+      { key: "year", header: "Year" },
+      { key: "type", header: "Type" },
+      {
+        key: "target_grade",
+        header: "Target Grade",
+        render: (row) => row.target_grade ? `Grade ${row.target_grade}` : "All"
+      },
+      {
+        key: "actions",
+        header: "Actions",
+        render: (row) => {
+          const btn = document.createElement("button");
+          btn.className = "btn btn-sm btn-info";
+          btn.innerHTML = '<i class="fas fa-eye"></i> Manage';
+          btn.onclick = () => showExamDetails(row);
+          return btn;
+        }
+      }
+    ]);
+
+    fetchExams();
+  }
+
+  function populateYears() {
+    const el = document.getElementById("exam-year");
+    if (el) el.value = new Date().getFullYear();
+  }
+
+  function fetchExams() {
+    const year = document.getElementById("year-filter").value;
+    api.clerk.exams.getAll(year)
+      .then(res => res.json())
+      .then(data => {
+        allExams = data;
+        document.getElementById("exams-table").setData(data);
+      })
+      .catch(err => toast("Failed to load exams", "error"));
+  }
+
+  function openAddExamModal() {
+    const typeEl = document.getElementById("exam-type-select");
+    const gradeDisplayEl = document.getElementById("exam-target-grade-display");
+    const gradeInputEl = document.getElementById("exam-target-grade");
+    const yearEl = document.getElementById("exam-year");
+    const modalEl = document.getElementById("add-exam-modal");
+
+    if (typeEl) typeEl.value = "";
+    if (gradeDisplayEl) gradeDisplayEl.value = "";
+    if (gradeInputEl) gradeInputEl.value = "";
+    if (yearEl) yearEl.value = new Date().getFullYear();
+    if (modalEl) modalEl.open();
+  }
+
+  function updateTargetGrade() {
+    const type = document.getElementById("exam-type-select").value;
+    const display = document.getElementById("exam-target-grade-display");
+    const valueInput = document.getElementById("exam-target-grade");
+
+    let grade = "";
+    // Map exam type to grade
+    if (type === "Grade 5 Scholarship") grade = "5";
+    else if (type === "GCE O/L") grade = "11";
+    else if (type === "GCE A/L") grade = "13";
+
+    if (valueInput) valueInput.value = grade;
+    if (display) display.value = grade ? `Grade ${grade}` : "";
+  }
+
+  function createExam() {
+    const type = document.getElementById("exam-type-select").value;
+    const year = document.getElementById("exam-year").value;
+    const targetGrade = document.getElementById("exam-target-grade").value;
+
+    if (!type || !year) {
+      toast("Exam Type and Year are required", "warning");
+      return;
+    }
+
+    // Name is derived from type + year usually, or just type
+    // Let's use the Type as the Name, the Year is stored separately
+    const name = type;
+
+    api.clerk.exams.create({
+      name,
+      year,
+      target_grade: targetGrade || null,
+      type: 'gov'
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Failed");
+        return res.json();
+      })
+      .then(() => {
+        toast("Exam created successfully", "success");
+        document.getElementById("add-exam-modal").close();
+        fetchExams();
+      })
+      .catch(err => toast("Error creating exam", "error"));
+  }
+
+  function showExamsList() {
+    document.getElementById("exams-list-section").classList.remove("hidden");
+    document.getElementById("exam-details-section").classList.add("hidden");
+    currentExamId = null;
+  }
+
+  function showExamDetails(exam) {
+    currentExamId = exam.id;
+    document.getElementById("exams-list-section").classList.add("hidden");
+    document.getElementById("exam-details-section").classList.remove("hidden");
+
+    document.getElementById("exam-title-display").textContent = exam.name;
+    document.getElementById("exam-subtitle-display").textContent = `${exam.year} | ${exam.type.toUpperCase()}`;
+
+    const subjSelectDiv = document.getElementById("exam-subject-select").parentElement;
+    const saveBtn = document.querySelector("button[onclick='saveMarks()']");
+    const assignBtn = document.querySelector("button[onclick='openAssignStudentsModal()']");
+
+    // Hide assign button for non-gov exams (term tests are auto-assigned)
+    if (exam.type !== 'gov') {
+      assignBtn.style.display = 'none';
+    } else {
+      assignBtn.style.display = 'inline-block';
+      assignBtn.innerHTML = '<i class="fas fa-user-plus"></i> Assign Students';
+    }
+
+    // Special handling for Grade 5 Scholarship
+    if (exam.name === "Grade 5 Scholarship") {
+      subjSelectDiv.style.display = "none";
+      // Auto-select the "Grade 5 Scholarship" subject
+      const scholarshipSubject = allSubjects.find(s => s.subject_name === "Grade 5 Scholarship");
+      if (scholarshipSubject) {
+        document.getElementById("exam-subject-select").value = scholarshipSubject.subject_id;
+        loadMarksForSubject(); // Load immediately
+      } else {
+        console.error("Grade 5 Scholarship subject not found!");
+        toast("System Error: Grade 5 Scholarship subject missing", "error");
+      }
+    } else {
+      // Normal behavior for other exams (O/L, A/L, Term Tests)
+      subjSelectDiv.style.display = "block";
+
+      // Populate Subject Select
+      const subjSelect = document.getElementById("exam-subject-select");
+      subjSelect.innerHTML = '<option value="">Select Subject to Enter Marks</option>';
+      allSubjects.forEach(s => {
+        // Optional: Filter subjects based on grade if needed, 
+        // but for now showing all is safe as teacher assigned subjects are handled elsewhere
+        // or clerk just picks the subject they are entering marks for.
+        const opt = document.createElement("option");
+        opt.value = s.subject_id;
+        opt.text = s.subject_name;
+        subjSelect.appendChild(opt);
+      });
+      document.getElementById("exam-subject-select").value = "";
+      currentMarks = {}; // Reset
+    }
+
+    initStudentTable(exam.name === "Grade 5 Scholarship");
+    fetchExamStudents();
+  }
+
+  function initStudentTable(isScholarship = false) {
+    const table = document.getElementById("exam-students-table");
+    const columns = [
+      { key: "index_number", header: "Index No", searchable: true },
+      { key: "full_name", header: "Name", searchable: true },
+      { key: "class_name", header: "Class" },
+      {
+        key: "marks",
+        header: isScholarship ? "Marks (Max 200)" : "Results / Marks",
+        render: (row) => {
+          const subjectId = document.getElementById("exam-subject-select").value;
+          const input = document.createElement("input");
+          input.type = "text";
+          input.className = "marks-input";
+
+          if (isScholarship) {
+            input.placeholder = "Mark";
+            input.disabled = false; // Always enabled for scholarship as subject is pre-selected
+            input.style.width = "100px";
+          } else {
+            input.placeholder = subjectId ? "Mark" : "Select Subject";
+            input.disabled = !subjectId;
+          }
+
+          // Set value if exists in currentMarks
+          const existingMark = currentMarks[row.student_id];
+          input.value = existingMark || "";
+
+          input.dataset.studentId = row.student_id;
+          input.oninput = (e) => { // Changed to oninput for realtime feel, or keep onchange
+            // Validation for Grade 5
+            if (isScholarship) {
+              const val = parseInt(e.target.value);
+              if (val > 200) {
+                e.target.style.borderColor = "red";
+                toast("Max mark is 200", "warning"); // Optional: don't spam toasts
+              } else {
+                e.target.style.borderColor = "#ddd";
+              }
+            }
+          };
+          input.onchange = (e) => {
+            currentMarks[row.student_id] = e.target.value;
+          };
+          return input;
+        }
+      }
+    ];
+
+    table.setColumns(columns);
+  }
+
+  function fetchExamStudents() {
+    api.clerk.exams.getStudents(currentExamId)
+      .then(res => res.json())
+      .then(data => {
+        examStudents = data;
+        document.getElementById("exam-students-table").setData(data);
+        // Note: loadMarksForSubject might have been called already for Scholarship
+        // If so, we need to refresh table to show marks after students load
+        if (Object.keys(currentMarks).length > 0) {
+          refreshTable();
+        }
+      })
+      .catch(err => toast("Error fetching students", "error"));
+  }
+
+  function loadMarksForSubject() {
+    const subjectId = document.getElementById("exam-subject-select").value;
+    if (!subjectId) {
+      currentMarks = {};
+      refreshTable();
+      return;
+    }
+
+    api.clerk.exams.getMarks(currentExamId, subjectId)
+      .then(res => res.json())
+      .then(data => {
+        currentMarks = {};
+        data.forEach(m => {
+          currentMarks[m.student_id] = m.marks;
+        });
+        refreshTable();
+      })
+      .catch(err => toast("Error loading marks", "error"));
+  }
+
+  function refreshTable() {
+    const inputs = document.querySelectorAll("#exam-students-table .marks-input");
+    const subjectId = document.getElementById("exam-subject-select").value;
+    const isScholarship = document.getElementById("exam-title-display").textContent === "Grade 5 Scholarship";
+
+    inputs.forEach(input => {
+      const sid = input.dataset.studentId;
+      input.value = currentMarks[sid] || "";
+      if (!isScholarship) {
+        input.disabled = !subjectId;
+        input.placeholder = subjectId ? "Mark" : "Select Subject";
+      }
+    });
+  }
+
+  function openAssignStudentsModal() {
+    // Load classes if not loaded
+    if (allClasses.length === 0) {
+      api.clerk.classes.getAll().then(res => res.json()).then(data => {
+        allClasses = data;
+        const sel = document.getElementById("assign-class-filter");
+        sel.innerHTML = '<option value="">Select Class</option>';
+        data.forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c.id;
+          opt.text = `${c.grade} - ${c.class_name}`;
+          sel.appendChild(opt);
+        });
+      });
+    }
+    document.getElementById("assign-students-modal").open();
+    document.getElementById("student-selection-container").innerHTML = '<p class="text-center text-muted">Select a class to view students</p>';
+    document.getElementById("selected-count").textContent = "0 students selected";
+  }
+
+  function fetchStudentsForAssignment() {
+    const classId = document.getElementById("assign-class-filter").value;
+    if (!classId) return;
+
+    api.clerk.students.getAll().then(res => res.json()).then(data => {
+      const students = data.filter(s => s.class_id == classId);
+      renderStudentSelection(students);
+    });
+  }
+
+  function renderStudentSelection(students) {
+    const container = document.getElementById("student-selection-container");
+    container.innerHTML = "";
+
+    if (students.length === 0) {
+      container.innerHTML = "<p>No students in this class</p>";
+      return;
+    }
+
+    // Add "Select All"
+    const selectAllDiv = document.createElement("div");
+    selectAllDiv.className = "student-checkbox";
+    selectAllDiv.innerHTML = `
+        <input type="checkbox" id="select-all-students" onchange="toggleSelectAll(this)">
+        <label for="select-all-students"><strong>Select All</strong></label>
+      `;
+    container.appendChild(selectAllDiv);
+
+    students.forEach(s => {
+      const div = document.createElement("div");
+      div.className = "student-checkbox";
+      div.innerHTML = `
+            <input type="checkbox" class="student-select-cb" value="${s.user_id}" onchange="updateSelectedCount()">
+            <label>${s.full_name} (${s.username})</label>
+          `;
+      container.appendChild(div);
+    });
+  }
+
+  function toggleSelectAll(cb) {
+    document.querySelectorAll(".student-select-cb").forEach(box => box.checked = cb.checked);
+    updateSelectedCount();
+  }
+
+  function updateSelectedCount() {
+    const count = document.querySelectorAll(".student-select-cb:checked").length;
+    document.getElementById("selected-count").textContent = `${count} students selected`;
+  }
+
+  function confirmAssignment() {
+    const checkboxes = document.querySelectorAll(".student-select-cb:checked");
+    const ids = Array.from(checkboxes).map(cb => cb.value);
+
+    if (ids.length === 0) {
+      toast("No students selected", "warning");
+      return;
+    }
+
+    api.clerk.exams.assignStudents(currentExamId, ids)
+      .then(res => {
+        if (!res.ok) throw new Error("Failed");
+        return res.json();
+      })
+      .then(() => {
+        toast(`Assigned ${ids.length} students`, "success");
+        document.getElementById("assign-students-modal").close();
+        fetchExamStudents();
+      })
+      .catch(err => toast("Assignment failed", "error"));
+  }
+
+  function saveMarks() {
+    const subjectId = document.getElementById("exam-subject-select").value;
+    if (!subjectId) {
+      toast("Please select a subject first", "warning");
+      return;
+    }
+
+    const marksData = [];
+    // Use currentMarks map to catch all edits
+    for (const [studentId, mark] of Object.entries(currentMarks)) {
+      marksData.push({
+        student_id: studentId,
+        subject_id: subjectId,
+        mark: mark
+      });
+    }
+
+    if (marksData.length === 0) {
+      toast("No marks to save", "info");
+      return;
+    }
+
+    api.clerk.exams.saveMarks(currentExamId, marksData)
+      .then(res => {
+        if (!res.ok) throw new Error("Failed");
+        toast("Marks saved successfully", "success");
+      })
+      .catch(err => toast("Error saving marks", "error"));
+  }

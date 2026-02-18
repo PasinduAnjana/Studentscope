@@ -1096,7 +1096,13 @@ module.exports = {
   getPendingPasswordResets,
   approvePasswordReset,
   rejectPasswordReset,
-
+  // Exam functions
+  getExams,
+  createExam,
+  assignStudentsToExam,
+  getExamStudents,
+  saveExamMarks,
+  getExamMarks,
 };
 
 // ... existing code ...
@@ -1176,6 +1182,145 @@ async function rejectPasswordReset(resetId, rejectedBy) {
     console.error("Error rejecting password reset:", err);
     return { success: false, error: "Failed to reject password reset" };
   }
+}
+
+// Exam Management
+
+// Get exams for a specific year (default: all)
+async function getExams(year) {
+  let query = `SELECT id, name, type, sub_type, year, target_grade FROM exams WHERE type = 'gov'`;
+  const params = [];
+  if (year) {
+    query += ` AND year = $1`;
+    params.push(year);
+  }
+  query += ` ORDER BY year DESC, name ASC`;
+  const result = await pool.query(query, params);
+  return result.rows;
+}
+
+// Create a new exam
+async function createExam({ name, type = 'gov', sub_type, year, target_grade }) {
+  const result = await pool.query(
+    `INSERT INTO exams (name, type, sub_type, year, target_grade)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING *`,
+    [name, type, sub_type, year, target_grade]
+  );
+  return result.rows[0];
+}
+
+// Assign students to exam
+async function assignStudentsToExam(examId, studentIds) {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    for (const studentId of studentIds) {
+      await client.query(
+        `INSERT INTO exam_students (exam_id, student_id) 
+          VALUES ($1, $2)
+          ON CONFLICT (exam_id, student_id) DO NOTHING`,
+        [examId, studentId]
+      );
+    }
+
+    await client.query("COMMIT");
+    return { success: true };
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+// Get students assigned to an exam
+async function getExamStudents(examId) {
+  // Check exam type first
+  const examRes = await pool.query("SELECT type, target_grade FROM exams WHERE id = $1", [examId]);
+  if (!examRes.rows.length) return [];
+  const { type, target_grade } = examRes.rows[0];
+
+  if (type !== 'gov') {
+    // For term tests, return all students (optionally filtered by target_grade if set)
+    let query = `
+        SELECT 
+          u.id as student_id,
+          u.username as index_number,
+          u.username,
+          s.full_name,
+          c.grade,
+          c.name as class_name
+        FROM students s
+        JOIN users u ON s.user_id = u.id
+        LEFT JOIN classes c ON u.class_id = c.id
+     `;
+    const params = [];
+    if (target_grade) {
+      query += ` WHERE c.grade = $1`;
+      params.push(target_grade);
+    }
+    query += ` ORDER BY c.grade, c.name, s.full_name`;
+    const result = await pool.query(query, params);
+    return result.rows;
+  }
+
+  const result = await pool.query(`
+    SELECT 
+      es.student_id,
+      es.index_number,
+      u.username,
+      s.full_name,
+      c.grade,
+      c.name as class_name
+    FROM exam_students es
+    JOIN users u ON es.student_id = u.id
+    JOIN students s ON u.id = s.user_id
+    LEFT JOIN classes c ON u.class_id = c.id
+    WHERE es.exam_id = $1
+    ORDER BY c.grade, c.name, s.full_name
+  `, [examId]);
+  return result.rows;
+}
+
+// Save marks for an exam
+async function saveExamMarks(examId, marksData) {
+  // marksData: [{ student_id, subject_id, mark }]
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    for (const entry of marksData) {
+      if (entry.mark !== undefined && entry.mark !== null) {
+        await client.query(
+          `INSERT INTO marks (student_id, subject_id, exam_id, marks)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (student_id, subject_id, exam_id) 
+            DO UPDATE SET marks = EXCLUDED.marks`,
+          [entry.student_id, entry.subject_id, examId, entry.mark]
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+    return { success: true };
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+// Get marks for an exam and subject
+async function getExamMarks(examId, subjectId) {
+  const result = await pool.query(`
+    SELECT student_id, marks 
+    FROM marks 
+    WHERE exam_id = $1 AND subject_id = $2
+  `, [examId, subjectId]);
+  return result.rows;
 }
 
 
