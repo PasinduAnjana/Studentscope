@@ -188,3 +188,32 @@ exports.bulkImportIndex = async (req, res) => {
         res.end(JSON.stringify({ error: "Internal Server Error" }));
     }
 };
+
+// Get exam subjects/columns for marks entry
+exports.getExamSubjects = async (req, res) => {
+    try {
+        const examId = req.url.split("/")[4];
+        const result = await clerkService.getExamSubjects(examId);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(result));
+    } catch (err) {
+        console.error("Error fetching exam subjects:", err);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Failed to fetch exam subjects" }));
+    }
+};
+
+// Get all marks for an exam
+exports.getAllExamMarks = async (req, res) => {
+    try {
+        const examId = req.url.split("/")[4];
+        const result = await clerkService.getAllExamMarks(examId);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(result));
+    } catch (err) {
+        console.error("Error fetching all exam marks:", err);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Failed to fetch exam marks" }));
+    }
+};
+

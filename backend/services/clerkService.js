@@ -1103,6 +1103,8 @@ module.exports = {
   getExamStudents,
   saveExamMarks,
   getExamMarks,
+  getExamSubjects,
+  getAllExamMarks,
   updateExamStudentIndex,
   bulkUpdateExamIndexNumbers,
 };
@@ -1329,14 +1331,41 @@ async function saveExamMarks(examId, marksData) {
   try {
     await client.query("BEGIN");
 
+    // Check if this is a Grade 5 exam (where subject_id might be null)
+    const examRes = await client.query(
+      `SELECT name, sub_type, target_grade FROM exams WHERE id = $1`, [examId]
+    );
+    let grade5SubjectId = null;
+    if (examRes.rows.length) {
+      const examRow = examRes.rows[0];
+      // Derive sub_type from name if not set
+      if (!examRow.sub_type) {
+        if (examRow.name && examRow.name.includes('A/L')) examRow.sub_type = 'AL';
+        else if (examRow.name && examRow.name.includes('O/L')) examRow.sub_type = 'OL';
+        else if (examRow.name && (examRow.name.includes('Grade 5') || examRow.name.includes('Scholarship'))) examRow.sub_type = 'Grade5';
+      }
+      if (examRow.sub_type === 'Grade5') {
+        // Get first compulsory subject for grade 5 as the "total" subject
+        const subRes = await client.query(
+          `SELECT cs.subject_id FROM class_subjects cs
+         JOIN classes c ON cs.class_id = c.id
+         WHERE c.grade = 5
+         ORDER BY cs.display_order LIMIT 1`
+        );
+        if (subRes.rows.length) grade5SubjectId = subRes.rows[0].subject_id;
+      }
+    }
+
     for (const entry of marksData) {
       if (entry.mark !== undefined && entry.mark !== null) {
+        const subjectId = entry.subject_id || grade5SubjectId;
+        if (!subjectId) continue; // Skip if we still can't resolve subject
         await client.query(
           `INSERT INTO marks (student_id, subject_id, exam_id, marks)
             VALUES ($1, $2, $3, $4)
             ON CONFLICT (student_id, subject_id, exam_id) 
             DO UPDATE SET marks = EXCLUDED.marks`,
-          [entry.student_id, entry.subject_id, examId, entry.mark]
+          [entry.student_id, subjectId, examId, entry.mark]
         );
       }
     }
@@ -1412,4 +1441,157 @@ async function bulkUpdateExamIndexNumbers(examId, entries) {
   } finally {
     client.release();
   }
+}
+
+// Get subjects/columns for an exam based on its type
+async function getExamSubjects(examId) {
+  // Get exam info
+  const examRes = await pool.query(
+    `SELECT id, name, type, sub_type, target_grade FROM exams WHERE id = $1`,
+    [examId]
+  );
+  if (!examRes.rows.length) return { columns: [], examType: null };
+  const exam = examRes.rows[0];
+
+  // Derive sub_type from name if not set
+  if (!exam.sub_type) {
+    if (exam.name && exam.name.includes('A/L')) exam.sub_type = 'AL';
+    else if (exam.name && exam.name.includes('O/L')) exam.sub_type = 'OL';
+    else if (exam.name && (exam.name.includes('Grade 5') || exam.name.includes('Scholarship'))) exam.sub_type = 'Grade5';
+  }
+
+  if (exam.sub_type === 'Grade5') {
+    // Grade 5 Scholarship: single total mark out of 200
+    return {
+      examType: 'Grade5',
+      maxMark: 200,
+      columns: [{ key: 'total', header: 'Total (out of 200)', subject_id: null, type: 'total' }]
+    };
+  }
+
+  if (exam.sub_type === 'OL') {
+    // O/L: 6 compulsory class_subjects for grade 11 + 3 bucket electives
+    // Get compulsory subjects
+    const compRes = await pool.query(
+      `SELECT DISTINCT s.id AS subject_id, s.name, cs.display_order
+       FROM class_subjects cs
+       JOIN subjects s ON cs.subject_id = s.id
+       JOIN classes c ON cs.class_id = c.id
+       WHERE c.grade = 11
+       ORDER BY cs.display_order`,
+      []
+    );
+
+    const columns = compRes.rows.map(r => ({
+      key: `subj_${r.subject_id}`,
+      header: r.name,
+      subject_id: r.subject_id,
+      type: 'compulsory'
+    }));
+
+    // Get bucket info for grade 10-11 electives
+    const bucketRes = await pool.query(
+      `SELECT DISTINCT gs.bucket_id
+       FROM grade_subjects gs
+       WHERE gs.grade = 11 AND gs.type = 'elective' AND gs.bucket_id > 0
+       ORDER BY gs.bucket_id`,
+      []
+    );
+
+    bucketRes.rows.forEach(b => {
+      columns.push({
+        key: `bucket_${b.bucket_id}`,
+        header: `Elective ${b.bucket_id}`,
+        bucket_id: b.bucket_id,
+        type: 'bucket'
+      });
+    });
+
+    return { examType: 'OL', maxMark: 100, columns };
+  }
+
+  if (exam.sub_type === 'AL') {
+    // A/L: 3 elective buckets + Common General Test + General English
+    // Get compulsory subjects for grade 12-13 (General English, Common General Test)
+    const compRes = await pool.query(
+      `SELECT DISTINCT s.id AS subject_id, s.name, cs.display_order
+       FROM class_subjects cs
+       JOIN subjects s ON cs.subject_id = s.id
+       JOIN classes c ON cs.class_id = c.id
+       WHERE c.grade = 13
+       ORDER BY cs.display_order`,
+      []
+    );
+
+    const columns = [];
+
+    // Add 3 elective buckets first
+    const bucketRes = await pool.query(
+      `SELECT DISTINCT gs.bucket_id
+       FROM grade_subjects gs
+       WHERE gs.grade = 13 AND gs.type = 'elective' AND gs.bucket_id > 0
+       ORDER BY gs.bucket_id`,
+      []
+    );
+
+    bucketRes.rows.forEach(b => {
+      columns.push({
+        key: `bucket_${b.bucket_id}`,
+        header: `Subject ${b.bucket_id}`,
+        bucket_id: b.bucket_id,
+        type: 'bucket'
+      });
+    });
+
+    // Add compulsory subjects (Common General Test, General English)
+    compRes.rows.forEach(r => {
+      columns.push({
+        key: `subj_${r.subject_id}`,
+        header: r.name,
+        subject_id: r.subject_id,
+        type: 'compulsory'
+      });
+    });
+
+    return { examType: 'AL', maxMark: 100, columns };
+  }
+
+  return { examType: exam.sub_type, maxMark: 100, columns: [] };
+}
+
+// Get all marks for all students in an exam
+async function getAllExamMarks(examId) {
+  const result = await pool.query(
+    `SELECT m.student_id, m.subject_id, m.marks
+     FROM marks m
+     WHERE m.exam_id = $1`,
+    [examId]
+  );
+
+  // Also get each student's elected subjects (to know which bucket subject they chose)
+  const studentSubjects = await pool.query(
+    `SELECT ss.student_id, ss.subject_id, gs.bucket_id, s.name AS subject_name
+     FROM student_subjects ss
+     JOIN grade_subjects gs ON ss.subject_id = gs.subject_id
+     JOIN subjects s ON ss.subject_id = s.id
+     JOIN exam_students es ON es.student_id = ss.student_id AND es.exam_id = $1
+     JOIN exams e ON e.id = $1
+     WHERE gs.grade = e.target_grade AND gs.type = 'elective'`,
+    [examId]
+  );
+
+  // Build a map: student_id -> { bucket_id: subject_id }
+  const studentElectiveMap = {};
+  const subjectNames = {};
+  studentSubjects.rows.forEach(r => {
+    if (!studentElectiveMap[r.student_id]) studentElectiveMap[r.student_id] = {};
+    studentElectiveMap[r.student_id][r.bucket_id] = r.subject_id;
+    subjectNames[r.subject_id] = r.subject_name;
+  });
+
+  return {
+    marks: result.rows,
+    studentElectives: studentElectiveMap,
+    subjectNames
+  };
 }

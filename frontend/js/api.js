@@ -176,6 +176,8 @@ const api = {
       assignStudents: (id, studentIds) => api.request(`/clerk/exams/${id}/students`, "POST", { student_ids: studentIds }),
       saveMarks: (id, marks) => api.request(`/clerk/exams/${id}/marks`, "POST", { marks }),
       getMarks: (id, subjectId) => api.request(`/clerk/exams/${id}/marks?subjectId=${subjectId}`),
+      getSubjects: (id) => api.request(`/clerk/exams/${id}/subjects`),
+      getAllMarks: (id) => api.request(`/clerk/exams/${id}/all-marks`),
       updateIndex: (examId, studentId, indexNumber) => api.request(`/clerk/exams/${examId}/index`, "PATCH", { student_id: studentId, index_number: indexNumber }),
       bulkImportIndex: (examId, entries) => api.request(`/clerk/exams/${examId}/import-index`, "POST", { entries }),
     },

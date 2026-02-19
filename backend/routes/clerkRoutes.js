@@ -296,6 +296,18 @@ module.exports = async (req, res) => {
     );
   }
 
+  if (req.method === "GET" && req.url.match(/^\/api\/clerk\/exams\/\d+\/subjects$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.getExamSubjects(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url.match(/^\/api\/clerk\/exams\/\d+\/all-marks$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.getAllExamMarks(req, res)
+    );
+  }
+
 
 
   res.writeHead(404);
