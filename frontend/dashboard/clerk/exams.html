@@ -148,6 +148,41 @@
     font-weight: 500;
     margin: 0;
   }
+
+  #add-exam-modal .input-group,
+  #assign-students-modal .input-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+
+  #add-exam-modal .input-group label,
+  #assign-students-modal .input-group label {
+    font-size: 0.95rem;
+    color: var(--color-text);
+    margin-bottom: 4px;
+  }
+
+  #add-exam-modal input[type="number"],
+  #add-exam-modal input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-card);
+    color: var(--color-text);
+    font-size: 0.95rem;
+    box-sizing: border-box;
+  }
+
+  #add-exam-modal input[type="number"]:focus,
+  #add-exam-modal input[type="text"]:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  }
 </style>
 
 <section id="exams-list-section" class="section">
@@ -327,17 +362,35 @@ S1458,AL-002</code>
       });
   }
 
+  let searchableYearSelect;
+
   function initExams() {
-    // Populate year filter
-    const yearSelect = document.getElementById("year-filter");
-    const currentYear = new Date().getFullYear();
-    for (let y = currentYear + 1; y >= currentYear - 5; y--) {
-      const opt = document.createElement("option");
-      opt.value = y;
-      opt.text = y;
-      if (y === currentYear) opt.selected = true;
-      yearSelect.appendChild(opt);
-    }
+    // Fetch exams once to find unique years and populate the dropdown
+    api.clerk.exams.getAll("")
+      .then(res => res.json())
+      .then(data => {
+        const years = [...new Set(data.map(e => parseInt(e.year)))]
+          .filter(y => !isNaN(y))
+          .sort((a, b) => b - a);
+
+        const yearSelect = document.getElementById("year-filter");
+        years.forEach(y => {
+          const opt = document.createElement("option");
+          opt.value = y;
+          opt.text = y;
+          yearSelect.appendChild(opt);
+        });
+
+        if (typeof makeSearchableDropdown === "function") {
+          searchableYearSelect = makeSearchableDropdown("year-filter", () => fetchExams());
+          makeSearchableDropdown("exam-type-select", () => updateTargetGrade());
+        }
+
+        // Populate table directly
+        allExams = data;
+        document.getElementById("exams-table").setData(data);
+      })
+      .catch(err => toast("Failed to load exams", "fa-solid fa-circle-exclamation"));
 
     // Init Table
     const table = document.getElementById("exams-table");
@@ -374,7 +427,6 @@ S1458,AL-002</code>
       }
     ]);
 
-    fetchExams();
   }
 
   function populateYears() {
