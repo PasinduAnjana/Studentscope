@@ -1,0 +1,1155 @@
+<style>
+  .action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .marks-input {
+    width: 72px;
+    padding: 7px 4px;
+    border: none;
+    border-radius: 8px;
+    text-align: center;
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
+    color: var(--color-text);
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  .marks-input::placeholder {
+    color: color-mix(in srgb, var(--color-subtext) 50%, transparent);
+    font-weight: 400;
+  }
+
+  .marks-input:hover {
+    background: color-mix(in srgb, var(--color-text) 10%, transparent);
+  }
+
+  .marks-input:focus {
+    outline: none;
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 30%, transparent);
+  }
+
+  .marks-entry-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.9rem;
+  }
+
+  .marks-entry-table th,
+  .marks-entry-table td {
+    padding: 12px 14px;
+    text-align: center;
+    white-space: nowrap;
+    border: none;
+  }
+
+  .marks-entry-table th {
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .marks-entry-table th:first-child {
+    border-radius: 10px 0 0 0;
+  }
+
+  .marks-entry-table th:last-child {
+    border-radius: 0 10px 0 0;
+  }
+
+  .marks-entry-table td:first-child,
+  .marks-entry-table td:nth-child(2) {
+    text-align: left;
+    font-weight: 500;
+  }
+
+  .marks-entry-table tbody tr {
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+
+  .marks-entry-table tbody tr:hover {
+    background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+  }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .student-selection-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: none;
+    padding: 16px;
+    margin-top: 16px;
+    background: color-mix(in srgb, var(--color-text) 3%, transparent);
+    border-radius: 12px;
+  }
+
+  .student-selection-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .student-selection-list::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-text) 15%, transparent);
+    border-radius: 4px;
+  }
+
+  .student-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--color-card) 60%, transparent);
+    color: var(--color-text);
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .student-checkbox:last-child {
+    margin-bottom: 0;
+  }
+
+  .student-checkbox:hover {
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  }
+
+  .student-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+  }
+
+  .student-checkbox label {
+    cursor: pointer;
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  #add-exam-modal .input-group,
+  #assign-students-modal .input-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+
+  #add-exam-modal .input-group label,
+  #assign-students-modal .input-group label {
+    font-size: 0.95rem;
+    color: var(--color-text);
+    margin-bottom: 4px;
+  }
+
+  #add-exam-modal input[type="number"],
+  #add-exam-modal input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-card);
+    color: var(--color-text);
+    font-size: 0.95rem;
+    box-sizing: border-box;
+  }
+
+  #add-exam-modal input[type="number"]:focus,
+  #add-exam-modal input[type="text"]:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  }
+</style>
+
+<section id="exams-list-section" class="section">
+  <h2 class="heading">
+    <i class="fas fa-file-signature"></i>
+    <span>Government Exams Management</span>
+  </h2>
+  <div class="card">
+    <div class="flex-between mb-2">
+      <h1 class="title">Exams</h1>
+      <button class="btn btn-primary" onclick="openAddExamModal()">
+        <i class="fas fa-plus"></i> Add Exam
+      </button>
+    </div>
+
+    <data-table id="exams-table">
+      <div slot="filters">
+        <div class="input-group">
+          <select id="year-filter" onchange="fetchExams()">
+            <option value="">All Years</option>
+          </select>
+        </div>
+      </div>
+    </data-table>
+  </div>
+</section>
+
+<section id="exam-details-section" class="section hidden">
+  <div class="toolbar">
+    <button class="btn btn-secondary" onclick="showExamsList()">
+      <i class="fas fa-arrow-left"></i> Back to Exams
+    </button>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <div class="input-group" style="margin-bottom: 0;">
+        <select id="exam-subject-select" onchange="loadMarksForSubject()">
+          <option value="">Select Subject to Enter Marks</option>
+        </select>
+      </div>
+      <input type="file" id="csv-import-input" accept=".csv" style="display: none;" onchange="handleCSVImport(event)">
+      <button class="btn btn-primary" onclick="openAssignStudentsModal()">
+        <i class="fas fa-user-plus"></i> Assign Students
+      </button>
+      <button class="btn btn-success" onclick="saveMarks()">
+        <i class="fas fa-save"></i> Save Marks
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h1 class="title" id="exam-title-display">Exam Details</h1>
+    <p id="exam-subtitle-display" class="text-muted mb-2"></p>
+
+    <data-table id="exam-students-table"></data-table>
+  </div>
+</section>
+
+<!-- Marks Entry Section -->
+<section id="marks-entry-section" class="section hidden">
+  <div class="toolbar">
+    <button class="btn btn-secondary" onclick="showMarksExamsList()">
+      <i class="fas fa-arrow-left"></i> Back to Exams
+    </button>
+    <button class="btn btn-success" onclick="saveAllMarks()">
+      <i class="fas fa-save"></i> Save All Marks
+    </button>
+  </div>
+
+  <div class="card">
+    <h1 class="title" id="marks-exam-title">Exam Marks</h1>
+    <p id="marks-exam-subtitle" class="text-muted mb-2"></p>
+
+    <div id="marks-table-container">
+      <p style="text-align: center; padding: 40px; color: var(--color-subtext);">Loading...</p>
+    </div>
+  </div>
+</section>
+
+<!-- Import Index Modal -->
+<modal-dialog id="import-index-modal" title="Import Index Numbers">
+  <div style="margin-bottom: 16px;">
+    <p style="margin-bottom: 12px; color: var(--color-subtext);">Upload a CSV file containing student admission
+      numbers and their exam index numbers.</p>
+    <div
+      style="background: var(--color-bg); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; border: 1px solid var(--color-border);">
+      <p style="font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; color: var(--color-text);"><i
+          class="fas fa-info-circle" style="color: var(--color-primary); margin-right: 6px;"></i>Expected CSV Format</p>
+      <code
+        style="display: block; background: var(--color-card); padding: 10px 12px; border-radius: 6px; font-size: 0.85rem; line-height: 1.6; white-space: pre; color: var(--color-text); border: 1px solid var(--color-border);">admission_no,index_number
+S1432,AL-001
+S1458,AL-002</code>
+    </div>
+    <button class="btn btn-secondary" onclick="downloadSampleCSV()" style="width: 100%; margin-bottom: 12px;">
+      <i class="fas fa-download"></i> Download Sample CSV
+    </button>
+  </div>
+  <div style="display: flex; justify-content: flex-end; gap: 10px;">
+    <button class="btn btn-secondary" onclick="document.getElementById('import-index-modal').close()">Cancel</button>
+    <button class="btn btn-primary"
+      onclick="document.getElementById('import-index-modal').close(); document.getElementById('csv-import-input').click();">
+      <i class="fas fa-file-upload"></i> Choose CSV File
+    </button>
+  </div>
+</modal-dialog>
+
+<!-- Add Exam Modal -->
+<modal-dialog id="add-exam-modal" title="Add Government Exam">
+  <div class="input-group">
+    <label>Exam Type <span class="required">*</span></label>
+    <select id="exam-type-select" onchange="updateTargetGrade()" required>
+      <option value="">Select Exam Type</option>
+      <option value="Grade 5 Scholarship">Grade 5 Scholarship</option>
+      <option value="GCE O/L">GCE O/L</option>
+      <option value="GCE A/L">GCE A/L</option>
+    </select>
+  </div>
+  <div class="input-group">
+    <label>Year <span class="required">*</span></label>
+    <input type="number" id="exam-year" required />
+  </div>
+  <div class="input-group">
+    <label>Target Grade</label>
+    <input type="text" id="exam-target-grade-display" disabled />
+    <input type="hidden" id="exam-target-grade" />
+  </div>
+
+  <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+    <button class="btn btn-secondary" onclick="document.getElementById('add-exam-modal').close()">Cancel</button>
+    <button class="btn btn-primary" onclick="createExam()">Create Exam</button>
+  </div>
+</modal-dialog>
+
+<!-- Assign Students Modal -->
+<modal-dialog id="assign-students-modal" title="Assign Students">
+  <div class="input-group">
+    <label>Filter by Class</label>
+    <select id="assign-class-filter" onchange="fetchStudentsForAssignment()">
+      <option value="">Select Class</option>
+    </select>
+  </div>
+
+  <div class="student-selection-list" id="student-selection-container">
+    <p class="text-center text-muted">Select a class to view students</p>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+    <div>
+      <span id="selected-count">0 students selected</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn btn-secondary"
+        onclick="document.getElementById('assign-students-modal').close()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAssignment()">Assign Selected</button>
+    </div>
+  </div>
+</modal-dialog>
+
+<script>
+  let currentExamId = null;
+  let allExams = [];
+  let examStudents = [];
+  let allClasses = [];
+  let allSubjects = [];
+  let currentMarks = {}; // Map studentId -> mark
+
+  // Initialize
+  initExams();
+  populateYears();
+  fetchSubjects();
+
+  function fetchSubjects() {
+    // Assuming api.request works or we add api.clerk.subjects.getAll()
+    // Checking routes: GET /api/clerk/subjects is available.
+    api.request("/clerk/subjects")
+      .then(res => res.json())
+      .then(data => {
+        allSubjects = data;
+      });
+  }
+
+  let searchableYearSelect;
+
+  function initExams() {
+    // Fetch exams once to find unique years and populate the dropdown
+    api.clerk.exams.getAll("")
+      .then(res => res.json())
+      .then(data => {
+        const years = [...new Set(data.map(e => parseInt(e.year)))]
+          .filter(y => !isNaN(y))
+          .sort((a, b) => b - a);
+
+        const yearSelect = document.getElementById("year-filter");
+        years.forEach(y => {
+          const opt = document.createElement("option");
+          opt.value = y;
+          opt.text = y;
+          yearSelect.appendChild(opt);
+        });
+
+        if (typeof makeSearchableDropdown === "function") {
+          searchableYearSelect = makeSearchableDropdown("year-filter", () => fetchExams());
+          makeSearchableDropdown("exam-type-select", () => updateTargetGrade());
+        }
+
+        // Populate table directly
+        allExams = data;
+        document.getElementById("exams-table").setData(data);
+      })
+      .catch(err => toast("Failed to load exams", "fa-solid fa-circle-exclamation"));
+
+    // Init Table
+    const table = document.getElementById("exams-table");
+    table.setColumns([
+      { key: "name", header: "Exam Name", searchable: true },
+      { key: "year", header: "Year" },
+      { key: "type", header: "Type" },
+      {
+        key: "target_grade",
+        header: "Target Grade",
+        render: (row) => row.target_grade ? `Grade ${row.target_grade}` : "All"
+      },
+      {
+        key: "actions",
+        header: "Actions",
+        render: (row) => {
+          const container = document.createElement("div");
+          container.className = "action-buttons";
+
+          const manageBtn = document.createElement("button");
+          manageBtn.className = "btn btn-sm btn-info";
+          manageBtn.innerHTML = '<i class="fas fa-eye"></i> Manage';
+          manageBtn.onclick = () => showExamDetails(row);
+          container.appendChild(manageBtn);
+
+          const marksBtn = document.createElement("button");
+          marksBtn.className = "btn btn-sm btn-success";
+          marksBtn.innerHTML = '<i class="fas fa-pen"></i> Enter Marks';
+          marksBtn.onclick = () => showMarksEntry(row);
+          container.appendChild(marksBtn);
+
+          return container;
+        }
+      }
+    ]);
+
+  }
+
+  function populateYears() {
+    const el = document.getElementById("exam-year");
+    if (el) el.value = new Date().getFullYear();
+  }
+
+  function fetchExams() {
+    const year = document.getElementById("year-filter").value;
+    api.clerk.exams.getAll(year)
+      .then(res => res.json())
+      .then(data => {
+        allExams = data;
+        document.getElementById("exams-table").setData(data);
+      })
+      .catch(err => toast("Failed to load exams", "fa-solid fa-circle-exclamation"));
+  }
+
+  function openAddExamModal() {
+    const typeEl = document.getElementById("exam-type-select");
+    const gradeDisplayEl = document.getElementById("exam-target-grade-display");
+    const gradeInputEl = document.getElementById("exam-target-grade");
+    const yearEl = document.getElementById("exam-year");
+    const modalEl = document.getElementById("add-exam-modal");
+
+    if (typeEl) typeEl.value = "";
+    if (gradeDisplayEl) gradeDisplayEl.value = "";
+    if (gradeInputEl) gradeInputEl.value = "";
+    if (yearEl) yearEl.value = new Date().getFullYear();
+    if (modalEl) modalEl.open();
+  }
+
+  function updateTargetGrade() {
+    const type = document.getElementById("exam-type-select").value;
+    const display = document.getElementById("exam-target-grade-display");
+    const valueInput = document.getElementById("exam-target-grade");
+
+    let grade = "";
+    // Map exam type to grade
+    if (type === "Grade 5 Scholarship") grade = "5";
+    else if (type === "GCE O/L") grade = "11";
+    else if (type === "GCE A/L") grade = "13";
+
+    if (valueInput) valueInput.value = grade;
+    if (display) display.value = grade ? `Grade ${grade}` : "";
+  }
+
+  function createExam() {
+    const type = document.getElementById("exam-type-select").value;
+    const year = document.getElementById("exam-year").value;
+    const targetGrade = document.getElementById("exam-target-grade").value;
+
+    if (!type || !year) {
+      toast("Exam Type and Year are required", "fa-solid fa-exclamation-triangle");
+      return;
+    }
+
+    // Name is derived from type + year usually, or just type
+    // Let's use the Type as the Name, the Year is stored separately
+    const name = type;
+
+    // Determine sub_type from exam name
+    let sub_type = null;
+    if (type === "Grade 5 Scholarship") sub_type = "Grade5";
+    else if (type === "GCE O/L") sub_type = "OL";
+    else if (type === "GCE A/L") sub_type = "AL";
+
+    api.clerk.exams.create({
+      name,
+      year,
+      target_grade: targetGrade || null,
+      type: 'gov',
+      sub_type
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Failed");
+        return res.json();
+      })
+      .then(() => {
+        toast("Exam created successfully", "fa-solid fa-check-circle");
+        document.getElementById("add-exam-modal").close();
+        fetchExams();
+      })
+      .catch(err => toast("Error creating exam", "fa-solid fa-circle-exclamation"));
+  }
+
+  function showExamsList() {
+    document.getElementById("exams-list-section").classList.remove("hidden");
+    document.getElementById("exam-details-section").classList.add("hidden");
+    currentExamId = null;
+  }
+
+  function showExamDetails(exam) {
+    currentExamId = exam.id;
+    document.getElementById("exams-list-section").classList.add("hidden");
+    document.getElementById("exam-details-section").classList.remove("hidden");
+
+    document.getElementById("exam-title-display").textContent = exam.name;
+    document.getElementById("exam-subtitle-display").textContent = `${exam.year} | ${exam.type.toUpperCase()}`;
+
+    const subjSelectDiv = document.getElementById("exam-subject-select").parentElement;
+    const saveBtn = document.querySelector("button[onclick='saveMarks()']");
+    const assignBtn = document.querySelector("button[onclick='openAssignStudentsModal()']");
+
+    // Ensure assign button is visible
+    assignBtn.style.display = 'inline-block';
+
+    // Hide subject select and save marks button as Clerk doesn't enter marks
+    subjSelectDiv.style.display = "none";
+    if (saveBtn) saveBtn.style.display = 'none';
+
+    initStudentTable();
+    fetchExamStudents();
+  }
+
+  function initStudentTable() {
+    const table = document.getElementById("exam-students-table");
+    const columns = [
+      { key: "username", header: "Admission No", searchable: true },
+      { key: "full_name", header: "Name", searchable: true },
+      { key: "class_name", header: "Class" },
+      {
+        key: "index_number",
+        header: "Exam Index No",
+        render: (row) => {
+          const input = document.createElement("input");
+          input.type = "text";
+          input.className = "marks-input"; // Reuse style
+          input.style.width = "120px";
+          input.placeholder = "Enter Index";
+          input.value = row.index_number || "";
+
+          input.onchange = (e) => {
+            const newIndex = e.target.value.trim();
+            if (newIndex === row.index_number) return;
+
+            api.clerk.exams.updateIndex(currentExamId, row.student_id, newIndex)
+              .then(res => {
+                if (!res.ok) throw new Error("Failed");
+                toast("Index updated", "fa-solid fa-check-circle");
+                row.index_number = newIndex; // Update local data
+              })
+              .catch(e => {
+                toast("Failed to update index", "fa-solid fa-circle-exclamation");
+                e.target.value = row.index_number || ""; // Revert
+              });
+          };
+          return input;
+        }
+      }
+    ];
+
+    table.setColumns(columns);
+
+    // Inject Import button next to the Export button inside the data-table
+    setTimeout(() => {
+      const exportBtn = table.querySelector('[id^="dt-export-btn"]');
+      if (exportBtn && !table.querySelector('#dt-import-btn')) {
+        const importBtn = document.createElement('button');
+        importBtn.id = 'dt-import-btn';
+        importBtn.className = 'btn btn-secondary';
+        importBtn.style.cssText = 'padding: 8px 12px; height: 100%;';
+        importBtn.innerHTML = '<i class="fas fa-file-import"></i> Import';
+        importBtn.onclick = () => document.getElementById('import-index-modal').open();
+        exportBtn.parentElement.insertBefore(importBtn, exportBtn);
+      }
+    }, 0);
+  }
+
+  function fetchExamStudents() {
+    api.clerk.exams.getStudents(currentExamId)
+      .then(res => res.json())
+      .then(data => {
+        examStudents = data;
+        document.getElementById("exam-students-table").setData(data);
+        // Note: loadMarksForSubject might have been called already for Scholarship
+        // If so, we need to refresh table to show marks after students load
+        if (Object.keys(currentMarks).length > 0) {
+          refreshTable();
+        }
+      })
+      .catch(err => toast("Error fetching students", "fa-solid fa-circle-exclamation"));
+  }
+
+  function handleCSVImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!currentExamId) {
+      toast("No exam selected", "fa-solid fa-exclamation-triangle");
+      event.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const text = e.target.result.trim();
+      if (!text) {
+        toast("CSV file is empty", "fa-solid fa-exclamation-triangle");
+        event.target.value = "";
+        return;
+      }
+
+      // Detect delimiter (comma or semicolon)
+      const firstLine = text.split("\n")[0];
+      const delimiter = firstLine.includes(";") ? ";" : ",";
+      const lines = text.split("\n").map(l => l.trim()).filter(l => l);
+
+      // Parse header to detect columns
+      const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_'));
+      let admCol = headers.findIndex(h => h.includes('admission') || h === 'admission_no' || h === 'username' || h === 'student_id');
+      let idxCol = headers.findIndex(h => h.includes('index') || h === 'index_number' || h === 'exam_index');
+
+      // Fallback: if no headers detected, assume first column = admission, second = index
+      if (admCol === -1 || idxCol === -1) {
+        if (headers.length >= 2) {
+          admCol = 0;
+          idxCol = 1;
+        } else {
+          toast("CSV must have at least 2 columns: Admission No and Index Number", "fa-solid fa-exclamation-triangle");
+          event.target.value = "";
+          return;
+        }
+      }
+
+      // Parse data rows (skip header)
+      const entries = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(delimiter).map(c => c.trim());
+        const admission_no = cols[admCol];
+        const index_number = cols[idxCol];
+        if (admission_no && index_number) {
+          entries.push({ admission_no, index_number });
+        }
+      }
+
+      if (entries.length === 0) {
+        toast("No valid entries found in CSV", "fa-solid fa-exclamation-triangle");
+        event.target.value = "";
+        return;
+      }
+
+      // Send to API
+      api.clerk.exams.bulkImportIndex(currentExamId, entries)
+        .then(res => res.json())
+        .then(result => {
+          let msg = `Updated ${result.updated} index number${result.updated !== 1 ? 's' : ''}`;
+          if (result.notFound && result.notFound.length > 0) {
+            msg += `. ${result.notFound.length} not found: ${result.notFound.slice(0, 5).join(', ')}`;
+            if (result.notFound.length > 5) msg += '...';
+            toast(msg, "fa-solid fa-exclamation-triangle");
+          } else {
+            toast(msg, "fa-solid fa-check-circle");
+          }
+          // Refresh the students table
+          fetchExamStudents();
+        })
+        .catch(err => {
+          toast("Failed to import index numbers", "fa-solid fa-circle-exclamation");
+        });
+
+      // Reset file input so the same file can be re-imported
+      event.target.value = "";
+    };
+
+    reader.readAsText(file);
+  }
+
+  function downloadSampleCSV() {
+    let csv = "admission_no,index_number\n";
+    // Pre-fill with current students if available
+    if (examStudents && examStudents.length > 0) {
+      examStudents.forEach(s => {
+        csv += `${s.username},${s.index_number || ""}\n`;
+      });
+    } else {
+      // Fallback sample rows
+      csv += "S1001,\nS1002,\n";
+    }
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "exam_index_numbers_sample.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function loadMarksForSubject() {
+    const subjectId = document.getElementById("exam-subject-select").value;
+    if (!subjectId) {
+      currentMarks = {};
+      refreshTable();
+      return;
+    }
+
+    api.clerk.exams.getMarks(currentExamId, subjectId)
+      .then(res => res.json())
+      .then(data => {
+        currentMarks = {};
+        data.forEach(m => {
+          currentMarks[m.student_id] = m.marks;
+        });
+        refreshTable();
+      })
+      .catch(err => toast("Error loading marks", "fa-solid fa-circle-exclamation"));
+  }
+
+  function refreshTable() {
+    const inputs = document.querySelectorAll("#exam-students-table .marks-input");
+    const subjectId = document.getElementById("exam-subject-select").value;
+    const isScholarship = document.getElementById("exam-title-display").textContent === "Grade 5 Scholarship";
+
+    inputs.forEach(input => {
+      const sid = input.dataset.studentId;
+      input.value = currentMarks[sid] || "";
+      if (!isScholarship) {
+        input.disabled = !subjectId;
+        input.placeholder = subjectId ? "Mark" : "Select Subject";
+      }
+    });
+  }
+
+  function openAssignStudentsModal() {
+    // Load classes if not loaded
+    if (allClasses.length === 0) {
+      api.clerk.classes.getAll().then(res => res.json()).then(data => {
+        allClasses = data;
+        const sel = document.getElementById("assign-class-filter");
+        sel.innerHTML = '<option value="">Select Class</option>';
+        data.forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c.id;
+          opt.text = `${c.grade} - ${c.class_name}`;
+          sel.appendChild(opt);
+        });
+      });
+    }
+    document.getElementById("assign-students-modal").open();
+    document.getElementById("student-selection-container").innerHTML = '<p class="text-center text-muted">Select a class to view students</p>';
+    document.getElementById("selected-count").textContent = "0 students selected";
+  }
+
+  function fetchStudentsForAssignment() {
+    const classId = document.getElementById("assign-class-filter").value;
+    if (!classId) return;
+
+    api.clerk.students.getAll().then(res => res.json()).then(data => {
+      const students = data.filter(s => s.class_id == classId);
+      renderStudentSelection(students);
+    });
+  }
+
+  function renderStudentSelection(students) {
+    const container = document.getElementById("student-selection-container");
+    container.innerHTML = "";
+
+    if (students.length === 0) {
+      container.innerHTML = "<p>No students in this class</p>";
+      return;
+    }
+
+    const assignedIds = new Set(examStudents.map(es => String(es.student_id)));
+
+    // Only add "Select All" if there are unassigned students
+    const unassignedCount = students.filter(s => !assignedIds.has(String(s.user_id))).length;
+    if (unassignedCount > 0) {
+      const selectAllDiv = document.createElement("div");
+      selectAllDiv.className = "student-checkbox";
+      selectAllDiv.innerHTML = `
+          <input type="checkbox" id="select-all-students" onchange="toggleSelectAll(this)">
+          <label for="select-all-students"><strong>Select All</strong></label>
+        `;
+      container.appendChild(selectAllDiv);
+    }
+
+    students.forEach(s => {
+      const isAssigned = assignedIds.has(String(s.user_id));
+      const div = document.createElement("div");
+      div.className = "student-checkbox";
+
+      if (isAssigned) {
+        div.style.background = "transparent";
+        div.style.pointerEvents = "none";
+        div.innerHTML = `
+            <div style="width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;">
+              <i class="fas fa-check-circle" style="color: var(--color-success); font-size: 1.1rem;"></i>
+            </div>
+            <label style="cursor: default; opacity: 0.8; display: flex; align-items: center;">
+              ${s.full_name} <span style="opacity:0.6; font-size: 0.85em; font-weight: 400; margin-left: 6px;">(${s.username})</span>
+              <span style="margin-left: auto; font-size: 0.8em; font-weight: 600; color: var(--color-success); background: color-mix(in srgb, var(--color-success) 15%, transparent); padding: 2px 8px; border-radius: 10px;">Already Assigned</span>
+            </label>
+          `;
+      } else {
+        div.innerHTML = `
+            <input type="checkbox" id="cb-${s.user_id}" class="student-select-cb" value="${s.user_id}" onchange="updateSelectedCount()">
+            <label for="cb-${s.user_id}" style="display: flex; align-items: center;">
+              ${s.full_name} <span style="opacity:0.6; font-size: 0.85em; font-weight: 400; margin-left: 6px;">(${s.username})</span>
+            </label>
+          `;
+      }
+      container.appendChild(div);
+    });
+  }
+
+  function toggleSelectAll(cb) {
+    document.querySelectorAll(".student-select-cb").forEach(box => box.checked = cb.checked);
+    updateSelectedCount();
+  }
+
+  function updateSelectedCount() {
+    const count = document.querySelectorAll(".student-select-cb:checked").length;
+    document.getElementById("selected-count").textContent = `${count} students selected`;
+  }
+
+  function confirmAssignment() {
+    const checkboxes = document.querySelectorAll(".student-select-cb:checked");
+    const ids = Array.from(checkboxes).map(cb => cb.value);
+
+    if (ids.length === 0) {
+      toast("No students selected", "fa-solid fa-exclamation-triangle");
+      return;
+    }
+
+    api.clerk.exams.assignStudents(currentExamId, ids)
+      .then(res => {
+        if (!res.ok) throw new Error("Failed");
+        return res.json();
+      })
+      .then(() => {
+        toast(`Assigned ${ids.length} students`, "fa-solid fa-check-circle");
+        document.getElementById("assign-students-modal").close();
+        fetchExamStudents();
+      })
+      .catch(err => toast("Assignment failed", "fa-solid fa-circle-exclamation"));
+  }
+
+  function saveMarks() {
+    const subjectId = document.getElementById("exam-subject-select").value;
+    if (!subjectId) {
+      toast("Please select a subject first", "fa-solid fa-exclamation-triangle");
+      return;
+    }
+
+    const marksData = [];
+    // Use currentMarks map to catch all edits
+    for (const [studentId, mark] of Object.entries(currentMarks)) {
+      marksData.push({
+        student_id: studentId,
+        subject_id: subjectId,
+        mark: mark
+      });
+    }
+
+    if (marksData.length === 0) {
+      toast("No marks to save", "fa-solid fa-info-circle");
+      return;
+    }
+
+    api.clerk.exams.saveMarks(currentExamId, marksData)
+      .then(res => {
+        if (!res.ok) throw new Error("Failed");
+        toast("Marks saved successfully", "fa-solid fa-check-circle");
+      })
+      .catch(err => toast("Error saving marks", "fa-solid fa-circle-exclamation"));
+  }
+
+  // ==========================================
+  // MARKS ENTRY SECTION
+  // ==========================================
+  let marksExamId = null;
+  let marksExamData = null;
+  let marksColumns = [];
+  let marksStudents = [];
+  let marksMap = {};       // { studentId: { subjectId: mark } }
+  let electiveMap = {};    // { studentId: { bucketId: subjectId } }
+  let marksExamType = null;
+  let marksDirty = {};     // track edited marks
+
+  function showMarksEntry(exam) {
+    marksExamId = exam.id;
+    marksExamData = exam;
+    document.getElementById("exams-list-section").classList.add("hidden");
+    document.getElementById("exam-details-section").classList.add("hidden");
+    document.getElementById("marks-entry-section").classList.remove("hidden");
+
+    document.getElementById("marks-exam-title").textContent = exam.name;
+    document.getElementById("marks-exam-subtitle").textContent = `${exam.year} | ${exam.type.toUpperCase()}`;
+
+    // Reset state
+    marksColumns = [];
+    marksStudents = [];
+    marksMap = {};
+    electiveMap = {};
+    marksDirty = {};
+
+    // Load subjects structure and marks in parallel
+    Promise.all([
+      api.clerk.exams.getSubjects(marksExamId).then(r => r.json()),
+      api.clerk.exams.getStudents(marksExamId).then(r => r.json()),
+      api.clerk.exams.getAllMarks(marksExamId).then(r => r.json())
+    ]).then(([subjectsData, students, marksData]) => {
+      marksColumns = subjectsData.columns;
+      marksExamType = subjectsData.examType;
+
+      // Only show students with index numbers
+      marksStudents = students.filter(s => s.index_number);
+
+      // Build marks map
+      marksData.marks.forEach(m => {
+        if (!marksMap[m.student_id]) marksMap[m.student_id] = {};
+        marksMap[m.student_id][m.subject_id] = m.marks;
+      });
+      electiveMap = marksData.studentElectives || {};
+      subjectNamesCache = marksData.subjectNames || {};
+
+      renderMarksTable();
+    }).catch(err => {
+      console.error(err);
+      toast("Failed to load marks data", "fa-solid fa-circle-exclamation");
+    });
+  }
+
+  function showMarksExamsList() {
+    document.getElementById("marks-entry-section").classList.add("hidden");
+    document.getElementById("exams-list-section").classList.remove("hidden");
+    marksExamId = null;
+    marksDirty = {};
+  }
+
+  function renderMarksTable() {
+    const container = document.getElementById("marks-table-container");
+    if (marksStudents.length === 0) {
+      container.innerHTML = '<p style="text-align:center; padding: 40px; color: var(--color-subtext);">No students with index numbers found. Assign index numbers first in Manage view.</p>';
+      return;
+    }
+
+    if (marksColumns.length === 0) {
+      container.innerHTML = '<p style="text-align:center; padding: 40px; color: var(--color-subtext);">No subjects configured for this exam type.</p>';
+      return;
+    }
+
+    // Build HTML table
+    let html = '<div style="overflow-x: auto;"><table class="marks-entry-table">';
+    // Header
+    html += '<thead><tr>';
+    html += '<th>Index No</th><th>Name</th>';
+    marksColumns.forEach(col => {
+      html += `<th>${col.header}</th>`;
+    });
+    html += '</tr></thead>';
+
+    // Body
+    html += '<tbody>';
+    marksStudents.forEach(student => {
+      html += '<tr>';
+      html += `<td>${student.index_number}</td>`;
+      html += `<td>${student.full_name}</td>`;
+
+      marksColumns.forEach(col => {
+        if (col.type === 'total') {
+          // Grade 5 - single total mark
+          const mark = getStudentMark(student.student_id, null, 'total');
+          html += `<td><input type="number" class="marks-input" min="0" max="200"
+            value="${mark || ''}" placeholder="/200"
+            data-student="${student.student_id}" data-col-key="total"
+            onchange="onMarkChange(this)"></td>`;
+        } else if (col.type === 'compulsory') {
+          const mark = marksMap[student.student_id]?.[col.subject_id] || '';
+          html += `<td><input type="number" class="marks-input" min="0" max="100"
+            value="${mark}" placeholder="/100"
+            data-student="${student.student_id}" data-subject="${col.subject_id}" data-col-key="${col.key}"
+            onchange="onMarkChange(this)"></td>`;
+        } else if (col.type === 'bucket') {
+          // Bucket column - find this student's elected subject for this bucket
+          const studentElectives = electiveMap[student.student_id] || {};
+          const subjectId = studentElectives[col.bucket_id];
+          if (subjectId) {
+            const mark = marksMap[student.student_id]?.[subjectId] || '';
+            html += `<td><input type="number" class="marks-input" min="0" max="100"
+              value="${mark}" placeholder="/100"
+              data-student="${student.student_id}" data-subject="${subjectId}" data-col-key="${col.key}"
+              title="${getSubjectName(subjectId, student.student_id, col.bucket_id)}"
+              onchange="onMarkChange(this)"></td>`;
+          } else {
+            html += '<td><span style="color: var(--color-subtext); font-size: 0.8rem;">N/A</span></td>';
+          }
+        }
+      });
+
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+
+    // Add legend for bucket columns if applicable
+    if (marksExamType !== 'Grade5') {
+      html += '<div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 16px;">';
+      marksColumns.filter(c => c.type === 'bucket').forEach(col => {
+        html += `<div style="font-size: 0.85rem; color: var(--color-subtext);"><strong>${col.header}:</strong> Hover over input to see subject name</div>`;
+      });
+      html += '</div>';
+    }
+
+    container.innerHTML = html;
+  }
+
+  // Helper to get the subject name for a bucket elective
+  let subjectNamesCache = {};
+  function getSubjectName(subjectId, studentId, bucketId) {
+    if (subjectNamesCache[subjectId]) return subjectNamesCache[subjectId];
+    return `Elective (Bucket ${bucketId})`;
+  }
+
+  function getStudentMark(studentId, subjectId, colType) {
+    if (colType === 'total') {
+      // For Grade 5, we store marks with a special subject. Find any mark for this student.
+      const studentMarks = marksMap[studentId];
+      if (!studentMarks) return '';
+      // Return the first mark found (there should be only one for total)
+      const vals = Object.values(studentMarks);
+      return vals.length > 0 ? vals[0] : '';
+    }
+    return marksMap[studentId]?.[subjectId] || '';
+  }
+
+  function onMarkChange(input) {
+    const studentId = input.dataset.student;
+    const subjectId = input.dataset.subject;
+    const colKey = input.dataset.colKey;
+
+    // Validation
+    const min = parseFloat(input.getAttribute('min')) || 0;
+    const max = parseFloat(input.getAttribute('max')) || 100;
+    let value = input.value.trim();
+
+    if (value !== '') {
+      let num = parseFloat(value);
+      if (num > max) {
+        num = max;
+        input.value = max;
+        toast(`Marks cannot exceed ${max}`, "fa-solid fa-exclamation-triangle");
+      } else if (num < min) {
+        num = min;
+        input.value = min;
+        toast(`Marks cannot be less than ${min}`, "fa-solid fa-exclamation-triangle");
+      }
+      value = num.toString();
+    }
+
+    if (!marksDirty[studentId]) marksDirty[studentId] = {};
+    marksDirty[studentId][colKey] = {
+      subject_id: subjectId || null,
+      mark: value === '' ? null : value
+    };
+  }
+
+  function saveAllMarks() {
+    const marksData = [];
+
+    if (marksExamType === 'Grade5') {
+      // Grade 5: need a "total" subject. We'll use subject_id = null approach - but we need a real subject_id.
+      // Use a convention: for Grade 5, we get a designated subject from class_subjects grade 5
+      // Actually, since marks table requires subject_id, let's get the first compulsory subject for grade 5
+      // or we can create a virtual approach. For now, collect all inputs.
+      const inputs = document.querySelectorAll('#marks-table-container .marks-input');
+      const collectPromise = api.clerk.exams.getSubjects(marksExamId).then(r => r.json()).then(subData => {
+        // For Grade 5, we use a special "scholarship_total" approach
+        // Store against a null subject (we'll handle this in the backend)
+        inputs.forEach(input => {
+          const studentId = input.dataset.student;
+          let val = input.value.trim();
+          if (val !== '') {
+            const min = parseFloat(input.getAttribute('min')) || 0;
+            const max = parseFloat(input.getAttribute('max')) || 100;
+            let num = parseFloat(val);
+            if (num > max) num = max;
+            if (num < min) num = min;
+            marksData.push({ student_id: studentId, subject_id: null, mark: num.toString() });
+          }
+        });
+        return doSaveMarks(marksData);
+      });
+      return;
+    }
+
+    // For OL/AL: collect all inputs
+    const inputs = document.querySelectorAll('#marks-table-container .marks-input');
+    inputs.forEach(input => {
+      const studentId = input.dataset.student;
+      const subjectId = input.dataset.subject;
+      let val = input.value.trim();
+      if (subjectId && val !== '') {
+        const min = parseFloat(input.getAttribute('min')) || 0;
+        const max = parseFloat(input.getAttribute('max')) || 100;
+        let num = parseFloat(val);
+        if (num > max) num = max;
+        if (num < min) num = min;
+        marksData.push({ student_id: studentId, subject_id: subjectId, mark: num.toString() });
+      }
+    });
+
+    doSaveMarks(marksData);
+  }
+
+  function doSaveMarks(marksData) {
+    if (marksData.length === 0) {
+      toast("No marks to save", "fa-solid fa-info-circle");
+      return;
+    }
+
+    api.clerk.exams.saveMarks(marksExamId, marksData)
+      .then(res => {
+        if (!res.ok) throw new Error("Failed");
+        toast(`Saved ${marksData.length} marks successfully`, "fa-solid fa-check-circle");
+        marksDirty = {};
+      })
+      .catch(err => toast("Error saving marks", "fa-solid fa-circle-exclamation"));
+  }
+
+  // Load subject names for tooltips
+  function loadSubjectNames() {
+    api.clerk.exams.getSubjects(marksExamId).then(r => r.json()).then(data => {
+      // Also fetch all subjects to build name cache
+    });
+  }

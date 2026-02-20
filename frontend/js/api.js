@@ -52,8 +52,7 @@ const api = {
       getAll: () => api.request("/teacher/classes"),
       getTeacherClasses: () => api.request("/teacher/classes/teacher"),
       getInfo: (classId) => api.request(`/teacher/classes/${classId}/info`),
-      getAllSubjects: (classId) =>
-        api.request(`/teacher/classes/${classId}/subjects/all`),
+
       getTeacherSubjects: (classId) =>
         api.request(`/teacher/classes/${classId}/subjects/teacher`),
       getSubjectAssignment: (classId) =>
@@ -169,13 +168,33 @@ const api = {
     },
     dashboard: {
       getStats: () => api.request("/clerk/stats"),
-    }
+    },
+    exams: {
+      getAll: (year) => api.request(year ? `/clerk/exams?year=${year}` : "/clerk/exams"),
+      create: (data) => api.request("/clerk/exams", "POST", data),
+      getStudents: (id) => api.request(`/clerk/exams/${id}/students`),
+      assignStudents: (id, studentIds) => api.request(`/clerk/exams/${id}/students`, "POST", { student_ids: studentIds }),
+      saveMarks: (id, marks) => api.request(`/clerk/exams/${id}/marks`, "POST", { marks }),
+      getMarks: (id, subjectId) => api.request(`/clerk/exams/${id}/marks?subjectId=${subjectId}`),
+      getSubjects: (id) => api.request(`/clerk/exams/${id}/subjects`),
+      getAllMarks: (id) => api.request(`/clerk/exams/${id}/all-marks`),
+      updateIndex: (examId, studentId, indexNumber) => api.request(`/clerk/exams/${examId}/index`, "PATCH", { student_id: studentId, index_number: indexNumber }),
+      bulkImportIndex: (examId, entries) => api.request(`/clerk/exams/${examId}/import-index`, "POST", { entries }),
+    },
+
   },
 
   // Student endpoints
   student: {
     achievements: {
       getAll: () => api.request("/student/achievements"),
+    },
+    marks: {
+      getRank: (examId) => api.request(examId ? `/student/marks/rank?examId=${examId}` : "/student/marks/rank"),
+      getAverage: (examId) => api.request(examId ? `/student/marks/average?examId=${examId}` : "/student/marks/average"),
+      getTermTests: () => api.request("/student/marks/term-tests"),
+      getTermTestMarks: (examId) => api.request(`/student/marks/term-test?examId=${examId}`),
+      getTrend: () => api.request("/student/marks/trend"),
     },
   },
 

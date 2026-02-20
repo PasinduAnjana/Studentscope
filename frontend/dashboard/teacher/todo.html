@@ -1,64 +1,46 @@
 <h2 class="heading">
   <i class="fas fa-tasks"></i>
-  <span
-    data-en="My Todo List"
-    data-si="මගේ කරණීය ලැයිස්තුව"
-    data-ta="எனது செய்ய வேண்டிய பட்டியல்"
-    >My Todo List</span
-  >
+  <span data-en="My Todo List" data-si="මගේ කරණීය ලැයිස්තුව" data-ta="எனது செய்ய வேண்டிய பட்டியல்">My Todo List</span>
 </h2>
 
 <div class="actions">
-  <div class="todo-input-wrapper">
-    <input
-      type="text"
-      id="todoInput"
-      class="input-field"
-      placeholder="Add a new todo..."
-      data-en-placeholder="Add a new todo..."
-      data-si-placeholder="නව කරණීය එක් කරන්න..."
-      data-ta-placeholder="புதிய செய்ய வேண்டியதைச் சேர்க்கவும்..."
-    />
-    <button class="btn" id="addTodoBtn" onclick="addTodo()">
+  <form class="todo-input-wrapper" onsubmit="handleTodoSubmit(event)">
+    <input type="text" id="todoInput" class="input-field" placeholder="Add a new todo..."
+      data-en-placeholder="Add a new todo..." data-si-placeholder="නව කරණීය එක් කරන්න..."
+      data-ta-placeholder="புதிய செய்ய வேண்டியதைச் சேர்க்கவும்..." />
+    <button type="submit" class="btn" id="addTodoBtn">
       <i class="fas fa-plus"></i>
       <span data-en="Add" data-si="එක් කරන්න" data-ta="சேர்க்கவும்">Add</span>
     </button>
-  </div>
+  </form>
 </div>
 
 <div class="todos-container" id="todosContainer">
   <div class="card">
-    <span data-en="Loading..." data-si="පූරණය වෙමින්..." data-ta="சloading..."
-      >Loading...</span
-    >
+    <span data-en="Loading..." data-si="පූරණය වෙමින්..." data-ta="சloading...">Loading...</span>
   </div>
 </div>
 
 <!-- Edit Todo Modal -->
 <!-- Edit Todo Modal -->
 <modal-dialog id="editTodoModal" title="Edit Todo">
+  <form onsubmit="handleEditSubmit(event)">
     <div style="padding: 20px;">
-      <input
-        type="text"
-        id="editTodoInput"
-        class="input-field"
-        placeholder="Enter todo text..."
-        data-en-placeholder="Enter todo text..."
-        data-si-placeholder="කරණීය පෙළ ඇතුළු කරන්න..."
-        data-ta-placeholder="செய்ய வேண்டிய உரையை உள்ளிடவும்..."
-        style="width: 100%;" 
-      />
+      <input type="text" id="editTodoInput" class="input-field" placeholder="Enter todo text..."
+        data-en-placeholder="Enter todo text..." data-si-placeholder="කරණීය පෙළ ඇතුළු කරන්න..."
+        data-ta-placeholder="செய்ய வேண்டிய உரையை உள்ளிடவும்..." style="width: 100%;" />
     </div>
     <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; padding: 0 20px 20px 20px;">
-      <button class="btn btn-secondary" onclick="closeEditTodoModal()">
+      <button type="button" class="btn btn-secondary" onclick="closeEditTodoModal()">
         <span data-en="Cancel" data-si="අවලංගු කරන්න" data-ta="ரத்து செய்ய">
           Cancel
         </span>
       </button>
-      <button class="btn" id="saveEditTodoBtn" onclick="saveEditTodo()">
+      <button type="submit" class="btn" id="saveEditTodoBtn">
         <span data-en="Save" data-si="සුරකින්න" data-ta="சேமிக்க">Save</span>
       </button>
     </div>
+  </form>
 </modal-dialog>
 
 <!-- Todo Item Template -->
@@ -164,7 +146,7 @@
     const container = document.getElementById("todosContainer");
     const todoTemplate = document.getElementById("todo-template");
 
-    
+
     container.innerHTML = "";
 
     if (todos.length === 0) {
@@ -183,7 +165,7 @@
 
       // Set content
       text.textContent = todo.text;
-      
+
       // Handle status
       const isCompleted = todo.status === "completed";
       if (isCompleted) {
@@ -197,9 +179,9 @@
 
       // Event listeners
       checkbox.onchange = (e) => toggleTodoStatus(todo.id, e.target.checked);
-      
+
       editBtn.onclick = () => openEditTodoModal(todo.id, todo.text);
-      
+
       deleteBtn.onclick = () => deleteTodo(todo.id);
 
       container.appendChild(clone);
@@ -220,6 +202,16 @@
       "'": "&#039;",
     };
     return text.replace(/[&<>"']/g, (m) => map[m]);
+  }
+
+  async function handleTodoSubmit(event) {
+    if (event) event.preventDefault();
+    await addTodo();
+  }
+
+  async function handleEditSubmit(event) {
+    if (event) event.preventDefault();
+    await saveEditTodo();
   }
 
   async function addTodo() {
@@ -251,18 +243,18 @@
     editingTodoId = todoId;
     document.getElementById("editTodoInput").value = todoText;
     const modal = document.getElementById("editTodoModal");
-    
+
     // Setup translations for title
     if (modal.titleElement) {
-        modal.titleElement.setAttribute("data-en", "Edit Todo");
-        modal.titleElement.setAttribute("data-si", "කරණීය සංස්කරණය");
-        modal.titleElement.setAttribute("data-ta", "செய்ய வேண்டியதை தொகுக்க");
+      modal.titleElement.setAttribute("data-en", "Edit Todo");
+      modal.titleElement.setAttribute("data-si", "කරණීය සංස්කරණය");
+      modal.titleElement.setAttribute("data-ta", "செய்ய வேண்டியதை தொகுக்க");
     }
     // Apply language if function exists
     if (typeof applyDirectLanguageAttributes === "function") {
-        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+      applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
     }
-    
+
     modal.open();
     document.getElementById("editTodoInput").focus();
   }
@@ -354,38 +346,11 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
-    const todoInput = document.getElementById("todoInput");
-    if (todoInput) {
-      todoInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-          addTodo();
-        }
-      });
-    }
+  // Initialize immediately since DOMContentLoaded has often already fired for partials
+  // Initialize
+  (function initTodoPage() {
     loadTodos();
-  });
-
-  // document.addEventListener("click", function (event) {
-  //   const editModal = document.getElementById("editTodoModal");
-  //   if (event.target === editModal) {
-  //     closeEditTodoModal();
-  //   }
-  // });
-
-  // Add Enter key to save edit todo
-  document.addEventListener("keypress", function (event) {
-    const editModal = document.getElementById("editTodoModal");
-    if (
-      editModal.style.display === "flex" &&
-      event.key === "Enter" &&
-      event.target.id === "editTodoInput"
-    ) {
-      saveEditTodo();
-    }
-  });
-
-  loadTodos();
+  })();
 </script>
 
 
@@ -550,5 +515,3 @@
       visibility: visible;
     }
   }
-
-

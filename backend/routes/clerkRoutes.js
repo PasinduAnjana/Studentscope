@@ -6,7 +6,9 @@ const timetableController = require("../controllers/clerk/timetableController");
 const profileController = require("../controllers/clerk/profileController");
 const announcementsController = require("../controllers/clerk/announcementsController");
 const achievementsController = require("../controllers/achievementsController");
+
 const clerkService = require("../services/clerkService");
+const examsController = require("../controllers/clerk/examsController");
 
 module.exports = async (req, res) => {
   // Students CRUD routes
@@ -244,6 +246,69 @@ module.exports = async (req, res) => {
       achievementsController.delete(req, res, id)
     );
   }
+
+  // Exam routes
+  if (req.method === "GET" && (req.url === "/api/clerk/exams" || req.url.startsWith("/api/clerk/exams?"))) {
+    return protect("clerk")(req, res, () =>
+      examsController.getExams(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url === "/api/clerk/exams") {
+    return protect("clerk")(req, res, () =>
+      examsController.createExam(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url.match(/^\/api\/clerk\/exams\/\d+\/students$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.getExamStudents(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url.match(/^\/api\/clerk\/exams\/\d+\/students$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.assignStudents(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url.match(/^\/api\/clerk\/exams\/\d+\/marks$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.saveMarks(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url.match(/^\/api\/clerk\/exams\/\d+\/marks/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.getMarks(req, res)
+    );
+  }
+
+  if (req.method === "PATCH" && req.url.match(/^\/api\/clerk\/exams\/\d+\/index$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.updateStudentIndex(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url.match(/^\/api\/clerk\/exams\/\d+\/import-index$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.bulkImportIndex(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url.match(/^\/api\/clerk\/exams\/\d+\/subjects$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.getExamSubjects(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url.match(/^\/api\/clerk\/exams\/\d+\/all-marks$/)) {
+    return protect("clerk")(req, res, () =>
+      examsController.getAllExamMarks(req, res)
+    );
+  }
+
+
 
   res.writeHead(404);
   res.end("Not Found");

@@ -321,12 +321,12 @@ exports.getElectiveSubjects = async (classId) => {
   // 2️⃣ Fetch elective subjects for this grade
   const result = await pool.query(
     `
-    SELECT s.id, s.name
+    SELECT s.id, s.name, gs.bucket_id
     FROM grade_subjects gs
     JOIN subjects s ON gs.subject_id = s.id
     WHERE gs.grade = $1
       AND gs.type = 'elective'
-    ORDER BY gs.display_order, s.name
+    ORDER BY gs.bucket_id, gs.display_order, s.name
     `,
     [grade]
   );
@@ -466,7 +466,7 @@ exports.getWeeklyAttendance = async (classId) => {
   const dayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
   const monday = new Date(today);
   monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-  
+
   const dates = [];
   const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   for (let i = 0; i < 5; i++) {
@@ -490,7 +490,7 @@ exports.getWeeklyAttendance = async (classId) => {
   // Aggregate results
   const present = new Array(5).fill(0);
   const absent = new Array(5).fill(0);
-  
+
   result.rows.forEach(row => {
     const dateIndex = dates.indexOf(row.date);
     if (dateIndex !== -1) {
@@ -516,7 +516,7 @@ exports.getMonthlyAttendance = async (classId) => {
   const year = today.getFullYear();
   const month = today.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  
+
   const dates = [];
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(year, month, day);
@@ -537,7 +537,7 @@ exports.getMonthlyAttendance = async (classId) => {
 
   // Aggregate results - only count present students
   const present = new Array(daysInMonth).fill(0);
-  
+
   result.rows.forEach(row => {
     const dateIndex = dates.indexOf(row.date);
     if (dateIndex !== -1 && row.status) {
@@ -571,29 +571,8 @@ exports.getTeacherMarksData = async (teacherId) => {
 
   const subjectAssignments = assignmentsResult.rows;
 
-  // Determine class teacher - for now, the class with the most subjects assigned
-  // If tie, pick the first alphabetically
-  const classCounts = {};
-  subjectAssignments.forEach((assignment) => {
-    const className = assignment.class;
-    classCounts[className] = (classCounts[className] || 0) + 1;
-  });
-
-  let classTeacherOf = null;
-  let maxCount = 0;
-  for (const [className, count] of Object.entries(classCounts)) {
-    if (
-      count > maxCount ||
-      (count === maxCount && (!classTeacherOf || className < classTeacherOf))
-    ) {
-      maxCount = count;
-      classTeacherOf = className;
-    }
-  }
-
   return {
     id: teacherId,
-    classTeacherOf,
     subjectAssignments,
   };
 };
@@ -607,6 +586,7 @@ exports.getTeacherClassSubjects = async (teacherId, classId) => {
       s.name
     FROM teacher_subjects ts
     JOIN subjects s ON ts.subject_id = s.id
+    JOIN timetables t ON t.teacher_subject_id = ts.id
     WHERE ts.teacher_id = $1 AND ts.class_id = $2
     ORDER BY s.name
     `,
@@ -617,28 +597,14 @@ exports.getTeacherClassSubjects = async (teacherId, classId) => {
 };
 
 // Get all subjects taught in a specific class (by any teacher)
-exports.getAllClassSubjects = async (classId) => {
-  const result = await pool.query(
-    `
-    SELECT DISTINCT
-      s.id,
-      s.name
-    FROM teacher_subjects ts
-    JOIN subjects s ON ts.subject_id = s.id
-    WHERE ts.class_id = $1
-    ORDER BY s.name
-    `,
-    [classId]
-  );
 
-  return result.rows;
-};
 
 // Get all available exams
 exports.getAllExams = async () => {
   const result = await pool.query(`
     SELECT id, name, year
     FROM exams
+    WHERE type = 'term'
     ORDER BY year DESC, name ASC
   `);
   return result.rows;
@@ -646,6 +612,18 @@ exports.getAllExams = async () => {
 
 // Save marks for students
 exports.saveMarks = async (marksData) => {
+  if (!marksData || marksData.length === 0) return { success: true };
+
+  // Verify exams are term tests
+  const examIds = [...new Set(marksData.map((m) => m.exam_id))];
+  const invalidExams = await pool.query(
+    "SELECT id FROM exams WHERE id = ANY($1) AND type != 'term'",
+    [examIds]
+  );
+  if (invalidExams.rows.length > 0) {
+    throw new Error("Teachers can only enter marks for Term Tests.");
+  }
+
   const client = await pool.connect();
 
   try {
@@ -682,10 +660,12 @@ exports.saveMarks = async (marksData) => {
 exports.getMarks = async (classId, subjectId, examId) => {
   const result = await pool.query(
     `
-    SELECT student_id, marks
-    FROM marks
-    WHERE subject_id = $1 AND exam_id = $2
-    AND student_id IN (SELECT id FROM users WHERE class_id = $3)
+    SELECT m.student_id, m.marks
+    FROM marks m
+    JOIN exams e ON m.exam_id = e.id
+    WHERE m.subject_id = $1 AND m.exam_id = $2
+    AND e.type = 'term'
+    AND m.student_id IN (SELECT id FROM users WHERE class_id = $3)
     `,
     [subjectId, examId, classId]
   );

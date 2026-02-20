@@ -101,6 +101,7 @@ async function run() {
     };
 
     // Electives
+    // Electives
     const studentElectives = {
       "6-9": [
         "Practical and Technical Skills",
@@ -109,39 +110,57 @@ async function run() {
         "Art",
         "Music",
       ],
-      "10-11": [
-        "Business & Accounting Studies",
-        "Geography",
-        "Civic Education",
-        "Agriculture & Food Technology",
-        "ICT",
-        "Health & Physical Education",
-        "Aesthetic Subjects",
-        "Home Science",
-        "Technical Subjects",
-      ],
-      "12-13": [
-        "Physics",
-        "Chemistry",
-        "Biology",
-        "Combined Mathematics",
-        "ICT",
-        "Business Studies",
-        "Accounting",
-        "Economics",
-        "History",
-        "Political Science",
-        "Sinhala Literature",
-        "Tamil Literature",
-        "English Literature",
-        "Geography",
-        "Logic",
-        "Religion",
-        "Performing Arts",
-        "Engineering Technology",
-        "Bio-System Technology",
-        "Science for Technology",
-      ],
+      "10-11": {
+        // Bucket 1 (History/Geo/etc)
+        1: [
+          "Geography",
+          "Civic Education",
+          "Entrepreneurial Studies",
+          "Second Language (Sinhala/Tamil)"
+        ],
+        // Bucket 2 (Aesthetic)
+        2: [
+          "Music",
+          "Art",
+          "Dancing",
+          "Drama",
+          "Literature"
+        ],
+        // Bucket 3 (Technical/Science)
+        3: [
+          "ICT",
+          "Health & Physical Education",
+          "Home Economics",
+          "Agriculture"
+        ]
+      },
+      "12-13": {
+        // Bucket 1 (Slot 1 Choices)
+        1: [
+          "Combined Mathematics",
+          "Biology",
+          "Arts",
+          "Business Studies",
+          "Engineering Technology"
+        ],
+        // Bucket 2 (Slot 2 Choices)
+        2: [
+          "Physics",
+          "Chemistry",
+          "Geography",
+          "Accounting",
+          "Biosystems Technology"
+        ],
+        // Bucket 3 (Slot 3 Choices)
+        3: [
+          "ICT",
+          "Economics",
+          "History",
+          "Science for Technology",
+          "English Literature",
+          "Logic"
+        ]
+      }
     };
 
     // 4️⃣ Insert all subjects (deduplicated)
@@ -150,9 +169,16 @@ async function run() {
     Object.values(subjectsByGrade).forEach((arr) =>
       arr.forEach((s) => allSubjects.add(s))
     );
-    Object.values(studentElectives).forEach((arr) =>
-      arr.forEach((s) => allSubjects.add(s))
-    );
+    Object.entries(studentElectives).forEach(([gradeRange, val]) => {
+      if (Array.isArray(val)) {
+        val.forEach((s) => allSubjects.add(s));
+      } else {
+        // It's a bucket object (e.g. 10-11 or 12-13)
+        Object.values(val).forEach(bucketSubjects =>
+          bucketSubjects.forEach(s => allSubjects.add(s))
+        );
+      }
+    });
 
     for (const name of allSubjects) {
       const res = await pool.query(
@@ -193,7 +219,6 @@ async function run() {
     }
 
     // 6️⃣ Grade subject rules (elective counts)
-    // 6️⃣ Grade subject rules (elective counts)
     for (const grade of grades) {
       let electiveCount = 0;
       if (grade <= 5) electiveCount = 0;
@@ -207,21 +232,50 @@ async function run() {
     }
 
     // 7️⃣ Insert elective subjects into grade_subjects
-    // 7️⃣ Insert elective subjects into grade_subjects
     for (const grade of grades) {
-      let electives = [];
-      if (grade >= 6 && grade <= 9) electives = studentElectives["6-9"];
-      else if (grade >= 10 && grade <= 11) electives = studentElectives["10-11"];
-      else if (grade >= 12 && grade <= 13) electives = studentElectives["12-13"];
-      
-      if (electives.length > 0) {
-        for (let i = 0; i < electives.length; i++) {
-          const subId = subjectIdsMap[electives[i]];
-          await pool.query(
-            `INSERT INTO grade_subjects (grade, subject_id, type, display_order)
-             VALUES ($1, $2, 'elective', $3)`,
-            [grade, subId, i + 1]
-          );
+      if (grade >= 10 && grade <= 11) {
+        // 10-11 is special: Buckets
+        const buckets = studentElectives["10-11"];
+        for (const [bucketId, subjects] of Object.entries(buckets)) {
+          for (let i = 0; i < subjects.length; i++) {
+            const subId = subjectIdsMap[subjects[i]];
+            await pool.query(
+              `INSERT INTO grade_subjects (grade, subject_id, type, bucket_id, display_order)
+                   VALUES ($1, $2, 'elective', $3, $4)`,
+              [grade, subId, parseInt(bucketId), i + 1]
+            );
+          }
+        }
+      } else if (grade >= 12 && grade <= 13) {
+        // 12-13 A-Levels: Buckets
+        const buckets = studentElectives["12-13"];
+        for (const [bucketId, subjects] of Object.entries(buckets)) {
+          for (let i = 0; i < subjects.length; i++) {
+            const subId = subjectIdsMap[subjects[i]];
+            // Check if subject exists (safe check)
+            if (subId) {
+              await pool.query(
+                `INSERT INTO grade_subjects (grade, subject_id, type, bucket_id, display_order)
+                    VALUES ($1, $2, 'elective', $3, $4)`,
+                [grade, subId, parseInt(bucketId), i + 1]
+              );
+            }
+          }
+        }
+      } else {
+        // Standard electives (no buckets used yet for others, or single bucket)
+        let electives = [];
+        if (grade >= 6 && grade <= 9) electives = studentElectives["6-9"];
+
+        if (electives.length > 0) {
+          for (let i = 0; i < electives.length; i++) {
+            const subId = subjectIdsMap[electives[i]];
+            await pool.query(
+              `INSERT INTO grade_subjects (grade, subject_id, type, bucket_id, display_order)
+                 VALUES ($1, $2, 'elective', 0, $3)`,
+              [grade, subId, i + 1]
+            );
+          }
         }
       }
     }
@@ -256,24 +310,24 @@ async function run() {
     const firstNamesFemale = ["Kumari", "Anusha", "Hashini", "Shanika", "Manori", "Gayathri", "Sandeepa", "Nadeesha", "Rashmi", "Tharushi", "Sanduni", "Malsha", "Sithara", "Nimesha", "Chathuni", "Thilini", "Dulakshi", "Dilani", "Chamari", "Kavindi", "Purnima", "Ishara", "Malki"];
     const lastNames = ["Perera", "Silva", "Fernando", "Jayasuriya", "Wijesinghe", "Gunawardena", "Rajapaksha", "Dissanayake", "Bandara", "Ranasinghe", "Karunaratne", "Ekanayake", "Herath", "Jayawardena", "Liyanage", "Gamage", "Senanayake", "Rathnayake"];
     const cities = ["Colombo", "Kandy", "Galle", "Matara", "Kurunegala", "Negombo", "Jaffna", "Badulla", "Anuradhapura", "Ratnapura", "Trincomalee", "Batticaloa", "Gampaha", "Kalutara", "Matale"];
-    
+
     function getRandomElement(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
+      return arr[Math.floor(Math.random() * arr.length)];
     }
 
     function generateRandomPerson(role) {
-        const isMale = Math.random() > 0.5;
-        const firstName = isMale ? getRandomElement(firstNamesMale) : getRandomElement(firstNamesFemale);
-        const lastName = getRandomElement(lastNames);
-        const city = getRandomElement(cities);
-        
-        return {
-            full_name: role === 'teacher' ? `${isMale ? 'Mr.' : 'Ms.'} ${firstName} ${lastName}` : `${firstName} ${lastName}`,
-            gender: isMale ? 'M' : 'F',
-            address: `${Math.floor(Math.random() * 100) + 1} Main St, ${city}`,
-            city: city,
-            nationality: "Sri Lankan"
-        };
+      const isMale = Math.random() > 0.5;
+      const firstName = isMale ? getRandomElement(firstNamesMale) : getRandomElement(firstNamesFemale);
+      const lastName = getRandomElement(lastNames);
+      const city = getRandomElement(cities);
+
+      return {
+        full_name: role === 'teacher' ? `${isMale ? 'Mr.' : 'Ms.'} ${firstName} ${lastName}` : `${firstName} ${lastName}`,
+        gender: isMale ? 'M' : 'F',
+        address: `${Math.floor(Math.random() * 100) + 1} Main St, ${city}`,
+        city: city,
+        nationality: "Sri Lankan"
+      };
     }
 
     // 🔹 Generate Teacher Details Dynamically
@@ -281,7 +335,7 @@ async function run() {
       const tId = teacherIds[classKey];
       const person = generateRandomPerson('teacher');
       const birthYear = 1970 + Math.floor(Math.random() * 20); // 1970-1990
-      
+
       await pool.query(
         `INSERT INTO teacher_details (teacher_id, full_name, nic, address, phone_number, past_schools, appointment_date, first_appointment_date, level, birthday)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
@@ -295,7 +349,7 @@ async function run() {
           `${2015 + Math.floor(Math.random() * 8)}-01-15`,
           `${2010 + Math.floor(Math.random() * 5)}-05-20`,
           Math.floor(Math.random() * 3) + 1, // Level 1-3
-          `${birthYear}-${String(Math.floor(Math.random() * 12) + 1).padStart(2,'0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2,'0')}`,
+          `${birthYear}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
         ]
       );
     }
@@ -356,56 +410,56 @@ async function run() {
     // 🔹 Generate Students Dynamically per Class
     const studentIds = {};
     let studentIndexCounter = 1000;
-    
+
     // We want about 35-40 students per class
     // 13 grades * 2 classes = 26 classes.
-    
+
     for (const grade of grades) {
       for (const name of classNames) {
         const classKey = `${grade}-${name}`;
         studentIds[classKey] = [];
         const classId = classIds[classKey];
-        
-        // Generate between 30 and 40 students per class
-        const studentCount = 30 + Math.floor(Math.random() * 10); 
-        
-        for (let i = 0; i < studentCount; i++) {
-            const student = generateRandomPerson('student');
-            const indexNumber = `S${studentIndexCounter++}`;
-            
-            // Birthday based on grade (approximate)
-            // Grade 1 is approx 6 years old. Grade 13 is approx 18.
-            // Current year is roughly 2025 (as per metadata), so birth year = 2025 - (grade + 5)
-            const birthYear = 2025 - (grade + 5);
-            const birthDate = `${birthYear}-${String(Math.floor(Math.random() * 12) + 1).padStart(2,'0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2,'0')}`;
-            
-            // Create user
-            const sId = await createUser(indexNumber, "123", "student", classId);
-            studentIds[classKey].push(sId);
-            
-            // Parent
-            // Just picking a random parent from our generated list is complex if parents aren't linked. 
-            // The original code assigned from a 'parentIds' list. We need to make sure 'parentIds' is populated sufficiently or reuse them.
-            // Let's reuse the existing parent logic or make it cleaner.
-            // Since we haven't touched the parent generation code yet, we assume 'parentIds' exists.
-            // However, the original code had a fixed 'uniqueStudentsList' loop.
-            
-            // Pick a random parent ID
-            const parentId = parentIds[Math.floor(Math.random() * parentIds.length)];
 
-            await pool.query(
-              `INSERT INTO students (user_id, full_name, birthday, address, gender, nationality, parent_id)
+        // Generate between 30 and 40 students per class
+        const studentCount = 30 + Math.floor(Math.random() * 10);
+
+        for (let i = 0; i < studentCount; i++) {
+          const student = generateRandomPerson('student');
+          const indexNumber = `S${studentIndexCounter++}`;
+
+          // Birthday based on grade (approximate)
+          // Grade 1 is approx 6 years old. Grade 13 is approx 18.
+          // Current year is roughly 2025 (as per metadata), so birth year = 2025 - (grade + 5)
+          const birthYear = 2025 - (grade + 5);
+          const birthDate = `${birthYear}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`;
+
+          // Create user
+          const sId = await createUser(indexNumber, "123", "student", classId);
+          studentIds[classKey].push(sId);
+
+          // Parent
+          // Just picking a random parent from our generated list is complex if parents aren't linked. 
+          // The original code assigned from a 'parentIds' list. We need to make sure 'parentIds' is populated sufficiently or reuse them.
+          // Let's reuse the existing parent logic or make it cleaner.
+          // Since we haven't touched the parent generation code yet, we assume 'parentIds' exists.
+          // However, the original code had a fixed 'uniqueStudentsList' loop.
+
+          // Pick a random parent ID
+          const parentId = parentIds[Math.floor(Math.random() * parentIds.length)];
+
+          await pool.query(
+            `INSERT INTO students (user_id, full_name, birthday, address, gender, nationality, parent_id)
                VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-              [
-                sId,
-                student.full_name,
-                birthDate,
-                student.address,
-                student.gender,
-                student.nationality,
-                parentId
-              ]
-            );
+            [
+              sId,
+              student.full_name,
+              birthDate,
+              student.address,
+              student.gender,
+              student.nationality,
+              parentId
+            ]
+          );
         }
       }
     }
@@ -420,133 +474,242 @@ async function run() {
 
     // Helper function to get electives
     const getElectives = (grade) => {
-        if (grade >= 6 && grade <= 9) return studentElectives["6-9"];
-        if (grade >= 10 && grade <= 11) return studentElectives["10-11"];
-        if (grade >= 12 && grade <= 13) return studentElectives["12-13"];
-        return [];
+      if (grade >= 6 && grade <= 9) return studentElectives["6-9"];
+      // For 10-11, we need to return a flattened list or handle it specially. 
+      // This helper is used for checking if list exists. 
+      if (grade >= 10 && grade <= 11) return studentElectives["10-11"];
+      if (grade >= 12 && grade <= 13) return studentElectives["12-13"];
+      return [];
     };
 
-    // 🔟 Teacher-Subjects mapping (teachers cover compulsory subjects)
-    for (const classKey in teacherIds) {
-      const tId = teacherIds[classKey];
-      const classId = classIds[classKey];
-      // Extract grade from classKey
-      const grade = parseInt(classKey.split("-")[0]);
-      const subjects = getMandatorySubjects(grade);
-      // Assign all compulsory subjects in their own class
-      for (const subName of subjects) {
-        await pool.query(
-          `INSERT INTO teacher_subjects (teacher_id, subject_id, class_id) VALUES ($1,$2,$3)`,
-          [tId, subjectIdsMap[subName], classId]
-        );
-      }
+    // Helper: Get ALL subjects for a grade (Mandatory + Flattened Electives)
+    const getAllSubjectsForGrade = (grade) => {
+      const mandatory = getMandatorySubjects(grade);
+      const electivesData = getElectives(grade);
+      let electives = [];
 
-      // Assign teacher to teach one subject in 2-3 other classes
-      const otherClassKeys = Object.keys(classIds).filter(
-        (k) => k !== classKey
-      );
-      // Shuffle and pick 2 or 3 other classes
-      const shuffled = otherClassKeys.sort(() => Math.random() - 0.5);
-      const numOtherClasses = Math.floor(Math.random() * 2) + 2; // 2 or 3
-      for (let i = 0; i < numOtherClasses && i < shuffled.length; i++) {
-        const otherClassKey = shuffled[i];
-        const otherClassId = classIds[otherClassKey];
-        const otherGrade = parseInt(otherClassKey.split("-")[0]);
-        const otherSubjects = getMandatorySubjects(otherGrade);
-        // Pick a random subject from compulsory subjects
-        const randomSub =
-          otherSubjects[Math.floor(Math.random() * otherSubjects.length)];
-        await pool.query(
-          `INSERT INTO teacher_subjects (teacher_id, subject_id, class_id) VALUES ($1,$2,$3)`,
-          [tId, subjectIdsMap[randomSub], otherClassId]
-        );
+      if (Array.isArray(electivesData)) {
+        electives = electivesData;
+      } else if (electivesData) {
+        // Flatten bucket objects
+        Object.values(electivesData).forEach(bucketList => {
+          electives = [...electives, ...bucketList];
+        });
       }
-    }
+      // Deduplicate
+      return [...new Set([...mandatory, ...electives])];
+    };
 
     // 1️⃣1️⃣ Assign elective subjects to students
     for (const grade of grades) {
-       let electiveCount = 0;
-       if (grade >= 6 && grade <= 9) electiveCount = 1;
-       else if (grade >= 10) electiveCount = 3; // 10-13
+      // Check if we have electives for this grade
+      const electivesData = getElectives(grade);
+      if (!electivesData) continue;
 
-       if (electiveCount === 0) continue;
+      for (const name of classNames) {
+        const classKey = `${grade}-${name}`;
+        if (!studentIds[classKey]) continue;
 
-       const electives = getElectives(grade);
-       if (!electives || electives.length === 0) continue;
+        const students = studentIds[classKey];
 
-       for (const name of classNames) {
-         const classKey = `${grade}-${name}`;
-         if (!studentIds[classKey]) continue; // Safety check
+        for (let i = 0; i < students.length; i++) {
+          const sId = students[i];
+          const values = [];
 
-         const students = studentIds[classKey];
-         // Iterate sequentially through students to handle async loops if needed, 
-         // essentially just need to insert for each student.
-         // Using for...of loop for async/await inside if desired, or map/promise.all
-         for (let i = 0; i < students.length; i++) {
-           const sId = students[i];
-           const values = [];
-           for (let j = 0; j < electiveCount; j++) {
-             // Round robin selection
-             const subName = electives[(i + j) % electives.length];
-             const subId = subjectIdsMap[subName];
-             values.push(`(${sId},${subId})`);
-           }
-           if (values.length > 0) {
-              const query = `INSERT INTO student_subjects (student_id, subject_id) VALUES ${values.join(",")}`;
-              await pool.query(query);
-           }
-         }
-       }
+          if (grade >= 10 && grade <= 11) {
+            // Buckets logic: Pick 1 from each bucket
+            // electivesData is { 1: [...], 2: [...] }
+            for (const subjects of Object.values(electivesData)) {
+              // Pick random subject from this bucket
+              // Use i to make it somewhat deterministic but distributed
+              const subName = subjects[(i + Math.floor(Math.random() * subjects.length)) % subjects.length];
+              const subId = subjectIdsMap[subName];
+              values.push(`(${sId},${subId})`);
+            }
+          } else if (grade >= 12 && grade <= 13) {
+            // A-Level Bucket Logic: Pick 1 from each bucket
+            for (const subjects of Object.values(electivesData)) {
+              // Pick random subject from this bucket
+              // Use i to make it somewhat deterministic but distributed
+              const subName = subjects[(i + Math.floor(Math.random() * subjects.length)) % subjects.length];
+              const subId = subjectIdsMap[subName];
+              if (subId) values.push(`(${sId},${subId})`);
+            }
+          } else {
+            // Standard logic
+            let electiveCount = 0;
+            if (grade >= 6 && grade <= 9) electiveCount = 1;
+            else if (grade >= 12) electiveCount = 3;
+
+            const electivesList = electivesData;
+            if (Array.isArray(electivesList) && electivesList.length > 0) {
+              for (let j = 0; j < electiveCount; j++) {
+                const subName = electivesList[(i + j) % electivesList.length];
+                const subId = subjectIdsMap[subName];
+                values.push(`(${sId},${subId})`);
+              }
+            }
+          }
+          if (values.length > 0) {
+            const query = `INSERT INTO student_subjects (student_id, subject_id) VALUES ${values.join(",")}`;
+            await pool.query(query);
+          }
+        }
+      }
     }
 
     // 1️⃣2️⃣ Timetable
     // For each class, subject, teacher, find teacher_subject_id and use it for timetable
+    // 1️⃣2️⃣ Timetable (Realistic & Timetable-Driven)
+    // - Teachers specialize in specific subjects
+    // - Teachers move between classes in their grade
+    // - Free periods allowed
+
+    // Group teachers by grade for pooling
+    const teachersByGrade = {};
+    for (const classKey in teacherIds) {
+      const grade = parseInt(classKey.split("-")[0]);
+      if (!teachersByGrade[grade]) teachersByGrade[grade] = [];
+      teachersByGrade[grade].push(teacherIds[classKey]);
+    }
+
+    // Assign specialties and initialize schedule tracker
+
+
+    // Assign specialties and initialize schedule tracker
+    const teacherSpecialties = {};
+    const teacherSchedule = {}; // tId -> day -> slot -> true
+    const teacherAssignedSubjects = {}; // tId -> Set<subId> (Track unique subjects taught)
+
+    // Flatten all teachers
+    const allTeacherIds = Object.values(teacherIds);
+    for (const tId of allTeacherIds) {
+      teacherSchedule[tId] = {};
+      teacherAssignedSubjects[tId] = new Set();
+      for (let d = 1; d <= 5; d++) teacherSchedule[tId][d] = {};
+
+      // Assign random specialties (2-3 subjects) based on their assigned grade context
+      // Find which grade this teacher belongs to (roughly)
+      let grade = 10; // Default
+      for (const g in teachersByGrade) {
+        if (teachersByGrade[g].includes(tId)) { grade = parseInt(g); break; }
+      }
+      const subjects = getAllSubjectsForGrade(grade);
+      // Pick 3 random subjects
+      const shuffled = [...subjects].sort(() => 0.5 - Math.random());
+      teacherSpecialties[tId] = shuffled.slice(0, 3).map(name => subjectIdsMap[name]);
+    }
+
     for (const grade of grades) {
+      const subjectNames = getAllSubjectsForGrade(grade);
+      const subjectSeq = subjectNames.map(name => subjectIdsMap[name]);
+
       for (const name of classNames) {
         const classKey = `${grade}-${name}`;
         const classId = classIds[classKey];
-        const tId = teacherIds[classKey];
-        const subjects = getMandatorySubjects(grade).map(
-          (name) => subjectIdsMap[name]
-        );
-        let idx = 0;
+
+        // Standardize subject sequence for the class so it cycles through
+        let subIdx = 0;
+
         for (let day = 1; day <= 5; day++) {
           for (let slot = 1; slot <= 8; slot++) {
-            const subId = subjects[idx % subjects.length];
-            // Find teacher_subject_id for this teacher, subject, class
-            const tsRes = await pool.query(
-              `SELECT id FROM teacher_subjects WHERE teacher_id = $1 AND subject_id = $2 AND class_id = $3 LIMIT 1`,
-              [tId, subId, classId]
+
+            // 15% Chance of Free Period (only if not a primary grade where continuous supervision is needed)
+            if (grade > 5 && Math.random() < 0.15) {
+              continue; // Free period
+            }
+
+            const subId = subjectSeq[subIdx % subjectSeq.length];
+            subIdx++;
+
+            // Helper to check if teacher can take this subject
+            const canTeach = (tId) => {
+              const assigned = teacherAssignedSubjects[tId];
+              // YES if already teaching this subject OR has room for more (<4)
+              return assigned.has(subId) || assigned.size < 4;
+            };
+
+            // Find a teacher
+            // Criteria 1: Specializes in subject AND is free AND can take subject
+            const teacherPool = teachersByGrade[grade] || [];
+            let chosenTeacher = teacherPool.find(tId =>
+              teacherSpecialties[tId].includes(subId) &&
+              !teacherSchedule[tId][day][slot] &&
+              canTeach(tId)
             );
-            if (!tsRes.rows.length) {
-              throw new Error(
-                `teacher_subjects not found for teacher ${tId}, subject ${subId}, class ${classId}`
+
+            // Criteria 2: Fallback - Any free teacher in grade who satisfies subject constraint
+            if (!chosenTeacher) {
+              chosenTeacher = teacherPool.find(tId =>
+                !teacherSchedule[tId][day][slot] &&
+                canTeach(tId)
               );
             }
+
+            // Criteria 3: Last Resort - Any free teacher in system who satisfies subject constraint
+            if (!chosenTeacher) {
+              chosenTeacher = allTeacherIds.find(tId =>
+                !teacherSchedule[tId][day][slot] &&
+                canTeach(tId)
+              );
+            }
+
+            if (!chosenTeacher) {
+              // No teacher available? Skip slot (forced free period)
+              continue;
+            }
+
+            // Mark busy and track subject
+            teacherSchedule[chosenTeacher][day][slot] = true;
+            teacherAssignedSubjects[chosenTeacher].add(subId);
+
+            // 1. Ensure Teacher-Subject Assignment Exists
+            await pool.query(
+              `INSERT INTO teacher_subjects (teacher_id, subject_id, class_id) 
+                 VALUES ($1, $2, $3)
+                 ON CONFLICT (teacher_id, subject_id, class_id) DO NOTHING`,
+              [chosenTeacher, subId, classId]
+            );
+
+            // 2. Get the ID
+            const tsRes = await pool.query(
+              `SELECT id FROM teacher_subjects WHERE teacher_id = $1 AND subject_id = $2 AND class_id = $3 LIMIT 1`,
+              [chosenTeacher, subId, classId]
+            );
+
+            if (!tsRes.rows.length) {
+              // Should not happen due to insert above
+              continue;
+            }
             const teacherSubjectId = tsRes.rows[0].id;
+
+            // 3. Create Timetable Entry
             await pool.query(
               `INSERT INTO timetables (teacher_subject_id, day_of_week, slot)
                VALUES ($1,$2,$3)`,
               [teacherSubjectId, day, slot]
             );
-            idx++;
           }
         }
       }
     }
 
     // 1️⃣3️⃣ Exams (Term Tests)
+    // 1️⃣3️⃣ Exams (Term Tests and Gov Exams)
     const currentYear = new Date().getFullYear();
     const exams = [
-      `1st Term Test ${currentYear}`,
-      `2nd Term Test ${currentYear}`,
-      `3rd Term Test ${currentYear}`,
+      { name: `1st Term Test ${currentYear}`, type: 'term', sub_type: 'Term1', year: currentYear },
+      { name: `2nd Term Test ${currentYear}`, type: 'term', sub_type: 'Term2', year: currentYear },
+      { name: `3rd Term Test ${currentYear}`, type: 'term', sub_type: 'Term3', year: currentYear },
+      { name: `GCE O/L ${currentYear}`, type: 'gov', sub_type: 'OL', year: currentYear, target_grade: 11 },
+      { name: `GCE A/L ${currentYear}`, type: 'gov', sub_type: 'AL', year: currentYear, target_grade: 13 },
+      { name: `Grade 5 Scholarship ${currentYear}`, type: 'gov', sub_type: 'Grade5', year: currentYear, target_grade: 5 },
     ];
-    
-    for (const examName of exams) {
+
+    for (const exam of exams) {
       await pool.query(
-        `INSERT INTO exams (name, year) VALUES ($1, $2)`,
-        [examName, currentYear]
+        `INSERT INTO exams (name, type, sub_type, year, target_grade) VALUES ($1, $2, $3, $4, $5)`,
+        [exam.name, exam.type, exam.sub_type, exam.year, exam.target_grade || null]
       );
     }
 
@@ -631,8 +794,53 @@ async function run() {
       }
     }
 
+    // 1️⃣5️⃣ Seed Marks and Enrollments for Term 1 and Term 2
+    console.log("📝 Seeding marks and enrollments...");
+    const termExamsRes = await pool.query("SELECT id, sub_type FROM exams WHERE type = 'term' AND year = $1", [currentYear]);
+    const targetExams = termExamsRes.rows.filter(e => e.sub_type === 'Term1' || e.sub_type === 'Term2');
+
+    for (const classKey in studentIds) {
+      const classId = classIds[classKey];
+      const grade = parseInt(classKey.split("-")[0]);
+      const students = studentIds[classKey];
+
+      // Mandatory subjects for this class
+      const mandSubjects = getMandatorySubjects(grade);
+      const mandSubIds = mandSubjects.map(name => subjectIdsMap[name]);
+
+      for (const sId of students) {
+        // Get electives for this student
+        const elecRes = await pool.query("SELECT subject_id FROM student_subjects WHERE student_id = $1", [sId]);
+        const elecSubIds = elecRes.rows.map(r => r.subject_id);
+        const allSubIds = [...mandSubIds, ...elecSubIds];
+
+        for (const exam of targetExams) {
+          // 1. Enroll
+          await pool.query(
+            `INSERT INTO exam_students (exam_id, student_id, index_number) 
+                     VALUES ($1, $2, $3)
+                     ON CONFLICT (exam_id, student_id) DO NOTHING`,
+            [exam.id, sId, `INDEX-${sId}`] // Simple index number
+          );
+
+          // 2. Add Marks
+          for (const subId of allSubIds) {
+            // Generate marks (skewed towards 40-90)
+            const marks = Math.floor(Math.random() * 60) + 35; // 35 to 94
+
+            await pool.query(
+              `INSERT INTO marks (student_id, subject_id, marks, exam_id)
+                         VALUES ($1, $2, $3, $4)
+                         ON CONFLICT DO NOTHING`,
+              [sId, subId, marks.toString(), exam.id]
+            );
+          }
+        }
+      }
+    }
+
     console.log(
-      "🎉 Database seeded successfully with behavior records, timetable, and attendance!"
+      "🎉 Database seeded successfully with behavior records, timetable, attendance, and exam marks!"
     );
   } catch (err) {
     console.error("❌ Seeding error:", err);

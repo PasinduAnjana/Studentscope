@@ -128,9 +128,9 @@ async function getAllStudents() {
     class_id: row.class_id,
     parent: row.parent_name
       ? {
-          name: row.parent_name,
-          address: row.parent_address,
-        }
+        name: row.parent_name,
+        address: row.parent_address,
+      }
       : null,
   }));
 }
@@ -174,9 +174,9 @@ async function getStudentById(id) {
     class_id: row.class_id,
     parent: row.parent_name
       ? {
-          name: row.parent_name,
-          address: row.parent_address,
-        }
+        name: row.parent_name,
+        address: row.parent_address,
+      }
       : null,
   };
 }
@@ -1096,7 +1096,22 @@ module.exports = {
   getPendingPasswordResets,
   approvePasswordReset,
   rejectPasswordReset,
+  // Exam functions
+  getExams,
+  createExam,
+  assignStudentsToExam,
+  getExamStudents,
+  saveExamMarks,
+  getExamMarks,
+  getExamSubjects,
+  getAllExamMarks,
+  updateExamStudentIndex,
+  bulkUpdateExamIndexNumbers,
 };
+
+// ... existing code ...
+
+
 
 // Password reset functions
 async function getPendingPasswordResets() {
@@ -1171,4 +1186,412 @@ async function rejectPasswordReset(resetId, rejectedBy) {
     console.error("Error rejecting password reset:", err);
     return { success: false, error: "Failed to reject password reset" };
   }
+}
+
+// Exam Management
+
+// Get exams for a specific year (default: all)
+async function getExams(year) {
+  let query = `SELECT id, name, type, sub_type, year, target_grade FROM exams WHERE type = 'gov'`;
+  const params = [];
+  if (year) {
+    query += ` AND year = $1`;
+    params.push(year);
+  }
+  query += ` ORDER BY year DESC, name ASC`;
+  const result = await pool.query(query, params);
+  return result.rows;
+}
+
+// Create a new exam
+async function createExam({ name, type = 'gov', sub_type, year, target_grade }) {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // 1. Create the exam
+    const res = await client.query(
+      `INSERT INTO exams (name, type, sub_type, year, target_grade)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [name, type, sub_type, year, target_grade]
+    );
+    const exam = res.rows[0];
+
+    // 2. If it's a government exam with a target grade, auto-assign students
+    if (type === 'gov' && target_grade) {
+      // Find students in that grade
+      const studentsRes = await client.query(`
+          SELECT u.id 
+          FROM users u
+          JOIN classes c ON u.class_id = c.id
+          WHERE c.grade = $1
+       `, [target_grade]);
+
+      const students = studentsRes.rows;
+      if (students.length > 0) {
+        for (const s of students) {
+          await client.query(`
+                   INSERT INTO exam_students (exam_id, student_id)
+                   VALUES ($1, $2)
+                   ON CONFLICT DO NOTHING
+               `, [exam.id, s.id]);
+        }
+      }
+    }
+
+    await client.query("COMMIT");
+    return exam;
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+// Assign students to exam
+async function assignStudentsToExam(examId, studentIds) {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    for (const studentId of studentIds) {
+      await client.query(
+        `INSERT INTO exam_students (exam_id, student_id) 
+          VALUES ($1, $2)
+          ON CONFLICT (exam_id, student_id) DO NOTHING`,
+        [examId, studentId]
+      );
+    }
+
+    await client.query("COMMIT");
+    return { success: true };
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+// Get students assigned to an exam
+async function getExamStudents(examId) {
+  // Check exam type first
+  const examRes = await pool.query("SELECT type, target_grade FROM exams WHERE id = $1", [examId]);
+  if (!examRes.rows.length) return [];
+  const { type, target_grade } = examRes.rows[0];
+
+  if (type !== 'gov') {
+    // For term tests, return all students (optionally filtered by target_grade if set)
+    let query = `
+        SELECT 
+          u.id as student_id,
+          u.username as index_number,
+          u.username,
+          s.full_name,
+          c.grade,
+          c.name as class_name
+        FROM students s
+        JOIN users u ON s.user_id = u.id
+        LEFT JOIN classes c ON u.class_id = c.id
+     `;
+    const params = [];
+    if (target_grade) {
+      query += ` WHERE c.grade = $1`;
+      params.push(target_grade);
+    }
+    query += ` ORDER BY c.grade, c.name, s.full_name`;
+    const result = await pool.query(query, params);
+    return result.rows;
+  }
+
+  const result = await pool.query(`
+    SELECT 
+      es.student_id,
+      es.index_number,
+      u.username,
+      s.full_name,
+      c.grade,
+      c.name as class_name
+    FROM exam_students es
+    JOIN users u ON es.student_id = u.id
+    JOIN students s ON u.id = s.user_id
+    LEFT JOIN classes c ON u.class_id = c.id
+    WHERE es.exam_id = $1
+    ORDER BY c.grade, c.name, s.full_name
+  `, [examId]);
+  return result.rows;
+}
+
+// Save marks for an exam
+async function saveExamMarks(examId, marksData) {
+  // marksData: [{ student_id, subject_id, mark }]
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // Check if this is a Grade 5 exam (where subject_id might be null)
+    const examRes = await client.query(
+      `SELECT name, sub_type, target_grade FROM exams WHERE id = $1`, [examId]
+    );
+    let grade5SubjectId = null;
+    if (examRes.rows.length) {
+      const examRow = examRes.rows[0];
+      // Derive sub_type from name if not set
+      if (!examRow.sub_type) {
+        if (examRow.name && examRow.name.includes('A/L')) examRow.sub_type = 'AL';
+        else if (examRow.name && examRow.name.includes('O/L')) examRow.sub_type = 'OL';
+        else if (examRow.name && (examRow.name.includes('Grade 5') || examRow.name.includes('Scholarship'))) examRow.sub_type = 'Grade5';
+      }
+      if (examRow.sub_type === 'Grade5') {
+        // Get first compulsory subject for grade 5 as the "total" subject
+        const subRes = await client.query(
+          `SELECT cs.subject_id FROM class_subjects cs
+         JOIN classes c ON cs.class_id = c.id
+         WHERE c.grade = 5
+         ORDER BY cs.display_order LIMIT 1`
+        );
+        if (subRes.rows.length) grade5SubjectId = subRes.rows[0].subject_id;
+      }
+    }
+
+    for (const entry of marksData) {
+      if (entry.mark !== undefined && entry.mark !== null) {
+        const subjectId = entry.subject_id || grade5SubjectId;
+        if (!subjectId) continue; // Skip if we still can't resolve subject
+        await client.query(
+          `INSERT INTO marks (student_id, subject_id, exam_id, marks)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (student_id, subject_id, exam_id) 
+            DO UPDATE SET marks = EXCLUDED.marks`,
+          [entry.student_id, subjectId, examId, entry.mark]
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+    return { success: true };
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+// Get marks for an exam and subject
+async function getExamMarks(examId, subjectId) {
+  const result = await pool.query(`
+    SELECT student_id, marks 
+    FROM marks 
+    WHERE exam_id = $1 AND subject_id = $2
+  `, [examId, subjectId]);
+  return result.rows;
+}
+
+// Update exam index number for a student
+async function updateExamStudentIndex(examId, studentId, indexNumber) {
+  const result = await pool.query(
+    `UPDATE exam_students 
+     SET index_number = $1
+     WHERE exam_id = $2 AND student_id = $3
+     RETURNING *`,
+    [indexNumber, examId, studentId]
+  );
+  return result.rows[0];
+}
+
+// Bulk update exam index numbers from CSV data
+async function bulkUpdateExamIndexNumbers(examId, entries) {
+  // entries: [{ admission_no, index_number }]
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    let updated = 0;
+    let notFound = [];
+
+    for (const entry of entries) {
+      // Find student by admission number (username)
+      const studentRes = await client.query(
+        `SELECT es.student_id FROM exam_students es
+         JOIN users u ON es.student_id = u.id
+         WHERE es.exam_id = $1 AND u.username = $2`,
+        [examId, entry.admission_no]
+      );
+
+      if (studentRes.rows.length === 0) {
+        notFound.push(entry.admission_no);
+        continue;
+      }
+
+      await client.query(
+        `UPDATE exam_students SET index_number = $1
+         WHERE exam_id = $2 AND student_id = $3`,
+        [entry.index_number, examId, studentRes.rows[0].student_id]
+      );
+      updated++;
+    }
+
+    await client.query("COMMIT");
+    return { updated, notFound };
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+// Get subjects/columns for an exam based on its type
+async function getExamSubjects(examId) {
+  // Get exam info
+  const examRes = await pool.query(
+    `SELECT id, name, type, sub_type, target_grade FROM exams WHERE id = $1`,
+    [examId]
+  );
+  if (!examRes.rows.length) return { columns: [], examType: null };
+  const exam = examRes.rows[0];
+
+  // Derive sub_type from name if not set
+  if (!exam.sub_type) {
+    if (exam.name && exam.name.includes('A/L')) exam.sub_type = 'AL';
+    else if (exam.name && exam.name.includes('O/L')) exam.sub_type = 'OL';
+    else if (exam.name && (exam.name.includes('Grade 5') || exam.name.includes('Scholarship'))) exam.sub_type = 'Grade5';
+  }
+
+  if (exam.sub_type === 'Grade5') {
+    // Grade 5 Scholarship: single total mark out of 200
+    return {
+      examType: 'Grade5',
+      maxMark: 200,
+      columns: [{ key: 'total', header: 'Total (out of 200)', subject_id: null, type: 'total' }]
+    };
+  }
+
+  if (exam.sub_type === 'OL') {
+    // O/L: 6 compulsory class_subjects for grade 11 + 3 bucket electives
+    // Get compulsory subjects
+    const compRes = await pool.query(
+      `SELECT DISTINCT s.id AS subject_id, s.name, cs.display_order
+       FROM class_subjects cs
+       JOIN subjects s ON cs.subject_id = s.id
+       JOIN classes c ON cs.class_id = c.id
+       WHERE c.grade = 11
+       ORDER BY cs.display_order`,
+      []
+    );
+
+    const columns = compRes.rows.map(r => ({
+      key: `subj_${r.subject_id}`,
+      header: r.name,
+      subject_id: r.subject_id,
+      type: 'compulsory'
+    }));
+
+    // Get bucket info for grade 10-11 electives
+    const bucketRes = await pool.query(
+      `SELECT DISTINCT gs.bucket_id
+       FROM grade_subjects gs
+       WHERE gs.grade = 11 AND gs.type = 'elective' AND gs.bucket_id > 0
+       ORDER BY gs.bucket_id`,
+      []
+    );
+
+    bucketRes.rows.forEach(b => {
+      columns.push({
+        key: `bucket_${b.bucket_id}`,
+        header: `Elective ${b.bucket_id}`,
+        bucket_id: b.bucket_id,
+        type: 'bucket'
+      });
+    });
+
+    return { examType: 'OL', maxMark: 100, columns };
+  }
+
+  if (exam.sub_type === 'AL') {
+    // A/L: 3 elective buckets + Common General Test + General English
+    // Get compulsory subjects for grade 12-13 (General English, Common General Test)
+    const compRes = await pool.query(
+      `SELECT DISTINCT s.id AS subject_id, s.name, cs.display_order
+       FROM class_subjects cs
+       JOIN subjects s ON cs.subject_id = s.id
+       JOIN classes c ON cs.class_id = c.id
+       WHERE c.grade = 13
+       ORDER BY cs.display_order`,
+      []
+    );
+
+    const columns = [];
+
+    // Add 3 elective buckets first
+    const bucketRes = await pool.query(
+      `SELECT DISTINCT gs.bucket_id
+       FROM grade_subjects gs
+       WHERE gs.grade = 13 AND gs.type = 'elective' AND gs.bucket_id > 0
+       ORDER BY gs.bucket_id`,
+      []
+    );
+
+    bucketRes.rows.forEach(b => {
+      columns.push({
+        key: `bucket_${b.bucket_id}`,
+        header: `Subject ${b.bucket_id}`,
+        bucket_id: b.bucket_id,
+        type: 'bucket'
+      });
+    });
+
+    // Add compulsory subjects (Common General Test, General English)
+    compRes.rows.forEach(r => {
+      columns.push({
+        key: `subj_${r.subject_id}`,
+        header: r.name,
+        subject_id: r.subject_id,
+        type: 'compulsory'
+      });
+    });
+
+    return { examType: 'AL', maxMark: 100, columns };
+  }
+
+  return { examType: exam.sub_type, maxMark: 100, columns: [] };
+}
+
+// Get all marks for all students in an exam
+async function getAllExamMarks(examId) {
+  const result = await pool.query(
+    `SELECT m.student_id, m.subject_id, m.marks
+     FROM marks m
+     WHERE m.exam_id = $1`,
+    [examId]
+  );
+
+  // Also get each student's elected subjects (to know which bucket subject they chose)
+  const studentSubjects = await pool.query(
+    `SELECT ss.student_id, ss.subject_id, gs.bucket_id, s.name AS subject_name
+     FROM student_subjects ss
+     JOIN grade_subjects gs ON ss.subject_id = gs.subject_id
+     JOIN subjects s ON ss.subject_id = s.id
+     JOIN exam_students es ON es.student_id = ss.student_id AND es.exam_id = $1
+     JOIN exams e ON e.id = $1
+     WHERE gs.grade = e.target_grade AND gs.type = 'elective'`,
+    [examId]
+  );
+
+  // Build a map: student_id -> { bucket_id: subject_id }
+  const studentElectiveMap = {};
+  const subjectNames = {};
+  studentSubjects.rows.forEach(r => {
+    if (!studentElectiveMap[r.student_id]) studentElectiveMap[r.student_id] = {};
+    studentElectiveMap[r.student_id][r.bucket_id] = r.subject_id;
+    subjectNames[r.subject_id] = r.subject_name;
+  });
+
+  return {
+    marks: result.rows,
+    studentElectives: studentElectiveMap,
+    subjectNames
+  };
 }
