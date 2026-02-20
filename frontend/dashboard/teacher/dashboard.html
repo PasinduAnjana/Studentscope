@@ -5,11 +5,7 @@
       <h2 class="greeting-heading" data="teacher.greeting"></h2>
       <p class="greeting-subtext" data="teacher.greeting_2"></p>
     </div>
-    <img
-      src="/assets/images/teacher-clipart.svg"
-      alt="Illustration"
-      class="greeting-img"
-    />
+    <img src="/assets/images/teacher-clipart.svg" alt="Illustration" class="greeting-img" />
   </div>
 
   <!-- Today's Timetable -->
@@ -57,12 +53,7 @@
   <div class="card dashboard-tile flex-column">
     <div class="icon-title">
       <i class="fas fa-tasks icon"></i>
-      <p
-        class="tile-label"
-        data-en="Pending Tasks"
-        data-si="අපේක්ෂිත කාර්යයන්"
-        data-ta="நிலுவையில் உள்ள பணிகள்"
-      >
+      <p class="tile-label" data-en="Pending Tasks" data-si="අපේක්ෂිත කාර්යයන්" data-ta="நிலுவையில் உள்ள பணிகள்">
         Pending Tasks
       </p>
     </div>
@@ -90,23 +81,14 @@
   <div class="card dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-key icon"></i>
-      <p
-        class="tile-label"
-        data-en="Password Resets"
-        data-si="මුරපදය යළි පිහිටුවීම්"
-        data-ta="கடவுச்சொல் மீட்டமைப்புகள්"
-      >
+      <p class="tile-label" data-en="Password Resets" data-si="මුරපදය යළි පිහිටුවීම්"
+        data-ta="கடவுச்சொல் மீட்டமைப்புகள්">
         Password Resets
       </p>
     </div>
     <div>
       <ul class="tile-list" id="dashboard-resets-list">
-        <li
-          class="text-sm"
-          data-en="Loading..."
-          data-si="පූරණය වෙමින්..."
-          data-ta="ஏற்றப்படுகிறது..."
-        >
+        <li class="text-sm" data-en="Loading..." data-si="පූරණය වෙමින්..." data-ta="ஏற்றப்படுகிறது...">
           Loading...
         </li>
       </ul>
@@ -219,9 +201,9 @@
           // On weekends, show empty state in current class tile
           const currentClassTile = document.getElementById("current-class").querySelector("div:last-child");
           const message = {
-             en: "Weekend",
-             si: "සති අන්තය",
-             ta: "வார இறுதி"
+            en: "Weekend",
+            si: "සති අන්තය",
+            ta: "வார இறுதி"
           };
           const lang = localStorage.getItem("lang") || "en";
           currentClassTile.innerHTML = `<empty-state-message message="${message[lang] || message.en}" icon="fas fa-couch"></empty-state-message>`;
@@ -313,12 +295,12 @@
       if (!attendanceMarked) {
         // Show mark attendance button with empty state
         const message = {
-           en: "Attendance not marked",
-           si: "පැමිණීම සලකුණු කර නැත",
-           ta: "வருகை குறிக்கப்படவில்லை"
+          en: "Attendance not marked",
+          si: "පැමිණීම සලකුණු කර නැත",
+          ta: "வருகை குறிக்கப்படவில்லை"
         };
         const lang = localStorage.getItem("lang") || "en";
-        
+
         container.innerHTML = `
           <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 10px;">
             <empty-state-message message="${message[lang] || message.en}" icon="fas fa-exclamation-circle" style="height: auto; min-height: unset; padding: 0;"></empty-state-message>
@@ -420,9 +402,9 @@
 
         if (!announcements || announcements.length === 0) {
           const message = {
-             en: "No announcements",
-             si: "නිවේදන නැත",
-             ta: "அறிவிப்புகள் இல்லை"
+            en: "No announcements",
+            si: "නිවේදන නැත",
+            ta: "அறிவிப்புகள் இல்லை"
           };
           const lang = localStorage.getItem("lang") || "en";
           // Use empty-state-message component
@@ -494,9 +476,9 @@
 
         if (!todos || todos.length === 0) {
           const message = {
-             en: "No pending tasks",
-             si: "අපේක්ෂිත කාර්යයන් නැත",
-             ta: "நிலுவையில் உள்ள பணிகள் இல்லை"
+            en: "No pending tasks",
+            si: "අපේක්ෂිත කාර්යයන් නැත",
+            ta: "நிலுவையில் உள்ள பணிகள் இல்லை"
           };
           const lang = localStorage.getItem("lang") || "en";
           todosList.innerHTML = `<empty-state-message message="${message[lang] || message.en}" icon="fas fa-tasks"></empty-state-message>`;
@@ -564,9 +546,9 @@
 
         if (resets.length === 0) {
           const message = {
-             en: "No pending requests",
-             si: "පිටුවිලි ඉල්ලීම් නැත",
-             ta: "நிலுவையில் உள்ள கோரிக்கைகள் இல்லை"
+            en: "No pending requests",
+            si: "පිටුවිලි ඉල්ලීම් නැත",
+            ta: "நிலுவையில் உள்ள கோரிக்கைகள் இல்லை"
           };
           const lang = localStorage.getItem("lang") || "en";
           resetsList.innerHTML = `<empty-state-message message="${message[lang] || message.en}" icon="fas fa-key"></empty-state-message>`;

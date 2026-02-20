@@ -9,8 +9,30 @@ const achievementsController = require("../controllers/achievementsController");
 
 const clerkService = require("../services/clerkService");
 const examsController = require("../controllers/clerk/examsController");
+const attendanceController = require("../controllers/clerk/attendanceController");
+const alertsController = require("../controllers/clerk/alertsController");
 
 module.exports = async (req, res) => {
+  // Alerts route
+  if (req.method === "GET" && req.url === "/api/clerk/alerts") {
+    return protect("clerk")(req, res, () =>
+      alertsController.getAlerts(req, res)
+    );
+  }
+
+  // Attendance routes
+  if (req.method === "GET" && req.url === "/api/clerk/attendance/stats") {
+    return protect("clerk")(req, res, () =>
+      attendanceController.getAttendanceStats(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url === "/api/clerk/attendance/unmarked-classes") {
+    return protect("clerk")(req, res, () =>
+      attendanceController.getUnmarkedClasses(req, res)
+    );
+  }
+
   // Students CRUD routes
   if (req.method === "GET" && req.url === "/api/clerk/students") {
     return protect("clerk")(req, res, () =>
