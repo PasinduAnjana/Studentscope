@@ -10,42 +10,66 @@
   }
 
   .marks-input {
-    width: 70px;
-    padding: 5px;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
+    width: 72px;
+    padding: 7px 4px;
+    border: none;
+    border-radius: 8px;
     text-align: center;
-    background: var(--color-card);
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
     color: var(--color-text);
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  .marks-input::placeholder {
+    color: color-mix(in srgb, var(--color-subtext) 50%, transparent);
+    font-weight: 400;
+  }
+
+  .marks-input:hover {
+    background: color-mix(in srgb, var(--color-text) 10%, transparent);
   }
 
   .marks-input:focus {
-    border-color: var(--color-primary);
     outline: none;
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 30%, transparent);
   }
 
   .marks-entry-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: 0.9rem;
   }
 
   .marks-entry-table th,
   .marks-entry-table td {
-    padding: 8px 10px;
-    border: 1px solid var(--color-border);
+    padding: 12px 14px;
     text-align: center;
     white-space: nowrap;
+    border: none;
   }
 
   .marks-entry-table th {
     background: var(--color-primary);
     color: #fff;
     font-weight: 600;
+    font-size: 0.85rem;
+    padding-top: 12px;
+    padding-bottom: 12px;
     position: sticky;
     top: 0;
     z-index: 2;
-    font-size: 0.85rem;
+  }
+
+  .marks-entry-table th:first-child {
+    border-radius: 10px 0 0 0;
+  }
+
+  .marks-entry-table th:last-child {
+    border-radius: 0 10px 0 0;
   }
 
   .marks-entry-table td:first-child,
@@ -54,12 +78,13 @@
     font-weight: 500;
   }
 
-  .marks-entry-table tbody tr:nth-child(even) {
-    background: var(--color-bg);
+  .marks-entry-table tbody tr {
+    border-radius: 8px;
+    transition: background 0.15s;
   }
 
   .marks-entry-table tbody tr:hover {
-    background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 6%, transparent);
   }
 
   .toolbar {
@@ -72,17 +97,56 @@
   .student-selection-list {
     max-height: 300px;
     overflow-y: auto;
-    border: 1px solid #eee;
-    padding: 10px;
-    margin-top: 10px;
+    border: none;
+    padding: 16px;
+    margin-top: 16px;
+    background: color-mix(in srgb, var(--color-text) 3%, transparent);
+    border-radius: 12px;
+  }
+
+  .student-selection-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .student-selection-list::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-text) 15%, transparent);
+    border-radius: 4px;
   }
 
   .student-checkbox {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 5px;
-    border-bottom: 1px solid #f5f5f5;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--color-card) 60%, transparent);
+    color: var(--color-text);
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .student-checkbox:last-child {
+    margin-bottom: 0;
+  }
+
+  .student-checkbox:hover {
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  }
+
+  .student-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+  }
+
+  .student-checkbox label {
+    cursor: pointer;
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0;
   }
 </style>
 
@@ -415,8 +479,8 @@ S1458,AL-002</code>
     const saveBtn = document.querySelector("button[onclick='saveMarks()']");
     const assignBtn = document.querySelector("button[onclick='openAssignStudentsModal()']");
 
-    // Hide assign button for all exams (auto-assigned now)
-    assignBtn.style.display = 'none';
+    // Ensure assign button is visible
+    assignBtn.style.display = 'inline-block';
 
     // Hide subject select and save marks button as Clerk doesn't enter marks
     subjSelectDiv.style.display = "none";
@@ -674,22 +738,45 @@ S1458,AL-002</code>
       return;
     }
 
-    // Add "Select All"
-    const selectAllDiv = document.createElement("div");
-    selectAllDiv.className = "student-checkbox";
-    selectAllDiv.innerHTML = `
-        <input type="checkbox" id="select-all-students" onchange="toggleSelectAll(this)">
-        <label for="select-all-students"><strong>Select All</strong></label>
-      `;
-    container.appendChild(selectAllDiv);
+    const assignedIds = new Set(examStudents.map(es => String(es.student_id)));
+
+    // Only add "Select All" if there are unassigned students
+    const unassignedCount = students.filter(s => !assignedIds.has(String(s.user_id))).length;
+    if (unassignedCount > 0) {
+      const selectAllDiv = document.createElement("div");
+      selectAllDiv.className = "student-checkbox";
+      selectAllDiv.innerHTML = `
+          <input type="checkbox" id="select-all-students" onchange="toggleSelectAll(this)">
+          <label for="select-all-students"><strong>Select All</strong></label>
+        `;
+      container.appendChild(selectAllDiv);
+    }
 
     students.forEach(s => {
+      const isAssigned = assignedIds.has(String(s.user_id));
       const div = document.createElement("div");
       div.className = "student-checkbox";
-      div.innerHTML = `
-            <input type="checkbox" class="student-select-cb" value="${s.user_id}" onchange="updateSelectedCount()">
-            <label>${s.full_name} (${s.username})</label>
+
+      if (isAssigned) {
+        div.style.background = "transparent";
+        div.style.pointerEvents = "none";
+        div.innerHTML = `
+            <div style="width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;">
+              <i class="fas fa-check-circle" style="color: var(--color-success); font-size: 1.1rem;"></i>
+            </div>
+            <label style="cursor: default; opacity: 0.8; display: flex; align-items: center;">
+              ${s.full_name} <span style="opacity:0.6; font-size: 0.85em; font-weight: 400; margin-left: 6px;">(${s.username})</span>
+              <span style="margin-left: auto; font-size: 0.8em; font-weight: 600; color: var(--color-success); background: color-mix(in srgb, var(--color-success) 15%, transparent); padding: 2px 8px; border-radius: 10px;">Already Assigned</span>
+            </label>
           `;
+      } else {
+        div.innerHTML = `
+            <input type="checkbox" id="cb-${s.user_id}" class="student-select-cb" value="${s.user_id}" onchange="updateSelectedCount()">
+            <label for="cb-${s.user_id}" style="display: flex; align-items: center;">
+              ${s.full_name} <span style="opacity:0.6; font-size: 0.85em; font-weight: 400; margin-left: 6px;">(${s.username})</span>
+            </label>
+          `;
+      }
       container.appendChild(div);
     });
   }
@@ -918,7 +1005,25 @@ S1458,AL-002</code>
     const studentId = input.dataset.student;
     const subjectId = input.dataset.subject;
     const colKey = input.dataset.colKey;
-    const value = input.value.trim();
+
+    // Validation
+    const min = parseFloat(input.getAttribute('min')) || 0;
+    const max = parseFloat(input.getAttribute('max')) || 100;
+    let value = input.value.trim();
+
+    if (value !== '') {
+      let num = parseFloat(value);
+      if (num > max) {
+        num = max;
+        input.value = max;
+        toast(`Marks cannot exceed ${max}`, "fa-solid fa-exclamation-triangle");
+      } else if (num < min) {
+        num = min;
+        input.value = min;
+        toast(`Marks cannot be less than ${min}`, "fa-solid fa-exclamation-triangle");
+      }
+      value = num.toString();
+    }
 
     if (!marksDirty[studentId]) marksDirty[studentId] = {};
     marksDirty[studentId][colKey] = {
@@ -941,9 +1046,14 @@ S1458,AL-002</code>
         // Store against a null subject (we'll handle this in the backend)
         inputs.forEach(input => {
           const studentId = input.dataset.student;
-          const val = input.value.trim();
+          let val = input.value.trim();
           if (val !== '') {
-            marksData.push({ student_id: studentId, subject_id: null, mark: val });
+            const min = parseFloat(input.getAttribute('min')) || 0;
+            const max = parseFloat(input.getAttribute('max')) || 100;
+            let num = parseFloat(val);
+            if (num > max) num = max;
+            if (num < min) num = min;
+            marksData.push({ student_id: studentId, subject_id: null, mark: num.toString() });
           }
         });
         return doSaveMarks(marksData);
@@ -956,9 +1066,14 @@ S1458,AL-002</code>
     inputs.forEach(input => {
       const studentId = input.dataset.student;
       const subjectId = input.dataset.subject;
-      const val = input.value.trim();
+      let val = input.value.trim();
       if (subjectId && val !== '') {
-        marksData.push({ student_id: studentId, subject_id: subjectId, mark: val });
+        const min = parseFloat(input.getAttribute('min')) || 0;
+        const max = parseFloat(input.getAttribute('max')) || 100;
+        let num = parseFloat(val);
+        if (num > max) num = max;
+        if (num < min) num = min;
+        marksData.push({ student_id: studentId, subject_id: subjectId, mark: num.toString() });
       }
     });
 
