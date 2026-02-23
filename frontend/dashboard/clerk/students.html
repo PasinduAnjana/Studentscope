@@ -29,126 +29,83 @@
   <div class="card">
     <div class="flex-between mb-2">
       <h1 class="title">Students</h1>
-      <button
-        id="add-student-btn"
-        class="btn btn-primary"
-        onclick="openAddStudentModal()"
-      >
+      <button id="add-student-btn" class="btn btn-primary" onclick="openAddStudentModal()">
         <i class="fas fa-user-plus"></i> Add Student
       </button>
     </div>
     <!-- Search Bar and Class Dropdown -->
     <data-table id="students-table">
-        <div slot="filters">
-             <div class="input-group">
-                <select id="class-filter">
-                  <option value="">All Classes</option>
-                </select>
-            </div>
+      <div slot="filters">
+        <div class="input-group">
+          <select id="class-filter">
+            <option value="">All Classes</option>
+          </select>
         </div>
+      </div>
     </data-table>
   </div>
 </section>
 
 <!-- Add/Edit Student Modal -->
 <modal-dialog id="student-modal" title="Add Student">
-      <div class="student-form-grid">
-        <div class="input-group">
-          <label for="student-full-name">Full Name: <span class="required" style="color: #e74c3c; font-weight: bold;">*</span></label>
-          <input
-            type="text"
-            id="student-full-name"
-            placeholder="Enter full name"
-            required
-            minlength="2"
-            maxlength="100"
-            pattern="[a-zA-Z\s\-']+"
-            title="Name can only contain letters, spaces, hyphens, and apostrophes"
-          />
-        </div>
-        <div class="input-group">
-          <label for="student-username">Index Number (Username): <span class="required" style="color: #e74c3c; font-weight: bold;">*</span></label>
-          <input
-            type="text"
-            id="student-username"
-            placeholder="Enter index number"
-            required
-            minlength="3"
-            maxlength="20"
-            pattern="[a-zA-Z0-9_]+"
-            title="Index number can only contain letters, numbers, and underscores"
-          />
-        </div>
-        <div class="input-group">
-          <label for="student-birthday">Birthday: <span class="required" style="color: #e74c3c; font-weight: bold;">*</span></label>
-          <input
-            type="date"
-            id="student-birthday"
-            required
-          />
-        </div>
-        <div class="input-group">
-          <label for="student-gender">Gender: <span class="required" style="color: #e74c3c; font-weight: bold;">*</span></label>
-          <select id="student-gender" required>
-            <option value="">Select Gender</option>
-            <option value="M">Male</option>
-            <option value="F">Female</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label for="student-address">Address: <span class="required" style="color: #e74c3c; font-weight: bold;">*</span></label>
-          <input
-            type="text"
-            id="student-address"
-            placeholder="Enter address"
-            required
-            minlength="10"
-            maxlength="200"
-          />
-        </div>
-        <div class="input-group">
-          <label for="student-class">Class: <span class="required" style="color: #e74c3c; font-weight: bold;">*</span></label>
-          <select id="student-class" required>
-            <option value="">Select Class</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label for="student-nationality">Nationality:</label>
-          <input
-            type="text"
-            id="student-nationality"
-            placeholder="Enter nationality"
-            maxlength="50"
-          />
-        </div>
-        <div class="input-group">
-          <label for="parent-name">Parent Name:</label>
-          <input
-            type="text"
-            id="parent-name"
-            placeholder="Enter parent name"
-            minlength="2"
-            maxlength="100"
-            pattern="[a-zA-Z\s\-']*"
-            title="Name can only contain letters, spaces, hyphens, and apostrophes"
-          />
-        </div>
-        <div class="input-group" style="grid-column: span 2;">
-          <label for="parent-address">Parent Address:</label>
-          <input
-            type="text"
-            id="parent-address"
-            placeholder="Enter parent address"
-            minlength="10"
-            maxlength="200"
-          />
-        </div>
-      </div>
-    
-    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-      <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
-      <button id="modal-save" class="btn btn-primary">Save</button>
+  <div class="student-form-grid">
+    <div class="input-group">
+      <label for="student-full-name">Full Name: <span class="required"
+          style="color: #e74c3c; font-weight: bold;">*</span></label>
+      <input type="text" id="student-full-name" placeholder="Enter full name" required minlength="2" maxlength="100"
+        pattern="[a-zA-Z\s\-']+" title="Name can only contain letters, spaces, hyphens, and apostrophes" />
     </div>
+    <div class="input-group">
+      <label for="student-username">Index Number (Username): <span class="required"
+          style="color: #e74c3c; font-weight: bold;">*</span></label>
+      <input type="text" id="student-username" placeholder="Enter index number" required minlength="3" maxlength="20"
+        pattern="[a-zA-Z0-9_]+" title="Index number can only contain letters, numbers, and underscores" />
+    </div>
+    <div class="input-group">
+      <label for="student-birthday">Birthday: <span class="required"
+          style="color: #e74c3c; font-weight: bold;">*</span></label>
+      <input type="date" id="student-birthday" required />
+    </div>
+    <div class="input-group">
+      <label for="student-gender">Gender: <span class="required"
+          style="color: #e74c3c; font-weight: bold;">*</span></label>
+      <select id="student-gender" required>
+        <option value="">Select Gender</option>
+        <option value="M">Male</option>
+        <option value="F">Female</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label for="student-address">Address: <span class="required"
+          style="color: #e74c3c; font-weight: bold;">*</span></label>
+      <input type="text" id="student-address" placeholder="Enter address" required minlength="10" maxlength="200" />
+    </div>
+    <div class="input-group">
+      <label for="student-class">Class: <span class="required"
+          style="color: #e74c3c; font-weight: bold;">*</span></label>
+      <select id="student-class" required>
+        <option value="">Select Class</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label for="student-nationality">Nationality:</label>
+      <input type="text" id="student-nationality" placeholder="Enter nationality" maxlength="50" />
+    </div>
+    <div class="input-group">
+      <label for="parent-name">Parent Name:</label>
+      <input type="text" id="parent-name" placeholder="Enter parent name" minlength="2" maxlength="100"
+        pattern="[a-zA-Z\s\-']*" title="Name can only contain letters, spaces, hyphens, and apostrophes" />
+    </div>
+    <div class="input-group" style="grid-column: span 2;">
+      <label for="parent-address">Parent Address:</label>
+      <input type="text" id="parent-address" placeholder="Enter parent address" minlength="10" maxlength="200" />
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+    <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
+    <button id="modal-save" class="btn btn-primary">Save</button>
+  </div>
 </modal-dialog>
 
 <script>
@@ -177,34 +134,34 @@
   function initTable() {
     const table = document.getElementById("students-table");
     table.setColumns([
-        { key: "full_name", header: "Name", searchable: true },
-        { key: "username", header: "Index Number", searchable: true },
-        { 
-            key: "class_id", 
-            header: "Class", 
-            render: (row) => {
-                const cls = allClasses.find((c) => c.id == row.class_id);
-                return cls ? `${cls.grade} - ${cls.class_name}` : "";
-            }
-        },
-        { 
-            key: "birthday", 
-            header: "Birthday", 
-            render: (row) => row.birthday ? new Date(row.birthday).toLocaleDateString() : ""
-        },
-        { key: "gender", header: "Gender" },
-        { 
-            key: "parent", 
-            header: "Parent", 
-            render: (row) => row.parent ? row.parent.name : "" 
-        },
-        {
-            key: "actions",
-            header: "Actions",
-            render: (row) => {
-                const div = document.createElement("div");
-                div.className = "action-buttons";
-                div.innerHTML = `
+      { key: "full_name", header: "Name", searchable: true },
+      { key: "username", header: "Index Number", searchable: true },
+      {
+        key: "class_id",
+        header: "Class",
+        render: (row) => {
+          const cls = allClasses.find((c) => c.id == row.class_id);
+          return cls ? `${cls.grade} - ${cls.class_name}` : "";
+        }
+      },
+      {
+        key: "birthday",
+        header: "Birthday",
+        render: (row) => row.birthday ? new Date(row.birthday).toLocaleDateString() : ""
+      },
+      { key: "gender", header: "Gender" },
+      {
+        key: "parent",
+        header: "Parent",
+        render: (row) => row.parent ? row.parent.name : ""
+      },
+      {
+        key: "actions",
+        header: "Actions",
+        render: (row) => {
+          const div = document.createElement("div");
+          div.className = "action-buttons";
+          div.innerHTML = `
                     <button class="btn-icon btn-edit" onclick="editStudent(${row.id})" title="Edit">
                       <i class="fas fa-edit"></i>
                     </button>
@@ -212,20 +169,20 @@
                       <i class="fas fa-trash"></i>
                     </button>
                 `;
-                return div;
-            }
+          return div;
         }
+      }
     ]);
 
     // Setup Class Filter
     const classFilter = document.getElementById("class-filter");
-    if(classFilter) {
-        classFilter.addEventListener("change", () => {
-             const val = classFilter.value;
-             table.addFilter("class", (row) => {
-                 return val === "" || row.class_id == val;
-             });
+    if (classFilter) {
+      classFilter.addEventListener("change", () => {
+        const val = classFilter.value;
+        table.addFilter("class", (row) => {
+          return val === "" || row.class_id == val;
         });
+      });
     }
 
     table.setEmptyState("No students found", "fas fa-users-slash");
@@ -363,8 +320,8 @@
   }
 
   function populatePageSizeSelect() {
-      // Clean up manually controlled page size logic as component handles it
-      // This function might be called by dashboard.js, so we keep it empty or remove calls
+    // Clean up manually controlled page size logic as component handles it
+    // This function might be called by dashboard.js, so we keep it empty or remove calls
   }
 
 
@@ -421,7 +378,7 @@
     // Username validation - check for duplicates
     const usernameInput = document.getElementById("student-username");
     if (usernameInput) {
-      usernameInput.addEventListener("input", function() {
+      usernameInput.addEventListener("input", function () {
         const username = this.value.trim();
         if (username.length >= 3) {
           const existingStudent = editingStudent
@@ -441,7 +398,7 @@
     // Full name validation
     const fullNameInput = document.getElementById("student-full-name");
     if (fullNameInput) {
-      fullNameInput.addEventListener("input", function() {
+      fullNameInput.addEventListener("input", function () {
         const name = this.value.trim();
         if (name && !/^[a-zA-Z\s\-']+$/.test(name)) {
           this.setCustomValidity("Name can only contain letters, spaces, hyphens, and apostrophes");
@@ -455,7 +412,7 @@
     // Birthday validation
     const birthdayInput = document.getElementById("student-birthday");
     if (birthdayInput) {
-      birthdayInput.addEventListener("change", function() {
+      birthdayInput.addEventListener("change", function () {
         const birthDate = new Date(this.value);
         const today = new Date();
 
@@ -638,21 +595,29 @@
       return;
     }
 
-    const action = editingStudent
+    const actionFunc = () => {
+      const action = editingStudent
         ? api.clerk.students.update(editingStudent.id, data)
         : api.clerk.students.create(data);
 
-    action
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to save student");
-        document.getElementById("student-modal").close(); // Using component method
-        toast("Student saved successfully", "fa-solid fa-check-circle");
-        fetchStudents();
-      })
-      .catch((err) => {
-        console.error(err);
-        toast("Error saving student", "fa-solid fa-circle-exclamation");
-      });
+      action
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to save student");
+          document.getElementById("student-modal").close(); // Using component method
+          toast("Student saved successfully", "fa-solid fa-check-circle");
+          fetchStudents();
+        })
+        .catch((err) => {
+          console.error(err);
+          toast("Error saving student", "fa-solid fa-circle-exclamation");
+        });
+    };
+
+    if (editingStudent) {
+      window.requirePinPrompt(actionFunc);
+    } else {
+      actionFunc();
+    }
   }
 
   function editStudent(id) {
@@ -682,15 +647,15 @@
     // update searchable display to reflect selected class and gender
     updateSearchableDisplay("student-class");
     updateSearchableDisplay("student-gender");
-    
+
     document.getElementById("parent-name").value = student.parent?.name || "";
     document.getElementById("parent-address").value =
       student.parent?.address || "";
-      
+
     const modal = document.getElementById("student-modal");
-    if(modal) {
-        modal.setTitle("Edit Student");
-        modal.open();
+    if (modal) {
+      modal.setTitle("Edit Student");
+      modal.open();
     }
   }
 
@@ -703,16 +668,18 @@
         confirmText: "Delete",
         cancelText: "Cancel",
         onConfirm: () => {
-          api.clerk.students.delete(id)
-            .then((res) => {
-              if (!res.ok) throw new Error("Failed to delete student");
-              toast("Student deleted successfully", "fa-solid fa-check-circle");
-              fetchStudents();
-            })
-            .catch((err) => {
-              console.error(err);
-              toast("Error deleting student", "fa-solid fa-circle-exclamation");
-            });
+          window.requirePinPrompt(() => {
+            api.clerk.students.delete(id)
+              .then((res) => {
+                if (!res.ok) throw new Error("Failed to delete student");
+                toast("Student deleted successfully", "fa-solid fa-check-circle");
+                fetchStudents();
+              })
+              .catch((err) => {
+                console.error(err);
+                toast("Error deleting student", "fa-solid fa-circle-exclamation");
+              });
+          });
         },
       }
     );
@@ -725,4 +692,3 @@
 
   setupAddButton();
 </script>
-

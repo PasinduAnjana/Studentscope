@@ -10,47 +10,47 @@
 <!-- Modal for assigning class teacher -->
 <modal-dialog id="assignTeacherModal" title="Assign Class Teacher">
   <div style="display: flex; flex-direction: column; gap: 20px;">
-    
+
     <div class="form-group mb-0" id="classNameGroup" style="display: none;">
-      <label for="classNameInput" style="display: block; font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 8px;">Class Name</label>
-       <div style="position: relative;">
-        <input type="text" id="classNameInput" placeholder="Enter class name (e.g. A, B, C)" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--color-border); background-color: var(--color-bg); font-size: 15px;" />
+      <label for="classNameInput"
+        style="display: block; font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 8px;">Class
+        Name</label>
+      <div style="position: relative;">
+        <input type="text" id="classNameInput" placeholder="Enter class name (e.g. A, B, C)"
+          style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--color-border); background-color: var(--color-bg); font-size: 15px;" />
       </div>
     </div>
 
     <div class="form-group mb-0">
-      <label for="teacherSelect" style="display: block; font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 8px;">Teacher</label>
-       <div style="position: relative;">
-         <select id="teacherSelect" style="width: 100%; padding: 12px; border-radius: 12px; background-color: var(--color-bg); border: 1px solid var(--color-border); font-size: 15px; appearance: none; -webkit-appearance: none;">
+      <label for="teacherSelect"
+        style="display: block; font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 8px;">Teacher</label>
+      <div style="position: relative;">
+        <select id="teacherSelect"
+          style="width: 100%; padding: 12px; border-radius: 12px; background-color: var(--color-bg); border: 1px solid var(--color-border); font-size: 15px; appearance: none; -webkit-appearance: none;">
           <option value="">-- Select a teacher --</option>
         </select>
-        <i class="fas fa-chalkboard-teacher" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--color-subtext); pointer-events: none;"></i>
+        <i class="fas fa-chalkboard-teacher"
+          style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--color-subtext); pointer-events: none;"></i>
       </div>
     </div>
 
     <!-- Conditional Buttons (Delete / Remove) -->
-     <div id="additionalActions" style="display: flex; gap: 12px; margin-top: 8px;">
-        <button
-        class="btn btn-outline"
-        id="removeTeacherBtn"
-        onclick="removeTeacher()"
-        style="display: none; width: 100%; justify-content: center; font-size: 14px; border-style: dashed;"
-      >
+    <div id="additionalActions" style="display: flex; gap: 12px; margin-top: 8px;">
+      <button class="btn btn-outline" id="removeTeacherBtn" onclick="removeTeacher()"
+        style="display: none; width: 100%; justify-content: center; font-size: 14px; border-style: dashed;">
         <i class="fas fa-user-minus"></i> Remove Teacher
       </button>
-       <button
-        class="btn btn-outline"
-        id="deleteBtn"
-        onclick="deleteClass()"
-        style="display: none; width: 100%; justify-content: center; color: var(--color-error); border-color: var(--color-error); font-size: 14px; border-style: dashed;"
-      >
-         <i class="fas fa-trash"></i> Delete Class
+      <button class="btn btn-outline" id="deleteBtn" onclick="deleteClass()"
+        style="display: none; width: 100%; justify-content: center; color: var(--color-error); border-color: var(--color-error); font-size: 14px; border-style: dashed;">
+        <i class="fas fa-trash"></i> Delete Class
       </button>
-     </div>
+    </div>
 
-     <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
-      <button class="btn" onclick="closeModal()" style="background: transparent; color: var(--color-subtext); padding: 10px 20px;">Cancel</button>
-      <button class="btn btn-primary" onclick="saveTeacherAssignment()" style="padding: 10px 24px; border-radius: 12px; font-weight: 600;">Save</button>
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+      <button class="btn" onclick="closeModal()"
+        style="background: transparent; color: var(--color-subtext); padding: 10px 20px;">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTeacherAssignment()"
+        style="padding: 10px 24px; border-radius: 12px; font-weight: 600;">Save</button>
     </div>
 
   </div>
@@ -195,7 +195,7 @@
       modal.setTitle(`Assign Teacher - Grade ${classItem.grade} ${classItem.class_name}`);
       document.getElementById("classNameGroup").style.display = "none";
       document.getElementById("deleteBtn").style.display = "flex";
-      
+
       // Show remove teacher button if a teacher is assigned
       if (classItem.teacher_id) {
         document.getElementById("removeTeacherBtn").style.display = "flex";
@@ -203,7 +203,7 @@
         document.getElementById("removeTeacherBtn").style.display = "none";
       }
     } else {
-       modal.setTitle(`Add New Class - Grade ${classItem.grade}`);
+      modal.setTitle(`Add New Class - Grade ${classItem.grade}`);
       document.getElementById("classNameGroup").style.display = "block";
       document.getElementById("classNameInput").value = "";
       document.getElementById("deleteBtn").style.display = "none";
@@ -272,53 +272,55 @@
       return;
     }
 
-    try {
-      const payload = {
-        grade: currentClassData.grade,
-        teacher_id: selectedTeacherId,
-      };
+    window.requirePinPrompt(async () => {
+      try {
+        const payload = {
+          grade: currentClassData.grade,
+          teacher_id: selectedTeacherId,
+        };
 
-      if (!currentClassData.class_name) {
-        const className = document
-          .getElementById("classNameInput")
-          .value.trim();
-        if (!className) {
-          toast(
-            "Please enter a class name",
-            "fa-solid fa-exclamation-triangle"
-          );
+        if (!currentClassData.class_name) {
+          const className = document
+            .getElementById("classNameInput")
+            .value.trim();
+          if (!className) {
+            toast(
+              "Please enter a class name",
+              "fa-solid fa-exclamation-triangle"
+            );
+            return;
+          }
+          payload.class_name = className;
+        } else {
+          payload.class_name = currentClassData.class_name;
+        }
+
+        const response = await fetch("/api/clerk/classes/assign-teacher", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          toast("Error: " + data.error, "fa-solid fa-exclamation-triangle");
           return;
         }
-        payload.class_name = className;
-      } else {
-        payload.class_name = currentClassData.class_name;
+
+        toast("Teacher assigned successfully!", "fa-solid fa-check-circle");
+        closeModal();
+        loadClasses();
+      } catch (error) {
+        console.error("Error saving teacher assignment:", error);
+        toast(
+          "An error occurred while saving",
+          "fa-solid fa-exclamation-triangle"
+        );
       }
-
-      const response = await fetch("/api/clerk/classes/assign-teacher", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-
-      if (data.error) {
-        toast("Error: " + data.error, "fa-solid fa-exclamation-triangle");
-        return;
-      }
-
-      toast("Teacher assigned successfully!", "fa-solid fa-check-circle");
-      closeModal();
-      loadClasses();
-    } catch (error) {
-      console.error("Error saving teacher assignment:", error);
-      toast(
-        "An error occurred while saving",
-        "fa-solid fa-exclamation-triangle"
-      );
-    }
+    });
   }
 
   async function removeTeacher() {
@@ -327,35 +329,37 @@
     toast("Are you sure you want to remove the teacher from this class?", "fa-solid fa-user-minus", {
       confirm: true,
       onConfirm: async () => {
-        try {
-          const payload = {
-            grade: currentClassData.grade,
-            class_name: currentClassData.class_name,
-            teacher_id: null
-          };
+        window.requirePinPrompt(async () => {
+          try {
+            const payload = {
+              grade: currentClassData.grade,
+              class_name: currentClassData.class_name,
+              teacher_id: null
+            };
 
-          const response = await fetch("/api/clerk/classes/assign-teacher", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          });
+            const response = await fetch("/api/clerk/classes/assign-teacher", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(payload),
+            });
 
-          const data = await response.json();
+            const data = await response.json();
 
-          if (data.error) {
-            toast("Error: " + data.error, "fa-solid fa-exclamation-triangle");
-            return;
+            if (data.error) {
+              toast("Error: " + data.error, "fa-solid fa-exclamation-triangle");
+              return;
+            }
+
+            toast("Teacher removed successfully!", "fa-solid fa-check-circle");
+            closeModal();
+            loadClasses();
+          } catch (error) {
+            console.error("Error removing teacher:", error);
+            toast("An error occurred while removing teacher", "fa-solid fa-exclamation-triangle");
           }
-
-          toast("Teacher removed successfully!", "fa-solid fa-check-circle");
-          closeModal();
-          loadClasses();
-        } catch (error) {
-          console.error("Error removing teacher:", error);
-          toast("An error occurred while removing teacher", "fa-solid fa-exclamation-triangle");
-        }
+        });
       }
     });
   }
@@ -369,31 +373,33 @@
     toast("Are you sure you want to delete this class?", "fa-solid fa-trash", {
       confirm: true,
       onConfirm: async () => {
-        try {
-          const response = await fetch(
-            `/api/clerk/classes/${currentClassData.id}`,
-            {
-              method: "DELETE",
+        window.requirePinPrompt(async () => {
+          try {
+            const response = await fetch(
+              `/api/clerk/classes/${currentClassData.id}`,
+              {
+                method: "DELETE",
+              }
+            );
+
+            const data = await response.json();
+
+            if (data.error) {
+              toast("Error: " + data.error, "fa-solid fa-exclamation-triangle");
+              return;
             }
-          );
 
-          const data = await response.json();
-
-          if (data.error) {
-            toast("Error: " + data.error, "fa-solid fa-exclamation-triangle");
-            return;
+            toast("Class deleted successfully!", "fa-solid fa-check-circle");
+            closeModal();
+            loadClasses();
+          } catch (error) {
+            console.error("Error deleting class:", error);
+            toast(
+              "An error occurred while deleting",
+              "fa-solid fa-exclamation-triangle"
+            );
           }
-
-          toast("Class deleted successfully!", "fa-solid fa-check-circle");
-          closeModal();
-          loadClasses();
-        } catch (error) {
-          console.error("Error deleting class:", error);
-          toast(
-            "An error occurred while deleting",
-            "fa-solid fa-exclamation-triangle"
-          );
-        }
+        });
       },
     });
   }
@@ -408,4 +414,3 @@
 
   loadClasses();
 </script>
-

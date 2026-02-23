@@ -134,8 +134,40 @@
         <p class="text-sm">No recent activities</p>
       </div>
     </div>
+
+    <!-- Security PIN -->
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-shield-alt icon"></i>
+        <p class="tile-label" data-en="Security PIN" data-si="ආරක්ෂක PIN එක" data-ta="பாதுகாப்பு PIN">Security PIN</p>
+      </div>
+      <div>
+        <p class="text-sm" id="pin-status-text">Checking PIN status...</p>
+        <button class="btn" style="margin-top: 15px;" onclick="openPinModal()">
+          <i class="fas fa-key"></i> <span id="pin-btn-text" data-en="Set PIN" data-si="PIN එක සකසන්න"
+            data-ta="PIN அமை">Set PIN</span>
+        </button>
+      </div>
+    </div>
   </div>
 </section>
+
+<!-- Set PIN Modal -->
+<modal-dialog id="set-pin-modal" title="Set Security PIN">
+  <form id="set-pin-form">
+    <div class="form-group">
+      <label>Enter 4-Digit PIN</label>
+      <input type="password" id="new-pin-input" class="input" pattern="[0-9]{4}" maxlength="4" placeholder="e.g. 1234"
+        required style="letter-spacing: 5px; font-size: 1.2rem; text-align: center;">
+    </div>
+    <div class="form-group">
+      <label>Confirm PIN</label>
+      <input type="password" id="confirm-pin-input" class="input" pattern="[0-9]{4}" maxlength="4" placeholder="Confirm"
+        required style="letter-spacing: 5px; font-size: 1.2rem; text-align: center;">
+    </div>
+    <button type="submit" class="btn btn-primary" style="width: 100%;">Save PIN</button>
+  </form>
+</modal-dialog>
 
 <script>
   async function loadProfile() {
@@ -216,6 +248,66 @@
     }
   }
 
+  async function loadPinStatus() {
+    try {
+      const response = await fetch("/api/clerk/pin/status");
+      if (response.ok) {
+        const data = await response.json();
+        const statusText = document.getElementById("pin-status-text");
+        const btnText = document.getElementById("pin-btn-text");
+        const currentLang = localStorage.getItem('lang') || 'en';
+
+        if (data.hasPin) {
+          statusText.innerHTML = `<span style="color: var(--color-success); font-weight: bold;"><i class="fas fa-check-circle"></i> PIN is configured.</span> You are protected when modifying records.`;
+          const updateBtnLangs = { en: "Change PIN", si: "PIN එක වෙනස් කරන්න", ta: "PIN மாற்று" };
+          btnText.textContent = updateBtnLangs[currentLang] || updateBtnLangs.en;
+        } else {
+          statusText.innerHTML = `<span style="color: var(--color-danger); font-weight: bold;"><i class="fas fa-exclamation-circle"></i> No PIN configured.</span> Please set up a PIN to protect record modifications.`;
+          const setBtnLangs = { en: "Set PIN", si: "PIN එක සකසන්න", ta: "PIN அமை" };
+          btnText.textContent = setBtnLangs[currentLang] || setBtnLangs.en;
+        }
+      }
+    } catch (error) {
+      console.error("Error loading PIN status:", error);
+    }
+  }
+
+  function openPinModal() {
+    document.getElementById("set-pin-form").reset();
+    document.getElementById("set-pin-modal").open();
+  }
+
+  document.getElementById("set-pin-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const pin = document.getElementById("new-pin-input").value;
+    const confirm = document.getElementById("confirm-pin-input").value;
+
+    if (pin !== confirm) {
+      alert("PINs do not match!");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/clerk/pin/set", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin })
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Security PIN saved successfully!");
+        document.getElementById("set-pin-modal").close();
+        loadPinStatus();
+      } else {
+        alert("Error saving PIN: " + data.error);
+      }
+    } catch (err) {
+      alert("Network error.");
+    }
+  });
+
   // Initialize
   loadProfile();
+  loadPinStatus();
 </script>

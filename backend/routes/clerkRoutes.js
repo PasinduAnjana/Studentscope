@@ -11,8 +11,20 @@ const clerkService = require("../services/clerkService");
 const examsController = require("../controllers/clerk/examsController");
 const attendanceController = require("../controllers/clerk/attendanceController");
 const alertsController = require("../controllers/clerk/alertsController");
+const pinController = require("../controllers/clerk/pinController");
 
 module.exports = async (req, res) => {
+  // PIN Routes
+  if (req.method === "GET" && req.url === "/api/clerk/pin/status") {
+    return protect("clerk")(req, res, () => pinController.checkPinStatus(req, res));
+  }
+  if (req.method === "POST" && req.url === "/api/clerk/pin/set") {
+    return protect("clerk")(req, res, () => pinController.setPin(req, res));
+  }
+  if (req.method === "POST" && req.url === "/api/clerk/pin/verify") {
+    return protect("clerk")(req, res, () => pinController.verifyPin(req, res));
+  }
+
   // Alerts route
   if (req.method === "GET" && req.url === "/api/clerk/alerts") {
     return protect("clerk")(req, res, () =>

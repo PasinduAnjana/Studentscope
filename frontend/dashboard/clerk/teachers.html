@@ -26,109 +26,75 @@
   <div class="card">
     <div class="flex-between mb-2">
       <h1 class="title">Teachers</h1>
-      <button
-        id="add-teacher-btn"
-        class="btn btn-primary"
-        onclick="openAddTeacherModal()"
-      >
+      <button id="add-teacher-btn" class="btn btn-primary" onclick="openAddTeacherModal()">
         <i class="fas fa-user-plus"></i> Add Teacher
       </button>
     </div>
     <data-table id="teachers-table">
-        <div slot="filters">
-            <div class="input-group">
-                <select id="level-filter">
-                    <option value="all">All Grades</option>
-                </select>
-            </div>
+      <div slot="filters">
+        <div class="input-group">
+          <select id="level-filter">
+            <option value="all">All Grades</option>
+          </select>
         </div>
+      </div>
     </data-table>
   </div>
 </section>
 
 <!-- Add/Edit Teacher Modal -->
 <modal-dialog id="teacher-modal" title="Add Teacher">
-      <div class="teacher-form-grid">
-        <div class="input-group">
-          <label for="teacher-full-name">Full Name:</label>
-          <input
-            type="text"
-            id="teacher-full-name"
-            placeholder="Enter full name"
-            minlength="2"
-            maxlength="100"
-            pattern="[a-zA-Z\s\-']+"
-            title="Name can only contain letters, spaces, hyphens, and apostrophes"
-          />
-        </div>
-        <div class="input-group">
-          <label for="teacher-nic">NIC:</label>
-          <input
-            type="text"
-            id="teacher-nic"
-            placeholder="Enter NIC"
-            minlength="5"
-            maxlength="20"
-          />
-        </div>
-        <div class="input-group">
-          <label for="teacher-birthday">Birthday:</label>
-          <input type="date" id="teacher-birthday" />
-        </div>
-        <div class="input-group">
-          <label for="teacher-level">Grade:</label>
-          <select id="teacher-level">
-            <option value="">Select Grade</option>
-            <option value="1">Grade 1</option>
-            <option value="2">Grade 2</option>
-            <option value="3">Grade 3</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label for="teacher-address">Address:</label>
-          <input
-            type="text"
-            id="teacher-address"
-            placeholder="Enter address"
-            maxlength="255"
-          />
-        </div>
-        <div class="input-group">
-          <label for="teacher-phone">Phone Number:</label>
-          <input
-            type="tel"
-            id="teacher-phone"
-            placeholder="Enter phone number"
-            pattern="[0-9\s\-\+\(\)]+"
-            title="Phone number can only contain digits, spaces, hyphens, plus sign, and parentheses"
-            minlength="7"
-            maxlength="20"
-          />
-        </div>
-        <div class="input-group">
-          <label for="teacher-past-schools">Past Schools:</label>
-          <input
-            type="text"
-            id="teacher-past-schools"
-            placeholder="Enter past schools"
-          />
-        </div>
-        <div class="input-group">
-          <label for="teacher-appointment-date">Appointment Date:</label>
-          <input type="date" id="teacher-appointment-date" />
-        </div>
-        <div class="input-group" style="grid-column: span 2">
-          <label for="teacher-first-appointment-date"
-            >First Appointment Date:</label
-          >
-          <input type="date" id="teacher-first-appointment-date" />
-        </div>
-      </div>
-    
-    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-      <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
-      <button id="modal-save" class="btn btn-primary">Save</button>
+  <div class="teacher-form-grid">
+    <div class="input-group">
+      <label for="teacher-full-name">Full Name:</label>
+      <input type="text" id="teacher-full-name" placeholder="Enter full name" minlength="2" maxlength="100"
+        pattern="[a-zA-Z\s\-']+" title="Name can only contain letters, spaces, hyphens, and apostrophes" />
     </div>
+    <div class="input-group">
+      <label for="teacher-nic">NIC:</label>
+      <input type="text" id="teacher-nic" placeholder="Enter NIC" minlength="5" maxlength="20" />
+    </div>
+    <div class="input-group">
+      <label for="teacher-birthday">Birthday:</label>
+      <input type="date" id="teacher-birthday" />
+    </div>
+    <div class="input-group">
+      <label for="teacher-level">Grade:</label>
+      <select id="teacher-level">
+        <option value="">Select Grade</option>
+        <option value="1">Grade 1</option>
+        <option value="2">Grade 2</option>
+        <option value="3">Grade 3</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label for="teacher-address">Address:</label>
+      <input type="text" id="teacher-address" placeholder="Enter address" maxlength="255" />
+    </div>
+    <div class="input-group">
+      <label for="teacher-phone">Phone Number:</label>
+      <input type="tel" id="teacher-phone" placeholder="Enter phone number" pattern="[0-9\s\-\+\(\)]+"
+        title="Phone number can only contain digits, spaces, hyphens, plus sign, and parentheses" minlength="7"
+        maxlength="20" />
+    </div>
+    <div class="input-group">
+      <label for="teacher-past-schools">Past Schools:</label>
+      <input type="text" id="teacher-past-schools" placeholder="Enter past schools" />
+    </div>
+    <div class="input-group">
+      <label for="teacher-appointment-date">Appointment Date:</label>
+      <input type="date" id="teacher-appointment-date" />
+    </div>
+    <div class="input-group" style="grid-column: span 2">
+      <label for="teacher-first-appointment-date">First Appointment Date:</label>
+      <input type="date" id="teacher-first-appointment-date" />
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+    <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
+    <button id="modal-save" class="btn btn-primary">Save</button>
+  </div>
 </modal-dialog>
 
 <script>
@@ -140,27 +106,27 @@
   function initTable() {
     const table = document.getElementById("teachers-table");
     table.setColumns([
-        { key: "full_name", header: "Name", searchable: true },
-        { key: "nic", header: "NIC", searchable: true },
-        { key: "level", header: "Grade" },
-        { 
-            key: "birthday", 
-            header: "Birthday", 
-            render: (row) => row.birthday ? new Date(row.birthday).toLocaleDateString() : "" 
-        },
-        { key: "phone_number", header: "Phone" },
-        { 
-            key: "appointment_date", 
-            header: "Appointment Date", 
-            render: (row) => row.appointment_date ? new Date(row.appointment_date).toLocaleDateString() : "" 
-        },
-        {
-            key: "actions",
-            header: "Actions",
-            render: (row) => {
-                const div = document.createElement("div");
-                div.className = "action-buttons";
-                div.innerHTML = `
+      { key: "full_name", header: "Name", searchable: true },
+      { key: "nic", header: "NIC", searchable: true },
+      { key: "level", header: "Grade" },
+      {
+        key: "birthday",
+        header: "Birthday",
+        render: (row) => row.birthday ? new Date(row.birthday).toLocaleDateString() : ""
+      },
+      { key: "phone_number", header: "Phone" },
+      {
+        key: "appointment_date",
+        header: "Appointment Date",
+        render: (row) => row.appointment_date ? new Date(row.appointment_date).toLocaleDateString() : ""
+      },
+      {
+        key: "actions",
+        header: "Actions",
+        render: (row) => {
+          const div = document.createElement("div");
+          div.className = "action-buttons";
+          div.innerHTML = `
                     <button class="btn-icon btn-edit" onclick="editTeacher(${row.teacher_id})" title="Edit">
                       <i class="fas fa-edit"></i>
                     </button>
@@ -168,41 +134,41 @@
                       <i class="fas fa-trash"></i>
                     </button>
                 `;
-                return div;
-            }
+          return div;
         }
+      }
     ]);
-    
+
     // Setup Level Filter
     const levelFilter = document.getElementById("level-filter");
-    if(levelFilter) {
-        levelFilter.addEventListener("change", () => {
-             const val = levelFilter.value;
-             table.addFilter("level", (row) => {
-                 return val === "all" || val === "" || row.level == val;
-             });
+    if (levelFilter) {
+      levelFilter.addEventListener("change", () => {
+        const val = levelFilter.value;
+        table.addFilter("level", (row) => {
+          return val === "all" || val === "" || row.level == val;
         });
+      });
     }
 
     table.setEmptyState("No teachers found", "fas fa-users-slash");
   }
 
   function fetchTeachers() {
-      api.clerk.teachers.getAll()
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed to fetch teachers");
-          return res.json();
-        })
-        .then((data) => {
-          allTeachers = data;
-          document.getElementById("teachers-table").setData(allTeachers);
-        })
-        .catch((err) => {
-          console.error(err);
-          document.getElementById("teachers-table").setData([]);
-          document.getElementById("teachers-table").setEmptyState("Error loading teachers", "fas fa-exclamation-triangle");
-        });
-    }
+    api.clerk.teachers.getAll()
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch teachers");
+        return res.json();
+      })
+      .then((data) => {
+        allTeachers = data;
+        document.getElementById("teachers-table").setData(allTeachers);
+      })
+      .catch((err) => {
+        console.error(err);
+        document.getElementById("teachers-table").setData([]);
+        document.getElementById("teachers-table").setEmptyState("Error loading teachers", "fas fa-exclamation-triangle");
+      });
+  }
 
   // No manual setupSearch needed for data-table
 
@@ -213,11 +179,11 @@
     // helper to open modal
     function openAddModal() {
       editingTeacher = null;
-        if (modal) {
-            modal.setTitle("Add Teacher");
-            clearModal();
-            modal.open();
-        }
+      if (modal) {
+        modal.setTitle("Add Teacher");
+        clearModal();
+        modal.open();
+      }
     }
 
     // If the button exists at setup time, attach directly. Otherwise use delegation (works when page is injected later).
@@ -396,21 +362,29 @@
       ).value,
     };
 
-    const action = editingTeacher
+    const actionFunc = () => {
+      const action = editingTeacher
         ? api.clerk.teachers.update(editingTeacher.teacher_id, data)
         : api.clerk.teachers.create(data);
 
-    action
-      .then((res) => {
-         if (!res.ok) throw new Error("Failed to save teacher");
-         document.getElementById("teacher-modal").close();
-         toast("Teacher saved successfully", "fa-solid fa-check-circle");
-         fetchTeachers();
-      })
-      .catch((err) => {
-        console.error(err);
-        toast("Error saving teacher", "fa-solid fa-circle-exclamation");
-      });
+      action
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to save teacher");
+          document.getElementById("teacher-modal").close();
+          toast("Teacher saved successfully", "fa-solid fa-check-circle");
+          fetchTeachers();
+        })
+        .catch((err) => {
+          console.error(err);
+          toast("Error saving teacher", "fa-solid fa-circle-exclamation");
+        });
+    };
+
+    if (editingTeacher) {
+      window.requirePinPrompt(actionFunc);
+    } else {
+      actionFunc();
+    }
   }
 
   function editTeacher(id) {
@@ -442,9 +416,9 @@
     // update searchable display to reflect selected level
     updateSearchableDisplay("teacher-level");
     const modal = document.getElementById("teacher-modal");
-    if(modal) {
-        modal.setTitle("Edit Teacher");
-        modal.open();
+    if (modal) {
+      modal.setTitle("Edit Teacher");
+      modal.open();
     }
   }
 
@@ -457,16 +431,18 @@
         confirmText: "Delete",
         cancelText: "Cancel",
         onConfirm: () => {
-          api.clerk.teachers.delete(id)
-            .then((res) => {
+          window.requirePinPrompt(() => {
+            api.clerk.teachers.delete(id)
+              .then((res) => {
                 if (!res.ok) throw new Error("Failed to delete teacher");
                 toast("Teacher deleted successfully", "fa-solid fa-check-circle");
                 fetchTeachers();
-            })
-            .catch((err) => {
+              })
+              .catch((err) => {
                 console.error(err);
                 toast("Error deleting teacher", "fa-solid fa-circle-exclamation");
-            });
+              });
+          });
         },
       }
     );
@@ -503,9 +479,9 @@
         "level-filter",
         (val, text) => {
           const sel = document.getElementById("level-filter");
-          if (sel) { 
-              sel.value = val;
-              sel.dispatchEvent(new Event('change'));
+          if (sel) {
+            sel.value = val;
+            sel.dispatchEvent(new Event('change'));
           }
         }
       );
@@ -550,7 +526,7 @@
   // Initialize
   populateLevelFilter();
   populateTeacherLevelSelect();
-  initTable(); 
-  fetchTeachers(); 
+  initTable();
+  fetchTeachers();
   setupAddButton();
 </script>
