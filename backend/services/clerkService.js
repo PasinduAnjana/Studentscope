@@ -681,7 +681,9 @@ const getTimetableForClass = async (classId) => {
     SELECT 
       t.day_of_week,
       t.slot AS period_number,
+      s.id AS subject_id,
       s.name AS subject,
+      ts.teacher_id,
       td.full_name AS teacher_name
     FROM timetables t
     JOIN teacher_subjects ts ON t.teacher_subject_id = ts.id
@@ -696,7 +698,9 @@ const getTimetableForClass = async (classId) => {
   return result.rows.map((row) => ({
     day_of_week: row.day_of_week,
     period_number: row.period_number,
+    subject_id: row.subject_id,
     subject: row.subject,
+    teacher_id: row.teacher_id,
     teacher_name: row.teacher_name,
   }));
 };

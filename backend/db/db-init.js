@@ -45,7 +45,9 @@ END $$;
         salt TEXT NOT NULL,
         role_id BIGINT REFERENCES roles(id),
         class_id BIGINT REFERENCES classes(id),
-        is_class_teacher BOOLEAN DEFAULT FALSE
+        is_class_teacher BOOLEAN DEFAULT FALSE,
+        pin_hash TEXT,
+        pin_salt TEXT
       );
     `);
 

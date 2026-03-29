@@ -63,6 +63,7 @@
 <script>
   let currentClass = null;
   let currentSlot = null;
+  let timetableLookup = {};
   let searchableClassSelect = null;
   let searchableSubjectSelect = null;
   let searchableTeacherSelect = null;
@@ -190,7 +191,7 @@
         ),
       ]);
 
-      const timetableLookup = {};
+      timetableLookup = {};
       if (Array.isArray(timetableData)) {
         timetableData.forEach((entry) => {
           if (!timetableLookup[entry.day_of_week])
@@ -292,11 +293,25 @@
     const dayName = days[day - 1]; // Assuming day 1-5
     const modal = document.getElementById("assignment-modal");
     
+    // Look up existing assignment for this slot
+    const entry = timetableLookup[day] && timetableLookup[day][period];
+
+    // Pre-select subject dropdown
+    const subjectSelect = document.getElementById("assign-subject");
+    subjectSelect.value = entry ? String(entry.subject_id) : "";
+    updateSearchableDisplay("assign-subject");
+
+    // Pre-select teacher dropdown
+    const teacherSelect = document.getElementById("assign-teacher");
+    teacherSelect.value = entry ? String(entry.teacher_id) : "";
+    updateSearchableDisplay("assign-teacher");
+
     // Create or update subtitle slot
     const subtitle = document.createElement("p");
     subtitle.style.cssText = "color: var(--color-subtext); font-size: 14px; margin-top: 4px; margin-bottom: 0;";
-    // Assuming we have slot text, otherwise default
-    subtitle.textContent = `${dayName} • Select subject and teacher`;
+    subtitle.textContent = entry
+      ? `${dayName} • Currently: ${entry.subject} — ${entry.teacher_name}`
+      : `${dayName} • Select subject and teacher`;
     
     // We can inject this into the slot we defined in the component
     const slot = modal.querySelector("#modal-subtitle-slot");
