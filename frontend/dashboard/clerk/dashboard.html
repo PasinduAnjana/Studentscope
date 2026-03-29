@@ -111,9 +111,12 @@
 
 <!-- Unmarked Classes Modal -->
 <modal-dialog id="unmarked-classes-modal" title="Classes Without Attendance Today">
-  <ul id="unmarked-classes-list" style="list-style: none; padding: 0; margin: 0;">
-    <li class="text-sm">Loading...</li>
-  </ul>
+  <div id="unmarked-classes-container"></div>
+</modal-dialog>
+
+<!-- Alert Details Modal -->
+<modal-dialog id="alert-details-modal" title="Alert Details">
+  <div id="alert-details-container"></div>
 </modal-dialog>
 
 <script>
@@ -395,21 +398,72 @@
 
   function showUnmarkedClassesModal() {
     const modal = document.getElementById("unmarked-classes-modal");
-    const list = document.getElementById("unmarked-classes-list");
-    list.innerHTML = "";
+    const container = document.getElementById("unmarked-classes-container");
+    container.innerHTML = "";
 
     if (unmarkedClassesData.length === 0) {
-      list.innerHTML = `<li class="text-sm" style="padding: 12px; color: #666;">All classes have marked attendance today!</li>`;
+      container.innerHTML = `
+        <div style="text-align: center; padding: 32px 16px;">
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--color-success); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+            <i class="fas fa-check" style="font-size: 28px; color: var(--color-white);"></i>
+          </div>
+          <h3 style="margin-bottom: 6px; font-size: 1.1rem; color: var(--color-text);">All Clear!</h3>
+          <p style="color: var(--color-subtext); font-size: 0.9rem;">Every class has marked attendance today.</p>
+        </div>
+      `;
     } else {
+      // Group by grade
+      const gradeMap = {};
       unmarkedClassesData.forEach(cls => {
-        const li = document.createElement("li");
-        li.style.cssText = "padding: 12px; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: 10px;";
-        li.innerHTML = `
-          <i class="fas fa-circle-xmark" style="color: var(--color-primary); opacity: 0.5;"></i>
-          <span class="subject-name" style="font-weight: 500;">${cls.name}</span>
-        `;
-        list.appendChild(li);
+        const parts = cls.name.split(' - ');
+        const grade = parts[0].trim();
+        const section = parts[1] ? parts[1].trim() : '';
+        if (!gradeMap[grade]) gradeMap[grade] = [];
+        gradeMap[grade].push({ ...cls, section });
       });
+
+      // Summary bar
+      const summaryBar = document.createElement('div');
+      summaryBar.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; background: var(--color-error-light); margin-bottom: 16px;';
+      summaryBar.innerHTML = `
+        <i class="fas fa-exclamation-circle" style="color: var(--color-error); font-size: 18px;"></i>
+        <span style="font-size: 0.9rem; font-weight: 500; color: var(--color-text);">${unmarkedClassesData.length} class${unmarkedClassesData.length > 1 ? 'es' : ''} haven't marked attendance yet</span>
+      `;
+      container.appendChild(summaryBar);
+
+      // Card grid
+      const grid = document.createElement('div');
+      grid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;';
+
+      Object.keys(gradeMap)
+        .sort((a, b) => parseInt(a) - parseInt(b))
+        .forEach(grade => {
+          const gradeClasses = gradeMap[grade];
+
+          gradeClasses.forEach(cls => {
+            const card = document.createElement('div');
+            card.style.cssText = `
+              display: flex; flex-direction: column; align-items: center; justify-content: center;
+              padding: 16px 12px; border-radius: 14px;
+              background: var(--color-card);
+              border: 1.5px solid var(--color-border);
+              transition: all 0.2s ease; cursor: default;
+            `;
+            card.onmouseenter = () => { card.style.transform = 'translateY(-2px)'; card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)'; };
+            card.onmouseleave = () => { card.style.transform = ''; card.style.boxShadow = ''; };
+
+            card.innerHTML = `
+              <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--color-primary-light); display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                <span style="font-weight: 700; font-size: 16px; color: var(--color-primary);">${grade}</span>
+              </div>
+              <span style="font-weight: 600; font-size: 0.95rem; color: var(--color-text);">${cls.section ? 'Section ' + cls.section : cls.name}</span>
+              <span style="font-size: 0.75rem; color: var(--color-subtext); margin-top: 2px;"><i class="fas fa-clock" style="margin-right: 3px;"></i>Pending</span>
+            `;
+            grid.appendChild(card);
+          });
+        });
+
+      container.appendChild(grid);
     }
 
     modal.open();
@@ -444,7 +498,7 @@
       if (alerts.length === 0) {
         const noAlertLi = document.createElement("li");
         noAlertLi.className = "text-sm";
-        noAlertLi.style.cssText = "padding: 12px; color: #666; display: flex; align-items: center; gap: 8px;";
+        noAlertLi.style.cssText = "padding: 12px; color: var(--color-subtext); display: flex; align-items: center; gap: 8px;";
         noAlertLi.innerHTML = `<i class="fas fa-circle-check" style="color: var(--color-primary);"></i> No alerts — everything looks good!`;
         alertsList.appendChild(noAlertLi);
         return;
@@ -454,18 +508,123 @@
 
       alerts.forEach(alert => {
         const li = document.createElement("li");
-
-        li.style.cssText = "padding: 10px 12px; display: flex; align-items: center; gap: 10px;";
+        li.style.cssText = "padding: 10px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-radius: 8px; transition: background 0.15s ease;";
+        li.onmouseenter = () => { li.style.background = 'var(--color-primary-light)'; };
+        li.onmouseleave = () => { li.style.background = ''; };
+        li.onclick = () => showAlertDetails(alert);
         li.innerHTML = `
           <i class="${alert.icon}" style="color: var(--color-primary); font-size: 1rem; min-width: 20px;"></i>
           <span style="flex: 1; font-size: 0.9rem; color: var(--color-text);">${alert.message[currentLang] || alert.message.en}</span>
           <span style="background: var(--color-primary); color: var(--color-bg); border-radius: 12px; padding: 2px 10px; font-size: 0.8rem; font-weight: 600; min-width: 24px; text-align: center;">${alert.count}</span>
+          <i class="fas fa-chevron-right" style="color: var(--color-subtext); font-size: 0.7rem;"></i>
         `;
         alertsList.appendChild(li);
       });
 
     } catch (err) {
       console.error("Error loading alerts:", err);
+    }
+  }
+
+  async function showAlertDetails(alert) {
+    const modal = document.getElementById("alert-details-modal");
+    const container = document.getElementById("alert-details-container");
+    const currentLang = localStorage.getItem("lang") || "en";
+
+    // Set modal title
+    modal.setAttribute("title", alert.message[currentLang] || alert.message.en);
+
+    container.innerHTML = "";
+    Loader.show(container);
+    modal.open();
+
+    try {
+      const response = await fetch(`/api/clerk/alerts/details?type=${alert.key}`);
+      if (!response.ok) throw new Error("Failed to fetch");
+      const items = await response.json();
+
+      Loader.hide(container);
+      container.innerHTML = "";
+
+      if (items.length === 0) {
+        container.innerHTML = `<p style="text-align: center; padding: 24px; color: var(--color-subtext);">No items found.</p>`;
+        return;
+      }
+
+      // Render based on alert type
+      const isClassType = ["no_teacher", "no_timetable"].includes(alert.key);
+      const isTeacherType = ["no_subjects"].includes(alert.key);
+
+      if (isClassType) {
+        // Card grid for classes
+        const grid = document.createElement("div");
+        grid.style.cssText = "display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;";
+
+        items.forEach(item => {
+          const card = document.createElement("div");
+          card.style.cssText = `
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 16px 12px; border-radius: 14px;
+            background: var(--color-card); border: 1.5px solid var(--color-border);
+            transition: all 0.2s ease; cursor: default;
+          `;
+          card.onmouseenter = () => { card.style.transform = 'translateY(-2px)'; card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)'; };
+          card.onmouseleave = () => { card.style.transform = ''; card.style.boxShadow = ''; };
+          card.innerHTML = `
+            <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--color-primary-light); display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+              <span style="font-weight: 700; font-size: 16px; color: var(--color-primary);">${item.grade}</span>
+            </div>
+            <span style="font-weight: 600; font-size: 0.95rem; color: var(--color-text);">Section ${item.name}</span>
+          `;
+          grid.appendChild(card);
+        });
+        container.appendChild(grid);
+
+      } else if (isTeacherType) {
+        // List for teachers
+        items.forEach(item => {
+          const row = document.createElement("div");
+          row.style.cssText = "padding: 10px 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--color-border);";
+          row.innerHTML = `
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary-light); display: flex; align-items: center; justify-content: center;">
+              <i class="fas fa-user" style="color: var(--color-primary); font-size: 0.8rem;"></i>
+            </div>
+            <span style="font-size: 0.9rem; color: var(--color-text);">${item.full_name || 'Unknown'}</span>
+          `;
+          container.appendChild(row);
+        });
+
+      } else {
+        // List for students (with class info)
+        items.forEach(item => {
+          const row = document.createElement("div");
+          row.style.cssText = "padding: 10px 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--color-border);";
+          const classLabel = item.grade && item.class_name ? `Grade ${item.grade} ${item.class_name}` : (item.exam_name || 'No class');
+          row.innerHTML = `
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary-light); display: flex; align-items: center; justify-content: center;">
+              <i class="fas fa-user-graduate" style="color: var(--color-primary); font-size: 0.8rem;"></i>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 0.9rem; font-weight: 500; color: var(--color-text);">${item.full_name || item.username || 'Unknown'}</div>
+              <div style="font-size: 0.75rem; color: var(--color-subtext);">${classLabel}</div>
+            </div>
+          `;
+          container.appendChild(row);
+        });
+      }
+
+      // Show count footer if limited
+      if (items.length >= 50) {
+        const footer = document.createElement("p");
+        footer.style.cssText = "text-align: center; padding: 12px; color: var(--color-subtext); font-size: 0.8rem;";
+        footer.textContent = `Showing first 50 of ${alert.count} items`;
+        container.appendChild(footer);
+      }
+
+    } catch (err) {
+      console.error("Error loading alert details:", err);
+      Loader.hide(container);
+      container.innerHTML = `<p style="text-align: center; padding: 24px; color: var(--color-error);">Failed to load details.</p>`;
     }
   }
 

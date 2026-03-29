@@ -32,6 +32,12 @@ module.exports = async (req, res) => {
     );
   }
 
+  if (req.method === "GET" && req.url.startsWith("/api/clerk/alerts/details")) {
+    return protect("clerk")(req, res, () =>
+      alertsController.getAlertDetails(req, res)
+    );
+  }
+
   // Attendance routes
   if (req.method === "GET" && req.url === "/api/clerk/attendance/stats") {
     return protect("clerk")(req, res, () =>
