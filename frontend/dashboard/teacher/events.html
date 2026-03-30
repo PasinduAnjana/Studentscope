@@ -42,28 +42,106 @@
     animation: fadeIn 0.4s ease-out;
   }
 
-  /* FullCalendar overrides */
-  .fc-theme-standard th {
-    padding: 12px 0;
-    font-weight: 500;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    color: var(--color-subtext);
-    border: none;
-    border-bottom: 1px solid var(--color-border);
-  }
+  /* Extreme minimal overrides */
+  .fc { font-family: inherit; }
+  .fc-theme-standard td, .fc-theme-standard th { border: none !important; }
   .fc-scrollgrid { border: none !important; }
-  .fc-scrollgrid td { border-color: var(--color-border) !important; }
-  .fc td { border-color: var(--color-border) !important; }
-  .fc .fc-daygrid-day-number { padding: 8px; font-weight: 500; color: var(--color-text); }
-  .fc .fc-col-header-cell-cushion { text-decoration: none !important; }
+  
+  /* Month Header */
+  .fc .fc-toolbar-title { font-size: 1.25rem; font-weight: 600; color: var(--color-text); }
+  
+  /* Days of Week Header */
+  .fc-theme-standard th { 
+    padding: 16px 0; 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    font-size: 0.75rem; 
+    letter-spacing: 0.05em; 
+    color: var(--color-subtext); 
+    border-bottom: 1px solid var(--color-border) !important; 
+  }
+
+  /* Day cells */
+  .fc .fc-daygrid-day-frame {
+    padding: 8px;
+    min-height: 100px;
+    border-bottom: 1px dashed rgba(0,0,0,0.06);
+    border-right: 1px dashed rgba(0,0,0,0.06);
+  }
+  .fc .fc-daygrid-day-top {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+  .fc .fc-daygrid-day-number {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-subtext);
+    padding: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 4px;
+    transition: all 0.2s ease;
+  }
+  .fc .fc-col-header-cell-cushion {
+    text-decoration: none !important;
+  }
+  
+  /* Today Highlight */
+  .fc .fc-day-today { background: transparent !important; }
+  .fc .fc-day-today .fc-daygrid-day-number {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+  }
+
+  /* Events */
   .fc .fc-daygrid-event {
-    border-radius: 6px; padding: 4px 8px; font-size: 0.8rem; font-weight: 500;
-    border: none; box-shadow: 0 2px 4px rgba(67, 97, 238, 0.2);
-    transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer;
+    margin: 2px 4px;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: none;
+    background: var(--color-primary-light) !important;
+    color: var(--color-primary) !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+    cursor: pointer;
   }
   .fc .fc-daygrid-event:hover {
-    transform: translateY(-1px); box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+    background: var(--color-primary) !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2) !important;
+  }
+  .fc-direction-ltr .fc-daygrid-event .fc-event-time { display: none; }
+  
+  /* Buttons */
+  .fc .fc-button-primary {
+    background: var(--color-bg) !important;
+    border: 1px solid var(--color-border) !important;
+    color: var(--color-text) !important;
+    text-transform: capitalize;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 8px 16px;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+  }
+  .fc .fc-button-primary:hover {
+    background: var(--color-card) !important;
+    border-color: var(--color-primary) !important;
+    color: var(--color-primary) !important;
+  }
+  .fc .fc-button-primary:not(:disabled):active,
+  .fc .fc-button-primary:not(:disabled).fc-button-active {
+    background: var(--color-primary) !important;
+    color: white !important;
+    border-color: var(--color-primary) !important;
   }
 
   .form-group { margin-bottom: 16px; }
