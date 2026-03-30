@@ -32,8 +32,9 @@
     "announcements": "அறிவிப்புகள்",
     "todo": "செய்ய வேண்டிய பட்டியல்",
     "behavior": "மாணவர் நடத்தை அறிக்கைகள்",
-    "certificates": "சான்றிதழ் ஒப்புதல்",
-    "certificateApproval": "சான்றிதழ் ஒப்புதல்"
+    "certificates": "சான்றிதழ்கள்",
+    "certificateApproval": "சான்றிதழ் ஒப்புதல்",
+    "events": "நிகழ்வுகள்"
   },
   "profile": {
     "quickStats": "விரைவு புள்ளியியல்",

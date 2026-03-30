@@ -1,0 +1,381 @@
+<style>
+  :root {
+    --fc-border-color: var(--color-border);
+    --fc-button-bg-color: var(--color-primary);
+    --fc-button-border-color: var(--color-primary);
+    --fc-button-hover-bg-color: var(--color-primary-dark);
+    --fc-button-hover-border-color: var(--color-primary-dark);
+    --fc-button-active-bg-color: var(--color-primary-dark);
+    --fc-button-active-border-color: var(--color-primary-dark);
+    --fc-event-bg-color: var(--color-primary);
+    --fc-event-border-color: var(--color-primary);
+    --fc-today-bg-color: rgba(67, 97, 238, 0.05); /* very light primary */
+    --fc-page-bg-color: var(--color-bg);
+    --fc-neutral-bg-color: var(--color-card);
+    --fc-neutral-text-color: var(--color-text);
+  }
+
+  .events-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 24px;
+    background: var(--color-card);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .events-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  .calendar-container {
+    background: var(--color-card);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    min-height: 600px;
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  /* FullCalendar overrides for premium look */
+  .fc-theme-standard th {
+    padding: 12px 0;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: var(--color-subtext);
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .fc-scrollgrid {
+    border: none !important;
+  }
+  .fc-scrollgrid td {
+    border-color: var(--color-border) !important;
+  }
+  .fc td {
+    border-color: var(--color-border) !important;
+  }
+  .fc .fc-daygrid-day-number {
+    padding: 8px;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+  .fc .fc-col-header-cell-cushion {
+    text-decoration: none !important;
+  }
+  .fc .fc-daygrid-event {
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: none;
+    box-shadow: 0 2px 4px rgba(67, 97, 238, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+  .fc .fc-daygrid-event:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+  }
+
+  /* Modal Form Styles */
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+  .form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .form-control:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+  }
+  textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  /* Details Modal Content */
+  .event-details-meta {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .event-details-meta p {
+    margin: 4px 0;
+    color: var(--color-subtext);
+    font-size: 0.9rem;
+  }
+  .event-details-desc {
+    color: var(--color-text);
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .event-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<!-- FullCalendar Library -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
+<div class="events-header">
+  <div>
+    <h1 data-en="School Events" data-si="පාසල් සිදුවීම්" data-ta="பள்ளி நிகழ்வுகள்">School Events</h1>
+    <p class="text-sm" style="color: var(--color-subtext); margin-top: 4px;" data-en="Manage and view school calendar events" data-si="පාසල් දිනදර්ශන සිදුවීම් කළමනාකරණය කිරීම සහ බැලීම" data-ta="பள்ளி நாட்காட்டி நிகழ்வுகளை நிர்வகிக்கவும் மற்றும் பார்க்கவும்">Manage and view school calendar events</p>
+  </div>
+  <button class="btn btn-primary" onclick="openCreateEventModal()">
+    <i class="fas fa-plus"></i>
+    <span data-en="Create Event" data-si="සිදුවීමක් සාදන්න" data-ta="நிகழ்வை உருவாக்குங்கள்">Create Event</span>
+  </button>
+</div>
+
+<div class="calendar-container">
+  <div id="calendar"></div>
+</div>
+
+<!-- Create Event Modal -->
+<modal-dialog id="create-event-modal" title="Create New Event">
+  <form id="create-event-form" onsubmit="handleCreateEvent(event)">
+    <div class="form-group">
+      <label data-en="Event Title" data-si="සිදුවීමේ ශීර්ෂය" data-ta="நிகழ்வின் தலைப்பு">Event Title</label>
+      <input type="text" class="form-control" id="event-title" required />
+    </div>
+    
+    <div class="form-group">
+      <label data-en="Description" data-si="විස්තරය" data-ta="விளக்கம்">Description</label>
+      <textarea class="form-control" id="event-desc" required></textarea>
+    </div>
+
+    <div style="display: flex; gap: 16px;">
+      <div class="form-group" style="flex: 1;">
+        <label data-en="Date" data-si="දිනය" data-ta="தேதி">Date</label>
+        <input type="date" class="form-control" id="event-date" required />
+      </div>
+      
+      <div class="form-group" style="flex: 1;">
+        <label data-en="Target Audience" data-si="ඉලක්ක ප්‍රේක්ෂකයින්" data-ta="இலக்கு பார்வையாளர்கள்">Target Audience</label>
+        <select class="form-control" id="event-audience" required>
+          <option value="both" data-en="Everyone (Teachers & Students)">Everyone (Teachers & Students)</option>
+          <option value="teachers" data-en="Only Teachers">Only Teachers</option>
+          <option value="students" data-en="Only Students">Only Students</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+      <button type="button" class="btn btn-secondary" onclick="document.getElementById('create-event-modal').close()" data-en="Cancel" data-si="අවලංගු කරන්න" data-ta="ரத்துசெய்">Cancel</button>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> <span data-en="Save Event">Save Event</span>
+      </button>
+    </div>
+  </form>
+</modal-dialog>
+
+<!-- Event Details Modal -->
+<modal-dialog id="event-details-modal" title="Event Details">
+  <div id="event-details-content">
+    <div class="event-details-meta">
+      <h2 id="detail-title" style="margin: 0 0 12px 0; font-size: 1.4rem; color: var(--color-text);">Title</h2>
+      <p><i class="fas fa-calendar-day" style="width: 20px;"></i> <span id="detail-date">Date</span></p>
+      <p><i class="fas fa-user-circle" style="width: 20px;"></i> <span id="detail-creator">Creator</span> (<span id="detail-role">Role</span>)</p>
+      <p><i class="fas fa-users" style="width: 20px;"></i> <span class="event-badge" id="detail-audience">Audience</span></p>
+    </div>
+    <div class="event-details-desc" id="detail-desc">
+      Description goes here
+    </div>
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+      <button class="btn btn-danger" id="detail-delete-btn" style="display: none;" onclick="deleteCurrentEvent()">
+        <i class="fas fa-trash"></i> <span data-en="Delete">Delete</span>
+      </button>
+      <button class="btn btn-secondary" onclick="document.getElementById('event-details-modal').close()" data-en="Close">Close</button>
+    </div>
+  </div>
+</modal-dialog>
+
+<script>
+  let calendar;
+  let allEvents = [];
+  let currentEventId = null;
+
+  async function fetchEvents() {
+    try {
+      const res = await fetch('/api/clerk/events');
+      if (res.ok) {
+        allEvents = await res.json();
+        renderCalendar();
+      } else {
+        toast("Failed to load events", "fa-solid fa-circle-exclamation");
+      }
+    } catch (e) {
+      console.error(e);
+      toast("Error loading events", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  function renderCalendar() {
+    const calendarEl = document.getElementById('calendar');
+    
+    const calendarEvents = allEvents.map(ev => ({
+      id: ev.id,
+      title: ev.title,
+      start: ev.event_date.split('T')[0], // format to YYYY-MM-DD
+      extendedProps: {
+        description: ev.description,
+        creator: ev.creator_name,
+        role: ev.creator_role,
+        audience: ev.target_audience
+      }
+    }));
+
+    if (calendar) {
+      calendar.destroy();
+    }
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek'
+      },
+      events: calendarEvents,
+      eventClick: function(info) {
+        showEventDetails(info.event);
+      },
+      dateClick: function(info) {
+        openCreateEventModal(info.dateStr);
+      },
+      height: 'auto',
+      eventColor: 'var(--color-primary)',
+      displayEventTime: false
+    });
+
+    calendar.render();
+  }
+
+  function openCreateEventModal(dateStr = '') {
+    document.getElementById('create-event-form').reset();
+    if (dateStr) {
+      document.getElementById('event-date').value = dateStr;
+    } else {
+      document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
+    }
+    document.getElementById('create-event-modal').open();
+  }
+
+  async function handleCreateEvent(e) {
+    e.preventDefault();
+    const title = document.getElementById('event-title').value;
+    const description = document.getElementById('event-desc').value;
+    const date = document.getElementById('event-date').value;
+    const audience = document.getElementById('event-audience').value;
+
+    try {
+      const res = await fetch('/api/clerk/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description, event_date: date, target_audience: audience })
+      });
+
+      if (res.ok) {
+        toast("Event created successfully", "fa-solid fa-check");
+        document.getElementById('create-event-modal').close();
+        fetchEvents();
+      } else {
+        toast("Failed to create event", "fa-solid fa-circle-exclamation");
+      }
+    } catch (err) {
+      console.error(err);
+      toast("Error creating event", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  function showEventDetails(event) {
+    currentEventId = event.id;
+    const props = event.extendedProps;
+    
+    document.getElementById('detail-title').textContent = event.title;
+    document.getElementById('detail-date').textContent = new Date(event.start).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('detail-creator').textContent = props.creator || 'Admin';
+    document.getElementById('detail-role').textContent = props.role || 'Admin';
+    
+    const audienceLabels = {
+      'both': 'Everyone',
+      'students': 'Students',
+      'teachers': 'Teachers',
+      'my_students': 'My Class'
+    };
+    document.getElementById('detail-audience').textContent = audienceLabels[props.audience] || props.audience;
+    document.getElementById('detail-desc').textContent = props.description;
+    
+    // Admins can delete any event
+    document.getElementById('detail-delete-btn').style.display = 'inline-flex';
+    
+    document.getElementById('event-details-modal').open();
+  }
+
+  async function deleteCurrentEvent() {
+    if (!currentEventId) return;
+    if (!confirm("Are you sure you want to delete this event?")) return;
+
+    try {
+      const res = await fetch(`/api/clerk/events/${currentEventId}`, {
+        method: 'DELETE'
+      });
+
+      if (res.ok) {
+        toast("Event deleted successfully", "fa-solid fa-check");
+        document.getElementById('event-details-modal').close();
+        fetchEvents();
+      } else {
+        toast("Failed to delete event", "fa-solid fa-circle-exclamation");
+      }
+    } catch (err) {
+      console.error(err);
+      toast("Error deleting event", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  // Init
+  function initCalendar() {
+    if (typeof FullCalendar === 'undefined') {
+      setTimeout(initCalendar, 100);
+      return;
+    }
+    fetchEvents();
+  }
+  
+  initCalendar();
+</script>

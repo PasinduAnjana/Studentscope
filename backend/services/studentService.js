@@ -134,6 +134,42 @@ exports.getAchievements = async (studentId) => {
   return result.rows;
 };
 
+exports.getEventsForStudent = async (studentId) => {
+  const user = await pool.query("SELECT class_id FROM users WHERE id = $1", [studentId]);
+  const classId = user.rows[0]?.class_id;
+
+  const result = await pool.query(`
+    SELECT e.*, 
+           u.username as creator_name, 
+           r.name as creator_role,
+           COALESCE(td.full_name, u.username) as creator_full_name
+    FROM events e
+    JOIN users u ON e.created_by = u.id
+    JOIN roles r ON u.role_id = r.id
+    LEFT JOIN teacher_details td ON u.id = td.teacher_id
+    WHERE e.target_audience IN ('students', 'both')
+       OR (
+           e.target_audience = 'my_students' AND (
+               -- Created by teacher who teaches this class
+               e.created_by IN (
+                   SELECT teacher_id 
+                   FROM teacher_subjects 
+                   WHERE class_id = $1
+               )
+               OR
+               -- Created by class teacher
+               e.created_by IN (
+                   SELECT id
+                   FROM users
+                   WHERE class_id = $1 AND is_class_teacher = true AND role_id = (SELECT id FROM roles WHERE name = 'teacher')
+               )
+           )
+       )
+    ORDER BY e.event_date ASC
+  `, [classId]);
+  return result.rows;
+};
+
 exports.getAnnouncementsForStudent = async (studentId) => {
   const result = await pool.query(
     `

@@ -1,5 +1,9 @@
 [
-  { "label": "sidebar.dashboard", "page": "dashboard", "icon": "fas fa-home" },
+  {
+    "label": "sidebar.dashboard",
+    "page": "dashboard",
+    "icon": "fas fa-home"
+  },
   {
     "label": "sidebar.attendanceReports",
     "page": "attendanceSummary",
@@ -20,7 +24,6 @@
     "page": "students",
     "icon": "fas fa-users"
   },
-
   {
     "label": "sidebar.certificateApproval",
     "page": "certificates",
@@ -30,5 +33,10 @@
     "label": "sidebar.announcements",
     "page": "announcements",
     "icon": "fas fa-bullhorn"
+  },
+  {
+    "label": "sidebar.events",
+    "page": "events",
+    "icon": "fas fa-calendar-alt"
   }
 ]

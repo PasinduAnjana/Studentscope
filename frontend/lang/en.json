@@ -34,7 +34,8 @@
     "todo": "Todo List",
     "behavior": "Behavior Reports",
     "certificates": "Certificates",
-    "certificateApproval": "Certificate Approval"
+    "certificateApproval": "Certificate Approval",
+    "events": "Events"
   },
   "profile": {
     "quickStats": "Quick Stats",

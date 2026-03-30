@@ -671,7 +671,39 @@ exports.getMarks = async (classId, subjectId, examId) => {
   );
   return result.rows;
 };
-// Announcement functions
+
+// ---------------------------
+// Events
+// ---------------------------
+exports.createEvent = async (data, teacherId) => {
+  const { title, description, event_date } = data;
+  const result = await pool.query(
+    "INSERT INTO events (title, description, event_date, created_by, target_audience) VALUES ($1, $2, $3, $4, 'my_students') RETURNING *",
+    [title, description, event_date, teacherId]
+  );
+  return result.rows[0];
+};
+
+exports.getEvents = async (teacherId) => {
+  const result = await pool.query(`
+    SELECT e.*, u.username as creator_name, r.name as creator_role, COALESCE(td.full_name, u.username) AS creator_full_name
+    FROM events e
+    JOIN users u ON e.created_by = u.id
+    JOIN roles r ON u.role_id = r.id
+    LEFT JOIN teacher_details td ON u.id = td.teacher_id
+    WHERE e.target_audience IN ('teachers', 'both')
+       OR e.created_by = $1
+    ORDER BY e.event_date ASC
+  `, [teacherId]);
+  return result.rows;
+};
+
+exports.deleteEvent = async (id, teacherId) => {
+  await pool.query("DELETE FROM events WHERE id = $1 AND created_by = $2", [id, teacherId]);
+};
+
+// ---------------------------
+// Announcements functions
 exports.getAnnouncementsByClass = async (classId) => {
   const result = await pool.query(
     `
