@@ -49,8 +49,15 @@
 <div class="card dashboard-tile" style="margin-top: 0">
   <div class="icon-title">
     <i class="fas fa-table icon"></i>
-    <p class="tile-label" data-en="Results" data-si="ප්‍රතිඵල" data-ta="முடிவுகள்">Results</p>
+    <p class="tile-label" data-en="Results" data-si="ප්‍රතිඵಲ" data-ta="முடிவுகள்">Results</p>
   </div>
+
+  <style>
+    /* Hide ALL default data-table filter controls so we can place our custom ones perfectly aligned */
+    #results-table .filter-controls {
+      display: none !important;
+    }
+  </style>
 
   <div class="filter-group">
     <div>
@@ -69,15 +76,23 @@
       </select>
     </div>
     <div class="search-group" style="max-width: 260px">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search student..." />
+      <input type="text" id="customSearch" class="search-input" placeholder="Search student..." />
       <span class="search-icon"><i class="fas fa-search"></i></span>
     </div>
-    <div class="export-buttons">
-      <button class="btn btn-primary" onclick="exportPDF()">
-        <i class="fas fa-file-pdf"></i> PDF
-      </button>
-      <button class="btn btn-primary" onclick="exportCSV()">
-        <i class="fas fa-download"></i> CSV
+
+    <!-- Align Export and Page Size to the right of the row -->
+    <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
+      <div style="margin-bottom: 0;">
+        <select id="customPageSize" class="dropdown-select">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+      <button id="customExportBtn" class="btn btn-secondary" style="padding: 8px 12px; height: 100%;">
+        <i class="fas fa-download"></i> Export
       </button>
     </div>
   </div>
@@ -87,24 +102,7 @@
   </div>
 
   <div class="table-container" id="tableContent" style="display: none; margin-top: 16px;">
-    <div class="table-responsive">
-      <table>
-        <thead>
-          <tr>
-            <th data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்">Student</th>
-            <th data-en="Index No" data-si="සුචක අංකය" data-ta="குறியீட்டு எண்">Index No</th>
-            <th data-en="Class" data-si="පන්තිය" data-ta="வகுப்பு">Class</th>
-            <th data-en="Subject" data-si="විෂය" data-ta="பாடம்">Subject</th>
-            <th data-en="Marks" data-si="ලකුණු" data-ta="மதிப்பெண்">Marks</th>
-            <th data-en="Exam" data-si="විභාගය" data-ta="தேர்வு">Exam</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-    <div class="table-footer" style="margin-top: 12px">
-      <p id="filterInfo" style="color: var(--color-subtext); font-size: 13px">Loading...</p>
-    </div>
+    <data-table id="results-table"></data-table>
   </div>
 </div>
 
@@ -138,14 +136,12 @@
   let allRecords = [];
   let filtersData = {};
   let chartA, chartB;
-  let searchDebounce = null;
+  let resultsTable = null;
 
-  const tableBody = document.getElementById("tableBody");
   const filterInfo = document.getElementById("filterInfo");
   const examEl = document.getElementById("examFilter");
   const classEl = document.getElementById("classFilter");
   const subjectEl = document.getElementById("subjectFilter");
-  const searchEl = document.getElementById("searchInput");
 
   /* =========================
    Primary color
@@ -154,6 +150,38 @@
     return getComputedStyle(document.documentElement)
       .getPropertyValue("--color-primary")
       .trim();
+  }
+
+  /* =========================
+   Init Data Table component
+   ========================= */
+  function initTable() {
+    resultsTable = document.getElementById("results-table");
+    resultsTable.setEmptyState("No matching records found for these filters.", "fas fa-search");
+  }
+
+  /* =========================
+   Update table headers text based on lang
+   ========================= */
+  function updateTableHeaders(lang) {
+    if (!resultsTable) return;
+    const translate = (en, si, ta) => lang === "si" ? si : lang === "ta" ? ta : en;
+    resultsTable.setColumns([
+      { key: "student_name", header: translate("Student", "ශිෂ්‍යයා", "மாணவர்"), searchable: true },
+      { key: "index_number", header: translate("Index No", "සුචක අංකය", "குறியீட்டு எண்"), searchable: true },
+      { key: "class", header: translate("Class", "පන්තිය", "வகுப்பு"), searchable: true },
+      { key: "subject", header: translate("Subject", "විෂය", "பாடம்"), searchable: true },
+      { 
+        key: "marks", 
+        header: translate("Marks", "ලකුණු", "மதிப்பெண்"),
+        render: (row) => {
+          const m = parseInt(row.marks);
+          const color = isNaN(m) ? "var(--color-text)" : (m >= 50 ? "var(--color-success)" : "var(--color-error)");
+          return `<span style="font-weight:600; color: ${color}">${row.marks}</span>`;
+        }
+      },
+      { key: "exam", header: translate("Exam", "විභාගය", "தேர்வு"), searchable: true }
+    ]);
   }
 
   /* =========================
@@ -201,7 +229,6 @@
     if (examEl.value) params.set("exam_id", examEl.value);
     if (classEl.value) params.set("class_id", classEl.value);
     if (subjectEl.value) params.set("subject_id", subjectEl.value);
-    if (searchEl.value.trim()) params.set("search", searchEl.value.trim());
     return params.toString();
   }
 
@@ -246,41 +273,16 @@
       document.getElementById("statTopSubject").textContent = summary.topSubject;
 
       // Render table
-      renderTable();
+      if (resultsTable) {
+        resultsTable.setData(allRecords);
+      }
 
       // Render charts
       renderCharts();
-
-      // Update info
-      filterInfo.textContent = `${allRecords.length} record(s) found`;
     } catch (err) {
       console.error("Error loading data:", err);
-      filterInfo.textContent = "Error loading data";
+      if (resultsTable) resultsTable.setEmptyState("Error loading reports data.", "fas fa-exclamation-triangle");
     }
-  }
-
-  /* =========================
-   Render table
-   ========================= */
-  function renderTable() {
-    if (!allRecords.length) {
-      tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 32px; color: var(--color-subtext)">No records found. Try adjusting the filters.</td></tr>`;
-      return;
-    }
-
-    tableBody.innerHTML = allRecords
-      .map(
-        (r) => `
-        <tr>
-          <td>${r.student_name}</td>
-          <td>${r.index_number}</td>
-          <td>${r.class}</td>
-          <td>${r.subject}</td>
-          <td><span style="font-weight:600; color: ${parseInt(r.marks) >= 50 ? "var(--color-success)" : "var(--color-error)"}">${r.marks}</span></td>
-          <td>${r.exam}</td>
-        </tr>`
-      )
-      .join("");
   }
 
   /* =========================
@@ -375,65 +377,31 @@
   }
 
   /* =========================
-   Export CSV
-   ========================= */
-  function exportCSV() {
-    const header = ["Student", "Index No", "Class", "Subject", "Marks", "Exam"];
-    const rows = allRecords.map((r) => [
-      r.student_name,
-      r.index_number,
-      r.class,
-      r.subject,
-      r.marks,
-      r.exam,
-    ]);
-
-    const csv = [header.join(","), ...rows.map((r) => r.map((c) => `"${c}"`).join(","))].join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `academic_report_${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  /* =========================
-   Export PDF
-   ========================= */
-  function exportPDF() {
-    const win = window.open("", "", "width=900,height=700");
-    win.document.write(`<html><head><title>Academic Report</title></head><body>`);
-    win.document.write(`<h1>Academic Report</h1>`);
-    win.document.write(`<p>Generated: ${new Date().toLocaleString()}</p>`);
-    win.document.write(`<table border="1" cellpadding="6" cellspacing="0" style="width:100%; border-collapse:collapse">`);
-    win.document.write(`<tr><th>Student</th><th>Index No</th><th>Class</th><th>Subject</th><th>Marks</th><th>Exam</th></tr>`);
-
-    allRecords.forEach((r) => {
-      win.document.write(
-        `<tr><td>${r.student_name}</td><td>${r.index_number}</td><td>${r.class}</td><td>${r.subject}</td><td>${r.marks}</td><td>${r.exam}</td></tr>`
-      );
-    });
-
-    win.document.write(`</table></body></html>`);
-    win.document.close();
-    win.focus();
-    win.print();
-  }
-
-  /* =========================
    Event listeners
    ========================= */
   [examEl, classEl, subjectEl].forEach((el) => {
     el.addEventListener("change", loadData);
   });
 
-  searchEl.addEventListener("input", () => {
-    clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(loadData, 350);
-  });
+  const customSearch = document.getElementById("customSearch");
+  if(customSearch) {
+    customSearch.addEventListener("input", (e) => {
+      if (resultsTable) {
+        resultsTable.searchQuery = e.target.value.toLowerCase().trim();
+        resultsTable.currentPage = 1;
+        resultsTable.filterData();
+      }
+    });
+  }
+
+  const customExportBtn = document.getElementById("customExportBtn");
+  if(customExportBtn) {
+    customExportBtn.addEventListener("click", () => {
+      if (resultsTable && typeof resultsTable.openExportModal === "function") {
+        resultsTable.openExportModal();
+      }
+    });
+  }
 
   /* =========================
    Language handling
@@ -444,6 +412,9 @@
       const next = el.getAttribute(`data-${lang}`);
       if (next != null) el.textContent = next;
     });
+    
+    // Update data-table headers translation
+    updateTableHeaders(lang);
   }
 
   window.addEventListener("storage", (e) => {
@@ -471,6 +442,13 @@
       makeSearchableDropdown("examFilter", () => loadData());
       makeSearchableDropdown("classFilter", () => loadData());
       makeSearchableDropdown("subjectFilter", () => loadData());
+      makeSearchableDropdown("customPageSize", (val) => {
+        if (resultsTable) {
+          resultsTable.pageSize = parseInt(val);
+          resultsTable.currentPage = 1;
+          resultsTable.filterData();
+        }
+      });
     }
   }
 
@@ -478,6 +456,7 @@
    Init
    ========================= */
   async function initializePage() {
+    initTable();
     updateText(localStorage.getItem("lang") || "en");
     await loadFilters();
     initializeSearchableDropdowns();
