@@ -165,6 +165,34 @@ module.exports = (req, res) => {
     );
   }
 
+  // Academic reports routes
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/admin/academic/reports/filters")
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getAcademicReportsFilters(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/admin/academic/reports/data")
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getAcademicReportsData(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/admin/academic/reports/summary")
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getAcademicReportsSummary(req, res)
+    );
+  }
+
   // Announcements routes (identical to clerk)
   if (req.method === "GET" && req.url.startsWith("/api/admin/announcements")) {
     // Check if this is a query for staff announcements
