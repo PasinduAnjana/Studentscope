@@ -1,11 +1,19 @@
 [
-  { "label": "sidebar.dashboard", "page": "dashboard", "icon": "fas fa-home" },
+  {
+    "label": "sidebar.dashboard",
+    "page": "dashboard",
+    "icon": "fas fa-home"
+  },
   {
     "label": "student.attendance",
     "page": "myattendance",
     "icon": "fas fa-user-check"
   },
-  { "label": "student.marks", "page": "myMarks", "icon": "fas fa-chart-bar" },
+  {
+    "label": "student.marks",
+    "page": "myMarks",
+    "icon": "fas fa-chart-bar"
+  },
   {
     "label": "sidebar.timeTable",
     "page": "timetable",
@@ -26,5 +34,14 @@
     "page": "announcements",
     "icon": "fas fa-bullhorn"
   },
-  { "label": "sidebar.profile", "page": "profile", "icon": "fas fa-user" }
+  {
+    "label": "sidebar.profile",
+    "page": "profile",
+    "icon": "fas fa-user"
+  },
+  {
+    "label": "sidebar.events",
+    "page": "events",
+    "icon": "fas fa-calendar-alt"
+  }
 ]

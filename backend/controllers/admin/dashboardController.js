@@ -146,3 +146,54 @@ exports.getAllClerks = async (req, res) => {
     res.end(JSON.stringify({ error: "Failed to fetch clerks" }));
   }
 };
+
+// ============ ACADEMIC REPORTS ============
+
+exports.getAcademicReportsFilters = async (req, res) => {
+  try {
+    const filters = await adminService.getAcademicReportsFilters();
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(filters));
+  } catch (err) {
+    console.error("Error fetching academic report filters:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch filters" }));
+  }
+};
+
+exports.getAcademicReportsData = async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const filters = {
+      exam_id: url.searchParams.get("exam_id") || null,
+      class_id: url.searchParams.get("class_id") || null,
+      subject_id: url.searchParams.get("subject_id") || null,
+      search: url.searchParams.get("search") || null,
+    };
+    const data = await adminService.getAcademicReportsData(filters);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(data));
+  } catch (err) {
+    console.error("Error fetching academic report data:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch report data" }));
+  }
+};
+
+exports.getAcademicReportsSummary = async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const filters = {
+      exam_id: url.searchParams.get("exam_id") || null,
+      class_id: url.searchParams.get("class_id") || null,
+      subject_id: url.searchParams.get("subject_id") || null,
+    };
+    const summary = await adminService.getAcademicReportsSummary(filters);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(summary));
+  } catch (err) {
+    console.error("Error fetching academic report summary:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch report summary" }));
+  }
+};

@@ -1,0 +1,248 @@
+<style>
+  :root {
+    --fc-border-color: var(--color-border);
+    --fc-page-bg-color: var(--color-bg);
+    --fc-neutral-bg-color: var(--color-card);
+    --fc-neutral-text-color: var(--color-text);
+  }
+
+  .events-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 24px;
+    background: var(--color-card);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .events-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  .calendar-container {
+    background: var(--color-card);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    min-height: 600px;
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  /* Extreme minimal overrides */
+  .fc { font-family: inherit; }
+  .fc-theme-standard td, .fc-theme-standard th { border: none !important; }
+  .fc-scrollgrid { border: none !important; }
+  
+  /* Month Header */
+  .fc .fc-toolbar-title { font-size: 1.25rem; font-weight: 600; color: var(--color-text); }
+  
+  /* Days of Week Header */
+  .fc-theme-standard th { 
+    padding: 16px 0; 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    font-size: 0.75rem; 
+    letter-spacing: 0.05em; 
+    color: var(--color-subtext); 
+    border-bottom: 1px solid var(--color-border) !important; 
+  }
+
+  /* Day cells */
+  .fc .fc-daygrid-day-frame {
+    padding: 8px;
+    min-height: 100px;
+    border-bottom: 1px dashed rgba(0,0,0,0.06);
+    border-right: 1px dashed rgba(0,0,0,0.06);
+  }
+  .fc .fc-daygrid-day-top {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+  .fc .fc-daygrid-day-number {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-subtext);
+    padding: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 4px;
+    transition: all 0.2s ease;
+  }
+  .fc .fc-col-header-cell-cushion {
+    text-decoration: none !important;
+  }
+  
+  /* Today Highlight */
+  .fc .fc-day-today { background: transparent !important; }
+  .fc .fc-day-today .fc-daygrid-day-number {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+  }
+
+  /* Events */
+  .fc .fc-daygrid-event {
+    margin: 2px 4px;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: none;
+    background: var(--color-primary-light) !important;
+    color: var(--color-primary) !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .fc .fc-daygrid-event:hover {
+    background: var(--color-primary) !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2) !important;
+  }
+  .fc-direction-ltr .fc-daygrid-event .fc-event-time { display: none; }
+  
+  /* Buttons */
+  .fc .fc-button-primary {
+    background: var(--color-bg) !important;
+    border: 1px solid var(--color-border) !important;
+    color: var(--color-text) !important;
+    text-transform: capitalize;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 8px 16px;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+  }
+  .fc .fc-button-primary:hover {
+    background: var(--color-card) !important;
+    border-color: var(--color-primary) !important;
+    color: var(--color-primary) !important;
+  }
+  .fc .fc-button-primary:not(:disabled):active,
+  .fc .fc-button-primary:not(:disabled).fc-button-active {
+    background: var(--color-primary) !important;
+    color: white !important;
+    border-color: var(--color-primary) !important;
+  }
+  
+  .event-details-meta { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--color-border); }
+  .event-details-meta p { margin: 4px 0; color: var(--color-subtext); font-size: 0.9rem; }
+  .event-details-desc { color: var(--color-text); line-height: 1.6; margin-bottom: 24px; }
+  .event-badge {
+    display: inline-block; padding: 4px 10px; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+    background: var(--color-primary-light); color: var(--color-primary);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
+<div class="events-header">
+  <div>
+    <h1 data-en="Events Calendar" data-si="සිදුවීම් දින දර්ශනය" data-ta="நிகழ்வுகள் நாட்காட்டி">Events Calendar</h1>
+    <p class="text-sm" style="color: var(--color-subtext); margin-top: 4px;" data-en="Your class events and school events" data-si="ඔබේ පන්තියේ සිදුවීම් සහ පාසල් සිදුවීම්" data-ta="உங்கள் வகுப்பு நிகழ்வுகள் மற்றும் பள்ளி நிகழ்வுகள்">Your class events and school events</p>
+  </div>
+</div>
+
+<div class="calendar-container">
+  <div id="calendar"></div>
+</div>
+
+<modal-dialog id="event-details-modal" title="Event Details">
+  <div id="event-details-content">
+    <div class="event-details-meta">
+      <h2 id="detail-title" style="margin: 0 0 12px 0; font-size: 1.4rem; color: var(--color-text);">Title</h2>
+      <p><i class="fas fa-calendar-day" style="width: 20px;"></i> <span id="detail-date">Date</span></p>
+      <p><i class="fas fa-user-circle" style="width: 20px;"></i> <span id="detail-creator">Creator</span> (<span id="detail-role">Role</span>)</p>
+      <p><i class="fas fa-users" style="width: 20px;"></i> <span class="event-badge" id="detail-audience">Audience</span></p>
+    </div>
+    <div class="event-details-desc" id="detail-desc"></div>
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+      <button class="btn btn-secondary" onclick="document.getElementById('event-details-modal').close()" data-en="Close">Close</button>
+    </div>
+  </div>
+</modal-dialog>
+
+<script>
+  let calendar;
+  let allEvents = [];
+
+  async function fetchEvents() {
+    try {
+      const res = await fetch('/api/student/events');
+      if (res.ok) {
+        allEvents = await res.json();
+        renderCalendar();
+      }
+    } catch (e) {
+      console.error(e);
+      toast("Error loading events", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  function renderCalendar() {
+    const calendarEl = document.getElementById('calendar');
+    const calendarEvents = allEvents.map(ev => ({
+      id: ev.id,
+      title: ev.title,
+      start: ev.event_date.split('T')[0],
+      extendedProps: {
+        description: ev.description,
+        creator: ev.creator_full_name || ev.creator_name,
+        role: ev.creator_role,
+        audience: ev.target_audience
+      }
+    }));
+
+    if (calendar) calendar.destroy();
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
+      events: calendarEvents,
+      eventClick: function(info) { showEventDetails(info.event); },
+      height: 'auto',
+      eventColor: 'var(--color-primary)',
+      displayEventTime: false
+    });
+    calendar.render();
+  }
+
+  function showEventDetails(event) {
+    const props = event.extendedProps;
+    document.getElementById('detail-title').textContent = event.title;
+    document.getElementById('detail-date').textContent = new Date(event.start).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('detail-creator').textContent = props.creator;
+    document.getElementById('detail-role').textContent = props.role;
+    
+    const audienceLabels = { 'both': 'Everyone', 'students': 'Students', 'my_students': 'My Class' };
+    document.getElementById('detail-audience').textContent = audienceLabels[props.audience] || props.audience;
+    document.getElementById('detail-desc').textContent = props.description;
+    
+    document.getElementById('event-details-modal').open();
+  }
+
+  function initCalendar() {
+    if (typeof FullCalendar === 'undefined') {
+      setTimeout(initCalendar, 100);
+      return;
+    }
+    fetchEvents();
+  }
+  initCalendar();
+</script>

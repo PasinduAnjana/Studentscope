@@ -75,6 +75,12 @@ module.exports = (req, res) => {
     );
   }
 
+  if (req.method === "GET" && req.url === "/api/student/events") {
+    return protect("student")(req, res, () =>
+      studentController.getEvents(req, res)
+    );
+  }
+
   // Profile route
   if (req.method === "GET" && req.url === "/api/student/profile") {
     return protect("student")(req, res, () =>

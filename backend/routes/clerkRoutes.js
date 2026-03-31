@@ -5,6 +5,7 @@ const teachersController = require("../controllers/clerk/teachersController");
 const timetableController = require("../controllers/clerk/timetableController");
 const profileController = require("../controllers/clerk/profileController");
 const announcementsController = require("../controllers/clerk/announcementsController");
+const eventsController = require("../controllers/clerk/eventsController");
 const achievementsController = require("../controllers/achievementsController");
 
 const clerkService = require("../services/clerkService");
@@ -222,6 +223,19 @@ module.exports = async (req, res) => {
     return protect("clerk")(req, res, () =>
       announcementsController.deleteAnnouncement(req, res)
     );
+  }
+
+  // Events API
+  if (req.method === "GET" && req.url === "/api/clerk/events") {
+    return protect("clerk")(req, res, () => eventsController.getEvents(req, res));
+  }
+
+  if (req.method === "POST" && req.url === "/api/clerk/events") {
+    return protect("clerk")(req, res, () => eventsController.createEvent(req, res));
+  }
+
+  if (req.method === "DELETE" && req.url.match(/^\/api\/clerk\/events\/\d+$/)) {
+    return protect("clerk")(req, res, () => eventsController.deleteEvent(req, res));
   }
 
   // Password reset routes

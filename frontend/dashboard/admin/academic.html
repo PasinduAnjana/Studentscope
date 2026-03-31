@@ -3,1199 +3,429 @@
   <span
     data-en="Academic Reports"
     data-si="අධ්‍යාපනික වාර්තා"
-    data-ta="கல்வி அறிக்கைகள්"
+    data-ta="கல்வி அறிக்கைகள்"
     >Academic Reports</span
   >
 </h2>
 
-<div style="display: flex; flex-direction: column; gap: 24px">
-  <!-- Overall Statistics Tiles -->
+<div id="summaryTilesContainer" style="display: none; margin-bottom: 24px;">
+  <!-- Summary Tiles -->
   <div class="card-grid">
-    <!-- Overall Total Candidates -->
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
         <i class="fas fa-users icon"></i>
-        <p
-          class="tile-label"
-          data-en="Candidates"
-          data-si="අයදුම්කරුවන්"
-          data-ta="தேர்வாளர்கள்"
-        >
-          Candidates
-        </p>
+        <p class="tile-label" data-en="Students" data-si="ශිෂ්‍යයන්" data-ta="மாணவர்கள்">Students</p>
       </div>
-      <p class="tile-value" id="overallTotal">--</p>
+      <p class="tile-value" id="statStudents">--</p>
     </div>
 
-    <!-- Overall Pass Rate -->
-    <div class="card w-1 h-1 dashboard-tile">
-      <div class="icon-title">
-        <i class="fas fa-poll icon"></i>
-        <p
-          class="tile-label"
-          data-en="Pass Rate"
-          data-si="සමත් අනුපාතය"
-          data-ta="தேர्ச्चி விकिதम्"
-        >
-          Pass Rate
-        </p>
-      </div>
-      <p class="tile-value" id="overallRate">--</p>
-    </div>
-
-    <!-- Overall Average Score -->
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
         <i class="fas fa-signal icon"></i>
-        <p
-          class="tile-label"
-          data-en="Avg Score"
-          data-si="සාමාන්‍ය සාමාර්ථය"
-          data-ta="ஆல்ய சமर्த्தாय"
-        >
-          Avg Score / GPA / Z
-        </p>
+        <p class="tile-label" data-en="Avg Marks" data-si="සාමාන්‍ය ලකුණු" data-ta="சராசரி மதிப்பெண்">Avg Marks</p>
       </div>
-      <p class="tile-value" id="overallAvg">--</p>
+      <p class="tile-value" id="statAvg">--</p>
     </div>
 
-    <!-- Overall Highlights -->
+    <div class="card w-1 h-1 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-poll icon"></i>
+        <p class="tile-label" data-en="Pass Rate" data-si="සමත් අනුපාතය" data-ta="தேர்ச்சி விகிதம்">Pass Rate</p>
+      </div>
+      <p class="tile-value" id="statPassRate">--</p>
+    </div>
+
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
         <i class="fas fa-award icon"></i>
-        <p
-          class="tile-label"
-          data-en="Highlights"
-          data-si="ඉස්මතු කර ඇත"
-          data-ta="முக்கிய அम्सங्कள्"
-        >
-          Highlights
-        </p>
+        <p class="tile-label" data-en="Top Subject" data-si="ප්‍රථම විෂය" data-ta="சிறந்த பாடம்">Top Subject</p>
       </div>
-      <p class="tile-value" id="overallHighlight">--</p>
-    </div>
-  </div>
-
-  <!-- 📋 Results Table -->
-  <div class="card dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-table icon"></i>
-      <p
-        class="tile-label"
-        data-en="Results"
-        data-si="ප්‍රතිඵල"
-        data-ta="முடிவுகள்"
-      >
-        Results
-      </p>
-    </div>
-
-    <div
-      class="flex gap-2"
-      style="
-        margin-top: 12px;
-        margin-bottom: 16px;
-        flex-direction: row;
-        justify-content: flex-end;
-        gap: 16px;
-      "
-    >
-      <button class="btn btn-primary" onclick="exportPDF()">
-        <i class="fas fa-file-pdf"></i> Export PDF
-      </button>
-      <button class="btn btn-primary" onclick="exportCSV()">
-        <i class="fas fa-download"></i> Export CSV
-      </button>
-    </div>
-
-    <!-- Filters -->
-    <div
-      class="filter-controls"
-      style="
-        display: flex;
-        flex-direction: row;
-        gap: 16px;
-        align-items: baseline;
-        flex-wrap: wrap;
-        margin-bottom: 16px;
-        white-space: nowrap;
-      "
-    >
-      <div class="search-group" style="max-width: 350px">
-        <input
-          type="text"
-          id="indexSearch"
-          class="search-input"
-          placeholder="Search by index number..."
-        />
-        <span class="search-icon"><i class="fas fa-search"></i></span>
-      </div>
-
-      <div
-        class="input-group"
-        style="min-width: 140px; flex: 1; white-space: nowrap"
-      >
-        <select id="examFilter" class="dropdown-select">
-          <option
-            value="term"
-            data-en="Term Tests"
-            data-si="වාර පරීක්ෂණ"
-            data-ta="కాల தேర్వుకள్"
-          >
-            Term Tests
-          </option>
-          <option
-            value="sch"
-            data-en="Grade 05 Scholarship Examination"
-            data-si="5 ශ්‍රේණිය ශිෂ්‍යත්ව විභාගය"
-            data-ta="5 ஶ்ரீஷ್ய మాணవత् తేర్వు"
-          >
-            Grade 05 Scholarship
-          </option>
-          <option
-            value="ol"
-            data-en="G.C.E. O/L Examination"
-            data-si="සාමාන්‍ය ශිල්පීය පරීක්ෂණ"
-            data-ta="G.C.E. O/L தேர్வு"
-          >
-            GCE O/L
-          </option>
-          <option
-            value="al"
-            data-en="G.C.E. A/L Examination"
-            data-si="උසස් ශිල්පීය පරීක්ෂණ"
-            data-ta="G.C.E. A/L தேர్வு"
-          >
-            GCE A/L
-          </option>
-        </select>
-      </div>
-
-      <div
-        class="input-group"
-        style="min-width: 100px; flex: 1; white-space: nowrap"
-      >
-        <select id="yearFilter" class="dropdown-select">
-          <option value="2025">2025</option>
-          <option value="2024">2024</option>
-          <option value="2023">2023</option>
-        </select>
-      </div>
-
-      <div
-        class="input-group"
-        id="termWrap"
-        style="min-width: 100px; flex: 1; white-space: nowrap"
-      >
-        <select id="termFilter" class="dropdown-select">
-          <option
-            value="all"
-            data-en="All Terms"
-            data-si="සියළු වාරයන්"
-            data-ta="అన్ని కాలాలు"
-          >
-            All Terms
-          </option>
-          <option value="1" data-en="Term 1" data-si="1 වාරය" data-ta="1 కాల">
-            Term 1
-          </option>
-          <option value="2" data-en="Term 2" data-si="2 වාරය" data-ta="2 కాల">
-            Term 2
-          </option>
-          <option value="3" data-en="Term 3" data-si="3 වාරය" data-ta="3 కాల">
-            Term 3
-          </option>
-        </select>
-      </div>
-
-      <div
-        class="input-group"
-        id="classWrap"
-        style="min-width: 120px; flex: 1; white-space: nowrap"
-      >
-        <select id="classFilter" class="dropdown-select">
-          <option
-            value="all"
-            data-en="All Classes"
-            data-si="සියළු පන්තිය"
-            data-ta="అన్ని క్లాసులు"
-          >
-            All Classes
-          </option>
-          <option value="6A" data-en="Grade 6 - A" data-si="6 ශ්‍රේණිය - A">
-            Grade 6 - A
-          </option>
-          <option value="6B" data-en="Grade 6 - B" data-si="6 ශ්‍රේණිය - B">
-            Grade 6 - B
-          </option>
-          <option value="11A" data-en="Grade 11 - A" data-si="11 ශ්‍රේණිය - A">
-            Grade 11 - A
-          </option>
-          <option value="11B" data-en="Grade 11 - B" data-si="11 ශ්‍රේණිය - B">
-            Grade 11 - B
-          </option>
-        </select>
-      </div>
-
-      <div
-        class="input-group"
-        id="streamWrap"
-        style="min-width: 120px; flex: 1; white-space: nowrap"
-      >
-        <select id="streamFilter" class="dropdown-select">
-          <option
-            value="all"
-            data-en="All Streams"
-            data-si="සියළු ධාරා"
-            data-ta="అన్ని స్ట్రీమ్‌లు"
-          >
-            All Streams
-          </option>
-          <option value="art" data-en="Art" data-si="කලා" data-ta="కళ">
-            Art
-          </option>
-          <option
-            value="science"
-            data-en="Science"
-            data-si="විද්‍යා"
-            data-ta="విజ్ఞాన"
-          >
-            Science
-          </option>
-          <option
-            value="commerce"
-            data-en="Commerce"
-            data-si="වාණිජ්‍ය"
-            data-ta="వాణిజ్య"
-          >
-            Commerce
-          </option>
-        </select>
-      </div>
-
-      <div
-        class="input-group"
-        id="subjectWrap"
-        style="min-width: 130px; flex: 1; white-space: nowrap"
-      >
-        <select id="subjectFilter" class="dropdown-select">
-          <option
-            value="all"
-            data-en="All Subjects"
-            data-si="සියළු විෂයන්"
-            data-ta="అన్ని విషయాలు"
-          >
-            All Subjects
-          </option>
-          <option
-            value="math"
-            data-en="Mathematics"
-            data-si="ගණිතය"
-            data-ta="గణితం"
-          >
-            Mathematics
-          </option>
-          <option
-            value="english"
-            data-en="English"
-            data-si="ඉංග්‍රීසි"
-            data-ta="ఇంగ్లీష్"
-          >
-            English
-          </option>
-          <option
-            value="science"
-            data-en="Science"
-            data-si="විද්‍යා"
-            data-ta="విజ్ఞాన"
-          >
-            Science
-          </option>
-        </select>
-      </div>
-    </div>
-
-    <div class="table-container">
-      <div class="table-responsive">
-        <table id="reportTable">
-          <thead id="tableHead"></thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
-
-      <div class="table-footer">
-        <p
-          id="filterInfo"
-          class="filter-info"
-          data-en="Showing results based on selected filters."
-          data-si="තෝරාගත් පෙරහන් පදනම්ව ප්‍රතිඵල පෙන්වයි."
-          data-ta="தேர్ న్నెడుక్కపట్ట వడిగట్టిలోన్ అడిప్పటలోన్ ముడిపుకులు క్లాసులు కాట్టపడుతున్న"
-        >
-          Showing results based on selected filters.
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- 📊 Filtered Summary Tiles -->
-  <div class="card dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-info-circle icon"></i>
-      <p
-        class="tile-label"
-        data-en="Filtered Summary"
-        data-si="පෙරහන් කළ සාරාංශය"
-        data-ta="வடிகட்டப்பட்ட సుരుక్కమ"
-      >
-        Filtered Summary
-      </p>
-    </div>
-    <p
-      data-en="These tiles reflect the current filter selection."
-      data-si="මෙම සාරාංශය වර්තමාන පෙරහන අනුවයි."
-      data-ta="ఇవి తిలోలు ప్రస్తుత వడిగట్టీ ఎంపికను ప్రతిబింబిస్తాయి"
-    >
-      These tiles reflect the current filter selection.
-    </p>
-
-    <div
-      class="card-grid"
-      style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px"
-    >
-      <div
-        class="card w-1 h-1 dashboard-tile"
-        style="min-height: auto; padding: 12px"
-      >
-        <div class="icon-title" style="flex-direction: column; gap: 4px">
-          <i class="fas fa-database icon" style="font-size: 18px"></i>
-          <p
-            class="tile-label"
-            data-en="Records"
-            data-si="ලේඛන"
-            data-ta="నిర్లేఖనాలు"
-            style="font-size: 12px; margin: 0"
-          >
-            Records
-          </p>
-        </div>
-        <p
-          class="tile-value"
-          id="fTotal"
-          style="font-size: 20px; margin: 4px 0 0 0"
-        >
-          --
-        </p>
-      </div>
-
-      <div
-        class="card w-1 h-1 dashboard-tile"
-        style="min-height: auto; padding: 12px"
-      >
-        <div class="icon-title" style="flex-direction: column; gap: 4px">
-          <i class="fas fa-check-circle icon" style="font-size: 18px"></i>
-          <p
-            class="tile-label"
-            data-en="Pass"
-            data-si="සමත්"
-            data-ta="పాస్"
-            style="font-size: 12px; margin: 0"
-          >
-            Pass
-          </p>
-        </div>
-        <p
-          class="tile-value"
-          id="fPass"
-          style="font-size: 20px; margin: 4px 0 0 0"
-        >
-          --
-        </p>
-      </div>
-
-      <div
-        class="card w-1 h-1 dashboard-tile"
-        style="min-height: auto; padding: 12px"
-      >
-        <div class="icon-title" style="flex-direction: column; gap: 4px">
-          <i class="fas fa-times-circle icon" style="font-size: 18px"></i>
-          <p
-            class="tile-label"
-            data-en="Fail"
-            data-si="අසමත්"
-            data-ta="విఫలం"
-            style="font-size: 12px; margin: 0"
-          >
-            Fail
-          </p>
-        </div>
-        <p
-          class="tile-value"
-          id="fFail"
-          style="font-size: 20px; margin: 4px 0 0 0"
-        >
-          --
-        </p>
-      </div>
-
-      <div
-        class="card w-1 h-1 dashboard-tile"
-        style="min-height: auto; padding: 12px"
-      >
-        <div class="icon-title" style="flex-direction: column; gap: 4px">
-          <i class="fas fa-signal icon" style="font-size: 18px"></i>
-          <p
-            class="tile-label"
-            data-en="Avg Score"
-            data-si="සාමාන්‍ය සාමාර්ථය"
-            data-ta="సగటు స్కోర్"
-            style="font-size: 12px; margin: 0"
-          >
-            Avg Score / GPA / Z
-          </p>
-        </div>
-        <p
-          class="tile-value"
-          id="fAvg"
-          style="font-size: 20px; margin: 4px 0 0 0"
-        >
-          --
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- 📈 Charts -->
-  <div class="card-grid">
-    <!-- Chart A -->
-    <div class="card w-1 h-1 dashboard-tile">
-      <div class="icon-title">
-        <i class="fas fa-chart-pie icon"></i>
-        <p
-          id="chartATitle"
-          class="tile-label"
-          data-en="Grade Distribution"
-          data-si="ශ්‍රේණිවල බෙදාහැරීම"
-          data-ta="గ్రేడ్ సంపంధం"
-        >
-          Grade Distribution
-        </p>
-      </div>
-      <div class="chart-wrapper"><canvas id="chartA"></canvas></div>
-    </div>
-
-    <!-- Chart B -->
-    <div class="card w-1 h-1 dashboard-tile">
-      <div class="icon-title">
-        <i class="fas fa-chart-bar icon"></i>
-        <p
-          id="chartBTitle"
-          class="tile-label"
-          data-en="Subject-wise Performance"
-          data-si="විෂයය අනුව කාර්යසාධන"
-          data-ta="విషయ-వారీ పనితీරు"
-        >
-          Subject-wise Performance
-        </p>
-      </div>
-      <div class="chart-wrapper"><canvas id="chartB"></canvas></div>
+      <p class="tile-value" id="statTopSubject" style="font-size: 16px">--</p>
     </div>
   </div>
 </div>
 
-<!-- ========================= -->
-<!--       SCRIPT AREA         -->
-<!-- ========================= -->
+<!-- Results Table & Filters -->
+<div class="card dashboard-tile" style="margin-top: 0">
+  <div class="icon-title">
+    <i class="fas fa-table icon"></i>
+    <p class="tile-label" data-en="Results" data-si="ප්‍රතිඵಲ" data-ta="முடிவுகள்">Results</p>
+  </div>
+
+  <style>
+    /* Hide ALL default data-table filter controls so we can place our custom ones perfectly aligned */
+    #results-table .filter-controls {
+      display: none !important;
+    }
+  </style>
+
+  <div class="filter-group">
+    <div>
+      <select id="examFilter" class="dropdown-select">
+        <option value="" data-en="Select Exam">Select Exam</option>
+      </select>
+    </div>
+    <div>
+      <select id="classFilter" class="dropdown-select">
+        <option value="" data-en="All Classes">All Classes</option>
+      </select>
+    </div>
+    <div>
+      <select id="subjectFilter" class="dropdown-select">
+        <option value="" data-en="All Subjects">All Subjects</option>
+      </select>
+    </div>
+    <div class="search-group" style="max-width: 260px">
+      <input type="text" id="customSearch" class="search-input" placeholder="Search student..." />
+      <span class="search-icon"><i class="fas fa-search"></i></span>
+    </div>
+
+    <!-- Align Export and Page Size to the right of the row -->
+    <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
+      <div style="margin-bottom: 0;">
+        <select id="customPageSize" class="dropdown-select">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+      <button id="customExportBtn" class="btn btn-secondary" style="padding: 8px 12px; height: 100%;">
+        <i class="fas fa-download"></i> Export
+      </button>
+    </div>
+  </div>
+
+  <div id="emptyState" style="margin: 40px 0;">
+    <empty-state-message message="Select an exam to view reports" icon="fas fa-file-alt"></empty-state-message>
+  </div>
+
+  <div class="table-container" id="tableContent" style="display: none; margin-top: 16px;">
+    <data-table id="results-table"></data-table>
+  </div>
+</div>
+
+<div id="chartsContainer" style="display: none; margin-top: 24px;">
+  <!-- Charts -->
+  <div class="card-grid">
+    <div class="card w-1 h-1 dashboard-tile chart-tile">
+      <div class="icon-title">
+        <i class="fas fa-chart-bar icon"></i>
+        <p class="tile-label" data-en="Subject Performance" data-si="විෂය කාර්යසාධන" data-ta="பாட செயல்திறன்">Subject Performance</p>
+      </div>
+      <div class="chart-wrapper"><canvas id="chartSubjects"></canvas></div>
+    </div>
+
+    <div class="card w-1 h-1 dashboard-tile chart-tile">
+      <div class="icon-title">
+        <i class="fas fa-chart-pie icon"></i>
+        <p class="tile-label" data-en="Mark Distribution" data-si="ලකුණු ව්‍යාප්තිය" data-ta="மதிப்பெண் விநியோகம்">Mark Distribution</p>
+      </div>
+      <div class="chart-wrapper"><canvas id="chartDistribution"></canvas></div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="../../../js/dropdown.js"></script>
+<script src="../../js/dropdown.js"></script>
 <script>
   /* =========================
-   Load datasets from JSON
+   State
    ========================= */
-  let dataSets = {};
-
-  fetch("../../../data/academic_reports.json")
-    .then((response) => {
-      if (!response.ok)
-        throw new Error(`Failed to load data: ${response.status}`);
-      return response.json();
-    })
-    .then((data) => {
-      dataSets = data;
-      // Initialize the page after data is loaded
-      initializePage();
-    })
-    .catch((error) => {
-      console.error("Error loading academic data:", error);
-      // Fallback: show error message
-      document.body.insertAdjacentHTML(
-        "afterbegin",
-        '<div style="background: #fee; color: #c33; padding: 20px; margin: 10px; border-radius: 4px;">⚠️ Failed to load academic data. Please check the console for details.</div>'
-      );
-    });
-
-  function initializePage() {
-    // This will be called after data is loaded
-    initializeSearchableDropdowns();
-    examEl.value = "term";
-    yearEl.value = "2025";
-    updateText(getLang());
-    filterData();
-  }
-
-  /* =========================
-   DOM refs
-   ========================= */
-  const examEl = document.getElementById("examFilter");
-  const yearEl = document.getElementById("yearFilter");
-  const termEl = document.getElementById("termFilter");
-  const classEl = document.getElementById("classFilter");
-  const streamEl = document.getElementById("streamFilter");
-  const subjectEl = document.getElementById("subjectFilter");
-  const indexSearchEl = document.getElementById("indexSearch");
-
-  const termWrap = document.getElementById("termWrap");
-  const classWrap = document.getElementById("classWrap");
-  const streamWrap = document.getElementById("streamWrap");
-  const subjectWrap = document.getElementById("subjectWrap");
-
-  const tableHead = document.getElementById("tableHead");
-  const tableBody = document.getElementById("tableBody");
-
-  const overallTotal = document.getElementById("overallTotal");
-  const overallRate = document.getElementById("overallRate");
-  const overallAvg = document.getElementById("overallAvg");
-  const overallHighlight = document.getElementById("overallHighlight");
-
-  const fTotal = document.getElementById("fTotal");
-  const fPass = document.getElementById("fPass");
-  const fFail = document.getElementById("fFail");
-  const fAvg = document.getElementById("fAvg");
-
-  let currentFiltered = [];
+  let allRecords = [];
+  let filtersData = {};
   let chartA, chartB;
+  let resultsTable = null;
+
+  const filterInfo = document.getElementById("filterInfo");
+  const examEl = document.getElementById("examFilter");
+  const classEl = document.getElementById("classFilter");
+  const subjectEl = document.getElementById("subjectFilter");
 
   /* =========================
-   Helpers
+   Primary color
    ========================= */
-  function getUniqueCountByIndex(arr) {
-    const set = new Set(arr.map((r) => r.index));
-    return set.size;
-  }
-
-  function gradeToPoint(g) {
-    return { A: 4, B: 3, C: 2, S: 1, W: 0 }[g] ?? 0;
-  }
-
-  function setHead(cols) {
-    tableHead.innerHTML = `
-    <tr>
-      ${cols.map((c) => `<th ${c.attr || ""}>${c.text}</th>`).join("")}
-    </tr>`;
-  }
-
-  function avg(nums) {
-    return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : 0;
+  function getPrimaryColor() {
+    return getComputedStyle(document.documentElement)
+      .getPropertyValue("--color-primary")
+      .trim();
   }
 
   /* =========================
-   Overall tiles (exam/year scope)
+   Init Data Table component
    ========================= */
-  function updateOverallTiles(exam, yearData) {
-    if (exam === "term") {
-      const unique = new Set(yearData.map((d) => d.cls + "|" + d.name));
-      overallTotal.textContent = unique.size;
-      const pass = yearData.filter((d) => d.marks >= 50).length;
-      const rate = yearData.length
-        ? Math.round((pass / yearData.length) * 100)
-        : 0;
-      overallRate.textContent = rate + "%";
-      overallAvg.textContent = avg(yearData.map((d) => d.marks)).toFixed(1);
-      overallHighlight.textContent = "Term performance";
-      return;
-    }
-
-    if (exam === "sch") {
-      overallTotal.textContent = yearData.length;
-      const pass = yearData.filter((d) => d.result === "Pass").length;
-      overallRate.textContent = yearData.length
-        ? Math.round((pass / yearData.length) * 100)
-        : "--";
-      overallAvg.textContent = avg(yearData.map((d) => d.marks)).toFixed(1);
-      overallHighlight.textContent =
-        pass >= yearData.length * 0.6 ? "Good intake" : "Needs support";
-      return;
-    }
-
-    if (exam === "ol") {
-      overallTotal.textContent = getUniqueCountByIndex(yearData);
-      const passSubs = yearData.filter((d) => d.grade !== "W").length;
-      overallRate.textContent = yearData.length
-        ? Math.round((passSubs / yearData.length) * 100)
-        : "--";
-      overallAvg.textContent = avg(
-        yearData.map((d) => gradeToPoint(d.grade))
-      ).toFixed(2);
-      const aCount = yearData.filter((d) => d.grade === "A").length;
-      overallHighlight.textContent = `A: ${aCount}`;
-      return;
-    }
-
-    if (exam === "al") {
-      overallTotal.textContent = yearData.length;
-      const pass = yearData.filter((d) => d.result === "Pass").length;
-      overallRate.textContent = yearData.length
-        ? Math.round((pass / yearData.length) * 100)
-        : "--";
-      overallAvg.textContent = avg(yearData.map((d) => d.z)).toFixed(3);
-      const top = yearData.slice().sort((a, b) => b.z - a.z)[0];
-      overallHighlight.textContent = top ? `Z: ${top.z.toFixed(2)}` : "--";
-    }
+  function initTable() {
+    resultsTable = document.getElementById("results-table");
+    resultsTable.setEmptyState("No matching records found for these filters.", "fas fa-search");
   }
 
   /* =========================
-   Filtered tiles
+   Update table headers text based on lang
    ========================= */
-  function updateFilteredTiles(exam, data) {
-    fTotal.textContent = data.length;
-    if (exam === "term") {
-      const pass = data.filter((d) => d.marks >= 50).length;
-      fPass.textContent = pass;
-      fFail.textContent = data.length - pass;
-      fAvg.textContent = data.length
-        ? avg(data.map((d) => d.marks)).toFixed(1)
-        : "--";
-      return;
-    }
-    if (exam === "sch") {
-      const pass = data.filter((d) => d.result === "Pass").length;
-      fPass.textContent = pass;
-      fFail.textContent = data.length - pass;
-      fAvg.textContent = data.length
-        ? avg(data.map((d) => d.marks)).toFixed(1)
-        : "--";
-      return;
-    }
-    if (exam === "ol") {
-      const pass = data.filter((d) => d.grade !== "W").length;
-      fPass.textContent = pass;
-      fFail.textContent = data.length - pass;
-      fAvg.textContent = data.length
-        ? avg(data.map((d) => gradeToPoint(d.grade))).toFixed(2)
-        : "--";
-      return;
-    }
-    if (exam === "al") {
-      const pass = data.filter((d) => d.result === "Pass").length;
-      fPass.textContent = pass;
-      fFail.textContent = data.length - pass;
-      fAvg.textContent = data.length
-        ? avg(data.map((d) => d.z)).toFixed(3)
-        : "--";
+  function updateTableHeaders(lang) {
+    if (!resultsTable) return;
+    const translate = (en, si, ta) => lang === "si" ? si : lang === "ta" ? ta : en;
+    resultsTable.setColumns([
+      { key: "student_name", header: translate("Student", "ශිෂ්‍යයා", "மாணவர்"), searchable: true },
+      { key: "index_number", header: translate("Index No", "සුචක අංකය", "குறியீட்டு எண்"), searchable: true },
+      { key: "class", header: translate("Class", "පන්තිය", "வகுப்பு"), searchable: true },
+      { key: "subject", header: translate("Subject", "විෂය", "பாடம்"), searchable: true },
+      { 
+        key: "marks", 
+        header: translate("Marks", "ලකුණු", "மதிப்பெண்"),
+        render: (row) => {
+          const m = parseInt(row.marks);
+          const color = isNaN(m) ? "var(--color-text)" : (m >= 50 ? "var(--color-success)" : "var(--color-error)");
+          return `<span style="font-weight:600; color: ${color}">${row.marks}</span>`;
+        }
+      },
+      { key: "exam", header: translate("Exam", "විභාගය", "தேர்வு"), searchable: true }
+    ]);
+  }
+
+  /* =========================
+   Load filters from backend
+   ========================= */
+  async function loadFilters() {
+    try {
+      const res = await fetch("/api/admin/academic/reports/filters");
+      if (!res.ok) throw new Error("Failed to load filters");
+      filtersData = await res.json();
+
+      // Populate exam dropdown
+      filtersData.exams.forEach((e) => {
+        const opt = document.createElement("option");
+        opt.value = e.id;
+        opt.textContent = e.name;
+        examEl.appendChild(opt);
+      });
+
+      // Populate class dropdown
+      filtersData.classes.forEach((c) => {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.textContent = `Grade ${c.grade} - ${c.name}`;
+        classEl.appendChild(opt);
+      });
+
+      // Populate subject dropdown
+      filtersData.subjects.forEach((s) => {
+        const opt = document.createElement("option");
+        opt.value = s.id;
+        opt.textContent = s.name;
+        subjectEl.appendChild(opt);
+      });
+    } catch (err) {
+      console.error("Error loading filters:", err);
     }
   }
 
   /* =========================
-   Table renderers
+   Build query string from filters
    ========================= */
-  function renderTable(exam, data) {
-    if (exam === "term") {
-      setHead([
-        { text: "Class", attr: "" },
-        { text: "Name", attr: "" },
-        { text: "Index", attr: "" },
-        { text: "Subject", attr: "" },
-        { text: "Marks", attr: "" },
-      ]);
-      tableBody.innerHTML = data
-        .map(
-          (d) => `
-        <tr>
-          <td>${d.cls}</td>
-          <td>${d.name}</td>
-          <td>${d.index}</td>
-          <td>${d.subject}</td>
-          <td>${d.marks}</td>
-        </tr>`
-        )
-        .join("");
+  function buildQuery() {
+    const params = new URLSearchParams();
+    if (examEl.value) params.set("exam_id", examEl.value);
+    if (classEl.value) params.set("class_id", classEl.value);
+    if (subjectEl.value) params.set("subject_id", subjectEl.value);
+    return params.toString();
+  }
+
+  /* =========================
+   Load data from backend
+   ========================= */
+  async function loadData() {
+    const summaryTiles = document.getElementById("summaryTilesContainer");
+    const tableContent = document.getElementById("tableContent");
+    const chartsContainer = document.getElementById("chartsContainer");
+    const emptyState = document.getElementById("emptyState");
+
+    if (!examEl.value) {
+      summaryTiles.style.display = "none";
+      tableContent.style.display = "none";
+      chartsContainer.style.display = "none";
+      emptyState.style.display = "block";
       return;
     }
 
-    if (exam === "sch") {
-      setHead([
-        { text: "Name", attr: "" },
-        { text: "Index", attr: "" },
-        { text: "Marks", attr: "" },
-        { text: "Result", attr: "" },
-      ]);
-      tableBody.innerHTML = data
-        .map(
-          (d) => `
-        <tr>
-          <td>${d.name}</td>
-          <td>${d.index}</td>
-          <td>${d.marks}</td>
-          <td>${d.result}</td>
-        </tr>`
-        )
-        .join("");
-      return;
-    }
+    summaryTiles.style.display = "block";
+    tableContent.style.display = "block";
+    chartsContainer.style.display = "block";
+    emptyState.style.display = "none";
 
-    if (exam === "ol") {
-      setHead([
-        { text: "Index", attr: "" },
-        { text: "Name", attr: "" },
-        { text: "Class", attr: "" },
-        { text: "Subject", attr: "" },
-        { text: "Grade", attr: "" },
+    try {
+      const query = buildQuery();
+      const [dataRes, summaryRes] = await Promise.all([
+        fetch(`/api/admin/academic/reports/data?${query}`),
+        fetch(`/api/admin/academic/reports/summary?${query}`),
       ]);
-      tableBody.innerHTML = data
-        .map(
-          (d) => `
-        <tr>
-          <td>${d.index}</td>
-          <td>${d.name}</td>
-          <td>${d.cls}</td>
-          <td>${d.subject}</td>
-          <td>${d.grade}</td>
-        </tr>`
-        )
-        .join("");
-      return;
-    }
 
-    if (exam === "al") {
-      setHead([
-        { text: "Index", attr: "" },
-        { text: "Name", attr: "" },
-        { text: "Stream", attr: "" },
-        { text: "Z-Score", attr: "" },
-        { text: "Result", attr: "" },
-      ]);
-      tableBody.innerHTML = data
-        .map(
-          (d) => `
-        <tr>
-          <td>${d.index}</td>
-          <td>${d.name}</td>
-          <td>${d.stream}</td>
-          <td>${d.z.toFixed(2)}</td>
-          <td>${d.result}</td>
-        </tr>`
-        )
-        .join("");
+      if (!dataRes.ok || !summaryRes.ok) throw new Error("Failed to load data");
+
+      allRecords = await dataRes.json();
+      const summary = await summaryRes.json();
+
+      // Update summary tiles
+      document.getElementById("statStudents").textContent = summary.totalStudents;
+      document.getElementById("statAvg").textContent = summary.avgMarks + "%";
+      document.getElementById("statPassRate").textContent = summary.passRate + "%";
+      document.getElementById("statTopSubject").textContent = summary.topSubject;
+
+      // Render table
+      if (resultsTable) {
+        resultsTable.setData(allRecords);
+      }
+
+      // Render charts
+      renderCharts();
+    } catch (err) {
+      console.error("Error loading data:", err);
+      if (resultsTable) resultsTable.setEmptyState("Error loading reports data.", "fas fa-exclamation-triangle");
     }
   }
 
   /* =========================
    Charts
    ========================= */
-  function destroyCharts() {
+  function renderCharts() {
     if (chartA) chartA.destroy();
     if (chartB) chartB.destroy();
-  }
 
-  function setChartTitles(a, b) {
-    const aEl = document.getElementById("chartATitle");
-    const bEl = document.getElementById("chartBTitle");
-    aEl.setAttribute("data-en", a);
-    bEl.setAttribute("data-en", b);
-    updateText(getLang());
-  }
-
-  // Get primary color from CSS variables
-  function getPrimaryColor() {
-    const root = getComputedStyle(document.documentElement);
-    return root.getPropertyValue("--color-primary").trim();
-  }
-
-  function renderCharts(exam, data) {
-    destroyCharts();
-    const ctxA = document.getElementById("chartA").getContext("2d");
-    const ctxB = document.getElementById("chartB").getContext("2d");
     const primaryColor = getPrimaryColor();
+    const ctxA = document.getElementById("chartSubjects").getContext("2d");
+    const ctxB = document.getElementById("chartDistribution").getContext("2d");
 
-    if (exam === "term") {
-      // A: Subject average marks
-      const subjects = [...new Set(data.map((d) => d.subject))];
-      const avgs = subjects.map((s) =>
-        avg(data.filter((d) => d.subject === s).map((d) => d.marks))
-      );
-      chartA = new Chart(ctxA, {
-        type: "bar",
-        data: {
-          labels: subjects,
-          datasets: [
-            {
-              label: "Average Marks",
-              data: avgs,
-              backgroundColor: primaryColor + "33",
-              borderColor: primaryColor,
-              borderWidth: 2,
-            },
-          ],
-        },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } },
-      });
+    // Subject performance chart
+    const subjectMap = {};
+    allRecords.forEach((r) => {
+      const marks = parseInt(r.marks);
+      if (isNaN(marks)) return;
+      if (!subjectMap[r.subject]) subjectMap[r.subject] = [];
+      subjectMap[r.subject].push(marks);
+    });
 
-      // B: Mark distribution
-      const buckets = [0, 50, 60, 70, 80, 90, 100];
-      const counts = new Array(buckets.length - 1).fill(0);
-      data.forEach((d) => {
-        for (let i = 0; i < buckets.length - 1; i++) {
-          if (d.marks >= buckets[i] && d.marks < buckets[i + 1]) counts[i]++;
+    const subjects = Object.keys(subjectMap);
+    const avgs = subjects.map(
+      (s) => +(subjectMap[s].reduce((a, b) => a + b, 0) / subjectMap[s].length).toFixed(1)
+    );
+
+    chartA = new Chart(ctxA, {
+      type: "bar",
+      data: {
+        labels: subjects.length > 10 ? subjects.slice(0, 10) : subjects,
+        datasets: [
+          {
+            label: "Average Marks",
+            data: subjects.length > 10 ? avgs.slice(0, 10) : avgs,
+            backgroundColor: primaryColor + "33",
+            borderColor: primaryColor,
+            borderWidth: 2,
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, max: 100 } },
+      },
+    });
+
+    // Mark distribution chart
+    const buckets = [0, 35, 50, 65, 75, 100];
+    const labels = ["0-34", "35-49", "50-64", "65-74", "75-100"];
+    const counts = new Array(buckets.length - 1).fill(0);
+
+    allRecords.forEach((r) => {
+      const marks = parseInt(r.marks);
+      if (isNaN(marks)) return;
+      for (let i = 0; i < buckets.length - 1; i++) {
+        if (marks >= buckets[i] && marks < buckets[i + 1]) {
+          counts[i]++;
+          break;
         }
-      });
-      chartB = new Chart(ctxB, {
-        type: "bar",
-        data: {
-          labels: buckets.slice(0, -1).map((b, i) => `${b}-${buckets[i + 1]}`),
-          datasets: [
-            {
-              label: "Count",
-              data: counts,
-              backgroundColor: primaryColor + "66",
-              borderColor: primaryColor,
-              borderWidth: 2,
-            },
-          ],
-        },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } },
-      });
-      setChartTitles("Subject Averages", "Mark Distribution");
-      return;
-    }
+      }
+      if (marks === 100) counts[counts.length - 1]++;
+    });
 
-    if (exam === "sch") {
-      // A: Pass/Fail
-      const pass = data.filter((d) => d.result === "Pass").length;
-      const fail = data.length - pass;
-      chartA = new Chart(ctxA, {
-        type: "pie",
-        data: {
-          labels: ["Pass", "Fail"],
-          datasets: [
-            {
-              data: [pass, fail],
-              backgroundColor: [primaryColor + "CC", primaryColor + "33"],
-            },
-          ],
-        },
-        options: { responsive: true },
-      });
-
-      // B: Marks distribution
-      const buckets = [0, 50, 75, 100, 125, 150, 200];
-      const counts = new Array(buckets.length - 1).fill(0);
-      data.forEach((d) => {
-        for (let i = 0; i < buckets.length - 1; i++) {
-          if (d.marks >= buckets[i] && d.marks < buckets[i + 1]) counts[i]++;
-        }
-      });
-      chartB = new Chart(ctxB, {
-        type: "bar",
-        data: {
-          labels: buckets.slice(0, -1).map((b, i) => `${b}-${buckets[i + 1]}`),
-          datasets: [
-            {
-              label: "Count",
-              data: counts,
-              backgroundColor: primaryColor + "80",
-              borderColor: primaryColor,
-              borderWidth: 2,
-            },
-          ],
-        },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } },
-      });
-      setChartTitles("Pass / Fail", "Marks Distribution");
-      return;
-    }
-
-    if (exam === "ol") {
-      // A: Grade distribution
-      const grades = ["A", "B", "C", "S", "W"];
-      const gCounts = grades.map(
-        (g) => data.filter((d) => d.grade === g).length
-      );
-      chartA = new Chart(ctxA, {
-        type: "doughnut",
-        data: {
-          labels: grades,
-          datasets: [
-            {
-              data: gCounts,
-              backgroundColor: [
-                primaryColor,
-                primaryColor + "CC",
-                primaryColor + "99",
-                primaryColor + "66",
-                primaryColor + "33",
-              ],
-            },
-          ],
-        },
-        options: { responsive: true },
-      });
-
-      // B: Subject-wise grades
-      const subjects = [...new Set(data.map((d) => d.subject))];
-      const colors = {
-        A: primaryColor,
-        B: primaryColor + "99",
-        C: primaryColor + "66",
-      };
-      const ds = Object.keys(colors).map((g) => ({
-        label: g,
-        data: subjects.map(
-          (s) => data.filter((d) => d.subject === s && d.grade === g).length
-        ),
-        backgroundColor: colors[g],
-        stack: "grades",
-      }));
-      chartB = new Chart(ctxB, {
-        type: "bar",
-        data: { labels: subjects, datasets: ds },
-        options: {
-          responsive: true,
-          scales: { y: { beginAtZero: true, stacked: true } },
-        },
-      });
-
-      setChartTitles("Grade Distribution", "Subject-wise Grade Mix");
-      return;
-    }
-
-    if (exam === "al") {
-      // A: Avg Z by stream
-      const streams = [...new Set(data.map((d) => d.stream))];
-      const avgZ = streams.map((s) =>
-        avg(data.filter((d) => d.stream === s).map((d) => d.z))
-      );
-      chartA = new Chart(ctxA, {
-        type: "bar",
-        data: {
-          labels: streams,
-          datasets: [
-            {
-              label: "Average Z-Score",
-              data: avgZ,
-              backgroundColor: primaryColor + "B3",
-              borderColor: primaryColor,
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } },
-      });
-
-      // B: Pass/Fail
-      const pass = data.filter((d) => d.result === "Pass").length;
-      const fail = data.length - pass;
-      chartB = new Chart(ctxB, {
-        type: "pie",
-        data: {
-          labels: ["Pass", "Fail"],
-          datasets: [
-            {
-              data: [pass, fail],
-              backgroundColor: [primaryColor + "CC", primaryColor + "33"],
-            },
-          ],
-        },
-        options: { responsive: true },
-      });
-
-      setChartTitles("Average Z-Score by Stream", "Pass / Fail");
-    }
-  }
-
-  /* =========================
-   Filtering logic
-   ========================= */
-  function applyIndexSearch(rows) {
-    const q = indexSearchEl.value.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((r) => {
-      const index = (r.index || "").toString().toLowerCase();
-      const name = (r.name || "").toString().toLowerCase();
-      const cls = (r.cls || "").toString().toLowerCase();
-      const subj = (r.subject || "").toString().toLowerCase();
-      return (
-        index.includes(q) ||
-        name.includes(q) ||
-        cls.includes(q) ||
-        subj.includes(q)
-      );
+    chartB = new Chart(ctxB, {
+      type: "doughnut",
+      data: {
+        labels,
+        datasets: [
+          {
+            data: counts,
+            backgroundColor: [
+              primaryColor + "22",
+              primaryColor + "44",
+              primaryColor + "66",
+              primaryColor + "99",
+              primaryColor,
+            ],
+            borderColor: "transparent",
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        cutout: "60%",
+        plugins: { legend: { position: "bottom" } },
+      },
     });
   }
 
-  function filterData() {
-    const exam = examEl.value;
-    const year = parseInt(yearEl.value, 10);
-
-    termWrap.style.display = exam === "term" ? "" : "none";
-    classWrap.style.display = exam === "term" || exam === "ol" ? "" : "none";
-    subjectWrap.style.display = exam === "term" || exam === "ol" ? "" : "none";
-    streamWrap.style.display = exam === "al" ? "" : "none";
-
-    let data = dataSets[exam].filter((d) => d.year === year);
-
-    if (exam === "term") {
-      const t = termEl.value;
-      const cls = classEl.value;
-      const subj = subjectEl.value;
-      if (t !== "all") data = data.filter((d) => d.term === parseInt(t));
-      if (cls !== "all") data = data.filter((d) => d.cls === cls);
-      if (subj !== "all") data = data.filter((d) => d.subject === subj);
-    }
-    if (exam === "ol") {
-      const cls = classEl.value;
-      const subj = subjectEl.value;
-      if (cls !== "all") data = data.filter((d) => d.cls === cls);
-      if (subj !== "all") data = data.filter((d) => d.subject === subj);
-    }
-    if (exam === "al") {
-      const st = streamEl.value;
-      if (st !== "all") data = data.filter((d) => d.stream === st);
-    }
-
-    data = applyIndexSearch(data);
-
-    currentFiltered = data;
-    renderTable(exam, data);
-    updateFilteredTiles(exam, data);
-    const yearData = dataSets[exam].filter((d) => d.year === year);
-    updateOverallTiles(exam, yearData);
-    renderCharts(exam, data);
-
-    const info = document.getElementById("filterInfo");
-    const examText = examEl.selectedOptions[0].textContent;
-    info.textContent = `${examText} — ${year} — ${data.length} record(s)`;
-  }
-
   /* =========================
-   Export (filtered only)
+   Event listeners
    ========================= */
-  function exportCSV() {
-    const exam = examEl.value;
-    let header = [];
-    let rows = [];
+  [examEl, classEl, subjectEl].forEach((el) => {
+    el.addEventListener("change", loadData);
+  });
 
-    if (exam === "term") {
-      header = ["Class", "Name", "Index", "Subject", "Marks"];
-      rows = currentFiltered.map((d) => [
-        d.cls,
-        d.name,
-        d.index,
-        d.subject,
-        d.marks,
-      ]);
-    } else if (exam === "sch") {
-      header = ["Name", "Index", "Marks", "Result"];
-      rows = currentFiltered.map((d) => [d.name, d.index, d.marks, d.result]);
-    } else if (exam === "ol") {
-      header = ["Index", "Name", "Class", "Subject", "Grade"];
-      rows = currentFiltered.map((d) => [
-        d.index,
-        d.name,
-        d.cls,
-        d.subject,
-        d.grade,
-      ]);
-    } else {
-      header = ["Index", "Name", "Stream", "Z-Score", "Result"];
-      rows = currentFiltered.map((d) => [
-        d.index,
-        d.name,
-        d.stream,
-        d.z.toFixed(2),
-        d.result,
-      ]);
-    }
-
-    const csv = [header.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `academic_report_${exam}_${yearEl.value}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const customSearch = document.getElementById("customSearch");
+  if(customSearch) {
+    customSearch.addEventListener("input", (e) => {
+      if (resultsTable) {
+        resultsTable.searchQuery = e.target.value.toLowerCase().trim();
+        resultsTable.currentPage = 1;
+        resultsTable.filterData();
+      }
+    });
   }
 
-  function exportPDF() {
-    const win = window.open("", "", "width=900,height=700");
-    const when = new Date().toLocaleString();
-    const examText = examEl.selectedOptions[0].textContent;
-
-    win.document.write(
-      `<html><head><title>Academic Report</title></head><body>`
-    );
-    win.document.write(`<h1>${examText} - ${yearEl.value}</h1>`);
-    win.document.write(`<p>Generated: ${when}</p>`);
-    win.document.write(
-      `<table border="1" cellpadding="5" cellspacing="0" style="width:100%;">`
-    );
-
-    win.document.write("<tr>");
-    tableHead
-      .querySelectorAll("th")
-      .forEach((th) => win.document.write(`<th>${th.textContent}</th>`));
-    win.document.write("</tr>");
-
-    currentFiltered.forEach((d) => {
-      win.document.write("<tr>");
-      tableHead.querySelectorAll("th").forEach((th, i) => {
-        const val = Object.values(d)[i] || "";
-        win.document.write(`<td>${val}</td>`);
-      });
-      win.document.write("</tr>");
+  const customExportBtn = document.getElementById("customExportBtn");
+  if(customExportBtn) {
+    customExportBtn.addEventListener("click", () => {
+      if (resultsTable && typeof resultsTable.openExportModal === "function") {
+        resultsTable.openExportModal();
+      }
     });
-
-    win.document.write("</table></body></html>");
-    win.document.close();
-    win.focus();
-    win.print();
   }
 
   /* =========================
    Language handling
    ========================= */
-  function getLang() {
-    const stored = localStorage.getItem("lang");
-    if (stored && ["en", "si", "ta"].includes(stored)) return stored;
-    const auto = navigator.language?.startsWith("si")
-      ? "si"
-      : navigator.language?.startsWith("ta")
-      ? "ta"
-      : "en";
-    localStorage.setItem("lang", auto);
-    return auto;
-  }
-
   function updateText(lang) {
     if (!["en", "si", "ta"].includes(lang)) lang = "en";
     document.querySelectorAll("[data-en]").forEach((el) => {
-      const key = `data-${lang}`;
-      const next = el.getAttribute(key);
+      const next = el.getAttribute(`data-${lang}`);
       if (next != null) el.textContent = next;
     });
+    
+    // Update data-table headers translation
+    updateTableHeaders(lang);
   }
 
   window.addEventListener("storage", (e) => {
-    if (e.key === "lang") updateText(getLang());
+    if (e.key === "lang") updateText(e.newValue || "en");
   });
-
   window.addEventListener("languageChange", (e) => {
     const newLang = e.detail?.lang;
     if (newLang && ["en", "si", "ta"].includes(newLang)) updateText(newLang);
   });
 
-  let _lastLangPoll = localStorage.getItem("lang") || getLang();
+  let _lastLangPoll = localStorage.getItem("lang") || "en";
   setInterval(() => {
     const cur = localStorage.getItem("lang") || "en";
     if (cur !== _lastLangPoll) {
@@ -1205,24 +435,68 @@
   }, 400);
 
   /* =========================
-   Initialize searchable dropdowns
+   Searchable dropdowns
    ========================= */
   function initializeSearchableDropdowns() {
     if (typeof makeSearchableDropdown === "function") {
-      makeSearchableDropdown("examFilter", () => filterData());
-      makeSearchableDropdown("yearFilter", () => filterData());
-      makeSearchableDropdown("termFilter", () => filterData());
-      makeSearchableDropdown("classFilter", () => filterData());
-      makeSearchableDropdown("streamFilter", () => filterData());
-      makeSearchableDropdown("subjectFilter", () => filterData());
+      makeSearchableDropdown("examFilter", () => loadData());
+      makeSearchableDropdown("classFilter", () => loadData());
+      makeSearchableDropdown("subjectFilter", () => loadData());
+      makeSearchableDropdown("customPageSize", (val) => {
+        if (resultsTable) {
+          resultsTable.pageSize = parseInt(val);
+          resultsTable.currentPage = 1;
+          resultsTable.filterData();
+        }
+      });
     }
   }
 
   /* =========================
-   Wire-up & initial render
+   Init
    ========================= */
-  [examEl, yearEl, termEl, classEl, subjectEl, streamEl].forEach((el) => {
-    if (el) el.addEventListener("change", filterData);
-  });
-  indexSearchEl.addEventListener("input", filterData);
+  async function initializePage() {
+    initTable();
+    updateText(localStorage.getItem("lang") || "en");
+    await loadFilters();
+    initializeSearchableDropdowns();
+    await loadData();
+  }
+
+  initializePage();
 </script>
+
+<style>
+  .chart-tile {
+    max-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .chart-tile canvas {
+    max-width: 100%;
+    max-height: 320px;
+  }
+  .filter-group {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 16px;
+    margin: 16px 0;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  .filter-group > div {
+    flex: 0 0 auto;
+    min-width: 160px;
+  }
+  .filter-group .export-buttons {
+    margin-left: auto;
+    min-width: auto;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+  .filter-group .export-buttons button {
+    margin: 0;
+  }
+</style>

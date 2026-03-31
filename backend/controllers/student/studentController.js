@@ -181,6 +181,25 @@ exports.getAchievements = async (req, res) => {
   }
 };
 
+exports.getEvents = async (req, res) => {
+  try {
+    const studentId = req.user.userId;
+    if (!studentId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "No user id found" }));
+      return;
+    }
+
+    const events = await studentService.getEventsForStudent(studentId);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(events));
+  } catch (err) {
+    console.error("Error in getEvents:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Internal Server Error" }));
+  }
+};
+
 exports.getAnnouncements = async (req, res) => {
   try {
     const cookie = req.headers.cookie || "";

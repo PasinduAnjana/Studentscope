@@ -743,7 +743,34 @@ const assignTimetableSlot = async (
   );
 };
 
-// Get all subjects
+// ---------------------------
+// Events
+const createEvent = async (data, userId) => {
+  const { title, description, event_date, target_audience } = data;
+  const result = await pool.query(
+    "INSERT INTO events (title, description, event_date, created_by, target_audience) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+    [title, description, event_date, userId, target_audience]
+  );
+  return result.rows[0];
+};
+
+const getEvents = async () => {
+  const result = await pool.query(`
+    SELECT e.*, u.username as creator_name, r.name as creator_role 
+    FROM events e 
+    JOIN users u ON e.created_by = u.id
+    JOIN roles r ON u.role_id = r.id
+    ORDER BY e.event_date ASC
+  `);
+  return result.rows;
+};
+
+const deleteEvent = async (id) => {
+  await pool.query("DELETE FROM events WHERE id = $1", [id]);
+};
+
+// ---------------------------
+// Subjects
 const getSubjects = async () => {
   const result = await pool.query(
     "SELECT id AS subject_id, name AS subject_name FROM subjects ORDER BY name"
@@ -1088,6 +1115,10 @@ module.exports = {
   getTimetableForClass,
   assignTimetableSlot,
   getSubjects,
+  // Events
+  createEvent,
+  getEvents,
+  deleteEvent,
   // Announcement functions
   getAllAnnouncements,
   createAnnouncement,

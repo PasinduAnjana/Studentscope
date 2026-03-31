@@ -3,6 +3,7 @@ const timetableController = require("../controllers/teacher/timetableController"
 const attendanceController = require("../controllers/teacher/attendanceController");
 const subjectAssignmentController = require("../controllers/teacher/subjectAssignmentController");
 const announcementsController = require("../controllers/teacher/announcementsController");
+const eventsController = require("../controllers/teacher/eventsController");
 const profileController = require("../controllers/teacher/profileController");
 const todoController = require("../controllers/teacher/todoController");
 const { protect } = require("../middleware/authMiddleware");
@@ -364,6 +365,17 @@ module.exports = (req, res) => {
     return protect("teacher")(req, res, () =>
       announcementsController.getAnnouncementsForTeacher(req, res)
     );
+  }
+
+  // Events API
+  if (req.method === "GET" && req.url === "/api/teacher/events") {
+    return protect("teacher")(req, res, () => eventsController.getEvents(req, res));
+  }
+  if (req.method === "POST" && req.url === "/api/teacher/events") {
+    return protect("teacher")(req, res, () => eventsController.createEvent(req, res));
+  }
+  if (req.method === "DELETE" && req.url.match(/^\/api\/teacher\/events\/\d+$/)) {
+    return protect("teacher")(req, res, () => eventsController.deleteEvent(req, res));
   }
 
   // Teacher behavior records routes

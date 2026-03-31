@@ -537,6 +537,165 @@ exports.approvePasswordReset = async (resetId, approverId) => {
   }
 };
 
+// ============ ACADEMIC REPORTS ============
+
+// Get filter options for academic reports
+exports.getAcademicReportsFilters = async () => {
+  const exams = await pool.query(
+    `SELECT id, name, type, sub_type, year FROM exams ORDER BY year DESC, name`
+  );
+  const classes = await pool.query(
+    `SELECT id, name, grade FROM classes ORDER BY grade, name`
+  );
+  const subjects = await pool.query(
+    `SELECT id, name FROM subjects ORDER BY name`
+  );
+  return {
+    exams: exams.rows,
+    classes: classes.rows,
+    subjects: subjects.rows,
+  };
+};
+
+// Get academic report data with filters
+exports.getAcademicReportsData = async (filters = {}) => {
+  let query = `
+    SELECT
+      m.id,
+      m.marks,
+      s.name as subject_name,
+      u.username as index_number,
+      st.full_name as student_name,
+      c.grade,
+      c.name as class_name,
+      CONCAT(c.grade, '-', c.name) as class_display,
+      e.name as exam_name,
+      e.id as exam_id
+    FROM marks m
+    JOIN users u ON m.student_id = u.id
+    JOIN subjects s ON m.subject_id = s.id
+    JOIN classes c ON u.class_id = c.id
+    LEFT JOIN students st ON u.id = st.user_id
+    JOIN exams e ON m.exam_id = e.id
+  `;
+
+  const conditions = [];
+  const params = [];
+
+  if (filters.exam_id) {
+    conditions.push(`m.exam_id = $${params.length + 1}`);
+    params.push(filters.exam_id);
+  }
+
+  if (filters.class_id) {
+    conditions.push(`u.class_id = $${params.length + 1}`);
+    params.push(filters.class_id);
+  }
+
+  if (filters.subject_id) {
+    conditions.push(`m.subject_id = $${params.length + 1}`);
+    params.push(filters.subject_id);
+  }
+
+  if (filters.search) {
+    conditions.push(
+      `(u.username ILIKE $${params.length + 1} OR st.full_name ILIKE $${params.length + 1})`
+    );
+    params.push(`%${filters.search}%`);
+  }
+
+  if (conditions.length) {
+    query += ` WHERE ${conditions.join(" AND ")}`;
+  }
+
+  query += ` ORDER BY c.grade, c.name, st.full_name, s.name`;
+
+  // Limit to 500 rows for performance
+  query += ` LIMIT 500`;
+
+  const result = await pool.query(query, params);
+
+  return result.rows.map((row) => ({
+    id: row.id,
+    student_name: row.student_name || row.index_number,
+    index_number: row.index_number,
+    class: row.class_display,
+    subject: row.subject_name,
+    marks: row.marks,
+    exam: row.exam_name,
+  }));
+};
+
+// Get summary stats for academic reports
+exports.getAcademicReportsSummary = async (filters = {}) => {
+  let query = `
+    SELECT
+      COUNT(m.id) as total_records,
+      COUNT(DISTINCT m.student_id) as total_students,
+      ROUND(AVG(CASE WHEN m.marks ~ '^[0-9\\.]+$' THEN CAST(m.marks AS NUMERIC) END), 1) as avg_marks,
+      COUNT(CASE 
+        WHEN m.marks ~ '^[0-9\\.]+$' AND CAST(m.marks AS NUMERIC) >= 50 THEN 1 
+        WHEN m.marks IN ('A', 'B', 'C', 'S', 'Pass') THEN 1
+      END) as pass_count
+    FROM marks m
+    JOIN users u ON m.student_id = u.id
+    JOIN exams e ON m.exam_id = e.id
+  `;
+
+  const conditions = [];
+  const params = [];
+
+  if (filters.exam_id) {
+    conditions.push(`m.exam_id = $${params.length + 1}`);
+    params.push(filters.exam_id);
+  }
+
+  if (filters.class_id) {
+    conditions.push(`u.class_id = $${params.length + 1}`);
+    params.push(filters.class_id);
+  }
+
+  if (filters.subject_id) {
+    conditions.push(`m.subject_id = $${params.length + 1}`);
+    params.push(filters.subject_id);
+  }
+
+  if (conditions.length) {
+    query += ` WHERE ${conditions.join(" AND ")}`;
+  }
+
+  const result = await pool.query(query, params);
+  const row = result.rows[0];
+  const total = parseInt(row.total_records) || 0;
+  const pass = parseInt(row.pass_count) || 0;
+
+  // Get top subject
+  let topSubjectQuery = `
+    SELECT s.name, ROUND(AVG(CASE WHEN m.marks ~ '^[0-9\\.]+$' THEN CAST(m.marks AS NUMERIC) END), 1) as avg
+    FROM marks m
+    JOIN subjects s ON m.subject_id = s.id
+    JOIN users u ON m.student_id = u.id
+    JOIN exams e ON m.exam_id = e.id
+  `;
+
+  if (conditions.length) {
+    topSubjectQuery += ` WHERE ${conditions.join(" AND ")}`;
+  }
+
+  topSubjectQuery += ` GROUP BY s.id, s.name ORDER BY avg DESC NULLS LAST LIMIT 1`;
+
+  const topResult = await pool.query(topSubjectQuery, params);
+  const topSubject = topResult.rows[0];
+
+  return {
+    totalStudents: parseInt(row.total_students) || 0,
+    totalRecords: total,
+    avgMarks: parseFloat(row.avg_marks) || 0,
+    passRate: total > 0 ? Math.round((pass / total) * 100) : 0,
+    topSubject: topSubject && topSubject.avg ? `${topSubject.name} (${topSubject.avg}%)` : "--",
+  };
+};
+
 exports.rejectPasswordReset = async (resetId, rejectedBy) => {
   try {
     const resetResult = await pool.query(
