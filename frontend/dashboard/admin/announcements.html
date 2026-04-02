@@ -19,185 +19,96 @@
     .checkbox-item label:hover {
       background-color: var(--color-hover);
     }
-  </style>
+    
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+      background-color: transparent;
+      box-shadow: none;
+    }
 
-  <div style="display: flex; flex-direction: column; gap: 8px">
-    <div class="card">
+    .empty-state i {
+      font-size: 32px;
+      color: var(--color-subtext);
+      margin-bottom: 20px;
+    }
+
+    .empty-text {
+      font-size: 16px;
+      color: var(--color-subtext);
+      margin: 0;
+    }
+  </style>
+  <div class="card-grid">
+    <!-- Admin Announcements -->
+    <div class="card h-2">
       <div class="flex-between mb-2">
-        <h1 class="title" data="sidebar.announcements"></h1>
-        <button
-          id="add-announcement-btn"
-          class="btn btn-primary"
-          data-en="Add Announcement"
-          data-si="ප්‍රකාශනය එක් කරන්න"
-          data-ta="அறிவிப்பு சேர்க்கவும்"
-        >
+        <div class="icon-title">
+          <i class="fas fa-bullhorn icon"></i>
+          <p class="tile-label">Admin Announcements</p>
+        </div>
+        <button id="add-announcement-btn" class="btn btn-primary">
           <i class="fas fa-plus"></i> Add Announcement
         </button>
       </div>
       <div class="announcements-container" id="announcements-container">
-        <!-- Announcements will be loaded here dynamically -->
       </div>
     </div>
 
-    <!-- Announcements from Clerks and Teachers -->
-    <div class="card">
+    <!-- Announcements from Staff -->
+    <div class="card h-2">
       <div class="flex-between mb-2">
-        <h1 class="title">
-          <i class="fas fa-comments"></i>
-          <span
-            data-en="Announcements from Staff"
-            data-si="කාර්ය මණ්ඩලයෙන් නිවේදන"
-            data-ta="பணியாளர்களிடமிருந்து அறிவிப்புகள்"
-            >Announcements from Staff</span
-          >
-        </h1>
+        <div class="icon-title">
+          <i class="fas fa-comments icon"></i>
+          <p class="tile-label">Announcements from Staff</p>
+        </div>
       </div>
       <div class="announcements-container" id="staff-announcements-container">
-        <!-- Staff announcements will be loaded here dynamically -->
       </div>
     </div>
   </div>
 </section>
 
-<!-- Add/Edit Announcement Modal -->
-<div id="announcement-modal" class="modal" style="display: none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="modal-title">Add Announcement</h3>
-      <span class="modal-close">&times;</span>
-    </div>
-    <div class="modal-body">
-      <div class="mb-2">
-        <label
-          for="announcement-title"
-          data-en="Title:"
-          data-si="මාතෘකාව:"
-          data-ta="தலைப்பு:"
-          >Title:</label
-        >
-        <input
-          type="text"
-          id="announcement-title"
-          placeholder="Enter announcement title..."
-          class="mt-1"
-        />
-      </div>
-      <div class="mb-2">
-        <label
-          for="announcement-description"
-          data-en="Description:"
-          data-si="විස්තරණය:"
-          data-ta="விளக்கம்:"
-          >Description:</label
-        >
-        <textarea
-          id="announcement-description"
-          placeholder="Enter announcement description..."
-          class="mt-1"
-        ></textarea>
-      </div>
-      <div class="mb-2">
-        <label
-          for="announcement-audience"
-          data-en="Audience:"
-          data-si="ශ්‍රෝතෘවර්ගය:"
-          data-ta="பார்வையாளர்கள்:"
-          >Audience:</label
-        >
-        <select id="announcement-audience" class="mt-1">
-          <option
-            value="all"
-            data-en="All (Teachers & Students)"
-            data-si="සියලු (ගුරුවරුන් සහ ශිෂ්‍යයෝ)"
-            data-ta="அனைவரும் (ஆசிரியர்கள் & மாணவர்கள்)"
-          >
-            All (Teachers & Students)
-          </option>
-          <option
-            value="all-teachers"
-            data-en="All Teachers"
-            data-si="සියලු ගුරුවරුන්"
-            data-ta="அனைத்து ஆசிரியர்கள்"
-          >
-            All Teachers
-          </option>
-          <option
-            value="teachers"
-            data-en="Specific Teachers"
-            data-si="නිශ්චිත ගුරුවරුන්"
-            data-ta="குறிப்பிட்ட ஆசிரியர்கள்"
-          >
-            Specific Teachers
-          </option>
-          <option
-            value="clerks"
-            data-en="Clerks"
-            data-si="ලිපිකර"
-            data-ta="எழுத்தாளர்கள்"
-          >
-            Clerks
-          </option>
-          <option
-            value="students"
-            data-en="Specific Classes"
-            data-si="නිශ්චිත පන්තිය"
-            data-ta="குறிப்பிட்ட வகுப்புகள்"
-          >
-            Specific Classes
-          </option>
-        </select>
-      </div>
-      <div id="teacher-selection" class="mb-2" style="display: none">
-        <label
-          data-en="Select Teachers:"
-          data-si="ගුරුවරුන් තෝරන්න:"
-          data-ta="ஆசிரியர்களைத் தேர்ந்தெடுக்கவும்:"
-          >Select Teachers:</label
-        >
-        <div id="teacher-checkboxes" class="mt-1"></div>
-      </div>
-      <div id="clerk-selection" class="mb-2" style="display: none">
-        <label
-          data-en="Select Clerks:"
-          data-si="ලිපිකර තෝරන්න:"
-          data-ta="எழுத்தாளர்களைத் தேர்ந்தெடுக்கவும்:"
-          >Select Clerks:</label
-        >
-        <div id="clerk-checkboxes" class="mt-1"></div>
-      </div>
-      <div id="class-selection" class="mb-2" style="display: none">
-        <label
-          data-en="Select Classes:"
-          data-si="පන්තිය තෝරන්න:"
-          data-ta="வகுப்புகளைத் தேர்ந்தெடுக்கவும்:"
-          >Select Classes:</label
-        >
-        <div id="class-checkboxes" class="mt-1"></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button
-        id="modal-cancel"
-        class="btn btn-secondary"
-        data-en="Cancel"
-        data-si="අවලංගු කරන්න"
-        data-ta="ரத்து"
-      >
-        Cancel
-      </button>
-      <button
-        id="modal-save"
-        class="btn btn-primary"
-        data-en="Save"
-        data-si="සුරකින්න"
-        data-ta="சேமிக்கவும்"
-      >
-        Save
-      </button>
-    </div>
+<modal-dialog id="announcement-modal" title="Add Announcement">
+  <div class="mb-2">
+    <label for="announcement-title">Title:</label>
+    <input type="text" id="announcement-title" placeholder="Enter announcement title..." class="mt-1" />
   </div>
-</div>
+  <div class="mb-2">
+    <label for="announcement-description">Description:</label>
+    <textarea id="announcement-description" placeholder="Enter announcement description..." class="mt-1"></textarea>
+  </div>
+  <div class="mb-2">
+    <label for="announcement-audience">Audience:</label>
+    <select id="announcement-audience" class="mt-1">
+      <option value="all">All (Teachers & Students)</option>
+      <option value="teachers">Specific Teachers</option>
+      <option value="clerks">Clerks</option>
+      <option value="students">Specific Classes</option>
+    </select>
+  </div>
+  <div id="teacher-selection" class="mb-2" style="display: none">
+    <label>Select Teachers:</label>
+    <div id="teacher-checkboxes" class="mt-1"></div>
+  </div>
+  <div id="clerk-selection" class="mb-2" style="display: none">
+    <label>Select Clerks:</label>
+    <div id="clerk-checkboxes" class="mt-1"></div>
+  </div>
+  <div id="class-selection" class="mb-2" style="display: none">
+    <label>Select Classes:</label>
+    <div id="class-checkboxes" class="mt-1"></div>
+  </div>
+
+  <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+    <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
+    <button id="modal-save" class="btn btn-primary">Save</button>
+  </div>
+</modal-dialog>
 
 <script>
   let announcements = [];
@@ -209,7 +120,12 @@
     const container = document.querySelector("#announcements-container");
     container.innerHTML = "";
     if (!announcements.length) {
-      container.innerHTML = `<div class="no-announcements text-center">No announcements found</div>`;
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-bullhorn"></i>
+          <p class="empty-text">No announcements found</p>
+        </div>
+      `;
       return;
     }
 
@@ -217,25 +133,14 @@
       const card = document.createElement("div");
       card.className = "announcement-card";
 
-      const createdDate = new Date(
-        announcement.created_at
-      ).toLocaleDateString();
+      const createdDate = new Date(announcement.created_at).toLocaleDateString();
 
-      // Format audience display
       let audienceDisplay = "";
       switch (announcement.audience_type) {
-        case "all":
-          audienceDisplay = "All (Teachers & Students)";
-          break;
-        case "teachers":
-          audienceDisplay = "Teachers";
-          break;
-        case "clerks":
-          audienceDisplay = "Clerks";
-          break;
-        case "students":
-          audienceDisplay = "Students";
-          break;
+        case "all": audienceDisplay = "All (Teachers & Students)"; break;
+        case "teachers": audienceDisplay = "Teachers"; break;
+        case "clerks": audienceDisplay = "Clerks"; break;
+        case "students": audienceDisplay = "Students"; break;
       }
 
       card.innerHTML = `
@@ -260,22 +165,17 @@
           </button>
         </div>
         <div class="announcement-meta flex-between">
-          <span class="text-sm">Audience: ${audienceDisplay}</span>
-          <span class="text-sm">Created: ${createdDate}</span>
+          <span class="text-sm"><i class="fas fa-users" style="margin-right:4px;"></i>${audienceDisplay}</span>
+          <span class="text-sm"><i class="fas fa-calendar" style="margin-right:4px;"></i>${createdDate}</span>
         </div>
       `;
 
       container.appendChild(card);
 
-      // Check if description needs expand button
       setTimeout(() => {
         const descElement = document.getElementById(`desc-${announcement.id}`);
         const expandBtn = document.getElementById(`expand-${announcement.id}`);
-        if (
-          descElement &&
-          expandBtn &&
-          descElement.scrollHeight > descElement.clientHeight
-        ) {
+        if (descElement && expandBtn && descElement.scrollHeight > descElement.clientHeight) {
           expandBtn.style.display = "inline-flex";
         }
       }, 0);
@@ -283,44 +183,47 @@
   }
 
   function fetchAnnouncements() {
-    console.log("Fetching announcements...");
-    fetch("/api/admin/announcements")
+    api.admin.announcements.getAll()
       .then((res) => {
-        console.log("API response status:", res.status);
         if (!res.ok) throw new Error("Failed to fetch announcements");
         return res.json();
       })
       .then((data) => {
-        console.log("Received announcements data:", data);
-        announcements = data;
-        console.log("Announcements array after assignment:", announcements);
+        announcements = data.data || data;
         renderAnnouncements();
       })
       .catch((err) => {
-        console.error("Error fetching announcements:", err);
+        console.error(err);
         const container = document.querySelector("#announcements-container");
-        container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-circle" style="color: var(--color-error);"></i>
+            <p class="empty-text">Error loading announcements</p>
+          </div>
+        `;
       });
   }
 
   function fetchStaffAnnouncements() {
-    console.log("Fetching staff announcements...");
-    fetch("/api/admin/announcements?role=staff")
+    api.admin.announcements.getAll()
       .then((res) => {
-        console.log("Staff announcements API response status:", res.status);
         if (!res.ok) throw new Error("Failed to fetch staff announcements");
         return res.json();
       })
       .then((data) => {
-        console.log("Received staff announcements data:", data);
-        renderStaffAnnouncements(data);
+        const all = data.data || data;
+        const staff = all.filter(a => a.created_by_role !== "admin");
+        renderStaffAnnouncements(staff);
       })
       .catch((err) => {
-        console.error("Error fetching staff announcements:", err);
-        const container = document.querySelector(
-          "#staff-announcements-container"
-        );
-        container.innerHTML = `<div class="no-announcements text-center">Error loading announcements</div>`;
+        console.error(err);
+        const container = document.querySelector("#staff-announcements-container");
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-circle" style="color: var(--color-error);"></i>
+            <p class="empty-text">Error loading announcements</p>
+          </div>
+        `;
       });
   }
 
@@ -329,7 +232,12 @@
     container.innerHTML = "";
 
     if (!staffAnnouncements.length) {
-      container.innerHTML = `<div class="no-announcements text-center">No announcements from staff</div>`;
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-comments"></i>
+          <p class="empty-text">No announcements from staff</p>
+        </div>
+      `;
       return;
     }
 
@@ -337,28 +245,16 @@
       const card = document.createElement("div");
       card.className = "announcement-card";
 
-      const createdDate = new Date(
-        announcement.created_at
-      ).toLocaleDateString();
+      const createdDate = new Date(announcement.created_at).toLocaleDateString();
 
-      // Format audience display
       let audienceDisplay = "";
       switch (announcement.audience_type) {
-        case "all":
-          audienceDisplay = "All (Teachers & Students)";
-          break;
-        case "teachers":
-          audienceDisplay = "Teachers";
-          break;
-        case "clerks":
-          audienceDisplay = "Clerks";
-          break;
-        case "students":
-          audienceDisplay = "Students";
-          break;
+        case "all": audienceDisplay = "All (Teachers & Students)"; break;
+        case "teachers": audienceDisplay = "Teachers"; break;
+        case "clerks": audienceDisplay = "Clerks"; break;
+        case "students": audienceDisplay = "Students"; break;
       }
 
-      // Get creator info
       const creatorRole = announcement.created_by_role || "Staff";
       const creatorName = announcement.created_by_name || "Unknown";
 
@@ -377,28 +273,19 @@
         </div>
         <div class="announcement-meta flex-between">
           <div>
-            <span class="text-sm">Audience: ${audienceDisplay}</span>
-            <span class="text-sm" style="margin-left: 16px;">By: ${creatorName} (${creatorRole})</span>
+            <span class="text-sm"><i class="fas fa-users" style="margin-right:4px;"></i>${audienceDisplay}</span>
+            <span class="text-sm" style="margin-left: 16px;"><i class="fas fa-user" style="margin-right:4px;"></i>${creatorName} (${creatorRole})</span>
           </div>
-          <span class="text-sm">Created: ${createdDate}</span>
+          <span class="text-sm"><i class="fas fa-calendar" style="margin-right:4px;"></i>${createdDate}</span>
         </div>
       `;
 
       container.appendChild(card);
 
-      // Check if description needs expand button
       setTimeout(() => {
-        const descElement = document.getElementById(
-          `staff-desc-${announcement.id}`
-        );
-        const expandBtn = document.getElementById(
-          `staff-expand-${announcement.id}`
-        );
-        if (
-          descElement &&
-          expandBtn &&
-          descElement.scrollHeight > descElement.clientHeight
-        ) {
+        const descElement = document.getElementById(`staff-desc-${announcement.id}`);
+        const expandBtn = document.getElementById(`staff-expand-${announcement.id}`);
+        if (descElement && expandBtn && descElement.scrollHeight > descElement.clientHeight) {
           expandBtn.style.display = "inline-flex";
         }
       }, 0);
@@ -409,16 +296,13 @@
     const descElement = document.getElementById(`staff-desc-${id}`);
     const expandBtn = document.getElementById(`staff-expand-${id}`);
     const btnText = expandBtn.querySelector("span");
-    const btnIcon = expandBtn.querySelector("i");
 
     if (descElement.classList.contains("collapsed")) {
-      // Expand
       descElement.classList.remove("collapsed");
       descElement.classList.add("expanded");
       btnText.textContent = "Show less";
       expandBtn.classList.add("expanded");
     } else {
-      // Collapse
       descElement.classList.remove("expanded");
       descElement.classList.add("collapsed");
       btnText.textContent = "Show more";
@@ -429,32 +313,23 @@
   function setupAddButton() {
     const addBtn = document.getElementById("add-announcement-btn");
     const modal = document.getElementById("announcement-modal");
-    const closeBtn = document.querySelector("#announcement-modal .modal-close");
     const cancelBtn = document.getElementById("modal-cancel");
     const saveBtn = document.getElementById("modal-save");
     const audienceSelect = document.getElementById("announcement-audience");
 
     addBtn.addEventListener("click", () => {
       editingAnnouncement = null;
-      document.getElementById("modal-title").textContent = "Add Announcement";
-      clearModal();
-      modal.style.display = "flex";
-    });
-
-    const closeModal = () => {
-      modal.style.display = "none";
-    };
-
-    closeBtn.addEventListener("click", closeModal);
-    cancelBtn.addEventListener("click", closeModal);
-    audienceSelect.addEventListener("change", handleAudienceChange);
-
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        closeModal();
+      if (modal) {
+        modal.setTitle("Add Announcement");
+        clearModal();
+        modal.open();
       }
     });
 
+    const closeModal = () => { if (modal) modal.close(); };
+
+    cancelBtn.addEventListener("click", closeModal);
+    audienceSelect.addEventListener("change", handleAudienceChange);
     saveBtn.addEventListener("click", saveAnnouncement);
   }
 
@@ -464,86 +339,61 @@
     const clerkSelection = document.getElementById("clerk-selection");
     const classSelection = document.getElementById("class-selection");
 
-    // Hide all selections first
     teacherSelection.style.display = "none";
     clerkSelection.style.display = "none";
     classSelection.style.display = "none";
 
-    // Show relevant selection based on audience
     if (audience === "teachers") {
       teacherSelection.style.display = "block";
-      if (!document.querySelector("#teacher-checkboxes .checkbox-item")) {
-        loadTeachers();
-      }
-    } else if (audience === "all-teachers") {
-      // No selection needed for all teachers
-      teacherSelection.style.display = "none";
+      if (!document.querySelector("#teacher-checkboxes .checkbox-item")) loadTeachers();
     } else if (audience === "clerks") {
       clerkSelection.style.display = "block";
-      if (!document.querySelector("#clerk-checkboxes .checkbox-item")) {
-        loadClerks();
-      }
+      if (!document.querySelector("#clerk-checkboxes .checkbox-item")) loadClerks();
     } else if (audience === "students") {
       classSelection.style.display = "block";
-      if (!document.querySelector("#class-checkboxes .checkbox-item")) {
-        loadClasses();
-      }
+      if (!document.querySelector("#class-checkboxes .checkbox-item")) loadClasses();
     }
   }
 
   async function loadTeachers() {
     try {
-      const res = await fetch("/api/admin/teachers");
+      const res = await api.admin.teachers.getAll();
       if (!res.ok) throw new Error("Failed to fetch teachers");
       allTeachers = await res.json();
       renderTeacherCheckboxes();
-    } catch (err) {
-      console.error("Error loading teachers:", err);
-    }
-  }
-
-  async function loadClasses() {
-    try {
-      const res = await fetch("/api/admin/classes");
-      if (!res.ok) throw new Error("Failed to fetch classes");
-      allClasses = await res.json();
-      renderClassCheckboxes();
-    } catch (err) {
-      console.error("Error loading classes:", err);
-    }
+    } catch (err) { console.error("Error loading teachers:", err); }
   }
 
   async function loadClerks() {
     try {
-      const res = await fetch("/api/admin/clerks");
+      const res = await api.admin.clerks.getAll();
       if (!res.ok) throw new Error("Failed to fetch clerks");
       const clerks = await res.json();
       renderClerkCheckboxes(clerks);
-    } catch (err) {
-      console.error("Error loading clerks:", err);
-    }
+    } catch (err) { console.error("Error loading clerks:", err); }
+  }
+
+  async function loadClasses() {
+    try {
+      const res = await api.admin.classes.getAll();
+      if (!res.ok) throw new Error("Failed to fetch classes");
+      allClasses = await res.json();
+      renderClassCheckboxes();
+    } catch (err) { console.error("Error loading classes:", err); }
   }
 
   function renderTeacherCheckboxes() {
     const container = document.getElementById("teacher-checkboxes");
     container.innerHTML = "";
-
-    if (!allTeachers.length) {
-      container.innerHTML = "<p class='text-sm'>No teachers found</p>";
-      return;
-    }
-
+    if (!allTeachers.length) { container.innerHTML = "<p class='text-sm'>No teachers found</p>"; return; }
     allTeachers.forEach((teacher) => {
       const checkboxDiv = document.createElement("div");
       checkboxDiv.className = "checkbox-item";
       checkboxDiv.innerHTML = `
-        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-          <input type="checkbox" value="${
-            teacher.teacher_id
-          }" style="margin: 0;">
+        <label>
+          <input type="checkbox" value="${teacher.teacher_id}" style="margin: 0;">
           <span>${teacher.full_name || teacher.username}</span>
-        </label>
-      `;
+        </label>`;
       container.appendChild(checkboxDiv);
     });
   }
@@ -551,23 +401,15 @@
   function renderClerkCheckboxes(clerks) {
     const container = document.getElementById("clerk-checkboxes");
     container.innerHTML = "";
-
-    if (!clerks.length) {
-      container.innerHTML = "<p class='text-sm'>No clerks found</p>";
-      return;
-    }
-
+    if (!clerks.length) { container.innerHTML = "<p class='text-sm'>No clerks found</p>"; return; }
     clerks.forEach((clerk) => {
       const checkboxDiv = document.createElement("div");
       checkboxDiv.className = "checkbox-item";
       checkboxDiv.innerHTML = `
-        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-          <input type="checkbox" value="${
-            clerk.clerk_id || clerk.id
-          }" style="margin: 0;">
+        <label>
+          <input type="checkbox" value="${clerk.clerk_id || clerk.id}" style="margin: 0;">
           <span>${clerk.full_name || clerk.username}</span>
-        </label>
-      `;
+        </label>`;
       container.appendChild(checkboxDiv);
     });
   }
@@ -575,30 +417,22 @@
   function renderClassCheckboxes() {
     const container = document.getElementById("class-checkboxes");
     container.innerHTML = "";
-
-    if (!allClasses.length) {
-      container.innerHTML = "<p class='text-sm'>No classes found</p>";
-      return;
-    }
-
+    if (!allClasses.length) { container.innerHTML = "<p class='text-sm'>No classes found</p>"; return; }
     allClasses.forEach((cls) => {
       const checkboxDiv = document.createElement("div");
       checkboxDiv.className = "checkbox-item";
       checkboxDiv.innerHTML = `
-        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <label>
           <input type="checkbox" value="${cls.id}" style="margin: 0;">
-          <span>Grade ${cls.grade} - ${cls.name}</span>
-        </label>
-      `;
+          <span>Grade ${cls.grade} - ${cls.class_name || cls.name}</span>
+        </label>`;
       container.appendChild(checkboxDiv);
     });
   }
 
   function saveAnnouncement() {
     const title = document.getElementById("announcement-title").value.trim();
-    const description = document
-      .getElementById("announcement-description")
-      .value.trim();
+    const description = document.getElementById("announcement-description").value.trim();
     const audience = document.getElementById("announcement-audience").value;
 
     if (!title || !description) {
@@ -606,73 +440,32 @@
       return;
     }
 
-    // Validate audience selection
     let teacherIds = [];
     let clerkIds = [];
     let classIds = [];
 
     if (audience === "teachers") {
-      teacherIds = Array.from(
-        document.querySelectorAll("#teacher-checkboxes input:checked")
-      ).map((cb) => parseInt(cb.value));
-      if (teacherIds.length === 0) {
-        toast(
-          "Please select at least one teacher.",
-          "fa-solid fa-circle-exclamation"
-        );
-        return;
-      }
-    } else if (audience === "all-teachers") {
-      // No validation needed for all teachers
+      teacherIds = Array.from(document.querySelectorAll("#teacher-checkboxes input:checked")).map((cb) => parseInt(cb.value));
+      if (teacherIds.length === 0) { toast("Please select at least one teacher.", "fa-solid fa-circle-exclamation"); return; }
     } else if (audience === "clerks") {
-      clerkIds = Array.from(
-        document.querySelectorAll("#clerk-checkboxes input:checked")
-      ).map((cb) => parseInt(cb.value));
-      if (clerkIds.length === 0) {
-        toast(
-          "Please select at least one clerk.",
-          "fa-solid fa-circle-exclamation"
-        );
-        return;
-      }
+      clerkIds = Array.from(document.querySelectorAll("#clerk-checkboxes input:checked")).map((cb) => parseInt(cb.value));
+      if (clerkIds.length === 0) { toast("Please select at least one clerk.", "fa-solid fa-circle-exclamation"); return; }
     } else if (audience === "students") {
-      classIds = Array.from(
-        document.querySelectorAll("#class-checkboxes input:checked")
-      ).map((cb) => parseInt(cb.value));
-      if (classIds.length === 0) {
-        toast(
-          "Please select at least one class.",
-          "fa-solid fa-circle-exclamation"
-        );
-        return;
-      }
+      classIds = Array.from(document.querySelectorAll("#class-checkboxes input:checked")).map((cb) => parseInt(cb.value));
+      if (classIds.length === 0) { toast("Please select at least one class.", "fa-solid fa-circle-exclamation"); return; }
     }
 
+    const url = editingAnnouncement ? `/api/admin/announcements/${editingAnnouncement.id}` : "/api/admin/announcements";
     const method = editingAnnouncement ? "PUT" : "POST";
-    const url = editingAnnouncement
-      ? `/api/admin/announcements/${editingAnnouncement.id}`
-      : "/api/admin/announcements";
+    const body = { title, description, audience_type: audience, teacher_ids: teacherIds, clerk_ids: clerkIds, class_ids: classIds };
 
-    const body = {
-      title,
-      description,
-      audience_type: audience,
-      teacher_ids: teacherIds,
-      clerk_ids: clerkIds,
-      class_ids: classIds,
-    };
-
-    fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
+    fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to save announcement");
         return res.json();
       })
       .then(() => {
-        document.getElementById("announcement-modal").style.display = "none";
+        document.getElementById("announcement-modal").close();
         toast("Announcement saved successfully", "fa-solid fa-check-circle");
         fetchAnnouncements();
       })
@@ -689,145 +482,94 @@
     document.getElementById("teacher-selection").style.display = "none";
     document.getElementById("clerk-selection").style.display = "none";
     document.getElementById("class-selection").style.display = "none";
-    // Clear checkboxes
-    document
-      .querySelectorAll(
-        "#teacher-checkboxes input, #clerk-checkboxes input, #class-checkboxes input"
-      )
+    document.querySelectorAll("#teacher-checkboxes input, #clerk-checkboxes input, #class-checkboxes input")
       .forEach((cb) => (cb.checked = false));
   }
 
   function editAnnouncement(id) {
-    console.log(
-      "Edit button clicked for announcement ID:",
-      id,
-      "type:",
-      typeof id
-    );
-    console.log(
-      "Available announcement IDs:",
-      announcements.map((a) => ({ id: a.id, type: typeof a.id }))
-    );
-    const announcement = announcements.find((a) => a.id == id); // Use == for type coercion
-    console.log("Found announcement:", announcement);
+    const announcement = announcements.find((a) => a.id == id);
     if (!announcement) {
-      console.error("Announcement not found with ID:", id);
-      toast(
-        `Announcement with ID ${id} not found.`,
-        "fa-solid fa-circle-exclamation"
-      );
+      toast(`Announcement with ID ${id} not found.`, "fa-solid fa-circle-exclamation");
       return;
     }
 
     editingAnnouncement = announcement;
-    document.getElementById("modal-title").textContent = "Edit Announcement";
-    document.getElementById("announcement-title").value = announcement.title;
-    document.getElementById("announcement-description").value =
-      announcement.description;
-    document.getElementById("announcement-audience").value =
-      announcement.audience_type;
+    const modal = document.getElementById("announcement-modal");
+    if (modal) modal.setTitle("Edit Announcement");
 
-    // Handle audience change to show appropriate selections
+    document.getElementById("announcement-title").value = announcement.title;
+    document.getElementById("announcement-description").value = announcement.description;
+    document.getElementById("announcement-audience").value = announcement.audience_type;
+
     handleAudienceChange();
 
-    // Load teachers/classes if needed and pre-select based on announcement data
     if (announcement.audience_type === "teachers" && announcement.teachers) {
       if (!allTeachers.length) {
         loadTeachers().then(() => {
           announcement.teachers.forEach((teacher) => {
-            const checkbox = document.querySelector(
-              `#teacher-checkboxes input[value="${teacher.teacher_id}"]`
-            );
+            const checkbox = document.querySelector(`#teacher-checkboxes input[value="${teacher.teacher_id}"]`);
             if (checkbox) checkbox.checked = true;
           });
         });
       } else {
         announcement.teachers.forEach((teacher) => {
-          const checkbox = document.querySelector(
-            `#teacher-checkboxes input[value="${teacher.teacher_id}"]`
-          );
+          const checkbox = document.querySelector(`#teacher-checkboxes input[value="${teacher.teacher_id}"]`);
           if (checkbox) checkbox.checked = true;
         });
       }
-    } else if (
-      announcement.audience_type === "students" &&
-      announcement.classes
-    ) {
+    } else if (announcement.audience_type === "students" && announcement.classes) {
       if (!allClasses.length) {
         loadClasses().then(() => {
           announcement.classes.forEach((cls) => {
-            const checkbox = document.querySelector(
-              `#class-checkboxes input[value="${cls.id}"]`
-            );
+            const checkbox = document.querySelector(`#class-checkboxes input[value="${cls.id}"]`);
             if (checkbox) checkbox.checked = true;
           });
         });
       } else {
         announcement.classes.forEach((cls) => {
-          const checkbox = document.querySelector(
-            `#class-checkboxes input[value="${cls.id}"]`
-          );
+          const checkbox = document.querySelector(`#class-checkboxes input[value="${cls.id}"]`);
           if (checkbox) checkbox.checked = true;
         });
       }
     }
 
-    document.getElementById("announcement-modal").style.display = "flex";
-    console.log("Modal should now be visible");
+    if (modal) modal.open();
   }
 
   function deleteAnnouncement(id) {
-    toast(
-      "Are you sure you want to delete this announcement?",
-      "fa-solid fa-trash",
-      {
-        confirm: true,
-        confirmText: "Delete",
-        cancelText: "Cancel",
-        onConfirm: function () {
-          fetch(`/api/admin/announcements/${id}`, {
-            method: "DELETE",
+    toast("Are you sure you want to delete this announcement?", "fa-solid fa-trash", {
+      confirm: true,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      onConfirm: function () {
+        fetch(`/api/admin/announcements/${id}`, { method: "DELETE" })
+          .then((res) => {
+            if (!res.ok) throw new Error("Failed to delete announcement");
+            return res.json();
           })
-            .then((res) => {
-              if (!res.ok) throw new Error("Failed to delete announcement");
-              return res.json();
-            })
-            .then(() => {
-              toast(
-                "Announcement deleted successfully",
-                "fa-solid fa-check-circle"
-              );
-              fetchAnnouncements(); // Refresh the list
-            })
-            .catch((err) => {
-              console.error("Error deleting announcement:", err);
-              toast(
-                "Error deleting announcement",
-                "fa-solid fa-circle-exclamation"
-              );
-            });
-        },
-        onCancel: function () {
-          // Do nothing, just close toast
-        },
-      }
-    );
+          .then(() => {
+            toast("Announcement deleted successfully", "fa-solid fa-check-circle");
+            fetchAnnouncements();
+          })
+          .catch((err) => {
+            console.error("Error deleting announcement:", err);
+            toast("Error deleting announcement", "fa-solid fa-circle-exclamation");
+          });
+      },
+    });
   }
 
   function toggleDescription(id) {
     const descElement = document.getElementById(`desc-${id}`);
     const expandBtn = document.getElementById(`expand-${id}`);
     const btnText = expandBtn.querySelector("span");
-    const btnIcon = expandBtn.querySelector("i");
 
     if (descElement.classList.contains("collapsed")) {
-      // Expand
       descElement.classList.remove("collapsed");
       descElement.classList.add("expanded");
       btnText.textContent = "Show less";
       expandBtn.classList.add("expanded");
     } else {
-      // Collapse
       descElement.classList.remove("expanded");
       descElement.classList.add("collapsed");
       btnText.textContent = "Show more";
@@ -835,11 +577,10 @@
     }
   }
 
-  // Initialize
   fetchAnnouncements();
   fetchStaffAnnouncements();
   setupAddButton();
-  loadTeachers(); // Pre-load teachers for better UX
-  loadClerks(); // Pre-load clerks for better UX
-  loadClasses(); // Pre-load classes for better UX
+  loadTeachers();
+  loadClerks();
+  loadClasses();
 </script>

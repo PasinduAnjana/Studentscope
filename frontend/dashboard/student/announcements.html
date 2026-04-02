@@ -133,10 +133,10 @@
           </button>
         </div>
         <div class="announcement-meta flex-between">
-          <span class="text-sm"><span data-en="Audience:" data-si="ප්‍රේක්ෂකයින්:" data-ta="பார்வையாளர்கள்:">Audience:</span> ${audienceDisplay}</span>
-          <span class="text-sm"><span data-en="Posted:" data-si="පළ කරන ලද:" data-ta="வெளியிடப்பட்ட:">Posted:</span> ${createdDate} ${
+          <span class="text-sm"><i class="fas fa-users" style="margin-right:4px;"></i>${audienceDisplay}</span>
+          <span class="text-sm"><i class="fas fa-calendar" style="margin-right:4px;"></i>${createdDate}${
         announcement.posted_by_name
-          ? `• <span data-en="By" data-si="විසින්" data-ta="மூலம்">By</span> ${announcement.posted_by_name}`
+          ? ` <i class="fas fa-user" style="margin-right:4px;"></i>${announcement.posted_by_name}`
           : ""
       }</span>
         </div>
