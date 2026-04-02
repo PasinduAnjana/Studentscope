@@ -196,17 +196,6 @@ END $$;
     `);
 
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS notices (
-        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        posted_by BIGINT REFERENCES users(id),
-        audience TEXT NOT NULL,
-        posted_at TIMESTAMPTZ NOT NULL DEFAULT now()
-      );
-    `);
-
-    await pool.query(`
       CREATE TABLE IF NOT EXISTS announcements (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         title TEXT NOT NULL,
