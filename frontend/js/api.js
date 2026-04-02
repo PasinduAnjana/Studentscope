@@ -150,12 +150,6 @@ const api = {
       update: (id, data) => api.request(`/clerk/teachers/${id}`, "PUT", data),
       delete: (id) => api.request(`/clerk/teachers/${id}`, "DELETE"),
     },
-    notices: {
-      getAll: () => api.request("/clerk/notices"),
-      create: (data) => api.request("/clerk/notices", "POST", data),
-      update: (id, data) => api.request(`/clerk/notices/${id}`, "PUT", data),
-      delete: (id) => api.request(`/clerk/notices/${id}`, "DELETE"),
-    },
     announcements: {
       getAll: () => api.request("/clerk/announcements"),
       create: (data) => api.request("/clerk/announcements", "POST", data),
