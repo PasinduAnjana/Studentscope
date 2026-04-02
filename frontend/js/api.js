@@ -184,6 +184,99 @@ const api = {
 
   },
 
+  // Admin endpoints
+  admin: {
+    dashboard: {
+      get: () => api.request("/admin/dashboard"),
+    },
+    students: {
+      getAll: () => api.request("/admin/students"),
+      getProfile: (id) => api.request(`/admin/students/${id}`),
+      getAttendance: (id, period = "last7") =>
+        api.request(`/admin/students/${id}/attendance?period=${period}`),
+      getMarks: (id, grade, term) =>
+        api.request(`/admin/students/${id}/marks?grade=${grade}&term=${term || ""}`),
+      getBehavior: (id) => api.request(`/admin/students/${id}/behavior`),
+      getGovExams: (id) => api.request(`/admin/students/${id}/gov-exams`),
+    },
+    classes: {
+      getAll: () => api.request("/admin/classes"),
+    },
+    behavior: {
+      getStats: () => api.request("/admin/behavior/stats"),
+      getRecords: (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.class_id) params.set("class_id", filters.class_id);
+        if (filters.type) params.set("type", filters.type);
+        if (filters.start_date) params.set("start_date", filters.start_date);
+        if (filters.end_date) params.set("end_date", filters.end_date);
+        const qs = params.toString();
+        return api.request(qs ? `/admin/behavior/records?${qs}` : "/admin/behavior/records");
+      },
+      addRecord: (data) => api.request("/admin/behavior/records", "POST", data),
+      deleteRecord: (id) => api.request(`/admin/behavior/records?id=${id}`, "DELETE"),
+    },
+    attendance: {
+      getStats: (date) => api.request(`/admin/attendance/stats?date=${date}`),
+      getRecords: (date, filters = {}) => {
+        const params = new URLSearchParams({ date });
+        if (filters.classId) params.set("classId", filters.classId);
+        if (filters.status) params.set("status", filters.status);
+        if (filters.search) params.set("search", filters.search);
+        return api.request(`/admin/attendance/records?${params.toString()}`);
+      },
+      update: (data) => api.request("/admin/attendance", "PUT", data),
+      delete: (id) => api.request(`/admin/attendance?id=${id}`, "DELETE"),
+    },
+    announcements: {
+      getAll: () => api.request("/admin/announcements"),
+      getRecent: () => api.request("/admin/announcements/recent"),
+      create: (data) => api.request("/admin/announcements", "POST", data),
+      update: (id, data) => api.request(`/admin/announcements/${id}`, "PUT", data),
+      delete: (id) => api.request(`/admin/announcements/${id}`, "DELETE"),
+    },
+    events: {
+      getAll: () => api.request("/admin/events"),
+      create: (data) => api.request("/admin/events", "POST", data),
+      delete: (id) => api.request(`/admin/events/${id}`, "DELETE"),
+    },
+    academic: {
+      getPerformanceByGrade: () => api.request("/admin/academic/performance/grades"),
+      getSubjectPerformance: () => api.request("/admin/academic/performance/subjects"),
+      getTopPerformers: () => api.request("/admin/academic/top-performers"),
+      getAttentionNeeded: () => api.request("/admin/academic/attention-needed"),
+      getRecentExams: () => api.request("/admin/academic/recent-exams"),
+      getPerformanceDistribution: () => api.request("/admin/academic/performance-distribution"),
+      getReportsFilters: () => api.request("/admin/academic/reports/filters"),
+      getReportsData: (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.exam_id) params.set("exam_id", filters.exam_id);
+        if (filters.class_id) params.set("class_id", filters.class_id);
+        if (filters.subject_id) params.set("subject_id", filters.subject_id);
+        if (filters.search) params.set("search", filters.search);
+        return api.request(`/admin/academic/reports/data?${params.toString()}`);
+      },
+      getReportsSummary: (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.exam_id) params.set("exam_id", filters.exam_id);
+        if (filters.class_id) params.set("class_id", filters.class_id);
+        if (filters.subject_id) params.set("subject_id", filters.subject_id);
+        return api.request(`/admin/academic/reports/summary?${params.toString()}`);
+      },
+    },
+    teachers: {
+      getAll: () => api.request("/admin/teachers"),
+    },
+    clerks: {
+      getAll: () => api.request("/admin/clerks"),
+    },
+    passwordResets: {
+      getPending: () => api.request("/admin/password-resets/pending"),
+      approve: (id) => api.request(`/admin/password-resets/${id}/approve`, "POST"),
+      reject: (id) => api.request(`/admin/password-resets/${id}/reject`, "POST"),
+    },
+  },
+
   // Student endpoints
   student: {
     achievements: {

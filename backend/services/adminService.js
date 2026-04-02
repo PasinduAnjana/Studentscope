@@ -144,11 +144,17 @@ exports.getAllStudents = async () => {
     SELECT
       u.id,
       u.username,
+      s.full_name,
+      s.birthday,
+      s.gender,
       c.id as class_id,
       c.grade,
-      c.name as class_name
+      c.name as class_name,
+      p.name as parent_name
     FROM users u
+    LEFT JOIN students s ON u.id = s.user_id
     LEFT JOIN classes c ON u.class_id = c.id
+    LEFT JOIN parents p ON s.parent_id = p.id
     WHERE u.role_id = (SELECT id FROM roles WHERE name = 'student')
     ORDER BY u.username
   `);
@@ -156,19 +162,238 @@ exports.getAllStudents = async () => {
   return result.rows.map((row) => ({
     id: row.id,
     username: row.username,
-    full_name: row.username, // Using username as full name since no full_name column exists
+    full_name: row.full_name || row.username,
+    birthday: row.birthday,
+    gender: row.gender,
     class_id: row.class_id,
-    parent: {
-      name: null,
-      address: null,
-    },
+    grade: row.grade,
+    class_name: row.class_name,
+    parent: row.parent_name ? { name: row.parent_name } : null,
   }));
+};
+
+// Get a single student's full profile
+exports.getStudentProfile = async (studentId) => {
+  const result = await pool.query(
+    `
+    SELECT
+      u.id,
+      u.username,
+      s.full_name,
+      s.birthday,
+      s.address,
+      s.gender,
+      s.nationality,
+      c.id as class_id,
+      c.grade,
+      c.name as class_name,
+      p.name as parent_name,
+      p.address as parent_address
+    FROM users u
+    LEFT JOIN students s ON u.id = s.user_id
+    LEFT JOIN classes c ON u.class_id = c.id
+    LEFT JOIN parents p ON s.parent_id = p.id
+    WHERE u.id = $1 AND u.role_id = (SELECT id FROM roles WHERE name = 'student')
+  `,
+    [studentId]
+  );
+
+  if (result.rows.length === 0) return null;
+
+  const row = result.rows[0];
+  return {
+    id: row.id,
+    index: row.username,
+    full_name: row.full_name || row.username,
+    birthday: row.birthday,
+    address: row.address,
+    gender: row.gender,
+    nationality: row.nationality,
+    grade: row.grade,
+    class_name: row.class_name,
+    guardian: row.parent_name || null,
+    guardian_address: row.parent_address || null,
+  };
+};
+
+// Get student attendance records
+exports.getStudentAttendance = async (studentId, period = "last7") => {
+  let dateCondition = "";
+  let params = [studentId];
+
+  if (period === "last7") {
+    dateCondition = "AND a.date >= CURRENT_DATE - INTERVAL '7 days'";
+  } else if (period === "month") {
+    dateCondition =
+      "AND EXTRACT(MONTH FROM a.date) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM a.date) = EXTRACT(YEAR FROM CURRENT_DATE)";
+  } else if (period === "year") {
+    dateCondition = "AND EXTRACT(YEAR FROM a.date) = EXTRACT(YEAR FROM CURRENT_DATE)";
+  }
+
+  const result = await pool.query(
+    `
+    SELECT
+      a.date,
+      a.status,
+      c.grade,
+      c.name as class_name
+    FROM attendance a
+    JOIN classes c ON a.class_id = c.id
+    WHERE a.student_id = $1 ${dateCondition}
+    ORDER BY a.date ASC
+  `,
+    params
+  );
+
+  const records = result.rows.map((row) => ({
+    date: row.date,
+    present: row.status,
+  }));
+
+  const total = records.length;
+  const present = records.filter((r) => r.present).length;
+  const absent = total - present;
+  const percent = total > 0 ? Math.round((present / total) * 100) : 0;
+
+  return {
+    records,
+    total,
+    present,
+    absent,
+    percent,
+  };
+};
+
+// Get student marks
+exports.getStudentMarks = async (studentId, grade, term) => {
+  let query = `
+    SELECT
+      m.marks,
+      s.name as subject_name,
+      e.name as exam_name,
+      e.type,
+      e.sub_type,
+      e.year
+    FROM marks m
+    JOIN subjects s ON m.subject_id = s.id
+    JOIN exams e ON m.exam_id = e.id
+    WHERE m.student_id = $1
+  `;
+  const params = [studentId];
+  let paramIndex = 2;
+
+  if (grade) {
+    query += ` AND e.target_grade = $${paramIndex}`;
+    params.push(grade);
+    paramIndex++;
+  }
+
+  if (term) {
+    query += ` AND e.sub_type = $${paramIndex}`;
+    params.push(term);
+    paramIndex++;
+  }
+
+  query += ` ORDER BY e.year DESC, e.name, s.name`;
+
+  const result = await pool.query(query, params);
+
+  return result.rows.map((row) => ({
+    marks: row.marks,
+    subject: row.subject_name,
+    exam: row.exam_name,
+    type: row.type,
+    sub_type: row.sub_type,
+    year: row.year,
+  }));
+};
+
+// Get student behavior records
+exports.getStudentBehavior = async (studentId) => {
+  const result = await pool.query(
+    `
+    SELECT
+      br.id,
+      br.type,
+      br.severity,
+      br.description,
+      br.created_at::DATE as date,
+      COALESCE(td.full_name, cd.full_name, u.username) as reported_by_name
+    FROM behavior_records br
+    LEFT JOIN users reporter_u ON br.reported_by = reporter_u.id
+    LEFT JOIN teacher_details td ON reporter_u.id = td.teacher_id
+    LEFT JOIN clerk_details cd ON reporter_u.id = cd.clerk_id
+    LEFT JOIN users u ON reporter_u.id = u.id
+    WHERE br.student_id = $1
+    ORDER BY br.created_at DESC
+  `,
+    [studentId]
+  );
+
+  return result.rows.map((row) => ({
+    id: row.id,
+    date: row.date,
+    type: row.type,
+    severity: row.severity || "—",
+    description: row.description,
+    reportedBy: row.reported_by_name || "—",
+  }));
+};
+
+// Get student government exam results
+exports.getStudentGovExams = async (studentId) => {
+  const result = await pool.query(
+    `
+    SELECT
+      e.id,
+      e.name,
+      e.type,
+      e.sub_type,
+      e.year,
+      m.marks
+    FROM exams e
+    JOIN marks m ON e.id = m.exam_id
+    WHERE m.student_id = $1 AND e.type = 'gov'
+    ORDER BY e.year DESC
+  `,
+    [studentId]
+  );
+
+  const exams = {};
+  for (const row of result.rows) {
+    const key = row.sub_type?.toLowerCase() || row.name.toLowerCase();
+    if (key.includes("scholarship") || key.includes("grade5") || key.includes("grade 5")) {
+      if (!exams.scholarship) {
+        exams.scholarship = { year: row.year, score: row.marks, status: "—" };
+      }
+    } else if (key.includes("ol") || key.includes("o/l")) {
+      if (!exams.ol) {
+        exams.ol = { year: row.year, grades: {} };
+      }
+      const grade = row.marks;
+      if (grade && !isNaN(grade)) {
+        const gradeLetter = grade >= 75 ? "A" : grade >= 65 ? "B" : grade >= 50 ? "C" : grade >= 35 ? "S" : "F";
+        exams.ol.grades[gradeLetter] = (exams.ol.grades[gradeLetter] || 0) + 1;
+      }
+    } else if (key.includes("al") || key.includes("a/l")) {
+      if (!exams.al) {
+        exams.al = { year: row.year, zScore: null, districtRank: null, islandRank: null, grades: {}, result: "—" };
+      }
+      const grade = row.marks;
+      if (grade && !isNaN(grade)) {
+        const gradeLetter = grade >= 75 ? "A" : grade >= 65 ? "B" : grade >= 50 ? "C" : grade >= 35 ? "S" : "F";
+        exams.al.grades[gradeLetter] = (exams.al.grades[gradeLetter] || 0) + 1;
+      }
+    }
+  }
+
+  return exams;
 };
 
 // Get all classes for admin
 exports.getAllClasses = async () => {
   const result = await pool.query(`
-    SELECT id, name, grade
+    SELECT id, name as class_name, grade
     FROM classes
     ORDER BY grade, name
   `);

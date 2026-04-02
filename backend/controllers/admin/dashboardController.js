@@ -23,6 +23,123 @@ exports.getAllStudents = async (req, res) => {
   }
 };
 
+exports.getStudentProfile = async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const parts = url.pathname.split("/");
+    const studentId = parts[parts.length - 1];
+
+    if (!studentId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Student ID required" }));
+    }
+
+    const profile = await adminService.getStudentProfile(studentId);
+    if (!profile) {
+      res.writeHead(404, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Student not found" }));
+    }
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(profile));
+  } catch (err) {
+    console.error("Error fetching student profile:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch student profile" }));
+  }
+};
+
+exports.getStudentAttendance = async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const parts = url.pathname.split("/");
+    const studentId = parts[parts.length - 2];
+    const period = url.searchParams.get("period") || "last7";
+
+    if (!studentId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Student ID required" }));
+    }
+
+    const attendance = await adminService.getStudentAttendance(studentId, period);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(attendance));
+  } catch (err) {
+    console.error("Error fetching student attendance:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch attendance" }));
+  }
+};
+
+exports.getStudentMarks = async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const parts = url.pathname.split("/");
+    const studentId = parts[parts.length - 2];
+    const grade = url.searchParams.get("grade");
+    const term = url.searchParams.get("term") || null;
+
+    if (!studentId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Student ID required" }));
+    }
+
+    const marks = await adminService.getStudentMarks(
+      studentId,
+      grade ? parseInt(grade) : null,
+      term
+    );
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(marks));
+  } catch (err) {
+    console.error("Error fetching student marks:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch marks" }));
+  }
+};
+
+exports.getStudentBehavior = async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const parts = url.pathname.split("/");
+    const studentId = parts[parts.length - 2];
+
+    if (!studentId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Student ID required" }));
+    }
+
+    const behavior = await adminService.getStudentBehavior(studentId);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(behavior));
+  } catch (err) {
+    console.error("Error fetching student behavior:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch behavior records" }));
+  }
+};
+
+exports.getStudentGovExams = async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const parts = url.pathname.split("/");
+    const studentId = parts[parts.length - 2];
+
+    if (!studentId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Student ID required" }));
+    }
+
+    const govExams = await adminService.getStudentGovExams(studentId);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(govExams));
+  } catch (err) {
+    console.error("Error fetching student government exams:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch government exams" }));
+  }
+};
+
 exports.getAllClasses = async (req, res) => {
   try {
     const classes = await adminService.getAllClasses();

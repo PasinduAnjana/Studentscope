@@ -82,6 +82,52 @@ module.exports = (req, res) => {
     );
   }
 
+  // Student profile routes
+  if (
+    req.method === "GET" &&
+    req.url.match(/^\/api\/admin\/students\/\d+$/)
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getStudentProfile(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.match(/^\/api\/admin\/students\/\d+\/attendance/)
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getStudentAttendance(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.match(/^\/api\/admin\/students\/\d+\/marks/)
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getStudentMarks(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.match(/^\/api\/admin\/students\/\d+\/behavior/)
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getStudentBehavior(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.match(/^\/api\/admin\/students\/\d+\/gov-exams/)
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getStudentGovExams(req, res)
+    );
+  }
+
   if (req.method === "GET" && req.url === "/api/admin/classes") {
     return protect("admin")(req, res, () =>
       adminController.getAllClasses(req, res)
