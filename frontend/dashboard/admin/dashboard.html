@@ -124,10 +124,10 @@
       const data = await res.json();
       const container = document.getElementById("attendance-overview-content");
 
-      if (!data.presentToday && !data.absentToday) {
+      if (!data || (!data.presentToday && !data.absentToday)) {
         container.innerHTML = `
-          <div style="display: flex; align-items: center; justify-content: center; height: 150px; text-align: center;">
-            <p class="text-sm">Attendance is not marked yet</p>
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px; gap: 8px;">
+            <empty-state-message message="Attendance not marked" icon="fas fa-exclamation-circle"></empty-state-message>
           </div>
         `;
         return;
@@ -149,6 +149,7 @@
             ctx.font = `${fontSize}em sans-serif`;
             ctx.textBaseline = "middle";
             ctx.textAlign = "center";
+            ctx.fillStyle = primaryColor;
             ctx.fillText(
               `${data.presentToday}/${data.totalStudents}`,
               width / 2,
