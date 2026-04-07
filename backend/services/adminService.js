@@ -427,7 +427,7 @@ exports.getAcademicPerformanceByGrade = async () => {
   const result = await pool.query(`
     SELECT
       c.grade,
-      ROUND(AVG(m.marks), 1) as average_marks,
+      ROUND(AVG(m.marks::numeric), 1) as average_marks,
       COUNT(DISTINCT m.student_id) as student_count
     FROM marks m
     JOIN users u ON m.student_id = u.id
@@ -444,7 +444,7 @@ exports.getSubjectPerformance = async () => {
   const result = await pool.query(`
     SELECT
       s.name as subject_name,
-      ROUND(AVG(m.marks), 1) as average_marks,
+      ROUND(AVG(m.marks::numeric), 1) as average_marks,
       COUNT(m.id) as total_marks,
       COUNT(DISTINCT m.student_id) as student_count
     FROM marks m
@@ -463,7 +463,7 @@ exports.getTopPerformers = async (limit = 5) => {
     SELECT
       u.username,
       c.grade,
-      ROUND(AVG(m.marks), 1) as average_marks,
+      ROUND(AVG(m.marks::numeric), 1) as average_marks,
       COUNT(m.id) as subjects_count
     FROM users u
     JOIN classes c ON u.class_id = c.id
@@ -486,14 +486,14 @@ exports.getStudentsNeedingAttention = async (limit = 5) => {
     SELECT
       u.username,
       c.grade,
-      ROUND(AVG(m.marks), 1) as average_marks,
+      ROUND(AVG(m.marks::numeric), 1) as average_marks,
       COUNT(m.id) as subjects_count
     FROM users u
     JOIN classes c ON u.class_id = c.id
     JOIN marks m ON u.id = m.student_id
     WHERE u.role_id = (SELECT id FROM roles WHERE name = 'student')
     GROUP BY u.id, u.username, c.grade
-    HAVING AVG(m.marks) < 50
+    HAVING AVG(m.marks::numeric) < 50
     ORDER BY average_marks ASC
     LIMIT $1
   `,
@@ -512,7 +512,7 @@ exports.getRecentExams = async (limit = 5) => {
       s.name as subject_name,
       c.grade,
       e.year as exam_year,
-      ROUND(AVG(m.marks), 1) as average_marks,
+      ROUND(AVG(m.marks::numeric), 1) as average_marks,
       COUNT(m.id) as total_students
     FROM exams e
     JOIN marks m ON e.id = m.exam_id
@@ -538,9 +538,9 @@ exports.getPerformanceDistribution = async () => {
     FROM (
       SELECT
         CASE
-          WHEN ROUND(AVG(marks), 1) >= 90 THEN 'excellent'
-          WHEN ROUND(AVG(marks), 1) >= 75 THEN 'good'
-          WHEN ROUND(AVG(marks), 1) >= 60 THEN 'average'
+          WHEN ROUND(AVG(marks::numeric), 1) >= 90 THEN 'excellent'
+          WHEN ROUND(AVG(marks::numeric), 1) >= 75 THEN 'good'
+          WHEN ROUND(AVG(marks::numeric), 1) >= 60 THEN 'average'
           ELSE 'poor'
         END as performance_level
       FROM marks

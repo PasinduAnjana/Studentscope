@@ -100,319 +100,128 @@
 </div>
 
 <script>
-  // Load school overview statistics (using mock data for now)
   async function loadSchoolOverview() {
     try {
-      // Load dashboard stats from API
-      const res = await fetch("/api/admin/dashboard");
+      const res = await api.admin.dashboard.get();
       if (res.ok) {
         const data = await res.json();
-        document.getElementById("total-students").textContent =
-          data.students || "-";
-        document.getElementById("total-teachers").textContent =
-          data.teachers || "-";
-        document.getElementById("total-classes").textContent =
-          data.classes || "-";
-      } else {
-        // Fallback to mock data if API fails
-        document.getElementById("total-students").textContent = "245";
-        document.getElementById("total-teachers").textContent = "18";
-        document.getElementById("total-classes").textContent = "12";
+        document.getElementById("total-students").textContent = data.students ?? "-";
+        document.getElementById("total-teachers").textContent = data.teachers ?? "-";
+        document.getElementById("total-classes").textContent = data.classes ?? "-";
       }
-
-      // Uncomment below when real API endpoints are available:
-      /*
-      // Load total students
-      const studentsRes = await fetch("/api/admin/students/count");
-      if (studentsRes.ok) {
-        const studentsData = await studentsRes.json();
-        document.getElementById("total-students").textContent = studentsData.count || "-";
-      }
-
-      // Load total teachers
-      const teachersRes = await fetch("/api/admin/teachers/count");
-      if (teachersRes.ok) {
-        const teachersData = await teachersRes.json();
-        document.getElementById("total-teachers").textContent = teachersData.count || "-";
-      }
-
-      // Load total classes
-      const classesRes = await fetch("/api/admin/classes/count");
-      if (classesRes.ok) {
-        const classesData = await classesRes.json();
-        document.getElementById("total-classes").textContent = classesData.count || "-";
-      }
-      */
     } catch (err) {
       console.error("Error loading school overview:", err);
-      // Fallback to mock data
-      document.getElementById("total-students").textContent = "245";
-      document.getElementById("total-teachers").textContent = "18";
-      document.getElementById("total-classes").textContent = "12";
     }
   }
 
-  // Load today's attendance overview for the whole school (with graph)
   async function loadAttendanceOverview() {
     try {
-      // Get today's date
       const today = new Date().toISOString().split("T")[0];
+      const res = await api.admin.attendance.getStats(today);
 
-      // Load attendance stats from API
-      const res = await fetch(`/api/admin/attendance/stats?date=${today}`);
-      if (res.ok) {
-        const data = await res.json();
+      if (!res.ok) return;
 
-        const container = document.getElementById(
-          "attendance-overview-content"
-        );
+      const data = await res.json();
+      const container = document.getElementById("attendance-overview-content");
 
-        // Check if attendance data exists
-        if (!data.presentToday && !data.absentToday) {
-          container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; height: 150px; text-align: center;">
-              <p class="text-sm">Attendance is not marked yet</p>
-            </div>
-          `;
-          return;
-        }
-
-        const presentPercentage = data.averageAttendance;
-
-        // Create chart container
-        container.innerHTML = `<canvas id="adminAttendanceChart" height="150"></canvas>`;
-
-        // Render chart
-        setTimeout(() => {
-          const rootStyles = getComputedStyle(document.documentElement);
-          const primaryColor = rootStyles
-            .getPropertyValue("--color-primary")
-            .trim();
-
-          // Center text plugin for doughnut chart
-          const centerTextPlugin = {
-            id: "centerText",
-            beforeDraw(chart, args, options) {
-              if (chart.config.type !== "doughnut") return;
-              const { ctx, width, height } = chart;
-              ctx.save();
-              const fontSize = (height / 160).toFixed(2);
-              ctx.font = `${fontSize}em sans-serif`;
-              ctx.textBaseline = "middle";
-              ctx.textAlign = "center";
-              ctx.fillStyle = options.color || primaryColor;
-              const text = options.text || "";
-              ctx.fillText(
-                text,
-                width / 2,
-                chart.getDatasetMeta(0).data[0]?.y || height / 2
-              );
-              ctx.restore();
-            },
-          };
-
-          const chartData = {
-            labels: ["Present", "Absent"],
-            datasets: [
-              {
-                data: [data.presentToday, data.absentToday],
-                backgroundColor: [primaryColor, primaryColor + "40"],
-                borderRadius: 20,
-              },
-            ],
-          };
-
-          new Chart(document.getElementById("adminAttendanceChart"), {
-            type: "doughnut",
-            data: chartData,
-            options: {
-              responsive: true,
-              cutout: "75%",
-              borderColor: "transparent",
-              plugins: {
-                legend: { display: false },
-                title: {
-                  display: true,
-                  text: `${presentPercentage}% Present`,
-                  font: { size: 14, weight: "bold" },
-                  position: "bottom",
-                },
-                centerText: {
-                  text: `${data.presentToday}/${data.totalStudents}`,
-                  color: primaryColor,
-                },
-              },
-            },
-            plugins: [centerTextPlugin],
-          });
-        }, 100);
-      } else {
-        // Fallback to mock data if API fails
-        const mockData = {
-          presentCount: 198,
-          totalStudents: 245,
-        };
-
-        const container = document.getElementById(
-          "attendance-overview-content"
-        );
-        const presentPercentage = Math.round(
-          (mockData.presentCount / mockData.totalStudents) * 100
-        );
-
-        // Create chart container
-        container.innerHTML = `<canvas id="adminAttendanceChart" height="150"></canvas>`;
-
-        // Render chart
-        setTimeout(() => {
-          const rootStyles = getComputedStyle(document.documentElement);
-          const primaryColor = rootStyles
-            .getPropertyValue("--color-primary")
-            .trim();
-
-          // Center text plugin for doughnut chart
-          const centerTextPlugin = {
-            id: "centerText",
-            beforeDraw(chart, args, options) {
-              if (chart.config.type !== "doughnut") return;
-              const { ctx, width, height } = chart;
-              ctx.save();
-              const fontSize = (height / 160).toFixed(2);
-              ctx.font = `${fontSize}em sans-serif`;
-              ctx.textBaseline = "middle";
-              ctx.textAlign = "center";
-              ctx.fillStyle = options.color || primaryColor;
-              const text = options.text || "";
-              ctx.fillText(
-                text,
-                width / 2,
-                chart.getDatasetMeta(0).data[0]?.y || height / 2
-              );
-              ctx.restore();
-            },
-          };
-
-          const chartData = {
-            labels: ["Present", "Absent"],
-            datasets: [
-              {
-                data: [
-                  mockData.presentCount,
-                  mockData.totalStudents - mockData.presentCount,
-                ],
-                backgroundColor: [primaryColor, primaryColor + "40"],
-                borderRadius: 20,
-              },
-            ],
-          };
-
-          new Chart(document.getElementById("adminAttendanceChart"), {
-            type: "doughnut",
-            data: chartData,
-            options: {
-              responsive: true,
-              cutout: "75%",
-              borderColor: "transparent",
-              plugins: {
-                legend: { display: false },
-                title: {
-                  display: true,
-                  text: `${presentPercentage}% Present`,
-                  font: { size: 14, weight: "bold" },
-                  position: "bottom",
-                },
-                centerText: {
-                  text: `${mockData.presentCount}/${mockData.totalStudents}`,
-                  color: primaryColor,
-                },
-              },
-            },
-            plugins: [centerTextPlugin],
-          });
-        }, 100);
-      }
-
-      // Uncomment below when real API endpoint is available:
-      /*
-      const dateStr = (() => {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, "0");
-        const dd = String(today.getDate()).padStart(2, "0");
-        return `${yyyy}-${mm}-${dd}`;
-      })();
-
-      const res = await fetch(`/api/admin/attendance/overview?date=${dateStr}`);
-      if (res.ok) {
-        const data = await res.json();
-
-        if (data.totalStudents > 0) {
-          const presentPercentage = Math.round((data.presentCount / data.totalStudents) * 100);
-
-          // Create chart with real data...
-        } else {
-          container.innerHTML = `
-            <p class="text-sm">No attendance data available</p>
-          `;
-        }
-      } else {
+      if (!data.presentToday && !data.absentToday) {
         container.innerHTML = `
-          <p class="text-sm">Unable to load attendance data</p>
+          <div style="display: flex; align-items: center; justify-content: center; height: 150px; text-align: center;">
+            <p class="text-sm">Attendance is not marked yet</p>
+          </div>
         `;
+        return;
       }
-      */
-    } catch (err) {
-      console.error("Error loading attendance overview:", err);
-      document.getElementById("attendance-overview-content").innerHTML = `
-        <p class="text-sm">Error loading attendance data</p>
-      `;
-    }
-  } // Load academic performance by grade (bar chart)
-  async function loadAcademicPerformance() {
-    try {
-      // Use dummy data for now
-      const mockData = {
-        grades: [
-          "Grade 6",
-          "Grade 7",
-          "Grade 8",
-          "Grade 9",
-          "Grade 10",
-          "Grade 11",
-        ],
-        averageMarks: [78.5, 82.3, 75.8, 79.2, 84.1, 81.7],
-      };
 
-      const container = document.getElementById("academic-performance-content");
+      container.innerHTML = `<canvas id="adminAttendanceChart" height="150"></canvas>`;
 
-      // Create chart container
-      container.innerHTML = `<canvas id="academicPerformanceChart" height="200"></canvas>`;
-
-      // Render chart
       setTimeout(() => {
         const rootStyles = getComputedStyle(document.documentElement);
-        const primaryColor = rootStyles
-          .getPropertyValue("--color-primary")
-          .trim();
+        const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
 
-        const chartData = {
-          labels: mockData.grades,
-          datasets: [
-            {
+        const centerTextPlugin = {
+          id: "centerText",
+          beforeDraw(chart) {
+            if (chart.config.type !== "doughnut") return;
+            const { ctx, width, height } = chart;
+            ctx.save();
+            const fontSize = (height / 160).toFixed(2);
+            ctx.font = `${fontSize}em sans-serif`;
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center";
+            ctx.fillText(
+              `${data.presentToday}/${data.totalStudents}`,
+              width / 2,
+              chart.getDatasetMeta(0).data[0]?.y || height / 2
+            );
+            ctx.restore();
+          },
+        };
+
+        new Chart(document.getElementById("adminAttendanceChart"), {
+          type: "doughnut",
+          data: {
+            labels: ["Present", "Absent"],
+            datasets: [{
+              data: [data.presentToday, data.absentToday],
+              backgroundColor: [primaryColor, primaryColor + "40"],
+              borderRadius: 20,
+            }],
+          },
+          options: {
+            responsive: true,
+            cutout: "75%",
+            borderColor: "transparent",
+            plugins: {
+              legend: { display: false },
+              title: {
+                display: true,
+                text: `${data.averageAttendance}% Present`,
+                font: { size: 14, weight: "bold" },
+                position: "bottom",
+              },
+            },
+          },
+          plugins: [centerTextPlugin],
+        });
+      }, 100);
+    } catch (err) {
+      console.error("Error loading attendance overview:", err);
+    }
+  }
+
+  async function loadAcademicPerformance() {
+    try {
+      const res = await api.admin.academic.getPerformanceByGrade();
+      if (!res.ok) return;
+
+      const data = await res.json();
+      const container = document.getElementById("academic-performance-content");
+
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p class="text-sm">No academic data available</p>';
+        return;
+      }
+
+      container.innerHTML = `<canvas id="academicPerformanceChart" height="200"></canvas>`;
+
+      setTimeout(() => {
+        const rootStyles = getComputedStyle(document.documentElement);
+        const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
+
+        new Chart(document.getElementById("academicPerformanceChart"), {
+          type: "bar",
+          data: {
+            labels: data.map(d => `Grade ${d.grade}`),
+            datasets: [{
               label: "Average Marks (%)",
-              data: mockData.averageMarks,
+              data: data.map(d => parseFloat(d.average_marks)),
               backgroundColor: primaryColor,
               borderColor: primaryColor,
               borderWidth: 1,
               borderRadius: 4,
-              borderSkipped: false,
-            },
-          ],
-        };
-
-        new Chart(document.getElementById("academicPerformanceChart"), {
-          type: "bar",
-          data: chartData,
+            }],
+          },
           options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -420,23 +229,12 @@
               y: {
                 beginAtZero: true,
                 max: 100,
-                ticks: {
-                  callback: function (value) {
-                    return value + "%";
-                  },
-                },
+                ticks: { callback: (value) => value + "%" },
               },
-              x: {
-                ticks: {
-                  maxRotation: 45,
-                  minRotation: 45,
-                },
-              },
+              x: { ticks: { maxRotation: 45, minRotation: 45 } },
             },
             plugins: {
-              legend: {
-                display: false,
-              },
+              legend: { display: false },
               title: {
                 display: true,
                 text: "Grade-wise Academic Performance",
@@ -447,144 +245,55 @@
           },
         });
       }, 100);
-
-      // Uncomment below when real API endpoint is available:
-      /*
-      const res = await fetch("/api/admin/academic/performance/grades");
-      if (res.ok) {
-        const data = await res.json();
-
-        if (data.length > 0) {
-          // Create chart with real data...
-        } else {
-          container.innerHTML = `
-            <p class="text-sm">No academic data available</p>
-          `;
-        }
-      } else {
-        container.innerHTML = `
-          <p class="text-sm">Unable to load academic data</p>
-        `;
-      }
-      */
     } catch (err) {
       console.error("Error loading academic performance:", err);
-      document.getElementById("academic-performance-content").innerHTML = `
-        <p class="text-sm">Error loading academic data</p>
-      `;
+      document.getElementById("academic-performance-content").innerHTML = '<p class="text-sm">Error loading academic data</p>';
     }
   }
 
-  // Load recent announcements from teachers and clerks for admin dashboard
   async function loadAdminAnnouncements() {
     try {
-      // Load announcements from API with staff filter (teachers and clerks)
-      const res = await fetch("/api/admin/announcements?role=staff");
-      if (res.ok) {
-        const announcements = await res.json();
+      const res = await api.admin.announcements.getAll();
+      if (!res.ok) return;
 
-        const announcementsList = document.getElementById("announcements-list");
+      const announcements = await res.json();
+      const announcementsList = document.getElementById("announcements-list");
 
-        if (!announcements || announcements.length === 0) {
-          announcementsList.innerHTML =
-            '<li class="text-sm">No recent announcements from staff</li>';
-          return;
-        }
+      if (!announcements || announcements.length === 0) {
+        announcementsList.innerHTML = '<li class="text-sm">No recent announcements</li>';
+        return;
+      }
 
-        // Show only the first 3 announcements from teachers and clerks
-        const recentAnnouncements = announcements.slice(0, 3);
+      const recentAnnouncements = announcements.slice(0, 3);
+      announcementsList.innerHTML = recentAnnouncements
+        .map((announcement) => `
+          <li onclick="window.location.href='layout.html?role=admin&page=announcements'" style="cursor: pointer;">
+            <span class="subject-name">${announcement.title}</span>
+            <span class="text-sm text-muted">by ${announcement.created_by_name || announcement.created_by || 'Admin'}</span>
+          </li>
+        `)
+        .join("");
 
-        announcementsList.innerHTML = recentAnnouncements
-          .map(
-            (announcement) => `
-              <li onclick="window.location.href='layout.html?role=admin&page=announcements'" style="cursor: pointer;">
-                <span class="subject-name">${announcement.title}</span>
-                <span class="text-sm text-muted">by ${announcement.created_by_name} (${announcement.created_by_role})</span>
-              </li>
-            `
-          )
-          .join("");
-
-        // If there are more than 3 announcements, add a "View all" item
-        if (announcements.length > 3) {
-          announcementsList.innerHTML += `
-            <li onclick="window.location.href='layout.html?role=admin&page=announcements'" style="cursor: pointer; border-top: 1px solid var(--color-border); margin-top: 8px; padding-top: 8px;">
-              <span class="subject-name text-sm">View all announcements...</span>
-            </li>
-          `;
-        }
-      } else {
-        // Fallback to mock data if API fails
-        const mockAnnouncements = [
-          {
-            title: "Class Assembly Tomorrow",
-            created_by_name: "Ms. Silva",
-            created_by_role: "Teacher",
-          },
-          {
-            title: "Sports Practice Rescheduled",
-            created_by_name: "Mr. Jayasinghe",
-            created_by_role: "Teacher",
-          },
-          {
-            title: "Lab Equipment Maintenance",
-            created_by_name: "Office Clerk",
-            created_by_role: "Clerk",
-          },
-          {
-            title: "New Curriculum Implementation",
-            created_by_name: "Mr. Fernando",
-            created_by_role: "Teacher",
-          },
-          {
-            title: "Holiday Schedule Updated",
-            created_by_name: "Admin Desk",
-            created_by_role: "Clerk",
-          },
-        ];
-
-        const announcementsList = document.getElementById("announcements-list");
-
-        // Show only the first 3 announcements
-        const recentAnnouncements = mockAnnouncements.slice(0, 3);
-
-        announcementsList.innerHTML = recentAnnouncements
-          .map(
-            (announcement) => `
-              <li onclick="window.location.href='layout.html?role=admin&page=announcements'" style="cursor: pointer;">
-                <span class="subject-name">${announcement.title}</span>
-                <span class="text-sm text-muted">by ${announcement.created_by_name} (${announcement.created_by_role})</span>
-              </li>
-            `
-          )
-          .join("");
-
-        // If there are more than 3 announcements, add a "View all" item
-        if (mockAnnouncements.length > 3) {
-          announcementsList.innerHTML += `
-            <li onclick="window.location.href='layout.html?role=admin&page=announcements'" style="cursor: pointer; border-top: 1px solid var(--color-border); margin-top: 8px; padding-top: 8px;">
-              <span class="subject-name text-sm">View all announcements...</span>
-            </li>
-          `;
-        }
+      if (announcements.length > 3) {
+        announcementsList.innerHTML += `
+          <li onclick="window.location.href='layout.html?role=admin&page=announcements'" style="cursor: pointer; border-top: 1px solid var(--color-border); margin-top: 8px; padding-top: 8px;">
+            <span class="subject-name text-sm">View all announcements...</span>
+          </li>
+        `;
       }
     } catch (err) {
       console.error("Error loading announcements:", err);
-      const announcementsList = document.getElementById("announcements-list");
-      announcementsList.innerHTML =
-        '<li class="text-sm">Error loading announcements</li>';
+      document.getElementById("announcements-list").innerHTML = '<li class="text-sm">Error loading announcements</li>';
     }
   }
 
-  // Load pending password resets
   async function loadPendingResets() {
     try {
-      const response = await fetch("/api/admin/password-resets/pending");
-      if (!response.ok) return;
+      const res = await api.admin.passwordResets.getPending();
+      if (!res.ok) return;
 
-      const resets = await response.json();
+      const resets = await res.json();
       const resetsList = document.getElementById("dashboard-resets-list");
-
       if (!resetsList) return;
 
       resetsList.innerHTML = "";
@@ -602,16 +311,15 @@
 
       resets.forEach((reset) => {
         const li = document.createElement("li");
-        li.style.cssText =
-          "padding: 12px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;";
+        li.style.cssText = "padding: 12px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;";
         li.innerHTML = `
           <div>
             <p class="subject-name" style="margin: 0; font-weight: 500;">${reset.username}</p>
             <p class="text-sm" style="margin: 4px 0 0 0; color: #666;">${reset.role}</p>
           </div>
           <div style="display: flex; gap: 8px;">
-              <button onclick="approveReset(${reset.id})" class="btn btn-primary" >Approve</button>
-              <button onclick="rejectReset(${reset.id})" class="btn btn-secondary" >Reject</button>
+            <button onclick="approveReset(${reset.id})" class="btn btn-primary">Approve</button>
+            <button onclick="rejectReset(${reset.id})" class="btn btn-secondary">Reject</button>
           </div>
         `;
         resetsList.appendChild(li);
@@ -625,46 +333,32 @@
     }
   }
 
-  // Approve password reset
   async function approveReset(resetId) {
     try {
-      const response = await fetch(
-        `/api/admin/password-resets/${resetId}/approve`,
-        {
-          method: "POST",
-        }
-      );
-
-      if (response.ok) {
+      const res = await api.admin.passwordResets.approve(resetId);
+      if (res.ok) {
         showToast("Password reset approved", "fa-solid fa-check");
         loadPendingResets();
       } else {
         showToast("Failed to approve reset", "fa-solid fa-circle-exclamation");
       }
-    } catch (error) {
-      console.error("Error approving reset:", error);
+    } catch (err) {
+      console.error("Error approving reset:", err);
       showToast("Error approving reset", "fa-solid fa-circle-exclamation");
     }
   }
 
-  // Reject password reset
   async function rejectReset(resetId) {
     try {
-      const response = await fetch(
-        `/api/admin/password-resets/${resetId}/reject`,
-        {
-          method: "POST",
-        }
-      );
-
-      if (response.ok) {
+      const res = await api.admin.passwordResets.reject(resetId);
+      if (res.ok) {
         showToast("Password reset rejected", "fa-solid fa-check");
         loadPendingResets();
       } else {
         showToast("Failed to reject reset", "fa-solid fa-circle-exclamation");
       }
-    } catch (error) {
-      console.error("Error rejecting reset:", error);
+    } catch (err) {
+      console.error("Error rejecting reset:", err);
       showToast("Error rejecting reset", "fa-solid fa-circle-exclamation");
     }
   }
