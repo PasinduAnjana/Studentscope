@@ -187,15 +187,6 @@ END $$;
     `);
 
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS teacher_subjects (
-        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-        teacher_id BIGINT REFERENCES users(id),
-        subject_id BIGINT REFERENCES subjects(id),
-        class_id BIGINT REFERENCES classes(id)
-      );
-    `);
-
-    await pool.query(`
       CREATE TABLE IF NOT EXISTS announcements (
         id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         title TEXT NOT NULL,
