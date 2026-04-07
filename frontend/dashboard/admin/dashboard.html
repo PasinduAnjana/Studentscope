@@ -97,7 +97,25 @@
       <!-- Chart will be injected by JS -->
     </div>
   </div>
+
+  <!-- Alerts -->
+  <div class="card dashboard-tile flex-column h-2">
+    <div class="icon-title">
+      <i class="fas fa-triangle-exclamation icon"></i>
+      <p class="tile-label">Alerts</p>
+    </div>
+    <div>
+      <ul class="tile-list" id="dashboard-alerts-list">
+        <li class="text-sm">Loading...</li>
+      </ul>
+    </div>
+  </div>
 </div>
+
+<!-- Alert Details Modal -->
+<modal-dialog id="alert-details-modal" title="Alert Details">
+  <div id="alert-details-container"></div>
+</modal-dialog>
 
 <script>
   async function loadSchoolOverview() {
@@ -292,7 +310,7 @@
       const announcementsList = document.getElementById("announcements-list");
 
       if (!announcements || announcements.length === 0) {
-        announcementsList.innerHTML = '<li class="text-sm">No recent announcements</li>';
+        announcementsList.innerHTML = '<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="No announcements" icon="fas fa-bullhorn"></empty-state-message></li>';
         return;
       }
 
@@ -315,7 +333,6 @@
       }
     } catch (err) {
       console.error("Error loading announcements:", err);
-      document.getElementById("announcements-list").innerHTML = '<li class="text-sm">Error loading announcements</li>';
     }
   }
 
@@ -331,13 +348,7 @@
       resetsList.innerHTML = "";
 
       if (resets.length === 0) {
-        const noResetLi = document.createElement("li");
-        noResetLi.className = "text-sm";
-        noResetLi.setAttribute("data-en", "No pending requests");
-        noResetLi.setAttribute("data-si", "පිටුවිලි ඉල්ලීම් නැත");
-        noResetLi.setAttribute("data-ta", "நிலுவையில் உள்ள கோரிக்கைகள் இல்லை");
-        noResetLi.textContent = "No pending requests";
-        resetsList.appendChild(noResetLi);
+        resetsList.innerHTML = '<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="No pending requests" icon="fas fa-check-circle"></empty-state-message></li>';
         return;
       }
 
@@ -356,10 +367,6 @@
         `;
         resetsList.appendChild(li);
       });
-
-      if (typeof applyDirectLanguageAttributes === "function") {
-        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
-      }
     } catch (err) {
       console.error("Error loading pending resets:", err);
     }
@@ -403,6 +410,63 @@
     }
   }
 
+  async function loadAlerts() {
+    try {
+      const res = await api.admin.alerts.getAll();
+      if (!res.ok) return;
+
+      const alerts = await res.json();
+      const alertsList = document.getElementById("dashboard-alerts-list");
+
+      if (!alerts || alerts.length === 0) {
+        alertsList.innerHTML = '<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="No alerts" icon="fas fa-check-circle"></empty-state-message></li>';
+        return;
+      }
+
+      alertsList.innerHTML = alerts.map(alert => `
+        <li style="cursor: pointer; padding: 12px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;" onclick="showAlertDetails('${alert.key}')">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="${alert.icon}" style="color: ${alert.type === 'danger' ? '#ef4444' : alert.type === 'warning' ? '#f59e0b' : 'var(--color-primary)'};"></i>
+            <span>${alert.message.en} (${alert.count})</span>
+          </div>
+          <i class="fas fa-chevron-right text-muted"></i>
+        </li>
+      `).join("");
+    } catch (err) {
+      console.error("Error loading alerts:", err);
+    }
+  }
+
+  async function showAlertDetails(alertKey) {
+    try {
+      const res = await api.admin.alerts.getDetails(alertKey);
+      if (!res.ok) return;
+
+      const details = await res.json();
+      const container = document.getElementById("alert-details-container");
+
+      if (!details || details.length === 0) {
+        container.innerHTML = '<p class="text-sm">No records found</p>';
+      } else {
+        const keys = Object.keys(details[0]);
+        container.innerHTML = `
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr>${keys.map(k => `<th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--color-border);">${k.replace(/_/g, ' ')}</th>`).join('')}</tr>
+            </thead>
+            <tbody>
+              ${details.map(row => `<tr>${keys.map(k => `<td style="padding: 8px; border-bottom: 1px solid var(--color-border);">${row[k] ?? '-'}</td>`).join('')}</tr>`).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+
+      document.getElementById("alert-details-modal").open();
+    } catch (err) {
+      console.error("Error loading alert details:", err);
+    }
+  }
+
   // Initialize admin dashboard
   async function initAdminDashboard() {
     await loadSchoolOverview();
@@ -410,6 +474,7 @@
     loadAcademicPerformance();
     loadAdminAnnouncements();
     loadPendingResets();
+    loadAlerts();
   }
 
   initAdminDashboard();

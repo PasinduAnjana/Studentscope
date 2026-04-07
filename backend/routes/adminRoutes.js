@@ -1,6 +1,7 @@
 const adminController = require("../controllers/admin/dashboardController");
 const attendanceController = require("../controllers/admin/attendanceController");
 const behaviorController = require("../controllers/admin/behaviorController");
+const alertsController = require("../controllers/admin/alertsController");
 const announcementsController = require("../controllers/clerk/announcementsController");
 const eventsController = require("../controllers/clerk/eventsController");
 const profileController = require("../controllers/admin/profileController");
@@ -10,6 +11,19 @@ module.exports = (req, res) => {
   if (req.method === "GET" && req.url === "/api/admin/dashboard") {
     return protect("admin")(req, res, () =>
       adminController.getDashboard(req, res)
+    );
+  }
+
+  // Alerts routes
+  if (req.method === "GET" && req.url === "/api/admin/alerts") {
+    return protect("admin")(req, res, () =>
+      alertsController.getAlerts(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url.startsWith("/api/admin/alerts/details")) {
+    return protect("admin")(req, res, () =>
+      alertsController.getAlertDetails(req, res)
     );
   }
 

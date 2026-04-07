@@ -269,6 +269,10 @@ const api = {
       approve: (id) => api.request(`/admin/password-resets/${id}/approve`, "POST"),
       reject: (id) => api.request(`/admin/password-resets/${id}/reject`, "POST"),
     },
+    alerts: {
+      getAll: () => api.request("/admin/alerts"),
+      getDetails: (type) => api.request(`/admin/alerts/details?type=${type}`),
+    },
   },
 
   // Student endpoints
