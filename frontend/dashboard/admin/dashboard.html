@@ -91,7 +91,7 @@
   <div class="card dashboard-tile w-1 h-2" id="academic-performance">
     <div class="icon-title">
       <i class="fas fa-chart-pie icon"></i>
-      <p class="tile-label">Performance</p>
+      <p class="tile-label">Academic Performance</p>
     </div>
     <div id="academic-performance-content">
       <!-- Chart will be injected by JS -->
@@ -124,7 +124,7 @@
       const data = await res.json();
       const container = document.getElementById("attendance-overview-content");
 
-      if (!data || (!data.presentToday && !data.absentToday)) {
+      if (!data || data.notMarkedToday === data.totalStudents) {
         container.innerHTML = `
           <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px; gap: 8px;">
             <empty-state-message message="Attendance not marked" icon="fas fa-exclamation-circle"></empty-state-message>
@@ -150,8 +150,9 @@
             ctx.textBaseline = "middle";
             ctx.textAlign = "center";
             ctx.fillStyle = primaryColor;
+            const markedCount = data.presentToday + data.absentToday;
             ctx.fillText(
-              `${data.presentToday}/${data.totalStudents}`,
+              `${data.presentToday}/${markedCount}`,
               width / 2,
               chart.getDatasetMeta(0).data[0]?.y || height / 2
             );
@@ -162,11 +163,11 @@
         new Chart(document.getElementById("adminAttendanceChart"), {
           type: "doughnut",
           data: {
-            labels: ["Present", "Absent"],
+            labels: ["Present", "Absent", "Not Marked"],
             datasets: [{
-              data: [data.presentToday, data.absentToday],
-              backgroundColor: [primaryColor, primaryColor + "40"],
-              borderRadius: 20,
+              data: [data.presentToday, data.absentToday, data.notMarkedToday],
+              backgroundColor: [primaryColor, primaryColor + "40", primaryColor + "20"],
+              borderRadius: 10,
             }],
           },
           options: {
@@ -211,10 +212,10 @@
         const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
 
         const levelColors = {
-          excellent: "#22c55e",
-          good: primaryColor,
-          average: primaryColor + "99",
-          poor: "#ef4444"
+          excellent: primaryColor,
+          good: primaryColor + "AA",
+          average: primaryColor + "55",
+          poor: primaryColor + "22"
         };
 
         const levelOrder = ['excellent', 'good', 'average', 'poor'];

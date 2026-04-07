@@ -71,11 +71,13 @@ exports.getAttendanceStats = async (dateStr) => {
   const presentCount = parseInt(stats.present_count);
   const totalStudents = parseInt(stats.total_students);
   const absentCount = parseInt(stats.absent_count);
+  const notMarkedCount = totalStudents - presentCount - absentCount;
 
   return {
     totalStudents,
     presentToday: presentCount,
     absentToday: absentCount,
+    notMarkedToday: notMarkedCount,
     averageAttendance:
       totalStudents > 0 ? Math.round((presentCount / totalStudents) * 100) : 0,
   };
