@@ -14,7 +14,7 @@ const attendanceController = require("../controllers/clerk/attendanceController"
 const alertsController = require("../controllers/clerk/alertsController");
 const pinController = require("../controllers/clerk/pinController");
 
-module.exports = async (req, res) => {
+module.exports = (req, res) => {
   // PIN Routes
   if (req.method === "GET" && req.url === "/api/clerk/pin/status") {
     return protect("clerk")(req, res, () => pinController.checkPinStatus(req, res));
