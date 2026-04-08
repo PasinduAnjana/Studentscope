@@ -208,7 +208,7 @@ exports.deleteTeacher = async function(teacherId) {
 }
 
 // Get timetable for a class
-const getTimetableForClass = async (classId) => {
+exports.getTimetableForClass = async (classId) => {
   const result = await pool.query(
     `
     SELECT 
@@ -239,7 +239,7 @@ const getTimetableForClass = async (classId) => {
 };
 
 // Assign timetable slot
-const assignTimetableSlot = async (
+exports.assignTimetableSlot = async (
   class_id,
   day_of_week,
   period_number,
@@ -278,7 +278,7 @@ const assignTimetableSlot = async (
 
 // ---------------------------
 // Events
-const createEvent = async (data, userId) => {
+exports.createEvent = async (data, userId) => {
   const { title, description, event_date, target_audience } = data;
   const result = await pool.query(
     "INSERT INTO events (title, description, event_date, created_by, target_audience) VALUES ($1, $2, $3, $4, $5) RETURNING *",
@@ -287,7 +287,7 @@ const createEvent = async (data, userId) => {
   return result.rows[0];
 };
 
-const getEvents = async () => {
+exports.getEvents = async () => {
   const result = await pool.query(`
     SELECT e.*, u.username as creator_name, r.name as creator_role 
     FROM events e 
@@ -298,13 +298,13 @@ const getEvents = async () => {
   return result.rows;
 };
 
-const deleteEvent = async (id) => {
+exports.deleteEvent = async (id) => {
   await pool.query("DELETE FROM events WHERE id = $1", [id]);
 };
 
 // ---------------------------
 // Subjects
-const getSubjects = async () => {
+exports.getSubjects = async () => {
   const result = await pool.query(
     "SELECT id AS subject_id, name AS subject_name FROM subjects ORDER BY name"
   );
@@ -312,7 +312,7 @@ const getSubjects = async () => {
 };
 
 // Announcement functions
-const getAllAnnouncements = async (clerkId) => {
+exports.getAllAnnouncements = async (clerkId) => {
   const result = await pool.query(
     `
     SELECT
@@ -337,7 +337,7 @@ const getAllAnnouncements = async (clerkId) => {
   return result.rows;
 };
 
-const createAnnouncement = async ({
+exports.createAnnouncement = async ({
   title,
   description,
   audience_type,
@@ -380,7 +380,7 @@ const createAnnouncement = async ({
   return announcement;
 };
 
-const updateAnnouncement = async (
+exports.updateAnnouncement = async (
   announcementId,
   {
     title,
@@ -452,7 +452,7 @@ const updateAnnouncement = async (
   return result.rows[0];
 };
 
-const deleteAnnouncement = async (announcementId, clerkId) => {
+exports.deleteAnnouncement = async (announcementId, clerkId) => {
   // Verify the clerk has access
   const checkResult = await pool.query(
     "SELECT id FROM announcements WHERE id = $1 AND posted_by = $2",
@@ -480,7 +480,7 @@ const deleteAnnouncement = async (announcementId, clerkId) => {
   return result.rowCount > 0;
 };
 
-const getAnnouncementWithDetails = async (announcementId) => {
+exports.getAnnouncementWithDetails = async (announcementId) => {
   const result = await pool.query(
     `
     SELECT
@@ -509,7 +509,7 @@ const getAnnouncementWithDetails = async (announcementId) => {
 };
 
 // Get announcements created by staff (teachers and clerks) for admin visibility
-const getStaffAnnouncements = async () => {
+exports.getStaffAnnouncements = async () => {
   try {
     const result = await pool.query(
       `
@@ -541,7 +541,7 @@ const getStaffAnnouncements = async () => {
 };
 
 // Get announcements for a specific clerk (including "all" and "clerks" audience)
-const getAnnouncementsForClerk = async (clerkId) => {
+exports.getAnnouncementsForClerk = async (clerkId) => {
   try {
     const result = await pool.query(
       `
