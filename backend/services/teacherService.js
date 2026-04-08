@@ -378,8 +378,16 @@ exports.getTeacherClasses = async (teacherId) => {
   `,
     [teacherId]
   );
-
   return result.rows;
+};
+
+exports.getTeacherDetails = async (teacherId) => {
+  const result = await pool.query(
+    `SELECT full_name, nic, address, phone_number, past_schools, appointment_date, first_appointment_date, level, birthday
+     FROM teacher_details WHERE teacher_id = $1`,
+    [teacherId]
+  );
+  return result.rows[0] || null;
 };
 
 // Save attendance for a class on a given date

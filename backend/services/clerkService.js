@@ -54,6 +54,11 @@ exports.createTeacher = async function({
   appointment_date,
   first_appointment_date,
 }) {
+  // Handle empty date strings - convert to null
+  const safeBirthday = birthday === "" ? null : birthday;
+  const safeAppointmentDate = appointment_date === "" ? null : appointment_date;
+  const safeFirstAppointmentDate = first_appointment_date === "" ? null : first_appointment_date;
+
   // Get role_id for teacher
   const roleRes = await pool.query(
     "SELECT id FROM roles WHERE name = 'teacher'"
@@ -84,10 +89,10 @@ exports.createTeacher = async function({
       address,
       phone_number,
       past_schools,
-      appointment_date,
-      first_appointment_date,
+      safeAppointmentDate,
+      safeFirstAppointmentDate,
       level,
-      birthday,
+      safeBirthday,
     ]
   );
 
@@ -119,6 +124,11 @@ exports.updateTeacher = async function(
     first_appointment_date,
   }
 ) {
+  // Handle empty date strings - convert to null
+  const safeBirthday = birthday === "" ? null : birthday;
+  const safeAppointmentDate = appointment_date === "" ? null : appointment_date;
+  const safeFirstAppointmentDate = first_appointment_date === "" ? null : first_appointment_date;
+
   // Update teacher_details
   const result = await pool.query(
     `UPDATE teacher_details SET
@@ -136,13 +146,13 @@ exports.updateTeacher = async function(
     [
       full_name,
       nic,
-      birthday,
+      safeBirthday,
       level,
       address,
       phone_number,
       past_schools,
-      appointment_date,
-      first_appointment_date,
+      safeAppointmentDate,
+      safeFirstAppointmentDate,
       teacherId,
     ]
   );
@@ -450,6 +460,28 @@ exports.updateAnnouncement = async (
   }
 
   return result.rows[0];
+};
+
+exports.createClass = async (grade, className) => {
+  const result = await pool.query(
+    "INSERT INTO classes (grade, name) VALUES ($1, $2) RETURNING id",
+    [grade, className]
+  );
+  return result.rows[0].id;
+};
+
+exports.assignClassTeacher = async function(classId, teacherId) {
+  // Update the teacher's class_id and is_class_teacher flag
+  await pool.query(
+    "UPDATE users SET class_id = $1, is_class_teacher = TRUE WHERE id = $2",
+    [classId, teacherId]
+  );
+
+  // Add to class_teachers table
+  await pool.query(
+    "INSERT INTO class_teachers (class_id, teacher_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+    [classId, teacherId]
+  );
 };
 
 exports.deleteAnnouncement = async (announcementId, clerkId) => {
@@ -1112,4 +1144,356 @@ exports.getAllExamMarks = async function(examId) {
     studentElectives: studentElectiveMap,
     subjectNames
   };
+};
+
+exports.getClerkAlerts = async () => {
+  const alerts = [];
+
+  const noParent = await pool.query(`
+    SELECT COUNT(*) as count FROM students s WHERE s.parent_id IS NULL
+  `);
+  const noParentCount = parseInt(noParent.rows[0].count);
+  if (noParentCount > 0) {
+    alerts.push({
+      key: "no_parent", type: "warning", icon: "fas fa-user-slash",
+      message: { en: "Students without guardian info", si: "භාරකරු තොරතුරු නැති සිසුන්", ta: "பாதுகாவலர் தகவல் இல்லாத மாணவர்கள்" },
+      count: noParentCount,
+    });
+  }
+
+  const noClass = await pool.query(`
+    SELECT COUNT(*) as count FROM users u
+    WHERE u.role_id = (SELECT id FROM roles WHERE name = 'student') AND u.class_id IS NULL
+  `);
+  const noClassCount = parseInt(noClass.rows[0].count);
+  if (noClassCount > 0) {
+    alerts.push({
+      key: "no_class", type: "warning", icon: "fas fa-user-xmark",
+      message: { en: "Students not assigned to a class", si: "පන්තියකට පවරා නැති සිසුන්", ta: "வகுப்பு ஒதுக்கப்படாத மாணவர்கள்" },
+      count: noClassCount,
+    });
+  }
+
+  const noTeacher = await pool.query(`
+    SELECT COUNT(*) as count FROM classes c WHERE c.id NOT IN (SELECT class_id FROM class_teachers)
+  `);
+  const noTeacherCount = parseInt(noTeacher.rows[0].count);
+  if (noTeacherCount > 0) {
+    alerts.push({
+      key: "no_teacher", type: "info", icon: "fas fa-chalkboard",
+      message: { en: "Classes without a teacher", si: "ගුරුවරයෙකු නැති පන්ති", ta: "ஆசிரியர் இல்லாத வகுப்புகள்" },
+      count: noTeacherCount,
+    });
+  }
+
+  const noIndex = await pool.query(`
+    SELECT COUNT(*) as count FROM exam_students es JOIN exams e ON es.exam_id = e.id
+    WHERE es.index_number IS NULL OR es.index_number = ''
+  `);
+  const noIndexCount = parseInt(noIndex.rows[0].count);
+  if (noIndexCount > 0) {
+    alerts.push({
+      key: "no_index", type: "danger", icon: "fas fa-hashtag",
+      message: { en: "Exam entries missing index numbers", si: "සුචිගත අංක නැති විභාග ඇතුළත් කිරීම්", ta: "குறியீட்டு எண் இல்லாத தேர்வு பதிவுகள்" },
+      count: noIndexCount,
+    });
+  }
+
+  const noBirthday = await pool.query(`
+    SELECT COUNT(*) as count FROM students s WHERE s.birthday IS NULL
+  `);
+  const noBirthdayCount = parseInt(noBirthday.rows[0].count);
+  if (noBirthdayCount > 0) {
+    alerts.push({
+      key: "no_birthday", type: "info", icon: "fas fa-cake-candles",
+      message: { en: "Students missing birthday", si: "උපන්දිනය නැති සිසුන්", ta: "பிறந்த நாள் இல்லாத மாணவர்கள்" },
+      count: noBirthdayCount,
+    });
+  }
+
+  const noTimetable = await pool.query(`
+    SELECT COUNT(*) as count FROM classes c WHERE c.id NOT IN (
+      SELECT DISTINCT ts.class_id FROM timetables t JOIN teacher_subjects ts ON t.teacher_subject_id = ts.id
+    )
+  `);
+  const noTimetableCount = parseInt(noTimetable.rows[0].count);
+  if (noTimetableCount > 0) {
+    alerts.push({
+      key: "no_timetable", type: "warning", icon: "fas fa-calendar-times",
+      message: { en: "Classes without a timetable", si: "කාලසටහනක් නැති පන්ති", ta: "நேர அட்டவணை இல்லாத வகுப்புகள்" },
+      count: noTimetableCount,
+    });
+  }
+
+  const noSubjects = await pool.query(`
+    SELECT COUNT(*) as count FROM users u
+    WHERE u.role_id = (SELECT id FROM roles WHERE name = 'teacher')
+    AND u.id NOT IN (SELECT teacher_id FROM teacher_subjects)
+  `);
+  const noSubjectsCount = parseInt(noSubjects.rows[0].count);
+  if (noSubjectsCount > 0) {
+    alerts.push({
+      key: "no_subjects", type: "info", icon: "fas fa-book-open",
+      message: { en: "Teachers without assigned subjects", si: "විෂයයන් පවරා නැති ගුරුවරුන්", ta: "பாடம் ஒதுக்கப்படாத ஆசிரியர்கள்" },
+      count: noSubjectsCount,
+    });
+  }
+
+  const noAddress = await pool.query(`
+    SELECT COUNT(*) as count FROM students s WHERE s.address IS NULL OR s.address = ''
+  `);
+  const noAddressCount = parseInt(noAddress.rows[0].count);
+  if (noAddressCount > 0) {
+    alerts.push({
+      key: "no_address", type: "info", icon: "fas fa-map-location-dot",
+      message: { en: "Students missing address", si: "ලිපිනය නැති සිසුන්", ta: "முகவரி இல்லாத மாணவர்கள்" },
+      count: noAddressCount,
+    });
+  }
+
+  return alerts;
+};
+
+exports.getClerkAlertDetails = async (alertKey) => {
+  let result;
+  switch (alertKey) {
+    case "no_parent":
+      result = await pool.query(`
+        SELECT s.id, s.full_name, c.grade, c.name AS class_name
+        FROM students s JOIN users u ON s.user_id = u.id
+        LEFT JOIN classes c ON u.class_id = c.id
+        WHERE s.parent_id IS NULL ORDER BY c.grade, c.name, s.full_name LIMIT 50
+      `);
+      break;
+    case "no_class":
+      result = await pool.query(`
+        SELECT u.id, u.username, s.full_name
+        FROM users u LEFT JOIN students s ON u.id = s.user_id
+        WHERE u.role_id = (SELECT id FROM roles WHERE name = 'student') AND u.class_id IS NULL
+        ORDER BY s.full_name LIMIT 50
+      `);
+      break;
+    case "no_teacher":
+      result = await pool.query(`
+        SELECT c.id, c.grade, c.name FROM classes c
+        WHERE c.id NOT IN (SELECT class_id FROM class_teachers)
+        ORDER BY c.grade, c.name
+      `);
+      break;
+    case "no_index":
+      result = await pool.query(`
+        SELECT e.name AS exam_name, s.full_name, u.username
+        FROM exam_students es JOIN exams e ON es.exam_id = e.id
+        JOIN users u ON es.student_id = u.id
+        LEFT JOIN students s ON u.id = s.user_id
+        WHERE es.index_number IS NULL OR es.index_number = ''
+        ORDER BY e.name, s.full_name LIMIT 50
+      `);
+      break;
+    case "no_birthday":
+      result = await pool.query(`
+        SELECT s.id, s.full_name, c.grade, c.name AS class_name
+        FROM students s JOIN users u ON s.user_id = u.id
+        LEFT JOIN classes c ON u.class_id = c.id
+        WHERE s.birthday IS NULL ORDER BY c.grade, c.name, s.full_name LIMIT 50
+      `);
+      break;
+    case "no_timetable":
+      result = await pool.query(`
+        SELECT c.id, c.grade, c.name FROM classes c
+        WHERE c.id NOT IN (
+          SELECT DISTINCT ts.class_id FROM timetables t JOIN teacher_subjects ts ON t.teacher_subject_id = ts.id
+        ) ORDER BY c.grade, c.name
+      `);
+      break;
+    case "no_subjects":
+      result = await pool.query(`
+        SELECT u.id, td.full_name FROM users u
+        LEFT JOIN teacher_details td ON u.id = td.teacher_id
+        WHERE u.role_id = (SELECT id FROM roles WHERE name = 'teacher')
+        AND u.id NOT IN (SELECT teacher_id FROM teacher_subjects)
+        ORDER BY td.full_name
+      `);
+      break;
+    case "no_address":
+      result = await pool.query(`
+        SELECT s.id, s.full_name, c.grade, c.name AS class_name
+        FROM students s JOIN users u ON s.user_id = u.id
+        LEFT JOIN classes c ON u.class_id = c.id
+        WHERE s.address IS NULL OR s.address = ''
+        ORDER BY c.grade, c.name, s.full_name LIMIT 50
+      `);
+      break;
+    default:
+      return null;
+  }
+  return result ? result.rows : null;
+};
+
+function hashPin(pin, salt) {
+  return crypto.pbkdf2Sync(pin, salt, ITERATIONS, KEYLEN, DIGEST).toString("hex");
 }
+
+exports.checkPinStatus = async (userId) => {
+  const result = await pool.query("SELECT pin_hash FROM users WHERE id = $1", [userId]);
+  return result.rows[0].pin_hash !== null;
+};
+
+exports.setPin = async (userId, pin, currentPin = null) => {
+  const existing = await pool.query("SELECT pin_hash, pin_salt FROM users WHERE id = $1", [userId]);
+  const storedHash = existing.rows[0]?.pin_hash;
+  const storedSalt = existing.rows[0]?.pin_salt;
+
+  if (storedHash) {
+    if (!currentPin) {
+      return { success: false, error: "Current PIN is required to change your PIN." };
+    }
+    const currentHash = hashPin(currentPin, storedSalt);
+    if (currentHash !== storedHash) {
+      return { success: false, error: "Current PIN is incorrect." };
+    }
+  }
+
+  const newSalt = crypto.randomBytes(16).toString("hex");
+  const newHash = hashPin(pin, newSalt);
+
+  await pool.query("UPDATE users SET pin_hash = $1, pin_salt = $2 WHERE id = $3", [newHash, newSalt, userId]);
+  return { success: true, message: "PIN set successfully" };
+};
+
+exports.verifyPin = async (userId, pin) => {
+  const result = await pool.query("SELECT pin_hash, pin_salt FROM users WHERE id = $1", [userId]);
+  const storedHash = result.rows[0].pin_hash;
+  const storedSalt = result.rows[0].pin_salt;
+
+  if (!storedHash) {
+    return { success: false, error: "No PIN set. Please set a PIN in your profile." };
+  }
+
+  const hash = hashPin(pin, storedSalt);
+  return { success: hash === storedHash };
+};
+
+exports.getUnmarkedClasses = async () => {
+  const today = new Date().toISOString().split("T")[0];
+  const result = await pool.query(`
+    SELECT c.id, c.grade, c.name
+    FROM classes c
+    WHERE c.id NOT IN (
+      SELECT DISTINCT a.class_id FROM attendance a WHERE a.date = $1
+    )
+    ORDER BY c.grade, c.name
+  `, [today]);
+
+  return {
+    count: result.rows.length,
+    classes: result.rows.map(r => ({
+      id: r.id,
+      name: `${r.grade} - ${r.name}`
+    }))
+  };
+};
+
+exports.getAllStudents = async () => {
+  const result = await pool.query(`
+    SELECT 
+      u.id as user_id, u.username, u.class_id,
+      s.full_name, s.birthday, s.address, s.gender, s.nationality,
+      c.grade, c.name as class_name
+    FROM users u
+    JOIN students s ON u.id = s.user_id
+    LEFT JOIN classes c ON u.class_id = c.id
+    WHERE u.role_id = (SELECT id FROM roles WHERE name = 'student')
+    ORDER BY c.grade, c.name, s.full_name
+  `);
+  return result.rows;
+};
+
+exports.getAllClasses = async () => {
+  const result = await pool.query(`
+    SELECT c.id, c.grade, c.name as class_name, ct.teacher_id as class_teacher_id,
+      td.full_name as teacher_name
+    FROM classes c
+    LEFT JOIN class_teachers ct ON c.id = ct.class_id
+    LEFT JOIN teacher_details td ON ct.teacher_id = td.teacher_id
+    ORDER BY c.grade, c.name
+  `);
+  return result.rows;
+};
+
+exports.getTeachers = async () => {
+  const result = await pool.query(`
+    SELECT 
+      u.id as teacher_id, u.username, u.class_id,
+      td.full_name, td.nic, td.address, td.phone_number,
+      td.appointment_date, td.level, td.birthday
+    FROM users u
+    JOIN teacher_details td ON u.id = td.teacher_id
+    WHERE u.role_id = (SELECT id FROM roles WHERE name = 'teacher')
+    ORDER BY td.full_name
+  `);
+  return result.rows;
+};
+
+exports.getAllTeachers = exports.getTeachers;
+
+exports.getStudentById = async (id) => {
+  const result = await pool.query(`
+    SELECT 
+      u.id, u.username, u.class_id,
+      s.full_name, s.birthday, s.address, s.gender, s.nationality, s.parent_id,
+      c.grade, c.name as class_name
+    FROM users u
+    JOIN students s ON u.id = s.user_id
+    LEFT JOIN classes c ON u.class_id = c.id
+    WHERE u.id = $1
+  `, [id]);
+  return result.rows[0] || null;
+};
+
+exports.createStudent = async (data) => {
+  const { full_name, username, password, birthday, address, gender, nationality, class_id, parent_id } = data;
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hashedPassword = hashPassword(password || username, salt);
+  
+  const roleResult = await pool.query("SELECT id FROM roles WHERE name = 'student'");
+  const roleId = roleResult.rows[0].id;
+  
+  const userResult = await pool.query(
+    `INSERT INTO users (username, password, salt, role_id, class_id) 
+     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+    [username, hashedPassword, salt, roleId, class_id]
+  );
+  const userId = userResult.rows[0].id;
+  
+  await pool.query(
+    `INSERT INTO students (user_id, full_name, birthday, address, gender, nationality, parent_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [userId, full_name, birthday, address, gender, nationality, parent_id]
+  );
+  
+  return { id: userId, username };
+};
+
+exports.updateStudent = async (id, data) => {
+  const { full_name, birthday, address, gender, nationality, class_id, parent_id } = data;
+  
+  await pool.query(
+    `UPDATE users SET class_id = $1 WHERE id = $2`,
+    [class_id, id]
+  );
+  
+  const result = await pool.query(
+    `UPDATE students SET full_name = $1, birthday = $2, address = $3, gender = $4, nationality = $5, parent_id = $6
+     WHERE user_id = $7 RETURNING *`,
+    [full_name, birthday, address, gender, nationality, parent_id, id]
+  );
+  
+  return result.rows[0];
+};
+
+exports.deleteStudent = async (id) => {
+  await pool.query("DELETE FROM students WHERE user_id = $1", [id]);
+  await pool.query("DELETE FROM users WHERE id = $1", [id]);
+  return true;
+};

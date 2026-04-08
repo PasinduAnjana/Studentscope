@@ -103,6 +103,19 @@
   let searchableLevelFilter = null;
   let searchableTeacherLevel = null;
 
+  function updateSearchableDisplay(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const wrapper = select.previousElementSibling;
+    if (wrapper && wrapper.classList.contains("searchable-select")) {
+      const displaySpan = wrapper.querySelector(".dropdown-display span");
+      const opt =
+        select.options[select.selectedIndex] ||
+        Array.from(select.options).find((o) => o.value);
+      if (displaySpan) displaySpan.textContent = opt ? opt.text : "";
+    }
+  }
+
   function initTable() {
     const table = document.getElementById("teachers-table");
     table.setColumns([

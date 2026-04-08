@@ -1,24 +1,9 @@
-const crypto = require("crypto");
-const pool = require("../../db");
-
-const ITERATIONS = 100_000;
-const KEYLEN = 64;
-const DIGEST = "sha512";
-
-function hashPin(pin, salt) {
-    return crypto.pbkdf2Sync(pin, salt, ITERATIONS, KEYLEN, DIGEST).toString("hex");
-}
-
-function verifyPinHash(pin, storedHash, storedSalt) {
-    const hash = hashPin(pin, storedSalt);
-    return hash === storedHash;
-}
+const clerkService = require("../../services/clerkService");
 
 exports.checkPinStatus = async (req, res) => {
     try {
         const userId = req.user.userId;
-        const result = await pool.query("SELECT pin_hash FROM users WHERE id = $1", [userId]);
-        const hasPin = result.rows[0].pin_hash !== null;
+        const hasPin = await clerkService.checkPinStatus(userId);
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ hasPin }));
@@ -41,31 +26,16 @@ exports.setPin = async (req, res) => {
             }
 
             const userId = req.user.userId;
+            const result = await clerkService.setPin(userId, pin, currentPin);
 
-            // Check if a PIN already exists — if so, require current PIN verification
-            const existing = await pool.query("SELECT pin_hash, pin_salt FROM users WHERE id = $1", [userId]);
-            const storedHash = existing.rows[0]?.pin_hash;
-            const storedSalt = existing.rows[0]?.pin_salt;
-
-            if (storedHash) {
-                if (!currentPin) {
-                    res.writeHead(400, { "Content-Type": "application/json" });
-                    return res.end(JSON.stringify({ error: "Current PIN is required to change your PIN." }));
-                }
-                if (!verifyPinHash(currentPin, storedHash, storedSalt)) {
-                    res.writeHead(401, { "Content-Type": "application/json" });
-                    return res.end(JSON.stringify({ error: "Current PIN is incorrect." }));
-                }
+            if (!result.success) {
+                const status = result.error.includes("incorrect") ? 401 : 400;
+                res.writeHead(status, { "Content-Type": "application/json" });
+                return res.end(JSON.stringify({ error: result.error }));
             }
 
-            // Hash the new PIN with a fresh salt
-            const newSalt = crypto.randomBytes(16).toString("hex");
-            const newHash = hashPin(pin, newSalt);
-
-            await pool.query("UPDATE users SET pin_hash = $1, pin_salt = $2 WHERE id = $3", [newHash, newSalt, userId]);
-
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ message: "PIN set successfully" }));
+            res.end(JSON.stringify({ message: result.message }));
         });
     } catch (error) {
         console.error("Error setting PIN:", error);
@@ -82,22 +52,19 @@ exports.verifyPin = async (req, res) => {
             const { pin } = JSON.parse(body);
             const userId = req.user.userId;
 
-            const result = await pool.query("SELECT pin_hash, pin_salt FROM users WHERE id = $1", [userId]);
-            const storedHash = result.rows[0].pin_hash;
-            const storedSalt = result.rows[0].pin_salt;
+            const result = await clerkService.verifyPin(userId, pin);
 
-            if (!storedHash) {
-                res.writeHead(400, { "Content-Type": "application/json" });
-                return res.end(JSON.stringify({ error: "No PIN set. Please set a PIN in your profile." }));
-            }
-
-            if (verifyPinHash(pin, storedHash, storedSalt)) {
-                res.writeHead(200, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ success: true }));
-            } else {
+            if (!result.success) {
+                if (result.error) {
+                    res.writeHead(400, { "Content-Type": "application/json" });
+                    return res.end(JSON.stringify({ error: result.error }));
+                }
                 res.writeHead(401, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ success: false, error: "Incorrect PIN" }));
+                return res.end(JSON.stringify({ success: false, error: "Incorrect PIN" }));
             }
+
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: true }));
         });
     } catch (error) {
         console.error("Error verifying PIN:", error);

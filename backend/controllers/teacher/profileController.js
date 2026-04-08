@@ -1,6 +1,5 @@
 const authService = require("../../services/authService");
 const teacherService = require("../../services/teacherService");
-const pool = require("../../db");
 
 exports.getProfile = async (req, res) => {
   try {
@@ -23,14 +22,8 @@ exports.getProfile = async (req, res) => {
       return;
     }
 
-    // Fetch teacher details
-    const detailsRes = await pool.query(
-      `SELECT full_name, nic, address, phone_number, past_schools, appointment_date, first_appointment_date, level, birthday
-       FROM teacher_details WHERE teacher_id = $1`,
-      [session.userId]
-    );
+    const details = await teacherService.getTeacherDetails(session.userId);
 
-    // Return teacher profile information
     const profile = {
       id: session.userId,
       username: session.username,
@@ -39,7 +32,7 @@ exports.getProfile = async (req, res) => {
       class_name: session.class_name,
       class_grade: session.class_grade,
       is_class_teacher: session.is_class_teacher,
-      details: detailsRes.rows.length > 0 ? detailsRes.rows[0] : null,
+      details: details,
     };
 
     res.writeHead(200, { "Content-Type": "application/json" });
