@@ -12,7 +12,7 @@ function hashPassword(password, salt) {
 }
 
 // Get clerk details
-async function getClerkDetails(userId) {
+exports.getClerkDetails = async function(userId) {
   const result = await pool.query(
     `SELECT full_name, nic, address, phone_number, past_schools, appointment_date, first_appointment_date, birthday
      FROM clerk_details WHERE clerk_id = $1`,
@@ -21,471 +21,7 @@ async function getClerkDetails(userId) {
   return result.rows[0] || null;
 }
 
-// Create a student user
-async function createStudent({
-  full_name,
-  username,
-  password, // optional; if not provided we'll use username as default password
-  birthday,
-  address,
-  gender,
-  nationality,
-  class_id,
-  parent_name,
-  parent_address,
-}) {
-  // If no explicit password provided, use the username (index number) as the initial password
-  const initialPassword = password && password.length ? password : username;
-  const salt = crypto.randomBytes(16).toString("hex");
-  const hashedPassword = hashPassword(initialPassword, salt);
-
-  // Get role_id for student
-  const roleRes = await pool.query(
-    "SELECT id FROM roles WHERE name = 'student'"
-  );
-  if (!roleRes.rows.length) throw new Error("Role 'student' not found");
-  const roleId = roleRes.rows[0].id;
-
-  // Create or find parent (no ON CONFLICT because no unique constraint)
-  let parentId = null;
-  if (parent_name) {
-    const parentSelect = await pool.query(
-      `SELECT id FROM parents WHERE name = $1 AND address = $2`,
-      [parent_name, parent_address || ""]
-    );
-    if (parentSelect.rows.length) {
-      parentId = parentSelect.rows[0].id;
-    } else {
-      const parentInsert = await pool.query(
-        `INSERT INTO parents (name, address) VALUES ($1, $2) RETURNING id`,
-        [parent_name, parent_address || ""]
-      );
-      parentId = parentInsert.rows[0].id;
-    }
-  }
-
-  // Insert into users table
-  const userResult = await pool.query(
-    `INSERT INTO users (username, password, salt, role_id, class_id)
-     VALUES ($1, $2, $3, $4, $5)
-     RETURNING id, username, class_id`,
-    [username, hashedPassword, salt, roleId, class_id]
-  );
-  const user = userResult.rows[0];
-
-  // Insert into students table
-  await pool.query(
-    `INSERT INTO students (user_id, full_name, birthday, address, gender, nationality, parent_id)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-    [user.id, full_name, birthday, address, gender, nationality, parentId]
-  );
-
-  return {
-    id: user.id,
-    username: user.username,
-    full_name,
-    birthday,
-    address,
-    gender,
-    nationality,
-    class_id: user.class_id,
-    parent: parentId
-      ? { id: parentId, name: parent_name, address: parent_address }
-      : null,
-  };
-}
-
-// Get all students with details
-async function getAllStudents() {
-  const result = await pool.query(`
-    SELECT
-      s.id,
-      s.user_id,
-      s.full_name,
-      s.birthday,
-      s.address,
-      s.gender,
-      s.nationality,
-      u.username,
-      u.class_id,
-      p.name as parent_name,
-      p.address as parent_address
-    FROM students s
-    JOIN users u ON s.user_id = u.id
-    LEFT JOIN parents p ON s.parent_id = p.id
-    ORDER BY s.full_name
-  `);
-
-  return result.rows.map((row) => ({
-    id: row.id,
-    user_id: row.user_id,
-    full_name: row.full_name,
-    username: row.username,
-    birthday: row.birthday,
-    address: row.address,
-    gender: row.gender,
-    nationality: row.nationality,
-    class_id: row.class_id,
-    parent: row.parent_name
-      ? {
-        name: row.parent_name,
-        address: row.parent_address,
-      }
-      : null,
-  }));
-}
-
-// Get student by ID
-async function getStudentById(id) {
-  const result = await pool.query(
-    `
-    SELECT
-      s.id,
-      s.user_id,
-      s.full_name,
-      s.birthday,
-      s.address,
-      s.gender,
-      s.nationality,
-      u.username,
-      u.class_id,
-      p.name as parent_name,
-      p.address as parent_address
-    FROM students s
-    JOIN users u ON s.user_id = u.id
-    LEFT JOIN parents p ON s.parent_id = p.id
-    WHERE s.id = $1
-  `,
-    [id]
-  );
-
-  if (!result.rows.length) return null;
-
-  const row = result.rows[0];
-  return {
-    id: row.id,
-    user_id: row.user_id,
-    full_name: row.full_name,
-    username: row.username,
-    birthday: row.birthday,
-    address: row.address,
-    gender: row.gender,
-    nationality: row.nationality,
-    class_id: row.class_id,
-    parent: row.parent_name
-      ? {
-        name: row.parent_name,
-        address: row.parent_address,
-      }
-      : null,
-  };
-}
-
-// Update student
-async function updateStudent(
-  id,
-  {
-    full_name,
-    username,
-    password,
-    birthday,
-    address,
-    gender,
-    nationality,
-    class_id,
-    parent_name,
-    parent_address,
-  }
-) {
-  // Get current student data
-  const currentStudent = await getStudentById(id);
-  if (!currentStudent) throw new Error("Student not found");
-
-  // Update password if provided
-  if (password) {
-    const salt = crypto.randomBytes(16).toString("hex");
-    const hashedPassword = hashPassword(password, salt);
-    await pool.query(
-      `UPDATE users SET password = $1, salt = $2 WHERE id = $3`,
-      [hashedPassword, salt, currentStudent.user_id]
-    );
-  }
-
-  // Update username and class_id if provided
-  if (username || class_id) {
-    const updateFields = [];
-    const updateValues = [];
-    let paramCount = 1;
-
-    if (username) {
-      updateFields.push(`username = $${paramCount++}`);
-      updateValues.push(username);
-    }
-    if (class_id) {
-      updateFields.push(`class_id = $${paramCount++}`);
-      updateValues.push(class_id);
-    }
-    updateValues.push(currentStudent.user_id);
-
-    await pool.query(
-      `UPDATE users SET ${updateFields.join(", ")} WHERE id = $${paramCount}`,
-      updateValues
-    );
-  }
-
-  // Update or create parent (safe SELECT then INSERT)
-  let parentId = currentStudent.parent?.id || null;
-  if (parent_name) {
-    const parentSelect = await pool.query(
-      `SELECT id FROM parents WHERE name = $1 AND address = $2`,
-      [parent_name, parent_address || ""]
-    );
-    if (parentSelect.rows.length) {
-      parentId = parentSelect.rows[0].id;
-    } else {
-      const parentInsert = await pool.query(
-        `INSERT INTO parents (name, address) VALUES ($1, $2) RETURNING id`,
-        [parent_name, parent_address || ""]
-      );
-      parentId = parentInsert.rows[0].id;
-    }
-  }
-
-  // Update student details
-  const studentUpdateFields = [];
-  const studentUpdateValues = [];
-  let studentParamCount = 1;
-
-  if (full_name !== undefined) {
-    studentUpdateFields.push(`full_name = $${studentParamCount++}`);
-    studentUpdateValues.push(full_name);
-  }
-  if (birthday !== undefined) {
-    studentUpdateFields.push(`birthday = $${studentParamCount++}`);
-    studentUpdateValues.push(birthday);
-  }
-  if (address !== undefined) {
-    studentUpdateFields.push(`address = $${studentParamCount++}`);
-    studentUpdateValues.push(address);
-  }
-  if (gender !== undefined) {
-    studentUpdateFields.push(`gender = $${studentParamCount++}`);
-    studentUpdateValues.push(gender);
-  }
-  if (nationality !== undefined) {
-    studentUpdateFields.push(`nationality = $${studentParamCount++}`);
-    studentUpdateValues.push(nationality);
-  }
-  if (parentId !== undefined) {
-    studentUpdateFields.push(`parent_id = $${studentParamCount++}`);
-    studentUpdateValues.push(parentId);
-  }
-
-  if (studentUpdateFields.length > 0) {
-    studentUpdateValues.push(id);
-    await pool.query(
-      `UPDATE students SET ${studentUpdateFields.join(
-        ", "
-      )} WHERE id = $${studentParamCount}`,
-      studentUpdateValues
-    );
-  }
-
-  return await getStudentById(id);
-}
-
-// Delete student
-async function deleteStudent(id) {
-  const student = await getStudentById(id);
-  if (!student) throw new Error("Student not found");
-
-  // Start a transaction to ensure all deletions happen atomically
-  const client = await pool.connect();
-  try {
-    await client.query("BEGIN");
-
-    // Delete attendance records first (references users.id, not students.id)
-    await client.query(`DELETE FROM attendance WHERE student_id = $1`, [
-      student.user_id,
-    ]);
-
-    // Delete student subjects records (references users.id, not students.id)
-    await client.query(`DELETE FROM student_subjects WHERE student_id = $1`, [
-      student.user_id,
-    ]);
-
-    // Delete from students table
-    await client.query(`DELETE FROM students WHERE id = $1`, [id]);
-
-    // Delete from users table (this removes the username/class_id link)
-    await client.query(`DELETE FROM users WHERE id = $1`, [student.user_id]);
-
-    // Check if parent should be deleted (if no other students reference it)
-    if (student.parent) {
-      const parentCheck = await client.query(
-        `SELECT COUNT(*) as count FROM students WHERE parent_id = $1`,
-        [student.parent.id]
-      );
-      if (parentCheck.rows[0].count === 0) {
-        // No other students reference this parent, safe to delete
-        await client.query(`DELETE FROM parents WHERE id = $1`, [
-          student.parent.id,
-        ]);
-      }
-    }
-
-    await client.query("COMMIT");
-  } catch (err) {
-    await client.query("ROLLBACK");
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
-// Get all classes
-async function getAllClasses() {
-  const result = await pool.query(`
-    SELECT 
-      c.id, 
-      c.name, 
-      c.grade,
-      ct.teacher_id,
-      td.full_name AS teacher_name
-    FROM classes c
-    LEFT JOIN class_teachers ct ON c.id = ct.class_id
-    LEFT JOIN teacher_details td ON ct.teacher_id = td.teacher_id
-    ORDER BY c.grade, c.name
-  `);
-  return result.rows.map((row) => ({
-    id: row.id,
-    class_name: row.name,
-    grade: row.grade,
-    teacher_id: row.teacher_id,
-    teacher_name: row.teacher_name || null,
-  }));
-}
-
-async function getTeachers() {
-  const result = await pool.query(`
-    SELECT 
-      u.id AS teacher_id,
-      td.full_name AS name
-    FROM users u
-    JOIN roles r ON u.role_id = r.id
-    LEFT JOIN teacher_details td ON u.id = td.teacher_id
-    WHERE r.name = 'teacher'
-    ORDER BY td.full_name
-  `);
-  return result.rows;
-}
-
-async function assignClassTeacher(classId, teacherId) {
-  // Find current teacher for this class
-  const current = await pool.query(
-    "SELECT teacher_id FROM class_teachers WHERE class_id = $1",
-    [classId]
-  );
-  if (current.rows.length > 0) {
-    const oldTeacherId = current.rows[0].teacher_id;
-    // Set old teacher's class_id to null and is_class_teacher to false
-    await pool.query(
-      "UPDATE users SET class_id = NULL, is_class_teacher = FALSE WHERE id = $1",
-      [oldTeacherId]
-    );
-  }
-
-  // Remove existing assignment
-  await pool.query("DELETE FROM class_teachers WHERE class_id = $1", [classId]);
-
-  // If teacherId is provided, assign the new teacher
-  if (teacherId) {
-    await pool.query(
-      "INSERT INTO class_teachers (class_id, teacher_id) VALUES ($1, $2)",
-      [classId, teacherId]
-    );
-    // Set new teacher's class_id and is_class_teacher to true
-    await pool.query(
-      "UPDATE users SET class_id = $1, is_class_teacher = TRUE WHERE id = $2",
-      [classId, teacherId]
-    );
-  }
-}
-
-async function createClass(grade, className) {
-  const result = await pool.query(
-    "INSERT INTO classes (grade, name) VALUES ($1, $2) RETURNING id",
-    [grade, className]
-  );
-  return result.rows[0].id;
-}
-
-async function assignTeacherToClass(grade, className, teacherId) {
-  // Find the class by grade and name
-  let classResult = await pool.query(
-    "SELECT id FROM classes WHERE grade = $1 AND name = $2",
-    [grade, className]
-  );
-
-  let classId;
-  if (classResult.rows.length === 0) {
-    // Class doesn't exist, create it
-    classId = await createClass(grade, className);
-  } else {
-    classId = classResult.rows[0].id;
-  }
-
-  await assignClassTeacher(classId, teacherId);
-  return classId;
-}
-
-async function deleteClass(classId) {
-  // Check if class exists
-  const classResult = await pool.query("SELECT id FROM classes WHERE id = $1", [
-    classId,
-  ]);
-  if (classResult.rows.length === 0) {
-    throw new Error("Class not found");
-  }
-
-  // Check if there are students in the class
-  const studentCount = await pool.query(
-    "SELECT COUNT(*) FROM users WHERE class_id = $1",
-    [classId]
-  );
-  if (parseInt(studentCount.rows[0].count) > 0) {
-    throw new Error("Cannot delete class with students assigned");
-  }
-
-  // Delete class teacher assignments first
-  await pool.query("DELETE FROM class_teachers WHERE class_id = $1", [classId]);
-
-  // Delete the class
-  await pool.query("DELETE FROM classes WHERE id = $1", [classId]);
-
-  return true;
-}
-
-async function getAllTeachers() {
-  const result = await pool.query(`
-    SELECT 
-      td.teacher_id,
-      td.full_name,
-      td.nic,
-      td.address,
-      td.phone_number,
-      td.past_schools,
-      td.appointment_date,
-      td.first_appointment_date,
-      td.level,
-      td.birthday
-    FROM teacher_details td
-    ORDER BY td.full_name
-  `);
-  return result.rows;
-}
-
-async function getTeacherById(teacherId) {
+exports.getTeacherById = async function(teacherId) {
   const result = await pool.query(
     `
     SELECT 
@@ -507,7 +43,7 @@ async function getTeacherById(teacherId) {
   return result.rows[0] || null;
 }
 
-async function createTeacher({
+exports.createTeacher = async function({
   full_name,
   nic,
   birthday,
@@ -569,7 +105,7 @@ async function createTeacher({
   };
 }
 
-async function updateTeacher(
+exports.updateTeacher = async function(
   teacherId,
   {
     full_name,
@@ -624,7 +160,7 @@ async function updateTeacher(
   return result.rows[0];
 }
 
-async function deleteTeacher(teacherId) {
+exports.deleteTeacher = async function(teacherId) {
   // Delete from timetables (via teacher_subjects)
   await pool.query(
     "DELETE FROM timetables WHERE teacher_subject_id IN (SELECT id FROM teacher_subjects WHERE teacher_id = $1)",
@@ -1036,7 +572,7 @@ const getAnnouncementsForClerk = async (clerkId) => {
   }
 };
 
-async function assignTeacherToClass(grade, className, teacherId) {
+exports.assignTeacherToClass = async function(grade, className, teacherId) {
   // Find the class by grade and name
   let classResult = await pool.query(
     "SELECT id FROM classes WHERE grade = $1 AND name = $2",
@@ -1046,16 +582,16 @@ async function assignTeacherToClass(grade, className, teacherId) {
   let classId;
   if (classResult.rows.length === 0) {
     // Class doesn't exist, create it
-    classId = await createClass(grade, className);
+    classId = await exports.createClass(grade, className);
   } else {
     classId = classResult.rows[0].id;
   }
 
-  await assignClassTeacher(classId, teacherId);
+  await exports.assignClassTeacher(classId, teacherId);
   return classId;
 }
 
-async function deleteClass(classId) {
+exports.deleteClass = async function(classId) {
   // Check if class exists
   const classResult = await pool.query("SELECT id FROM classes WHERE id = $1", [
     classId,
@@ -1091,62 +627,12 @@ async function deleteClass(classId) {
   return true;
 }
 
-module.exports = {
-  getClerkDetails,
-  createStudent,
-  getAllStudents,
-  getStudentById,
-  updateStudent,
-  deleteStudent,
-  getAllClasses,
-  getTeachers,
-  assignClassTeacher,
-  assignTeacherToClass,
-  deleteClass,
-  createClass,
-  getAllTeachers,
-  getTeacherById,
-  createTeacher,
-  updateTeacher,
-  deleteTeacher,
-  getTimetableForClass,
-  assignTimetableSlot,
-  getSubjects,
-  // Events
-  createEvent,
-  getEvents,
-  deleteEvent,
-  // Announcement functions
-  getAllAnnouncements,
-  createAnnouncement,
-  updateAnnouncement,
-  deleteAnnouncement,
-  getAnnouncementWithDetails,
-  getStaffAnnouncements,
-  getAnnouncementsForClerk,
-  // Password reset functions
-  getPendingPasswordResets,
-  approvePasswordReset,
-  rejectPasswordReset,
-  // Exam functions
-  getExams,
-  createExam,
-  assignStudentsToExam,
-  getExamStudents,
-  saveExamMarks,
-  getExamMarks,
-  getExamSubjects,
-  getAllExamMarks,
-  updateExamStudentIndex,
-  bulkUpdateExamIndexNumbers,
-};
-
 // ... existing code ...
 
 
 
 // Password reset functions
-async function getPendingPasswordResets() {
+exports.getPendingPasswordResets = async function() {
   try {
     const result = await pool.query(
       `SELECT prr.id, prr.user_id, prr.role, u.username, prr.created_at
@@ -1162,7 +648,7 @@ async function getPendingPasswordResets() {
   }
 }
 
-async function approvePasswordReset(resetId, approverId) {
+exports.approvePasswordReset = async function(resetId, approverId) {
   try {
     const resetResult = await pool.query(
       "SELECT * FROM password_reset_requests WHERE id = $1 AND status = 'pending'",
@@ -1196,7 +682,7 @@ async function approvePasswordReset(resetId, approverId) {
   }
 }
 
-async function rejectPasswordReset(resetId, rejectedBy) {
+exports.rejectPasswordReset = async function(rejectedBy) {
   try {
     const resetResult = await pool.query(
       "SELECT * FROM password_reset_requests WHERE id = $1 AND status = 'pending'",
@@ -1223,7 +709,7 @@ async function rejectPasswordReset(resetId, rejectedBy) {
 // Exam Management
 
 // Get exams for a specific year (default: all)
-async function getExams(year) {
+exports.getExams = async function(year) {
   let query = `SELECT id, name, type, sub_type, year, target_grade FROM exams WHERE type = 'gov'`;
   const params = [];
   if (year) {
@@ -1236,7 +722,7 @@ async function getExams(year) {
 }
 
 // Create a new exam
-async function createExam({ name, type = 'gov', sub_type, year, target_grade }) {
+exports.createExam = async function({ name, type = 'gov', sub_type, year, target_grade }) {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -1283,7 +769,7 @@ async function createExam({ name, type = 'gov', sub_type, year, target_grade }) 
 }
 
 // Assign students to exam
-async function assignStudentsToExam(examId, studentIds) {
+exports.assignStudentsToExam = async function(examId, studentIds) {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -1308,7 +794,7 @@ async function assignStudentsToExam(examId, studentIds) {
 }
 
 // Get students assigned to an exam
-async function getExamStudents(examId) {
+exports.getExamStudents = async function(examId) {
   // Check exam type first
   const examRes = await pool.query("SELECT type, target_grade FROM exams WHERE id = $1", [examId]);
   if (!examRes.rows.length) return [];
@@ -1357,7 +843,7 @@ async function getExamStudents(examId) {
 }
 
 // Save marks for an exam
-async function saveExamMarks(examId, marksData) {
+exports.saveExamMarks = async function(examId, marksData) {
   // marksData: [{ student_id, subject_id, mark }]
   const client = await pool.connect();
   try {
@@ -1413,7 +899,7 @@ async function saveExamMarks(examId, marksData) {
 }
 
 // Get marks for an exam and subject
-async function getExamMarks(examId, subjectId) {
+exports.getExamMarks = async function(examId, subjectId) {
   const result = await pool.query(`
     SELECT student_id, marks 
     FROM marks 
@@ -1423,7 +909,7 @@ async function getExamMarks(examId, subjectId) {
 }
 
 // Update exam index number for a student
-async function updateExamStudentIndex(examId, studentId, indexNumber) {
+exports.updateExamStudentIndex = async function(examId, studentId, indexNumber) {
   const result = await pool.query(
     `UPDATE exam_students 
      SET index_number = $1
@@ -1435,7 +921,7 @@ async function updateExamStudentIndex(examId, studentId, indexNumber) {
 }
 
 // Bulk update exam index numbers from CSV data
-async function bulkUpdateExamIndexNumbers(examId, entries) {
+exports.bulkUpdateExamIndexNumbers = async function(examId, entries) {
   // entries: [{ admission_no, index_number }]
   const client = await pool.connect();
   try {
@@ -1476,7 +962,7 @@ async function bulkUpdateExamIndexNumbers(examId, entries) {
 }
 
 // Get subjects/columns for an exam based on its type
-async function getExamSubjects(examId) {
+exports.getExamSubjects = async function(examId) {
   // Get exam info
   const examRes = await pool.query(
     `SELECT id, name, type, sub_type, target_grade FROM exams WHERE id = $1`,
@@ -1592,7 +1078,7 @@ async function getExamSubjects(examId) {
 }
 
 // Get all marks for all students in an exam
-async function getAllExamMarks(examId) {
+exports.getAllExamMarks = async function(examId) {
   const result = await pool.query(
     `SELECT m.student_id, m.subject_id, m.marks
      FROM marks m
