@@ -408,7 +408,6 @@ module.exports = (req, res) => {
   }
 
   // 404 - Route not found
-
   res.writeHead(404, { "Content-Type": "application/json" });
-  res.end(JSON.stringify({ error: "Route not found" }));
+  res.end(JSON.stringify({ error: "Not Found" }));
 };
