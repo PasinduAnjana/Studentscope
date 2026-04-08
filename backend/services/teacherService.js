@@ -874,16 +874,29 @@ exports.getTeacherBehaviorRecords = async (teacherId) => {
       br.description,
       br.created_at::DATE as date,
       CONCAT(c.grade, c.name) as class,
-      s.full_name as student,
+      st.full_name as student,
       reporter.full_name as reported_by
     FROM behavior_records br
     JOIN classes c ON br.class_id = c.id
-    JOIN teacher_subjects ts ON c.id = ts.class_id
-    JOIN users u ON br.student_id = u.id
-    JOIN students s ON u.id = s.user_id
+    JOIN students st ON br.student_id = st.user_id
     LEFT JOIN users reporter_u ON br.reported_by = reporter_u.id
     LEFT JOIN teacher_details reporter ON reporter_u.id = reporter.teacher_id
-    WHERE ts.teacher_id = $1 AND br.reported_by = $1
+    WHERE br.reported_by = $1
+      AND (
+        -- Teacher is a subject teacher in the class
+        EXISTS (
+          SELECT 1 FROM teacher_subjects ts
+          WHERE ts.class_id = br.class_id AND ts.teacher_id = $1
+        )
+        OR
+        -- Teacher is the class teacher of the class
+        EXISTS (
+          SELECT 1 FROM users u
+          WHERE u.class_id = br.class_id 
+          AND u.id = $1 
+          AND u.is_class_teacher = TRUE
+        )
+      )
     ORDER BY br.id, br.created_at DESC
     `,
     [teacherId]

@@ -6,6 +6,9 @@ const announcementsController = require("../controllers/teacher/announcementsCon
 const eventsController = require("../controllers/teacher/eventsController");
 const profileController = require("../controllers/teacher/profileController");
 const todoController = require("../controllers/teacher/todoController");
+const examsController = require("../controllers/teacher/examsController");
+const marksController = require("../controllers/teacher/marksController");
+const behaviorController = require("../controllers/teacher/behaviorController");
 const { protect } = require("../middleware/authMiddleware");
 
 module.exports = (req, res) => {
@@ -98,21 +101,13 @@ module.exports = (req, res) => {
     req.url.endsWith("/subjects/teacher")
   ) {
     const urlParts = req.url.split("/");
-    const classId = urlParts[urlParts.length - 3]; // Get class ID before "/subjects/teacher"
-    return protect("teacher")(req, res, async () => {
-      try {
-        const teacherService = require("../services/teacherService");
-        const subjects = await teacherService.getTeacherClassSubjects(
-          req.user.userId,
-          classId
-        );
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(subjects));
-      } catch (err) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: err.message }));
-      }
-    });
+    const classId = urlParts[urlParts.length - 3];
+    return protect("teacher")(req, res, () =>
+      subjectAssignmentController.getTeacherClassSubjects(
+        { ...req, params: { classId } },
+        res
+      )
+    );
   }
 
 
@@ -249,81 +244,28 @@ module.exports = (req, res) => {
 
   // Get all exams
   if (req.method === "GET" && req.url === "/api/teacher/exams") {
-    return protect("teacher")(req, res, async () => {
-      try {
-        const teacherService = require("../services/teacherService");
-        const exams = await teacherService.getAllExams();
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(exams));
-      } catch (err) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: err.message }));
-      }
-    });
+    return protect("teacher")(req, res, () =>
+      examsController.getAllExams(req, res)
+    );
   }
 
   // Marks routes
-  if (req.method === "GET") {
-    if (req.url === "/api/teacher/marks/data") {
-        return protect("teacher")(req, res, async () => {
-        try {
-            const teacherService = require("../services/teacherService");
-            const data = await teacherService.getTeacherMarksData(req.user.userId);
-            res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify(data));
-        } catch (err) {
-            res.writeHead(500, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: err.message }));
-        }
-        });
-    }
+  if (req.method === "GET" && req.url === "/api/teacher/marks/data") {
+    return protect("teacher")(req, res, () =>
+      marksController.getMarksData(req, res)
+    );
+  }
 
-    if (req.url.startsWith("/api/teacher/marks?")) {
-        return protect("teacher")(req, res, async () => {
-        try {
-            const url = new URL(req.url, `http://${req.headers.host}`);
-            const classId = url.searchParams.get("classId");
-            const subjectId = url.searchParams.get("subjectId");
-            const examId = url.searchParams.get("examId");
-
-            if (classId && subjectId && examId) {
-            const teacherService = require("../services/teacherService");
-            const marks = await teacherService.getMarks(
-                classId,
-                subjectId,
-                examId
-            );
-            res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify(marks));
-            } else {
-            res.writeHead(400, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: "Missing required parameters" }));
-            }
-        } catch (err) {
-            res.writeHead(500, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: err.message }));
-        }
-        });
-    }
+  if (req.method === "GET" && req.url.startsWith("/api/teacher/marks?")) {
+    return protect("teacher")(req, res, () =>
+      marksController.getMarks(req, res)
+    );
   }
 
   if (req.method === "POST" && req.url === "/api/teacher/marks") {
-    return protect("teacher")(req, res, async () => {
-      try {
-        let body = "";
-        req.on("data", (chunk) => (body += chunk));
-        req.on("end", async () => {
-          const marksData = JSON.parse(body);
-          const teacherService = require("../services/teacherService");
-          const result = await teacherService.saveMarks(marksData);
-          res.writeHead(200, { "Content-Type": "application/json" });
-          res.end(JSON.stringify(result));
-        });
-      } catch (err) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: err.message }));
-      }
-    });
+    return protect("teacher")(req, res, () =>
+      marksController.saveMarks(req, res)
+    );
   }
 
   // Announcements routes
@@ -380,68 +322,16 @@ module.exports = (req, res) => {
 
   // Teacher behavior records routes
   if (req.method === "GET" && req.url === "/api/teacher/behavior/records") {
-    return protect("teacher")(req, res, async () => {
-      try {
-        const teacherService = require("../services/teacherService");
-        const records = await teacherService.getTeacherBehaviorRecords(
-          req.user.userId
-        );
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(records));
-      } catch (error) {
-        console.error("Error fetching teacher behavior records:", error);
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            error: "Failed to fetch behavior records",
-          })
-        );
-      }
-    });
+    return protect("teacher")(req, res, () =>
+      behaviorController.getRecords(req, res)
+    );
   }
 
   // POST new behavior record
   if (req.method === "POST" && req.url === "/api/teacher/behavior/records") {
-    return protect("teacher")(req, res, async () => {
-      try {
-        let body = "";
-        req.on("data", (chunk) => {
-          body += chunk;
-        });
-        req.on("end", async () => {
-          const data = JSON.parse(body);
-          const { student_id, class_id, type, severity, description } = data;
-
-          if (!student_id || !class_id || !type || !description) {
-            res.writeHead(400, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: "Missing required fields" }));
-            return;
-          }
-
-          const adminService = require("../services/adminService");
-          const record = await adminService.addBehaviorRecord(
-            student_id,
-            class_id,
-            type,
-            severity,
-            description,
-            req.user.userId
-          );
-          res.writeHead(201, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({ success: true, id: record.id, date: record.date })
-          );
-        });
-      } catch (error) {
-        console.error("Error adding behavior record:", error);
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            error: "Failed to add behavior record",
-          })
-        );
-      }
-    });
+    return protect("teacher")(req, res, () =>
+      behaviorController.createRecord(req, res)
+    );
   }
 
   // DELETE behavior record (with ownership check)
@@ -449,52 +339,9 @@ module.exports = (req, res) => {
     req.method === "DELETE" &&
     req.url.startsWith("/api/teacher/behavior/records")
   ) {
-    return protect("teacher")(req, res, async () => {
-      try {
-        const url = new URL(req.url, `http://${req.headers.host}`);
-        const recordId = url.searchParams.get("id");
-
-        if (!recordId) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Record ID required" }));
-          return;
-        }
-
-        const teacherService = require("../services/teacherService");
-        const adminService = require("../services/adminService");
-
-        // Verify ownership: check if the record was created by this teacher
-        const records = await teacherService.getTeacherBehaviorRecords(
-          req.user.userId
-        );
-        const recordExists = records.some((r) => r.id == recordId);
-
-        if (!recordExists) {
-          res.writeHead(403, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({ error: "You can only delete your own records" })
-          );
-          return;
-        }
-
-        const success = await adminService.deleteBehaviorRecord(recordId);
-        if (success) {
-          res.writeHead(200, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ success: true }));
-        } else {
-          res.writeHead(404, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Record not found" }));
-        }
-      } catch (error) {
-        console.error("Error deleting behavior record:", error);
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            error: "Failed to delete behavior record",
-          })
-        );
-      }
-    });
+    return protect("teacher")(req, res, () =>
+      behaviorController.deleteRecord(req, res)
+    );
   }
 
   // Todo routes
