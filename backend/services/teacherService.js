@@ -915,7 +915,6 @@ exports.getTeacherBehaviorRecords = async (teacherId) => {
 
 // Get all students from teacher's classes
 exports.getStudentsFromTeacherClasses = async (teacherId) => {
-  console.log("getStudentsFromTeacherClasses - teacherId:", teacherId);
   const result = await pool.query(
     `
     SELECT DISTINCT ON (u.id)
@@ -941,11 +940,6 @@ exports.getStudentsFromTeacherClasses = async (teacherId) => {
     ORDER BY u.id, c.grade, c.name, u.username
     `,
     [teacherId]
-  );
-
-  console.log(
-    "getStudentsFromTeacherClasses - result rows count:",
-    result.rows.length
   );
 
   return result.rows.map((row) => ({
