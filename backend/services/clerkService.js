@@ -670,7 +670,7 @@ exports.getPendingPasswordResets = async function() {
       `SELECT prr.id, prr.user_id, prr.role, u.username, prr.created_at
        FROM password_reset_requests prr
        JOIN users u ON prr.user_id = u.id
-       WHERE prr.status = 'pending' AND prr.role = 'admin'
+       WHERE prr.status = 'pending' AND prr.role = 'teacher'
        ORDER BY prr.created_at DESC`
     );
     return result.rows;
