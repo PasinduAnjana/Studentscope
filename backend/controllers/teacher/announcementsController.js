@@ -1,31 +1,15 @@
 const teacherService = require("../../services/teacherService");
-const authService = require("../../services/authService");
 
 exports.getAllAnnouncements = async (req, res) => {
   try {
-    // Get current user from session
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    // Get announcements created by the teacher
-    const announcements = await teacherService.getAnnouncementsByTeacher(
-      session.userId
-    );
+    const announcements = await teacherService.getAnnouncementsByTeacher(userId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(announcements));
   } catch (err) {
@@ -37,22 +21,10 @@ exports.getAllAnnouncements = async (req, res) => {
 
 exports.createAnnouncement = async (req, res) => {
   try {
-    // Get current user from session
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
@@ -74,9 +46,9 @@ exports.createAnnouncement = async (req, res) => {
         const announcement = await teacherService.createAnnouncement({
           title,
           description,
-          audience_type: "students", // Teachers always send to students
-          class_ids: [], // Will be set by service based on teacher's class
-          teacher_id: session.userId,
+          audience_type: "students",
+          class_ids: [],
+          teacher_id: userId,
         });
 
         res.writeHead(201, { "Content-Type": "application/json" });
@@ -96,22 +68,10 @@ exports.createAnnouncement = async (req, res) => {
 
 exports.updateAnnouncement = async (req, res) => {
   try {
-    // Get current user from session
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
@@ -138,7 +98,7 @@ exports.updateAnnouncement = async (req, res) => {
             title,
             description,
           },
-          session.userId
+          userId
         );
 
         if (!announcement) {
@@ -164,22 +124,10 @@ exports.updateAnnouncement = async (req, res) => {
 
 exports.deleteAnnouncement = async (req, res) => {
   try {
-    // Get current user from session
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
@@ -188,7 +136,7 @@ exports.deleteAnnouncement = async (req, res) => {
 
     const success = await teacherService.deleteAnnouncement(
       announcementId,
-      session.userId
+      userId
     );
 
     if (!success) {
@@ -208,29 +156,14 @@ exports.deleteAnnouncement = async (req, res) => {
 
 exports.getAnnouncementsForTeacher = async (req, res) => {
   try {
-    // Get current user from session
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    // Get announcements sent to this teacher
-    const announcements = await teacherService.getAnnouncementsForTeacher(
-      session.userId
-    );
+    const announcements = await teacherService.getAnnouncementsForTeacher(userId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(announcements));
   } catch (err) {
