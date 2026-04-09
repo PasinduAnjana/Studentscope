@@ -1,5 +1,5 @@
 // Get weekly timetable for a teacher
-// teacherId should come from authenticated user (req.user.id)
+// teacherId should come from authenticated user (req.user.userId)
 exports.getTeacherWeeklyTimetable = async (teacherId) => {
   const result = await pool.query(
     `
