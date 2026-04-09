@@ -1,5 +1,4 @@
 const adminService = require("../../services/adminService");
-const url = require("url");
 
 exports.getAttendanceStats = async (req, res) => {
   try {

@@ -1,5 +1,4 @@
 const teacherService = require("../../services/teacherService");
-const url = require("url");
 
 exports.saveAttendance = async (req, res) => {
   try {
