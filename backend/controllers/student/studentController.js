@@ -1,26 +1,15 @@
 const studentService = require("../../services/studentService");
-const authService = require("../../services/authService");
 
 exports.getTodaysTimetable = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    const timetable = await studentService.getTodaysTimetable(session.userId);
+    const timetable = await studentService.getTodaysTimetable(userId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(timetable));
   } catch (err) {
@@ -32,24 +21,14 @@ exports.getTodaysTimetable = async (req, res) => {
 
 exports.getWeeklyTimetable = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    const timetable = await studentService.getWeeklyTimetable(session.userId);
+    const timetable = await studentService.getWeeklyTimetable(userId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(timetable));
   } catch (err) {
@@ -61,26 +40,14 @@ exports.getWeeklyTimetable = async (req, res) => {
 
 exports.getAttendancePercentage = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    const attendanceData = await studentService.getAttendancePercentage(
-      session.userId
-    );
+    const attendanceData = await studentService.getAttendancePercentage(userId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(attendanceData));
   } catch (err) {
@@ -92,24 +59,14 @@ exports.getAttendancePercentage = async (req, res) => {
 
 exports.getPresentDays = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    const presentDays = await studentService.getPresentDays(session.userId);
+    const presentDays = await studentService.getPresentDays(userId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ presentDays }));
   } catch (err) {
@@ -121,28 +78,17 @@ exports.getPresentDays = async (req, res) => {
 
 exports.getAverageMarks = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    // Parse optional examId from query string
     const url = new URL(req.url, `http://${req.headers.host}`);
     const examId = url.searchParams.get("examId");
 
-    const marksData = await studentService.getAverageMarks(session.userId, examId);
+    const marksData = await studentService.getAverageMarks(userId, examId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(marksData));
   } catch (err) {
@@ -154,24 +100,14 @@ exports.getAverageMarks = async (req, res) => {
 
 exports.getAchievements = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    const achievements = await studentService.getAchievements(session.userId);
+    const achievements = await studentService.getAchievements(userId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(achievements));
   } catch (err) {
@@ -183,14 +119,14 @@ exports.getAchievements = async (req, res) => {
 
 exports.getEvents = async (req, res) => {
   try {
-    const studentId = req.user.userId;
-    if (!studentId) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(400, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "No user id found" }));
       return;
     }
 
-    const events = await studentService.getEventsForStudent(studentId);
+    const events = await studentService.getEventsForStudent(userId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(events));
   } catch (err) {
@@ -202,26 +138,14 @@ exports.getEvents = async (req, res) => {
 
 exports.getAnnouncements = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    const announcements = await studentService.getAnnouncementsForStudent(
-      session.userId
-    );
+    const announcements = await studentService.getAnnouncementsForStudent(userId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(announcements));
   } catch (err) {
@@ -233,24 +157,14 @@ exports.getAnnouncements = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    const profile = await studentService.getProfile(session.userId);
+    const profile = await studentService.getProfile(userId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(profile));
   } catch (err) {
@@ -262,20 +176,10 @@ exports.getProfile = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
@@ -299,7 +203,7 @@ exports.changePassword = async (req, res) => {
         }
 
         const result = await studentService.changePassword(
-          session.userId,
+          userId,
           oldPassword,
           newPassword
         );
@@ -327,28 +231,17 @@ exports.changePassword = async (req, res) => {
 
 exports.getClassRank = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    // Parse optional examId from query string
     const url = new URL(req.url, `http://${req.headers.host}`);
     const examId = url.searchParams.get("examId");
 
-    const rankData = await studentService.getClassRank(session.userId, examId);
+    const rankData = await studentService.getClassRank(userId, examId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(rankData));
   } catch (err) {
@@ -360,20 +253,10 @@ exports.getClassRank = async (req, res) => {
 
 exports.getTermTests = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
@@ -389,24 +272,13 @@ exports.getTermTests = async (req, res) => {
 
 exports.getTermTestMarks = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    // Parse examId from query string
     const url = new URL(req.url, `http://${req.headers.host}`);
     const examId = url.searchParams.get("examId");
 
@@ -416,7 +288,7 @@ exports.getTermTestMarks = async (req, res) => {
       return;
     }
 
-    const marks = await studentService.getTermTestMarks(session.userId, examId);
+    const marks = await studentService.getTermTestMarks(userId, examId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(marks));
   } catch (err) {
@@ -428,24 +300,14 @@ exports.getTermTestMarks = async (req, res) => {
 
 exports.getTermTestTrend = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    const trend = await studentService.getTermTestTrend(session.userId);
+    const trend = await studentService.getTermTestTrend(userId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(trend));
   } catch (err) {
