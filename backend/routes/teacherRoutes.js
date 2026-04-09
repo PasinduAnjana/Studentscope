@@ -256,7 +256,7 @@ module.exports = (req, res) => {
     );
   }
 
-  if (req.method === "GET" && req.url.startsWith("/api/teacher/marks?")) {
+  if (req.method === "GET" && (req.url === "/api/teacher/marks" || req.url.startsWith("/api/teacher/marks?"))) {
     return protect("teacher")(req, res, () =>
       marksController.getMarks(req, res)
     );
