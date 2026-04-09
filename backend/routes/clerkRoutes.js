@@ -127,13 +127,6 @@ module.exports = (req, res) => {
     );
   }
 
-  // Teachers routes
-  if (req.method === "GET" && req.url === "/api/clerk/teachers") {
-    return protect("clerk")(req, res, () =>
-      teachersController.getTeachers(req, res)
-    );
-  }
-
   if (req.method === "GET" && req.url.match(/^\/api\/clerk\/teachers\/\d+$/)) {
     return protect("clerk")(req, res, () =>
       teachersController.getTeacherById(req, res)
