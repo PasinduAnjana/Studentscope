@@ -714,7 +714,7 @@ exports.approvePasswordReset = async function(resetId, approverId) {
   }
 }
 
-exports.rejectPasswordReset = async function(rejectedBy) {
+exports.rejectPasswordReset = async function(resetId, rejectedBy) {
   try {
     const resetResult = await pool.query(
       "SELECT * FROM password_reset_requests WHERE id = $1 AND status = 'pending'",

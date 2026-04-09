@@ -1,3 +1,5 @@
+const pool = require("../db");
+
 // Get weekly timetable for a teacher
 // teacherId should come from authenticated user (req.user.userId)
 exports.getTeacherWeeklyTimetable = async (teacherId) => {
@@ -28,7 +30,6 @@ exports.getTeacherWeeklyTimetable = async (teacherId) => {
     grade: row.grade,
   }));
 };
-const pool = require("../db");
 
 // Get all students with class info
 exports.getStudents = async () => {
