@@ -1,45 +1,25 @@
-const authService = require("../../services/authService");
 const teacherService = require("../../services/teacherService");
-const pool = require("../../db");
 
 exports.getProfile = async (req, res) => {
   try {
-    // Get current user from session
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
+    const details = await teacherService.getTeacherDetails(userId);
 
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    // Fetch teacher details
-    const detailsRes = await pool.query(
-      `SELECT full_name, nic, address, phone_number, past_schools, appointment_date, first_appointment_date, level, birthday
-       FROM teacher_details WHERE teacher_id = $1`,
-      [session.userId]
-    );
-
-    // Return teacher profile information
     const profile = {
-      id: session.userId,
-      username: session.username,
-      role: session.role,
-      class_id: session.class_id,
-      class_name: session.class_name,
-      class_grade: session.class_grade,
-      is_class_teacher: session.is_class_teacher,
-      details: detailsRes.rows.length > 0 ? detailsRes.rows[0] : null,
+      id: userId,
+      username: req.user.username,
+      role: req.user.role,
+      class_id: req.user.class_id,
+      class_name: req.user.class_name,
+      class_grade: req.user.class_grade,
+      is_class_teacher: req.user.is_class_teacher,
+      details: details,
     };
 
     res.writeHead(200, { "Content-Type": "application/json" });
@@ -53,27 +33,14 @@ exports.getProfile = async (req, res) => {
 
 exports.getTeacherClasses = async (req, res) => {
   try {
-    // Get current user from session
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    // Get classes the teacher is teaching
-    const classes = await teacherService.getTeacherClasses(session.userId);
+    const classes = await teacherService.getTeacherClasses(userId);
 
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(classes));
@@ -86,20 +53,10 @@ exports.getTeacherClasses = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
@@ -123,7 +80,7 @@ exports.changePassword = async (req, res) => {
         }
 
         const result = await teacherService.changePassword(
-          session.userId,
+          userId,
           oldPassword,
           newPassword
         );
@@ -151,20 +108,10 @@ exports.changePassword = async (req, res) => {
 
 exports.getPendingPasswordResets = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
@@ -180,28 +127,15 @@ exports.getPendingPasswordResets = async (req, res) => {
 
 exports.approvePasswordReset = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
     const resetId = parseInt(req.url.split("/")[4]);
-    const result = await teacherService.approvePasswordReset(
-      resetId,
-      session.userId
-    );
+    const result = await teacherService.approvePasswordReset(resetId, userId);
 
     if (result.success) {
       res.writeHead(200, { "Content-Type": "application/json" });
@@ -219,28 +153,15 @@ exports.approvePasswordReset = async (req, res) => {
 
 exports.rejectPasswordReset = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
     const resetId = parseInt(req.url.split("/")[4]);
-    const result = await teacherService.rejectPasswordReset(
-      resetId,
-      session.userId
-    );
+    const result = await teacherService.rejectPasswordReset(resetId, userId);
 
     if (result.success) {
       res.writeHead(200, { "Content-Type": "application/json" });

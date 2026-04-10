@@ -1,6 +1,5 @@
 // server.js
 const http = require("http");
-const url = require("url");
 const apiRouter = require("./routes");
 const serveStatic = require("./serveStatic");
 require("dotenv").config();

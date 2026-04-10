@@ -64,11 +64,27 @@ exports.getAllSubjects = async (req, res) => {
     const subjects = await teacherService.getSubjects();
 
     res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(classes));
+  } catch (err) {
+    console.error("Database error:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch classes" }));
+  }
+};
+
+exports.getTeacherClassSubjects = async (req, res) => {
+  try {
+    const classId = req.params.classId;
+    const subjects = await teacherService.getTeacherClassSubjects(
+      req.user.userId,
+      classId
+    );
+    res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(subjects));
   } catch (err) {
     console.error("Database error:", err);
     res.writeHead(500, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "Failed to fetch subjects" }));
+    res.end(JSON.stringify({ error: "Failed to fetch teacher class subjects" }));
   }
 };
 

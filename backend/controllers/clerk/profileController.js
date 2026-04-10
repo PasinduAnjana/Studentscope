@@ -1,42 +1,25 @@
-const authService = require("../../services/authService");
 const clerkService = require("../../services/clerkService");
-const pool = require("../../db");
 
 exports.getProfile = async (req, res) => {
   try {
-    // Get current user from session
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const session = await authService.getSession(sessionToken);
-
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
-      return;
-    }
-
-    // Get clerk details from clerk_details table
     let details = null;
     try {
-      details = await clerkService.getClerkDetails(session.userId);
+      details = await clerkService.getClerkDetails(userId);
     } catch (err) {
-      // If table doesn't exist or other error, continue without details
       console.log("No clerk details found");
     }
 
-    // Return clerk profile information
     const profile = {
-      id: session.userId,
-      username: session.username,
-      role: session.role,
+      id: userId,
+      username: req.user.username,
+      role: req.user.role,
       details: details,
     };
 
@@ -51,20 +34,10 @@ exports.getProfile = async (req, res) => {
 
 exports.getPendingPasswordResets = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
@@ -80,28 +53,15 @@ exports.getPendingPasswordResets = async (req, res) => {
 
 exports.approvePasswordReset = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
     const resetId = parseInt(req.url.split("/")[4]);
-    const result = await clerkService.approvePasswordReset(
-      resetId,
-      session.userId
-    );
+    const result = await clerkService.approvePasswordReset(resetId, userId);
 
     if (result.success) {
       res.writeHead(200, { "Content-Type": "application/json" });
@@ -119,28 +79,15 @@ exports.approvePasswordReset = async (req, res) => {
 
 exports.rejectPasswordReset = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
     const resetId = parseInt(req.url.split("/")[4]);
-    const result = await clerkService.rejectPasswordReset(
-      resetId,
-      session.userId
-    );
+    const result = await clerkService.rejectPasswordReset(resetId, userId);
 
     if (result.success) {
       res.writeHead(200, { "Content-Type": "application/json" });

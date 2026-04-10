@@ -1,5 +1,5 @@
 const adminService = require("../../services/adminService");
-const pool = require("../../db");
+const clerkService = require("../../services/clerkService");
 
 exports.getAttendanceStats = async (req, res) => {
     try {
@@ -17,24 +17,10 @@ exports.getAttendanceStats = async (req, res) => {
 
 exports.getUnmarkedClasses = async (req, res) => {
     try {
-        const today = new Date().toISOString().split("T")[0];
-        const result = await pool.query(`
-            SELECT c.id, c.grade, c.name
-            FROM classes c
-            WHERE c.id NOT IN (
-                SELECT DISTINCT a.class_id FROM attendance a WHERE a.date = $1
-            )
-            ORDER BY c.grade, c.name
-        `, [today]);
+        const result = await clerkService.getUnmarkedClasses();
 
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({
-            count: result.rows.length,
-            classes: result.rows.map(r => ({
-                id: r.id,
-                name: `${r.grade} - ${r.name}`
-            }))
-        }));
+        res.end(JSON.stringify(result));
     } catch (error) {
         console.error("Error fetching unmarked classes:", error);
         res.writeHead(500, { "Content-Type": "application/json" });

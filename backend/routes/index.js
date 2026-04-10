@@ -11,6 +11,6 @@ module.exports = (req, res) => {
   if (req.url.startsWith("/api/admin")) return adminRoutes(req, res);
   if (req.url.startsWith("/api/clerk")) return clerkRoutes(req, res);
 
-  res.writeHead(404);
-  res.end("Not Found");
+  res.writeHead(404, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ error: "Not Found" }));
 };

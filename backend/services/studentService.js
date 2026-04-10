@@ -1,4 +1,4 @@
-const pool = require("../db/index");
+const pool = require("../db");
 
 exports.getTodaysTimetable = async (studentId) => {
   // Get current day of week (1 = Monday, 7 = Sunday)
@@ -167,34 +167,6 @@ exports.getEventsForStudent = async (studentId) => {
        )
     ORDER BY e.event_date ASC
   `, [classId]);
-  return result.rows;
-};
-
-exports.getAnnouncementsForStudent = async (studentId) => {
-  const result = await pool.query(
-    `
-    SELECT DISTINCT
-      a.id,
-      a.title,
-      a.description,
-      a.created_at,
-      a.audience_type,
-      u.username as posted_by_name,
-      CASE
-        WHEN a.audience_type = 'all' THEN 'All (Teachers & Students)'
-        WHEN a.audience_type = 'teachers' THEN 'Teachers'
-        WHEN a.audience_type = 'students' THEN 'Students'
-      END as audience_display
-    FROM announcements a
-    LEFT JOIN users u ON a.posted_by = u.id
-    LEFT JOIN announcement_classes ac ON a.id = ac.announcement_id
-    WHERE a.audience_type = 'all'
-       OR (a.audience_type = 'students'
-           AND ac.class_id = (SELECT class_id FROM users WHERE id = $1))
-    ORDER BY a.created_at DESC
-    `,
-    [studentId]
-  );
   return result.rows;
 };
 

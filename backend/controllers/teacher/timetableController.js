@@ -2,10 +2,8 @@ const teacherService = require("../../services/teacherService");
 
 exports.getTeacherWeeklyTimetable = async (req, res) => {
   try {
-    // Get teacherId from authenticated user info
     const teacherId =
       req.user && req.user.userId ? parseInt(req.user.userId, 10) : null;
-    console.log("Teacher ID for timetable request:", teacherId);
     if (!teacherId || isNaN(teacherId)) {
       res.writeHead(400, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Invalid teacher ID" }));

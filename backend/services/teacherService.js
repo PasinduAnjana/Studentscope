@@ -1,5 +1,7 @@
+const pool = require("../db");
+
 // Get weekly timetable for a teacher
-// teacherId should come from authenticated user (req.user.id)
+// teacherId should come from authenticated user (req.user.userId)
 exports.getTeacherWeeklyTimetable = async (teacherId) => {
   const result = await pool.query(
     `
@@ -28,7 +30,6 @@ exports.getTeacherWeeklyTimetable = async (teacherId) => {
     grade: row.grade,
   }));
 };
-const pool = require("../db");
 
 // Get all students with class info
 exports.getStudents = async () => {
@@ -378,8 +379,16 @@ exports.getTeacherClasses = async (teacherId) => {
   `,
     [teacherId]
   );
-
   return result.rows;
+};
+
+exports.getTeacherDetails = async (teacherId) => {
+  const result = await pool.query(
+    `SELECT full_name, nic, address, phone_number, past_schools, appointment_date, first_appointment_date, level, birthday
+     FROM teacher_details WHERE teacher_id = $1`,
+    [teacherId]
+  );
+  return result.rows[0] || null;
 };
 
 // Save attendance for a class on a given date
@@ -874,16 +883,29 @@ exports.getTeacherBehaviorRecords = async (teacherId) => {
       br.description,
       br.created_at::DATE as date,
       CONCAT(c.grade, c.name) as class,
-      s.full_name as student,
+      st.full_name as student,
       reporter.full_name as reported_by
     FROM behavior_records br
     JOIN classes c ON br.class_id = c.id
-    JOIN teacher_subjects ts ON c.id = ts.class_id
-    JOIN users u ON br.student_id = u.id
-    JOIN students s ON u.id = s.user_id
+    JOIN students st ON br.student_id = st.user_id
     LEFT JOIN users reporter_u ON br.reported_by = reporter_u.id
     LEFT JOIN teacher_details reporter ON reporter_u.id = reporter.teacher_id
-    WHERE ts.teacher_id = $1 AND br.reported_by = $1
+    WHERE br.reported_by = $1
+      AND (
+        -- Teacher is a subject teacher in the class
+        EXISTS (
+          SELECT 1 FROM teacher_subjects ts
+          WHERE ts.class_id = br.class_id AND ts.teacher_id = $1
+        )
+        OR
+        -- Teacher is the class teacher of the class
+        EXISTS (
+          SELECT 1 FROM users u
+          WHERE u.class_id = br.class_id 
+          AND u.id = $1 
+          AND u.is_class_teacher = TRUE
+        )
+      )
     ORDER BY br.id, br.created_at DESC
     `,
     [teacherId]
@@ -893,7 +915,6 @@ exports.getTeacherBehaviorRecords = async (teacherId) => {
 
 // Get all students from teacher's classes
 exports.getStudentsFromTeacherClasses = async (teacherId) => {
-  console.log("getStudentsFromTeacherClasses - teacherId:", teacherId);
   const result = await pool.query(
     `
     SELECT DISTINCT ON (u.id)
@@ -919,11 +940,6 @@ exports.getStudentsFromTeacherClasses = async (teacherId) => {
     ORDER BY u.id, c.grade, c.name, u.username
     `,
     [teacherId]
-  );
-
-  console.log(
-    "getStudentsFromTeacherClasses - result rows count:",
-    result.rows.length
   );
 
   return result.rows.map((row) => ({

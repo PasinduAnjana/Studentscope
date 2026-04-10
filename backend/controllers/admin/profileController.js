@@ -1,22 +1,11 @@
-const authService = require("../../services/authService");
 const adminService = require("../../services/adminService");
 
 exports.getPendingPasswordResets = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
@@ -32,28 +21,15 @@ exports.getPendingPasswordResets = async (req, res) => {
 
 exports.approvePasswordReset = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
     const resetId = parseInt(req.url.split("/")[4]);
-    const result = await adminService.approvePasswordReset(
-      resetId,
-      session.userId
-    );
+    const result = await adminService.approvePasswordReset(resetId, userId);
 
     if (result.success) {
       res.writeHead(200, { "Content-Type": "application/json" });
@@ -71,28 +47,15 @@ exports.approvePasswordReset = async (req, res) => {
 
 exports.rejectPasswordReset = async (req, res) => {
   try {
-    const cookie = req.headers.cookie || "";
-    const match = cookie.match(/sessionToken=([^;]+)/);
-    const sessionToken = match ? match[1] : null;
-
-    if (!sessionToken) {
+    const userId = req.user?.userId;
+    if (!userId) {
       res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "No session token" }));
-      return;
-    }
-
-    const session = await authService.getSession(sessionToken);
-    if (!session) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
     const resetId = parseInt(req.url.split("/")[4]);
-    const result = await adminService.rejectPasswordReset(
-      resetId,
-      session.userId
-    );
+    const result = await adminService.rejectPasswordReset(resetId, userId);
 
     if (result.success) {
       res.writeHead(200, { "Content-Type": "application/json" });
