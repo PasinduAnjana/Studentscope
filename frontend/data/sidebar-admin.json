@@ -33,10 +33,5 @@
     "label": "sidebar.announcements",
     "page": "announcements",
     "icon": "fas fa-bullhorn"
-  },
-  {
-    "label": "sidebar.events",
-    "page": "events",
-    "icon": "fas fa-calendar-alt"
   }
 ]

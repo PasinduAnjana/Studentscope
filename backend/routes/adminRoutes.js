@@ -3,7 +3,6 @@ const attendanceController = require("../controllers/admin/attendanceController"
 const behaviorController = require("../controllers/admin/behaviorController");
 const alertsController = require("../controllers/admin/alertsController");
 const announcementsController = require("../controllers/clerk/announcementsController");
-const eventsController = require("../controllers/clerk/eventsController");
 const profileController = require("../controllers/admin/profileController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -289,17 +288,6 @@ module.exports = (req, res) => {
     return protect("admin")(req, res, () =>
       announcementsController.deleteAnnouncement(req, res)
     );
-  }
-
-  // Events API
-  if (req.method === "GET" && req.url === "/api/admin/events") {
-    return protect("admin")(req, res, () => eventsController.getEvents(req, res));
-  }
-  if (req.method === "POST" && req.url === "/api/admin/events") {
-    return protect("admin")(req, res, () => eventsController.createEvent(req, res));
-  }
-  if (req.method === "DELETE" && req.url.match(/^\/api\/admin\/events\/\d+$/)) {
-    return protect("admin")(req, res, () => eventsController.deleteEvent(req, res));
   }
 
   // Password reset routes
