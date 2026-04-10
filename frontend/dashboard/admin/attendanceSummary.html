@@ -807,7 +807,7 @@
     allClasses.forEach((cls) => {
       const option = document.createElement("option");
       option.value = cls.id;
-      option.textContent = `${cls.grade} - ${cls.name}`;
+      option.textContent = `${cls.grade} - ${cls.class_name}`;
       select.appendChild(option);
     });
     // transform into searchable dropdown

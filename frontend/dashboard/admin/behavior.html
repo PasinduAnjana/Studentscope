@@ -113,9 +113,6 @@
           onchange="filterBehavior()"
         >
           <option value="all" data-en="All Classes">All Classes</option>
-          <option value="10A">Grade 10-A</option>
-          <option value="10B">Grade 10-B</option>
-          <option value="11A">Grade 11-A</option>
         </select>
       </div>
       <div>
@@ -270,10 +267,11 @@
 
       // Populate class filter options
       const classFilterSelect = document.getElementById("classFilter");
+      classFilterSelect.innerHTML = '<option value="all" data-en="All Classes">All Classes</option>';
       allClasses.forEach((cls) => {
         const option = document.createElement("option");
-        option.value = `${cls.grade}${cls.name}`;
-        option.textContent = `Grade ${cls.grade}-${cls.name}`;
+        option.value = `${cls.grade}${cls.class_name}`;
+        option.textContent = `Grade ${cls.grade}-${cls.class_name}`;
         classFilterSelect.appendChild(option);
       });
     } catch (err) {
@@ -291,7 +289,7 @@
     let filtered = allRecords;
 
     if (classFilter !== "all") {
-      filtered = filtered.filter((r) => r.class === classFilter);
+      filtered = filtered.filter((r) => r.class_display === classFilter);
     }
 
     if (typeFilter !== "all") {
