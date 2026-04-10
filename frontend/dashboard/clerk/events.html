@@ -1,211 +1,4 @@
-<style>
-  :root {
-    --fc-border-color: var(--color-border);
-    --fc-button-bg-color: var(--color-primary);
-    --fc-button-border-color: var(--color-primary);
-    --fc-button-hover-bg-color: var(--color-primary-dark);
-    --fc-button-hover-border-color: var(--color-primary-dark);
-    --fc-button-active-bg-color: var(--color-primary-dark);
-    --fc-button-active-border-color: var(--color-primary-dark);
-    --fc-event-bg-color: var(--color-primary);
-    --fc-event-border-color: var(--color-primary);
-    --fc-today-bg-color: rgba(67, 97, 238, 0.05); /* very light primary */
-    --fc-page-bg-color: var(--color-bg);
-    --fc-neutral-bg-color: var(--color-card);
-    --fc-neutral-text-color: var(--color-text);
-  }
-
-  .events-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    padding: 24px;
-    background: var(--color-card);
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  }
-
-  .events-header h1 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--color-text);
-    margin: 0;
-  }
-
-  .calendar-container {
-    background: var(--color-card);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    min-height: 600px;
-    animation: fadeIn 0.4s ease-out;
-  }
-
-  /* Extreme minimal overrides */
-  .fc { font-family: inherit; }
-  .fc-theme-standard td, .fc-theme-standard th { border: none !important; }
-  .fc-scrollgrid { border: none !important; }
-  
-  /* Month Header */
-  .fc .fc-toolbar-title { font-size: 1.25rem; font-weight: 600; color: var(--color-text); }
-  
-  /* Days of Week Header */
-  .fc-theme-standard th { 
-    padding: 16px 0; 
-    font-weight: 600; 
-    text-transform: uppercase; 
-    font-size: 0.75rem; 
-    letter-spacing: 0.05em; 
-    color: var(--color-subtext); 
-    border-bottom: 1px solid var(--color-border) !important; 
-  }
-
-  /* Day cells */
-  .fc .fc-daygrid-day-frame {
-    padding: 8px;
-    min-height: 100px;
-    border-bottom: 1px dashed rgba(0,0,0,0.06);
-    border-right: 1px dashed rgba(0,0,0,0.06);
-  }
-  .fc .fc-daygrid-day-top {
-    flex-direction: row;
-    justify-content: flex-end;
-  }
-  .fc .fc-daygrid-day-number {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--color-subtext);
-    padding: 8px;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    margin: 4px;
-    transition: all 0.2s ease;
-  }
-  .fc .fc-col-header-cell-cushion {
-    text-decoration: none !important;
-  }
-  
-  /* Today Highlight */
-  .fc .fc-day-today { background: transparent !important; }
-  .fc .fc-day-today .fc-daygrid-day-number {
-    background: var(--color-primary);
-    color: white;
-    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
-  }
-
-  /* Events */
-  .fc .fc-daygrid-event {
-    margin: 2px 4px;
-    border-radius: 8px;
-    padding: 6px 10px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    border: none;
-    background: var(--color-primary-light) !important;
-    color: var(--color-primary) !important;
-    box-shadow: none !important;
-    transition: all 0.2s ease;
-    cursor: pointer;
-  }
-  .fc .fc-daygrid-event:hover {
-    background: var(--color-primary) !important;
-    color: white !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2) !important;
-  }
-  .fc-direction-ltr .fc-daygrid-event .fc-event-time { display: none; }
-  
-  /* Buttons */
-  .fc .fc-button-primary {
-    background: var(--color-bg) !important;
-    border: 1px solid var(--color-border) !important;
-    color: var(--color-text) !important;
-    text-transform: capitalize;
-    font-weight: 500;
-    border-radius: 8px;
-    padding: 8px 16px;
-    box-shadow: none !important;
-    transition: all 0.2s ease;
-  }
-  .fc .fc-button-primary:hover {
-    background: var(--color-card) !important;
-    border-color: var(--color-primary) !important;
-    color: var(--color-primary) !important;
-  }
-  .fc .fc-button-primary:not(:disabled):active,
-  .fc .fc-button-primary:not(:disabled).fc-button-active {
-    background: var(--color-primary) !important;
-    color: white !important;
-    border-color: var(--color-primary) !important;
-  }
-
-  /* Modal Form Styles */
-  .form-group {
-    margin-bottom: 16px;
-  }
-  .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: var(--color-text);
-  }
-  .form-control {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-family: inherit;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  .form-control:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-  }
-  textarea.form-control {
-    resize: vertical;
-    min-height: 100px;
-  }
-  
-  /* Details Modal Content */
-  .event-details-meta {
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--color-border);
-  }
-  .event-details-meta p {
-    margin: 4px 0;
-    color: var(--color-subtext);
-    font-size: 0.9rem;
-  }
-  .event-details-desc {
-    color: var(--color-text);
-    line-height: 1.6;
-    margin-bottom: 24px;
-  }
-  .event-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    background: var(--color-primary-light);
-    color: var(--color-primary);
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-</style>
+<link rel="stylesheet" href="/css/events.css" />
 
 <!-- FullCalendar Library -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
@@ -328,7 +121,7 @@
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek'
+        right: ''
       },
       events: calendarEvents,
       eventClick: function(info) {
@@ -359,11 +152,16 @@
     e.preventDefault();
     const title = document.getElementById('event-title').value;
     const description = document.getElementById('event-desc').value;
-    const date = document.getElementById('event-date').value;
+    const dateInput = document.getElementById('event-date').value;
     const audience = document.getElementById('event-audience').value;
 
+    // Fix timezone offset by adding one day
+    const dateObj = new Date(dateInput);
+    dateObj.setDate(dateObj.getDate() + 1);
+    const event_date = dateObj.toISOString().split('T')[0];
+
     try {
-      const res = await api.clerk.events.create({ title, description, event_date: date, target_audience: audience });
+      const res = await api.clerk.events.create({ title, description, event_date, target_audience: audience });
 
       if (res.ok) {
         toast("Event created successfully", "fa-solid fa-check");

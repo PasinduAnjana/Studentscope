@@ -1,0 +1,192 @@
+/* Events Calendar - Reusable Styles */
+
+.events-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 16px 20px;
+  background: var(--color-card);
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.events-header h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.calendar-container {
+  background: var(--color-card);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  min-height: 400px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Modern calendar styling */
+.fc { 
+  font-family: inherit; 
+}
+
+.fc-theme-standard td, .fc-theme-standard th { 
+  border: none !important; 
+}
+
+.fc-scrollgrid { 
+  border: none !important; 
+}
+
+/* Toolbar - compact */
+.fc .fc-toolbar {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fc .fc-toolbar-title { 
+  font-size: 1.1rem; 
+  font-weight: 600; 
+  color: var(--color-text); 
+}
+
+.fc .fc-toolbar-chunk {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Days of Week Header - primary color text */
+.fc-theme-standard th { 
+  padding: 8px 0; 
+  font-weight: 600; 
+  text-transform: uppercase; 
+  font-size: 0.65rem; 
+  letter-spacing: 0.05em; 
+  color: var(--color-primary) !important;
+  background: transparent !important;
+}
+
+/* Day cells - smaller */
+.fc .fc-daygrid-day-frame {
+  padding: 2px;
+  min-height: 50px;
+  transition: background 0.2s ease;
+}
+
+.fc .fc-daygrid-day:hover {
+  background: var(--color-bg);
+}
+
+.fc .fc-daygrid-day-top {
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 2px;
+}
+
+.fc .fc-daygrid-day-number {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--color-text);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  margin: 1px;
+  transition: all 0.2s ease;
+}
+
+.fc-col-header-cell-cushion {
+  text-decoration: none !important;
+  color: var(--color-primary) !important;
+}
+
+/* Today Highlight */
+.fc .fc-day-today { 
+  background: transparent !important; 
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+  background: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  font-weight: 600;
+}
+
+/* Events - smaller */
+.fc .fc-event {
+  border-radius: 4px !important;
+  padding: 2px 4px !important;
+  font-size: 0.65rem !important;
+  font-weight: 500 !important;
+  border: none !important;
+  margin: 1px 0 !important;
+  cursor: pointer;
+  transition: all 0.15s ease !important;
+  background: var(--color-primary) !important;
+  color: var(--color-white) !important;
+}
+
+.fc .fc-event:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.fc .fc-event-title {
+  font-weight: 500 !important;
+}
+
+/* More events indicator */
+.fc .fc-daygrid-more-link {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  padding: 1px 4px;
+}
+
+/* Week numbers (hide) */
+.fc-week-number { display: none; }
+
+/* Event details modal styles */
+.event-details-meta {
+  margin-bottom: 16px;
+}
+
+.event-details-meta p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  color: var(--color-subtext);
+  font-size: 0.9rem;
+}
+
+.event-details-desc {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding: 12px;
+  background: var(--color-bg);
+  border-radius: 8px;
+}
+
+.event-badge {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
