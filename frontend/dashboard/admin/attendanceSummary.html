@@ -980,19 +980,6 @@
       toast("Attendance marked successfully", "fa-solid fa-check-circle");
       document.getElementById("mark-attendance-modal").style.display = "none";
       refreshAttendance();
-
-      // Uncomment when real API endpoint is available:
-      /*
-      const res = await fetch("/api/admin/attendance", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Failed to save attendance");
-      toast("Attendance marked successfully", "fa-solid fa-check-circle");
-      document.getElementById("mark-attendance-modal").style.display = "none";
-      refreshAttendance();
-      */
     } catch (err) {
       console.error(err);
       toast("Error saving attendance", "fa-solid fa-circle-exclamation");
@@ -1035,16 +1022,6 @@
               "fa-solid fa-check-circle"
             );
             filterAndRender();
-
-            // Uncomment when real API endpoint is available:
-            /*
-            const res = await fetch(`/api/admin/attendance/${recordId}`, {
-              method: "DELETE",
-            });
-            if (!res.ok) throw new Error("Failed to delete attendance record");
-            toast("Attendance record deleted successfully", "fa-solid fa-check-circle");
-            refreshAttendance();
-            */
           } catch (err) {
             console.error(err);
             toast(
