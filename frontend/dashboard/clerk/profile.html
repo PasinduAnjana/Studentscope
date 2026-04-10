@@ -179,7 +179,7 @@
 
   async function loadProfile() {
     try {
-      const response = await fetch("/api/clerk/profile");
+      const response = await api.clerk.profile.get();
       if (!response.ok) throw new Error("Failed to fetch profile");
 
       const profile = await response.json();
@@ -231,21 +231,21 @@
   async function loadProfileStats() {
     try {
       // Load total students
-      const studentsResponse = await fetch("/api/clerk/students");
+      const studentsResponse = await api.clerk.students.getAll();
       if (studentsResponse.ok) {
         const students = await studentsResponse.json();
         document.getElementById("total-students").textContent = students.length;
       }
 
       // Load total teachers
-      const teachersResponse = await fetch("/api/clerk/teachers");
+      const teachersResponse = await api.clerk.teachers.getAll();
       if (teachersResponse.ok) {
         const teachers = await teachersResponse.json();
         document.getElementById("total-teachers").textContent = teachers.length;
       }
 
       // Load total classes
-      const classesResponse = await fetch("/api/clerk/classes");
+      const classesResponse = await api.clerk.classes.getAll();
       if (classesResponse.ok) {
         const classes = await classesResponse.json();
         document.getElementById("total-classes").textContent = classes.length;
@@ -257,7 +257,7 @@
 
   async function loadPinStatus() {
     try {
-      const response = await fetch("/api/clerk/pin/status");
+      const response = await api.clerk.pin.getStatus();
       if (response.ok) {
         const data = await response.json();
         const statusText = document.getElementById("pin-status-text");
@@ -316,11 +316,7 @@
     if (clerkHasPin) payload.currentPin = currentPin;
 
     try {
-      const response = await fetch("/api/clerk/pin/set", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+      const response = await api.clerk.pin.set(payload);
       const data = await response.json();
 
       if (response.ok) {

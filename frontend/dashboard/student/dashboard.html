@@ -94,7 +94,7 @@
       let timetable;
       if (isWeekend) {
         // On weekends, show Monday's timetable
-        const weeklyRes = await fetch(`/api/student/timetable/week`);
+        const weeklyRes = await api.student.timetable.getWeek();
         const weeklyTimetable = await weeklyRes.json();
         timetable = weeklyTimetable
           .filter((entry) => entry.day_of_week === 1)
@@ -105,7 +105,7 @@
           }));
       } else {
         // Fetch today's timetable
-        const timetableRes = await fetch(`/api/student/timetable/today`);
+        const timetableRes = await api.student.timetable.getToday();
         timetable = await timetableRes.json();
       }
 
@@ -149,7 +149,7 @@
   // Attendance percentage logic
   async function loadAttendancePercentage() {
     try {
-      const res = await fetch("/api/student/attendance/percentage");
+      const res = await api.student.attendance.getPercentage();
       if (!res.ok) throw new Error("Failed to fetch attendance percentage");
 
       const data = await res.json();
@@ -245,7 +245,7 @@
   // Average marks logic
   async function loadAverageMarks() {
     try {
-      const res = await fetch("/api/student/marks/average");
+      const res = await api.student.marks.getAverage();
       if (!res.ok) throw new Error("Failed to fetch average marks");
 
       const data = await res.json();
@@ -278,7 +278,7 @@
   // Present days logic
   async function loadPresentDays() {
     try {
-      const res = await fetch("/api/student/attendance/present-days");
+      const res = await api.student.attendance.getPresentDays();
       if (!res.ok) throw new Error("Failed to fetch present days");
 
       const data = await res.json();
@@ -303,7 +303,7 @@
   // Achievements logic
   async function loadAchievements() {
     try {
-      const res = await fetch("/api/student/achievements");
+      const res = await api.student.achievements.getAll();
       if (!res.ok) throw new Error("Failed to fetch achievements");
 
       const achievements = await res.json();
@@ -344,7 +344,7 @@
   // Load recent announcements for dashboard tile - show announcements made by teachers
   async function loadDashboardAnnouncements() {
     try {
-      const res = await fetch("/api/student/announcements");
+      const res = await api.student.announcements.getAll();
       if (!res.ok) throw new Error("Failed to fetch announcements");
 
       const announcements = await res.json();

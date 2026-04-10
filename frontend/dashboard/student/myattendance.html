@@ -127,7 +127,7 @@
   async function loadAttendanceData() {
     try {
       // Load overall attendance percentage
-      const percentageRes = await fetch("/api/student/attendance/percentage");
+      const percentageRes = await api.student.attendance.getPercentage();
       let attendanceData = { totalDays: 0, presentDays: 0 };
 
       if (percentageRes.ok) {
@@ -135,9 +135,7 @@
       }
 
       // Load present days this month
-      const presentDaysRes = await fetch(
-        "/api/student/attendance/present-days"
-      );
+      const presentDaysRes = await api.student.attendance.getPresentDays();
       let presentDaysThisMonth = 0;
 
       if (presentDaysRes.ok) {

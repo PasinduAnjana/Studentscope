@@ -10,7 +10,7 @@ function getCookieValue(name) {
 
 async function checkSessionValidity() {
   try {
-    const res = await fetch("/api/auth/me", { credentials: "include" });
+    const res = await api.auth.me();
     if (!res.ok) throw new Error("Session invalid");
     return await res.json();
   } catch (err) {
@@ -89,7 +89,7 @@ function setupSessionWatcher() {
   // Check session every 30 seconds
   setInterval(async () => {
     try {
-      const res = await fetch("/api/auth/me", { credentials: "include" });
+      const res = await api.auth.me();
       if (!res.ok) {
         // Session expired
         sessionStorage.clear();

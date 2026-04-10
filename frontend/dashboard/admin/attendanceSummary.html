@@ -647,9 +647,7 @@
       const selectedDate =
         dateInput.value || new Date().toISOString().split("T")[0];
 
-      const statsRes = await fetch(
-        `/api/admin/attendance/stats?date=${selectedDate}`
-      );
+      const statsRes = await api.admin.attendance.getStats(selectedDate);
       if (statsRes.ok) {
         const stats = await statsRes.json();
         document.getElementById("total-students").textContent =
@@ -693,7 +691,7 @@
       if (status) params.append("status", status);
       if (search) params.append("search", search);
 
-      const recordsRes = await fetch(`/api/admin/attendance/records?${params}`);
+      const recordsRes = await api.admin.attendance.getRecords(selectedDate, { classId, status, search });
       if (recordsRes.ok) {
         allAttendanceRecords = await recordsRes.json();
         renderAttendance(allAttendanceRecords); // Render directly since filtering is done server-side
@@ -772,7 +770,7 @@
 
   async function fetchStudents() {
     try {
-      const res = await fetch("/api/admin/students");
+      const res = await api.admin.students.getAll();
       if (!res.ok) throw new Error("Failed to fetch students");
       allStudents = await res.json();
     } catch (err) {
@@ -783,7 +781,7 @@
 
   async function fetchClasses() {
     try {
-      const res = await fetch("/api/admin/classes");
+      const res = await api.admin.classes.getAll();
       if (!res.ok) throw new Error("Failed to fetch classes");
       allClasses = await res.json();
       populateClassFilter();
@@ -1403,9 +1401,7 @@
       const selectedDate =
         dateInput.value || new Date().toISOString().split("T")[0];
 
-      const statsRes = await fetch(
-        `/api/admin/attendance/stats?date=${selectedDate}`
-      );
+      const statsRes = await api.admin.attendance.getStats(selectedDate);
       let presentCount = 198;
       let absentCount = 47;
 

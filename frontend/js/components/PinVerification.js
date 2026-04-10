@@ -63,11 +63,7 @@ class PinVerification {
         btn.disabled = true;
 
         try {
-            const response = await fetch('/api/clerk/pin/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pin })
-            });
+            const response = await api.clerk.pin.verify({ pin });
             const data = await response.json();
 
             if (response.ok && data.success) {

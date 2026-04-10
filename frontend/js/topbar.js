@@ -95,7 +95,7 @@ function setupSidebarToggle() {
 // topbar.js (updated)
 async function fetchUsername() {
   try {
-    const res = await fetch("/api/auth/me", { credentials: "include" });
+    const res = await api.auth.me();
 
     if (!res.ok) {
       if (res.status === 401) {

@@ -83,7 +83,7 @@
 
   async function loadClasses() {
     try {
-      const res = await fetch("/api/clerk/classes");
+      const res = await api.clerk.classes.getAll();
       if (!res.ok) throw new Error("Failed to fetch classes");
       const classes = await res.json();
       const select = document.getElementById("class-select");
@@ -123,7 +123,7 @@
 
   async function loadSubjects() {
     try {
-      const res = await fetch("/api/clerk/subjects");
+      const res = await api.clerk.subjects.getAll();
       if (!res.ok) throw new Error("Failed to fetch subjects");
       const subjects = await res.json();
       const select = document.getElementById("assign-subject");
@@ -150,7 +150,7 @@
 
   async function loadTeachers() {
     try {
-      const res = await fetch("/api/clerk/teachers");
+      const res = await api.clerk.teachers.getAll();
       if (!res.ok) throw new Error("Failed to fetch teachers");
       const teachers = await res.json();
       const select = document.getElementById("assign-teacher");
@@ -186,7 +186,7 @@
     try {
       const [timeData, timetableData] = await Promise.all([
         fetch("../../data/time.json").then((res) => res.json()),
-        fetch(`/api/clerk/timetable/class/${currentClass}`).then((res) =>
+        api.clerk.timetable.getByClass(currentClass).then((res) =>
           res.json()
         ),
       ]);
@@ -342,16 +342,12 @@
     }
 
     try {
-      const res = await fetch("/api/clerk/timetable/assign", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          class_id: currentClass,
-          day_of_week: currentSlot.day,
-          period_number: currentSlot.period,
-          subject_id: subject,
-          teacher_id: teacher,
-        }),
+      const res = await api.clerk.timetable.assign({
+        class_id: currentClass,
+        day_of_week: currentSlot.day,
+        period_number: currentSlot.period,
+        subject_id: subject,
+        teacher_id: teacher,
       });
       if (!res.ok) throw new Error("Failed to assign");
       toast("Assignment saved successfully", "fa-solid fa-check-circle");

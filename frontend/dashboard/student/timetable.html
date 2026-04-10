@@ -20,7 +20,7 @@
     // Fetch time slots and student's weekly timetable from backend
     const [timeData, timetableData] = await Promise.all([
       fetch("../../data/time.json").then((res) => res.json()),
-      fetch("/api/student/timetable/week").then((res) => res.json()),
+      api.student.timetable.getWeek().then((res) => res.json()),
     ]);
 
     // Build a lookup: { day_of_week: { period_number: entry } }

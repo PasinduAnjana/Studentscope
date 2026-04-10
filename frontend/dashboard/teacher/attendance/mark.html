@@ -43,7 +43,7 @@
   async function loadTeacherAndStudents() {
     try {
       // 1) Get logged-in user (teacher) info
-      const meRes = await fetch("/api/auth/me", { credentials: "include" });
+      const meRes = await api.auth.me();
       if (meRes.status === 401) {
         toast(
           "Your session has expired. Please log in again.",
@@ -72,10 +72,7 @@
       currentClassId = me.class_id;
 
       // 2) Load students for the teacher's class
-      const stuRes = await fetch(
-        `/api/teacher/students/class/${currentClassId}`,
-        { credentials: "include" }
-      );
+      const stuRes = await api.teacher.students.getByClass(currentClassId);
       if (!stuRes.ok) throw new Error("Failed to load students for class");
 
       const data = await stuRes.json();
@@ -209,12 +206,7 @@
 
   async function preloadAttendance(dateStr) {
     try {
-      const res = await fetch(
-        `/api/teacher/attendance?date=${encodeURIComponent(dateStr)}`,
-        {
-          credentials: "include",
-        }
-      );
+      const res = await api.teacher.attendance.getByDate(dateStr);
       if (!res.ok) return; // silently skip if none
       const records = await res.json();
       const map = new Map(records.map((r) => [r.student_id, r.status]));
@@ -280,12 +272,7 @@
       confirmText: confirmText,
       cancelText: cancelText,
       onConfirm: function () {
-        fetch("/api/teacher/attendance", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ date: dateStr, records }),
-        })
+        api.teacher.attendance.save({ date: dateStr, records })
           .then((res) => {
             if (!res.ok) throw new Error("Failed to save attendance");
             return res.json();

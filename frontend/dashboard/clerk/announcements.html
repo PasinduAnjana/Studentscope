@@ -206,7 +206,7 @@
 
   function fetchAnnouncements() {
     console.log("Fetching announcements...");
-    fetch("/api/clerk/announcements")
+    api.clerk.announcements.getAll()
       .then((res) => {
         console.log("API response status:", res.status);
         if (!res.ok) throw new Error("Failed to fetch announcements");
@@ -232,7 +232,7 @@
 
   function fetchAnnouncementsForMe() {
     console.log("Fetching announcements for me...");
-    fetch("/api/clerk/announcements?role=clerk")
+    api.request("/clerk/announcements?role=clerk")
       .then((res) => {
         console.log("API response status:", res.status);
         if (!res.ok) throw new Error("Failed to fetch announcements for me");
@@ -423,7 +423,7 @@
 
   async function loadTeachers() {
     try {
-      const res = await fetch("/api/clerk/teachers");
+      const res = await api.clerk.teachers.getAll();
       if (!res.ok) throw new Error("Failed to fetch teachers");
       allTeachers = await res.json();
       renderTeacherCheckboxes();
@@ -434,7 +434,7 @@
 
   async function loadClasses() {
     try {
-      const res = await fetch("/api/clerk/classes");
+      const res = await api.clerk.classes.getAll();
       if (!res.ok) throw new Error("Failed to fetch classes");
       allClasses = await res.json();
       renderClassCheckboxes();
@@ -529,11 +529,6 @@
       }
     }
 
-    const method = editingAnnouncement ? "PUT" : "POST";
-    const url = editingAnnouncement
-      ? `/api/clerk/announcements/${editingAnnouncement.id}`
-      : "/api/clerk/announcements";
-
     const body = {
       title,
       description,
@@ -542,11 +537,11 @@
       class_ids: classIds,
     };
 
-    fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
+    const request = editingAnnouncement
+      ? api.clerk.announcements.update(editingAnnouncement.id, body)
+      : api.clerk.announcements.create(body);
+
+    request
       .then((res) => {
         if (!res.ok) throw new Error("Failed to save announcement");
         return res.json();
@@ -668,9 +663,7 @@
         confirmText: "Delete",
         cancelText: "Cancel",
         onConfirm: function () {
-          fetch(`/api/clerk/announcements/${id}`, {
-            method: "DELETE",
-          })
+          api.clerk.announcements.delete(id)
             .then((res) => {
               if (!res.ok) throw new Error("Failed to delete announcement");
               return res.json();

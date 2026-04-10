@@ -7,10 +7,12 @@ function updateLanguage(lang) {
       applyTranslations();
       applyDirectLanguageAttributes(lang);
 
-      // Reload sidebar with updated language
+      // Reload sidebar with updated language (if sidebar exists on page)
       const role =
         new URLSearchParams(window.location.search).get("role") || "teacher";
-      loadSidebar(role);
+      if (typeof loadSidebar === "function") {
+        loadSidebar(role);
+      }
     });
 }
 

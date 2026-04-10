@@ -163,7 +163,7 @@
 
   function fetchAnnouncements() {
     console.log("Fetching announcements...");
-    fetch("/api/student/announcements")
+    api.student.announcements.getAll()
       .then((res) => {
         console.log("API response status:", res.status);
         if (!res.ok) throw new Error("Failed to fetch announcements");

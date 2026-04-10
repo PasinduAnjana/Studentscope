@@ -193,7 +193,7 @@
   }
 
   // Initialize
-  fetch("/api/auth/me")
+  api.auth.me()
     .then((res) => res.json())
     .then((user) => {
       if (user && user.is_class_teacher && user.class_id) {

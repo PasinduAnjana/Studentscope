@@ -184,7 +184,7 @@
 
   async function fetchEvents() {
     try {
-      const res = await fetch('/api/student/events');
+      const res = await api.student.events.getAll();
       if (res.ok) {
         allEvents = await res.json();
         renderCalendar();

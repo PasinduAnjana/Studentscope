@@ -123,7 +123,7 @@
   // Load pending password resets
   async function loadPendingResets() {
     try {
-      const response = await fetch("/api/clerk/password-resets/pending");
+      const response = await api.clerk.passwordResets.getPending();
       if (!response.ok) return;
 
       const resets = await response.json();
@@ -171,9 +171,7 @@
   // Approve password reset
   async function approveReset(resetId) {
     try {
-      const response = await fetch(`/api/clerk/password-resets/${resetId}/approve`, {
-        method: "POST",
-      });
+      const response = await api.clerk.passwordResets.approve(resetId);
 
       if (response.ok) {
         showToast("Password reset approved", "fa-solid fa-check");
@@ -190,9 +188,7 @@
   // Reject password reset
   async function rejectReset(resetId) {
     try {
-      const response = await fetch(`/api/clerk/password-resets/${resetId}/reject`, {
-        method: "POST",
-      });
+      const response = await api.clerk.passwordResets.reject(resetId);
 
       if (response.ok) {
         showToast("Password reset rejected", "fa-solid fa-check");
@@ -217,7 +213,7 @@
   // Load recent announcements
   async function loadRecentAnnouncements() {
     try {
-      const response = await fetch("/api/clerk/announcements");
+      const response = await api.clerk.announcements.getAll();
       if (!response.ok) return;
 
       const announcements = await response.json();
@@ -263,7 +259,7 @@
   // Load total students count
   async function loadTotalStudents() {
     try {
-      const response = await fetch("/api/clerk/students");
+      const response = await api.clerk.students.getAll();
       if (response.ok) {
         const students = await response.json();
         document.getElementById("total-students-tile").textContent = students.length;
@@ -277,7 +273,7 @@
   // Load total teachers count
   async function loadTotalTeachers() {
     try {
-      const response = await fetch("/api/clerk/teachers");
+      const response = await api.clerk.teachers.getAll();
       if (response.ok) {
         const teachers = await response.json();
         const activeTeachers = teachers.filter((t) => t.status === "active").length;
@@ -293,7 +289,7 @@
   async function loadAttendanceSummary() {
     const container = document.getElementById("dashboard-attendance-content");
     try {
-      const response = await fetch("/api/clerk/attendance/stats");
+      const response = await api.clerk.attendance.getStats();
       if (!response.ok) throw new Error("Failed to fetch");
       const stats = await response.json();
 
@@ -380,7 +376,7 @@
   let unmarkedClassesData = [];
   async function loadUnmarkedClasses() {
     try {
-      const response = await fetch("/api/clerk/attendance/unmarked-classes");
+      const response = await api.clerk.attendance.getUnmarkedClasses();
       if (response.ok) {
         const data = await response.json();
         unmarkedClassesData = data.classes || [];
@@ -472,7 +468,7 @@
   // Load total classes count
   async function loadTotalClasses() {
     try {
-      const response = await fetch("/api/clerk/classes");
+      const response = await api.clerk.classes.getAll();
       if (response.ok) {
         const classes = await response.json();
         document.getElementById("total-classes-tile").textContent = classes.length;
@@ -486,7 +482,7 @@
   // Load alerts
   async function loadAlerts() {
     try {
-      const response = await fetch("/api/clerk/alerts");
+      const response = await api.clerk.alerts.getAll();
       if (!response.ok) return;
 
       const alerts = await response.json();
@@ -539,7 +535,7 @@
     modal.open();
 
     try {
-      const response = await fetch(`/api/clerk/alerts/details?type=${alert.key}`);
+      const response = await api.clerk.alerts.getDetails(alert.key);
       if (!response.ok) throw new Error("Failed to fetch");
       const items = await response.json();
 

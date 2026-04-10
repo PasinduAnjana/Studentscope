@@ -80,8 +80,8 @@
     try {
       // Fetch classes data and teachers list
       const [classesResponse, teachersResponse] = await Promise.all([
-        fetch("/api/clerk/classes").then((res) => res.json()),
-        fetch("/api/clerk/teachers").then((res) => res.json()),
+        api.clerk.classes.getAll().then((res) => res.json()),
+        api.clerk.teachers.getAll().then((res) => res.json()),
       ]);
 
       if (classesResponse.error) {
@@ -295,13 +295,7 @@
           payload.class_name = currentClassData.class_name;
         }
 
-        const response = await fetch("/api/clerk/classes/assign-teacher", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
+        const response = await api.clerk.classes.assignTeacher(payload);
 
         const data = await response.json();
 
@@ -337,13 +331,7 @@
               teacher_id: null
             };
 
-            const response = await fetch("/api/clerk/classes/assign-teacher", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(payload),
-            });
+            const response = await api.clerk.classes.assignTeacher(payload);
 
             const data = await response.json();
 
@@ -375,12 +363,7 @@
       onConfirm: async () => {
         window.requirePinPrompt(async () => {
           try {
-            const response = await fetch(
-              `/api/clerk/classes/${currentClassData.id}`,
-              {
-                method: "DELETE",
-              }
-            );
+            const response = await api.clerk.classes.delete(currentClassData.id);
 
             const data = await response.json();
 

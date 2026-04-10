@@ -459,7 +459,7 @@
     const method = editingAnnouncement ? "PUT" : "POST";
     const body = { title, description, audience_type: audience, teacher_ids: teacherIds, clerk_ids: clerkIds, class_ids: classIds };
 
-    fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+    (method === "POST" ? api.admin.announcements.create(body) : api.admin.announcements.update(editingAnnouncement.id, body))
       .then((res) => {
         if (!res.ok) throw new Error("Failed to save announcement");
         return res.json();
@@ -542,7 +542,7 @@
       confirmText: "Delete",
       cancelText: "Cancel",
       onConfirm: function () {
-        fetch(`/api/admin/announcements/${id}`, { method: "DELETE" })
+        api.admin.announcements.delete(id)
           .then((res) => {
             if (!res.ok) throw new Error("Failed to delete announcement");
             return res.json();

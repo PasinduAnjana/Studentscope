@@ -231,7 +231,7 @@
   // Fetch behavior stats and populate summary tiles
   async function loadBehaviorStats() {
     try {
-      const response = await fetch("/api/admin/behavior/stats");
+      const response = await api.admin.behavior.getStats();
       if (!response.ok) throw new Error("Failed to fetch behavior stats");
       behaviorStats = await response.json();
 
@@ -249,7 +249,7 @@
   // Fetch all behavior records
   async function loadBehaviorRecords() {
     try {
-      const response = await fetch("/api/admin/behavior/records");
+      const response = await api.admin.behavior.getRecords();
       if (!response.ok) throw new Error("Failed to fetch behavior records");
       allRecords = await response.json();
       filterBehavior(); // Apply filters and render
@@ -261,7 +261,7 @@
   // Fetch classes for filter dropdown
   async function loadClasses() {
     try {
-      const response = await fetch("/api/admin/classes");
+      const response = await api.admin.classes.getAll();
       if (!response.ok) throw new Error("Failed to fetch classes");
       allClasses = await response.json();
 

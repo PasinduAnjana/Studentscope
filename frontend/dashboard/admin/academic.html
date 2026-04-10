@@ -189,7 +189,7 @@
    ========================= */
   async function loadFilters() {
     try {
-      const res = await fetch("/api/admin/academic/reports/filters");
+      const res = await api.admin.academic.getReportsFilters();
       if (!res.ok) throw new Error("Failed to load filters");
       filtersData = await res.json();
 
@@ -257,8 +257,8 @@
     try {
       const query = buildQuery();
       const [dataRes, summaryRes] = await Promise.all([
-        fetch(`/api/admin/academic/reports/data?${query}`),
-        fetch(`/api/admin/academic/reports/summary?${query}`),
+        api.admin.academic.getReportsData({ exam_id: filtersData.selectedExam, class_id: filtersData.selectedClass, subject_id: filtersData.selectedSubject, search: filtersData.searchTerm }),
+        api.admin.academic.getReportsSummary({ exam_id: filtersData.selectedExam, class_id: filtersData.selectedClass, subject_id: filtersData.selectedSubject }),
       ]);
 
       if (!dataRes.ok || !summaryRes.ok) throw new Error("Failed to load data");

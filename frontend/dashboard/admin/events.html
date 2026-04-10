@@ -291,7 +291,7 @@
 
   async function fetchEvents() {
     try {
-      const res = await fetch('/api/admin/events');
+      const res = await api.admin.events.getAll();
       if (res.ok) {
         allEvents = await res.json();
         renderCalendar();
@@ -363,11 +363,7 @@
     const audience = document.getElementById('event-audience').value;
 
     try {
-      const res = await fetch('/api/admin/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, event_date: date, target_audience: audience })
-      });
+      const res = await api.admin.events.create({ title, description, event_date: date, target_audience: audience });
 
       if (res.ok) {
         toast("Event created successfully", "fa-solid fa-check");
@@ -411,9 +407,7 @@
     if (!confirm("Are you sure you want to delete this event?")) return;
 
     try {
-      const res = await fetch(`/api/admin/events/${currentEventId}`, {
-        method: 'DELETE'
-      });
+      const res = await api.admin.events.delete(currentEventId);
 
       if (res.ok) {
         toast("Event deleted successfully", "fa-solid fa-check");

@@ -358,7 +358,7 @@
 
     // Load exams from API
     try {
-      const response = await api.teacher.exams.getAll(); // We need to add this to api wrapper or calls fetch directly
+      const response = await api.teacher.exams.getAll();
       if (!response.ok) throw new Error("Failed to load exams");
       const exams = await response.json();
 
@@ -367,14 +367,6 @@
       `).join('');
     } catch (err) {
       console.error("Error loading exams:", err);
-      // Fallback or explicit fetch if api wrapper isn't updated
-      try {
-        const res = await fetch('/api/teacher/exams', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
-        const exams = await res.json();
-        options.innerHTML = exams.map(exam => `
-            <div class="dropdown-item" data-value="${exam.id}">${exam.name}</div>
-          `).join('');
-      } catch (e) { console.error("Double fail", e); }
     }
 
 

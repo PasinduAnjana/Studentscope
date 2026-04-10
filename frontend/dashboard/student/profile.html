@@ -374,7 +374,7 @@
 <script>
   async function loadProfile() {
     try {
-      const response = await fetch("/api/student/profile");
+      const response = await api.student.profile.get();
       if (!response.ok) throw new Error("Failed to fetch profile");
 
       const profile = await response.json();
@@ -428,9 +428,7 @@
   async function loadProfileStats() {
     try {
       // Load attendance percentage
-      const attendanceResponse = await fetch(
-        "/api/student/attendance/percentage"
-      );
+      const attendanceResponse = await api.student.attendance.getPercentage();
       if (attendanceResponse.ok) {
         const attendance = await attendanceResponse.json();
         const percentage =
@@ -443,7 +441,7 @@
       }
 
       // Load average marks
-      const marksResponse = await fetch("/api/student/marks/average");
+      const marksResponse = await api.student.marks.getAverage();
       if (marksResponse.ok) {
         const marks = await marksResponse.json();
         const average = marks.average
@@ -453,9 +451,7 @@
       }
 
       // Load present days
-      const presentDaysResponse = await fetch(
-        "/api/student/attendance/present-days"
-      );
+      const presentDaysResponse = await api.student.attendance.getPresentDays();
       if (presentDaysResponse.ok) {
         const presentDays = await presentDaysResponse.json();
         document.getElementById("present-days").textContent =
@@ -464,7 +460,7 @@
 
       // Load class information
       const classInfo = document.getElementById("class-info");
-      const profileResponse = await fetch("/api/student/profile");
+      const profileResponse = await api.student.profile.get();
       if (profileResponse.ok) {
         const profile = await profileResponse.json();
         const lang = localStorage.getItem("lang") || "en";
@@ -535,15 +531,9 @@
     }
 
     try {
-      const response = await fetch("/api/student/change-password", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          oldPassword: oldPassword,
-          newPassword: newPassword,
-        }),
+      const response = await api.student.profile.changePassword({
+        oldPassword: oldPassword,
+        newPassword: newPassword,
       });
 
       if (!response.ok) {

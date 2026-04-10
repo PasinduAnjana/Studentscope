@@ -121,10 +121,29 @@ const api = {
       reject: (id) =>
         api.request(`/teacher/password-resets/${id}/reject`, "POST"),
     },
+    events: {
+      getAll: () => api.request("/teacher/events"),
+      create: (data) => api.request("/teacher/events", "POST", data),
+      delete: (id) => api.request(`/teacher/events/${id}`, "DELETE"),
+    },
   },
 
   // Clerk endpoints
   clerk: {
+    attendance: {
+      getStats: () => api.request("/clerk/attendance/stats"),
+      getUnmarkedClasses: () => api.request("/clerk/attendance/unmarked-classes"),
+    },
+    subjects: {
+      getAll: () => api.request("/clerk/subjects"),
+    },
+    classes: {
+      getAll: () => api.request("/clerk/classes"),
+      create: (data) => api.request("/clerk/classes", "POST", data),
+      update: (id, data) => api.request(`/clerk/classes/${id}`, "PUT", data),
+      delete: (id) => api.request(`/clerk/classes/${id}`, "DELETE"),
+      assignTeacher: (data) => api.request("/clerk/classes/assign-teacher", "POST", data),
+    },
     achievements: {
       getAll: () => api.request("/clerk/achievements"),
       create: (data) => api.request("/clerk/achievements", "POST", data),
@@ -137,12 +156,6 @@ const api = {
       create: (data) => api.request("/clerk/students", "POST", data),
       update: (id, data) => api.request(`/clerk/students/${id}`, "PUT", data),
       delete: (id) => api.request(`/clerk/students/${id}`, "DELETE"),
-    },
-    classes: {
-      getAll: () => api.request("/clerk/classes"),
-      create: (data) => api.request("/clerk/classes", "POST", data),
-      update: (id, data) => api.request(`/clerk/classes/${id}`, "PUT", data),
-      delete: (id) => api.request(`/clerk/classes/${id}`, "DELETE"),
     },
     teachers: {
       getAll: () => api.request("/clerk/teachers"),
@@ -174,6 +187,29 @@ const api = {
       getAllMarks: (id) => api.request(`/clerk/exams/${id}/all-marks`),
       updateIndex: (examId, studentId, indexNumber) => api.request(`/clerk/exams/${examId}/index`, "PATCH", { student_id: studentId, index_number: indexNumber }),
       bulkImportIndex: (examId, entries) => api.request(`/clerk/exams/${examId}/import-index`, "POST", { entries }),
+    },
+    events: {
+      getAll: () => api.request("/clerk/events"),
+      create: (data) => api.request("/clerk/events", "POST", data),
+      delete: (id) => api.request(`/clerk/events/${id}`, "DELETE"),
+    },
+    pin: {
+      verify: (data) => api.request("/clerk/pin/verify", "POST", data),
+      getStatus: () => api.request("/clerk/pin/status"),
+      set: (data) => api.request("/clerk/pin/set", "POST", data),
+    },
+    timetable: {
+      getByClass: (classId) => api.request(`/clerk/timetable/class/${classId}`),
+      assign: (data) => api.request("/clerk/timetable/assign", "POST", data),
+    },
+    passwordResets: {
+      getPending: () => api.request("/clerk/password-resets/pending"),
+      approve: (id) => api.request(`/clerk/password-resets/${id}/approve`, "POST"),
+      reject: (id) => api.request(`/clerk/password-resets/${id}/reject`, "POST"),
+    },
+    alerts: {
+      getAll: () => api.request("/clerk/alerts"),
+      getDetails: (type) => api.request(`/clerk/alerts/details?type=${type}`),
     },
 
   },
@@ -286,6 +322,24 @@ const api = {
       getTermTests: () => api.request("/student/marks/term-tests"),
       getTermTestMarks: (examId) => api.request(`/student/marks/term-test?examId=${examId}`),
       getTrend: () => api.request("/student/marks/trend"),
+    },
+    profile: {
+      get: () => api.request("/student/profile"),
+      changePassword: (data) => api.request("/student/change-password", "PUT", data),
+    },
+    timetable: {
+      getWeek: () => api.request("/student/timetable/week"),
+      getToday: () => api.request("/student/timetable/today"),
+    },
+    attendance: {
+      getPercentage: () => api.request("/student/attendance/percentage"),
+      getPresentDays: () => api.request("/student/attendance/present-days"),
+    },
+    announcements: {
+      getAll: () => api.request("/student/announcements"),
+    },
+    events: {
+      getAll: () => api.request("/student/events"),
     },
   },
 

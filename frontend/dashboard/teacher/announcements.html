@@ -277,7 +277,7 @@
 
   function fetchMyAnnouncements() {
     console.log("Fetching my announcements...");
-    fetch("/api/teacher/announcements")
+    api.teacher.announcements.getAll()
       .then((res) => {
         console.log("API response status:", res.status);
         if (!res.ok) throw new Error("Failed to fetch announcements");
@@ -303,7 +303,7 @@
 
   function fetchReceivedAnnouncements() {
     console.log("Fetching received announcements...");
-    fetch("/api/teacher/announcements/received")
+    api.teacher.announcements.getReceived()
       .then((res) => {
         console.log("API response status:", res.status);
         if (!res.ok) throw new Error("Failed to fetch received announcements");
@@ -378,9 +378,6 @@
 
     // Teachers can only send to their own class
     const method = editingAnnouncement ? "PUT" : "POST";
-    const url = editingAnnouncement
-      ? `/api/teacher/announcements/${editingAnnouncement.id}`
-      : "/api/teacher/announcements";
 
     const body = {
       title,
@@ -389,11 +386,11 @@
       class_ids: [], // Will be set by backend based on teacher's class
     };
 
-    fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
+    const request = editingAnnouncement
+      ? api.teacher.announcements.update(editingAnnouncement.id, body)
+      : api.teacher.announcements.create(body);
+
+    request
       .then((res) => {
         if (!res.ok) throw new Error("Failed to save announcement");
         return res.json();
@@ -466,9 +463,7 @@
         confirmText: "Delete",
         cancelText: "Cancel",
         onConfirm: function () {
-          fetch(`/api/teacher/announcements/${id}`, {
-            method: "DELETE",
-          })
+          api.teacher.announcements.delete(id)
             .then((res) => {
               if (!res.ok) throw new Error("Failed to delete announcement");
               return res.json();

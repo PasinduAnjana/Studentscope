@@ -5,14 +5,7 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
   const password = document.getElementById("password").value.trim();
   const errorEl = document.getElementById("loginError");
 
-  fetch("/api/auth/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify({ username, password }),
-  })
+  api.auth.login({ username, password })
     .then((res) => res.json())
     .then((data) => {
       if (data.role) {

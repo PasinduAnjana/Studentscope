@@ -99,7 +99,7 @@
   // Load grade-wise performance chart
   async function loadGradePerformance() {
     try {
-      const res = await fetch("/api/admin/academic/performance/grades");
+      const res = await api.admin.academic.getPerformanceByGrade();
       if (res.ok) {
         const data = await res.json();
 
@@ -227,7 +227,7 @@
   // Load subject-wise performance
   async function loadSubjectPerformance() {
     try {
-      const res = await fetch("/api/admin/academic/performance/subjects");
+      const res = await api.admin.academic.getSubjectPerformance();
       if (res.ok) {
         const data = await res.json();
 
@@ -367,7 +367,7 @@
   // Load top performers
   async function loadTopPerformers() {
     try {
-      const res = await fetch("/api/admin/academic/top-performers");
+      const res = await api.admin.academic.getTopPerformers();
       if (res.ok) {
         const data = await res.json();
 
@@ -439,7 +439,7 @@
   // Load students needing attention
   async function loadAttentionNeeded() {
     try {
-      const res = await fetch("/api/admin/academic/attention-needed");
+      const res = await api.admin.academic.getAttentionNeeded();
       if (res.ok) {
         const data = await res.json();
 
@@ -511,7 +511,7 @@
   // Load recent exams
   async function loadRecentExams() {
     try {
-      const res = await fetch("/api/admin/academic/recent-exams");
+      const res = await api.admin.academic.getRecentExams();
       if (res.ok) {
         const data = await res.json();
 
@@ -582,7 +582,7 @@
   // Load performance distribution (pie chart)
   async function loadPerformanceDistribution() {
     try {
-      const res = await fetch("/api/admin/academic/performance-distribution");
+      const res = await api.admin.academic.getPerformanceDistribution();
       if (res.ok) {
         const data = await res.json();
 
