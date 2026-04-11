@@ -746,6 +746,10 @@
       option.textContent = `${cls.grade} - ${cls.class_name}`;
       select.appendChild(option);
     });
+    // Set first class as default to avoid fetching all 800+ records
+    if (allClasses.length > 0 && !select.value) {
+      select.value = allClasses[0].id;
+    }
     // transform into searchable dropdown
     if (typeof makeSearchableDropdown === "function") {
       searchableClassFilter = makeSearchableDropdown(
@@ -1506,9 +1510,10 @@
   setupModal();
   setupExport();
   setupExportPDF();
-  fetchClasses();
-  fetchStudents();
-  refreshAttendance();
+  (async () => {
+    await fetchClasses();
+    refreshAttendance();
+  })();
   loadAttendanceOverviewChart();
   fetchAllClassStats();
 </script>
