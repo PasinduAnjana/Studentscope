@@ -248,6 +248,11 @@ const api = {
     },
     attendance: {
       getStats: (date) => api.request(`/admin/attendance/stats?date=${date}`),
+      getStatsByClass: (date, grade) => {
+        const params = new URLSearchParams({ date });
+        if (grade) params.set("grade", grade);
+        return api.request(`/admin/attendance/stats/by-class?${params.toString()}`);
+      },
       getRecords: (date, filters = {}) => {
         const params = new URLSearchParams({ date });
         if (filters.classId) params.set("classId", filters.classId);

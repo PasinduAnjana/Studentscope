@@ -83,6 +83,45 @@ exports.getAttendanceStats = async (dateStr) => {
   };
 };
 
+// Get attendance stats by class for charts
+exports.getAttendanceStatsByClass = async (dateStr, gradeFilter = null) => {
+  let query = `
+    SELECT
+      c.id as class_id,
+      c.grade,
+      c.name as class_name,
+      COUNT(CASE WHEN a.status = true THEN 1 END) as present_count,
+      COUNT(CASE WHEN a.status = false THEN 1 END) as absent_count
+    FROM classes c
+    LEFT JOIN attendance a ON c.id = a.class_id AND a.date = $1
+  `;
+
+  const params = [dateStr];
+
+  if (gradeFilter) {
+    query += ` WHERE c.grade = $2`;
+    params.push(parseInt(gradeFilter, 10));
+  }
+
+  query += `
+    GROUP BY c.id, c.grade, c.name
+    ORDER BY c.grade, c.name
+  `;
+
+  const result = await pool.query(query, params);
+
+  const classStats = {};
+  result.rows.forEach((row) => {
+    const className = `Grade ${row.grade} - ${row.class_name}`;
+    classStats[className] = {
+      present: parseInt(row.present_count) || 0,
+      absent: parseInt(row.absent_count) || 0,
+    };
+  });
+
+  return classStats;
+};
+
 // Get attendance records for a specific date with filtering
 exports.getAttendanceRecords = async (dateStr, filters = {}) => {
   let query = `

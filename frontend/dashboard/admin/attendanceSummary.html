@@ -203,6 +203,11 @@
         <i class="fas fa-chart-bar"></i>
         Attendance by Class
       </h3>
+      <div class="flex gap-2 mb-2" style="align-items: center">
+        <select id="chart-grade-filter" class="input" style="max-width: 200px">
+          <option value="">All Grades</option>
+        </select>
+      </div>
       <div class="chart-container">
         <canvas id="attendance-by-class-chart"></canvas>
       </div>
@@ -494,6 +499,9 @@
   let searchableClassFilter = null;
   let searchableStatusFilter = null;
   let searchablePageSize = null;
+  let overviewChartInstance = null;
+  let byClassChartInstance = null;
+  let allClassStats = {};
 
   function updateSearchableDisplay(selectId) {
     const select = document.getElementById(selectId);
@@ -658,19 +666,17 @@
         document.getElementById("average-attendance").textContent =
           stats.averageAttendance + "%";
       } else {
-        // Fallback to mock data if API fails
-        document.getElementById("total-students").textContent = "245";
-        document.getElementById("present-today").textContent = "198";
-        document.getElementById("absent-today").textContent = "47";
-        document.getElementById("average-attendance").textContent = "81%";
+        document.getElementById("total-students").textContent = "N/A";
+        document.getElementById("present-today").textContent = "N/A";
+        document.getElementById("absent-today").textContent = "N/A";
+        document.getElementById("average-attendance").textContent = "N/A";
       }
     } catch (err) {
       console.error("Error fetching attendance stats:", err);
-      // Fallback to mock data if API fails
-      document.getElementById("total-students").textContent = "245";
-      document.getElementById("present-today").textContent = "198";
-      document.getElementById("absent-today").textContent = "47";
-      document.getElementById("average-attendance").textContent = "81%";
+      document.getElementById("total-students").textContent = "N/A";
+      document.getElementById("present-today").textContent = "N/A";
+      document.getElementById("absent-today").textContent = "N/A";
+      document.getElementById("average-attendance").textContent = "N/A";
     }
   }
 
@@ -680,90 +686,21 @@
       const selectedDate =
         dateInput.value || new Date().toISOString().split("T")[0];
 
-      // Build query parameters for filters
-      const params = new URLSearchParams({ date: selectedDate });
-
       const classId = document.getElementById("class-filter").value;
       const status = document.getElementById("status-filter").value;
       const search = document.getElementById("attendance-search").value.trim();
 
-      if (classId) params.append("classId", classId);
-      if (status) params.append("status", status);
-      if (search) params.append("search", search);
-
       const recordsRes = await api.admin.attendance.getRecords(selectedDate, { classId, status, search });
       if (recordsRes.ok) {
         allAttendanceRecords = await recordsRes.json();
-        renderAttendance(allAttendanceRecords); // Render directly since filtering is done server-side
+        renderAttendance(allAttendanceRecords);
       } else {
-        // Fallback to mock data if API fails
-        allAttendanceRecords = [
-          {
-            id: 1,
-            student_id: 1,
-            class_id: 1,
-            status: "present",
-            time: "08:30",
-            date: selectedDate,
-            student_name: "John Doe",
-            username: "john123",
-            class_name: "Grade 6 - A",
-          },
-          {
-            id: 2,
-            student_id: 2,
-            class_id: 1,
-            status: "present",
-            time: "08:35",
-            date: selectedDate,
-            student_name: "Jane Smith",
-            username: "jane123",
-            class_name: "Grade 6 - A",
-          },
-          {
-            id: 3,
-            student_id: 3,
-            class_id: 1,
-            status: "absent",
-            time: null,
-            date: selectedDate,
-            student_name: "Bob Johnson",
-            username: "bob123",
-            class_name: "Grade 6 - A",
-          },
-          {
-            id: 4,
-            student_id: 4,
-            class_id: 2,
-            status: "present",
-            time: "08:45",
-            date: selectedDate,
-            student_name: "Alice Brown",
-            username: "alice123",
-            class_name: "Grade 7 - B",
-          },
-        ];
+        allAttendanceRecords = [];
         renderAttendance(allAttendanceRecords);
       }
     } catch (err) {
       console.error("Error fetching attendance records:", err);
-      // Fallback to mock data
-      const dateInput = document.getElementById("attendance-date");
-      const selectedDate =
-        dateInput.value || new Date().toISOString().split("T")[0];
-      allAttendanceRecords = [
-        {
-          id: 1,
-          student_id: 1,
-          class_id: 1,
-          status: "present",
-          time: "08:30",
-          date: selectedDate,
-          student_name: "John Doe",
-          username: "john123",
-          class_name: "Grade 6 - A",
-        },
-      ];
+      allAttendanceRecords = [];
       renderAttendance(allAttendanceRecords);
     }
   }
@@ -786,6 +723,7 @@
       allClasses = await res.json();
       populateClassFilter();
       populateStatusFilter();
+      populateGradeFilter();
     } catch (err) {
       console.error("Error fetching classes:", err);
     }
@@ -901,6 +839,11 @@
     document
       .getElementById("next-page")
       .addEventListener("click", () => goToPage(currentPage + 1));
+    document
+      .getElementById("chart-grade-filter")
+      .addEventListener("change", () => {
+        renderAttendanceByClassChart();
+      });
   }
 
   function setupDatePicker() {
@@ -1038,7 +981,7 @@
     fetchAttendanceStats();
     fetchAttendanceRecords();
     loadAttendanceOverviewChart();
-    loadAttendanceByClassChart();
+    fetchAllClassStats();
   }
 
   // Setup export functionality
@@ -1373,20 +1316,22 @@
 
   // Load attendance overview chart (Present vs Absent pie chart)
   async function loadAttendanceOverviewChart() {
+    const chartExists = document.getElementById("attendance-overview-chart");
+    if (!chartExists) return;
+
     try {
       const dateInput = document.getElementById("attendance-date");
       const selectedDate =
         dateInput.value || new Date().toISOString().split("T")[0];
 
       const statsRes = await api.admin.attendance.getStats(selectedDate);
-      let presentCount = 198;
-      let absentCount = 47;
+      if (!statsRes.ok) return;
 
-      if (statsRes.ok) {
-        const stats = await statsRes.json();
-        presentCount = stats.presentToday || presentCount;
-        absentCount = stats.absentToday || absentCount;
-      }
+      const stats = await statsRes.json();
+      const presentCount = stats.presentToday || 0;
+      const absentCount = stats.absentToday || 0;
+
+      if (presentCount === 0 && absentCount === 0) return;
 
       setTimeout(() => {
         const rootStyles = getComputedStyle(document.documentElement);
@@ -1400,7 +1345,10 @@
 
         const ctx = document.getElementById("attendance-overview-chart");
         if (ctx) {
-          new Chart(ctx, {
+          if (overviewChartInstance) {
+            overviewChartInstance.destroy();
+          }
+          overviewChartInstance = new Chart(ctx, {
             type: "doughnut",
             data: {
               labels: ["Present", "Absent"],
@@ -1433,103 +1381,121 @@
     }
   }
 
-  // Load attendance by class chart
-  async function loadAttendanceByClassChart() {
+  function populateGradeFilter() {
+    const select = document.getElementById("chart-grade-filter");
+    if (!select || !allClasses.length) return;
+
+    const grades = [...new Set(allClasses.map((c) => c.grade))].sort((a, b) => a - b);
+    select.innerHTML = '<option value="">All Grades</option>';
+    grades.forEach((grade) => {
+      const option = document.createElement("option");
+      option.value = grade;
+      option.textContent = `Grade ${grade}`;
+      select.appendChild(option);
+    });
+  }
+
+  // Fetch all class stats from backend
+  async function fetchAllClassStats() {
     try {
       const dateInput = document.getElementById("attendance-date");
       const selectedDate =
         dateInput.value || new Date().toISOString().split("T")[0];
 
-      // Group current records by class
-      let classData = {};
+      const statsRes = await api.admin.attendance.getStatsByClass(selectedDate);
+      if (!statsRes.ok) return;
 
-      allAttendanceRecords.forEach((record) => {
-        const className = record.class_name || "Unknown";
-        if (!classData[className]) {
-          classData[className] = { present: 0, absent: 0 };
-        }
-        if (record.status === "present") {
-          classData[className].present++;
-        } else {
-          classData[className].absent++;
+      allClassStats = await statsRes.json();
+      renderAttendanceByClassChart();
+    } catch (err) {
+      console.error("Error fetching class stats:", err);
+    }
+  }
+
+  // Render attendance by class chart with local filtering
+  function renderAttendanceByClassChart() {
+    const chartExists = document.getElementById("attendance-by-class-chart");
+    if (!chartExists) return;
+
+    const gradeFilter = document.getElementById("chart-grade-filter")?.value || null;
+
+    let classData = allClassStats;
+    if (gradeFilter) {
+      classData = {};
+      Object.entries(allClassStats).forEach(([key, value]) => {
+        if (key.startsWith(`Grade ${gradeFilter} -`)) {
+          classData[key] = value;
         }
       });
-
-      // If no data, fetch mock data
-      if (Object.keys(classData).length === 0) {
-        classData = {
-          "Grade 6 - A": { present: 28, absent: 2 },
-          "Grade 6 - B": { present: 25, absent: 5 },
-          "Grade 7 - A": { present: 32, absent: 1 },
-          "Grade 7 - B": { present: 29, absent: 4 },
-        };
-      }
-
-      const labels = Object.keys(classData);
-      const presentData = labels.map((cls) => classData[cls].present);
-      const absentData = labels.map((cls) => classData[cls].absent);
-
-      setTimeout(() => {
-        const rootStyles = getComputedStyle(document.documentElement);
-        const primaryColor = rootStyles
-          .getPropertyValue("--color-primary")
-          .trim();
-        const primaryHover = rootStyles
-          .getPropertyValue("--color-primary-hover")
-          .trim();
-        const textColor = rootStyles.getPropertyValue("--color-text").trim();
-
-        const ctx = document.getElementById("attendance-by-class-chart");
-        if (ctx) {
-          new Chart(ctx, {
-            type: "bar",
-            data: {
-              labels: labels,
-              datasets: [
-                {
-                  label: "Present",
-                  data: presentData,
-                  backgroundColor: primaryColor,
-                  borderColor: primaryColor,
-                  borderWidth: 2,
-                  borderRadius: 4,
-                },
-                {
-                  label: "Absent",
-                  data: absentData,
-                  backgroundColor: primaryHover,
-                  borderColor: primaryHover,
-                  borderWidth: 2,
-                  borderRadius: 4,
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              indexAxis: "y",
-              scales: {
-                x: {
-                  beginAtZero: true,
-                  ticks: {
-                    stepSize: 1,
-                  },
-                },
-              },
-              plugins: {
-                legend: {
-                  labels: {
-                    color: textColor,
-                  },
-                },
-              },
-            },
-          });
-        }
-      }, 100);
-    } catch (err) {
-      console.error("Error loading attendance by class chart:", err);
     }
+
+    const labels = Object.keys(classData);
+    if (labels.length === 0) return;
+
+    const presentData = labels.map((cls) => classData[cls].present);
+    const absentData = labels.map((cls) => classData[cls].absent);
+
+    setTimeout(() => {
+      const rootStyles = getComputedStyle(document.documentElement);
+      const primaryColor = rootStyles
+        .getPropertyValue("--color-primary")
+        .trim();
+      const primaryHover = rootStyles
+        .getPropertyValue("--color-primary-hover")
+        .trim();
+      const textColor = rootStyles.getPropertyValue("--color-text").trim();
+
+      const ctx = document.getElementById("attendance-by-class-chart");
+      if (ctx) {
+        if (byClassChartInstance) {
+          byClassChartInstance.destroy();
+        }
+        byClassChartInstance = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Present",
+                data: presentData,
+                backgroundColor: primaryColor,
+                borderColor: primaryColor,
+                borderWidth: 2,
+                borderRadius: 4,
+              },
+              {
+                label: "Absent",
+                data: absentData,
+                backgroundColor: primaryHover,
+                borderColor: primaryHover,
+                borderWidth: 2,
+                borderRadius: 4,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: "y",
+            scales: {
+              x: {
+                beginAtZero: true,
+                ticks: {
+                  stepSize: 1,
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                labels: {
+                  color: textColor,
+                },
+              },
+            },
+          },
+        });
+      }
+    }, 100);
   }
 
   // Initialize
@@ -1544,5 +1510,5 @@
   fetchStudents();
   refreshAttendance();
   loadAttendanceOverviewChart();
-  loadAttendanceByClassChart();
+  fetchAllClassStats();
 </script>

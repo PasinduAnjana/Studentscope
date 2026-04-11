@@ -60,6 +60,15 @@ module.exports = (req, res) => {
   // Attendance routes
   if (
     req.method === "GET" &&
+    req.url.startsWith("/api/admin/attendance/stats/by-class")
+  ) {
+    return protect("admin")(req, res, () =>
+      attendanceController.getAttendanceStatsByClass(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
     req.url.startsWith("/api/admin/attendance/stats")
   ) {
     return protect("admin")(req, res, () =>

@@ -23,6 +23,30 @@ exports.getAttendanceStats = async (req, res) => {
   }
 };
 
+exports.getAttendanceStatsByClass = async (req, res) => {
+  try {
+    const parsed = new URL(req.url, `http://${req.headers.host}`);
+    const date = parsed.searchParams.get("date");
+    const grade = parsed.searchParams.get("grade");
+
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({ error: "Invalid or missing date (YYYY-MM-DD)" })
+      );
+      return;
+    }
+
+    const stats = await adminService.getAttendanceStatsByClass(date, grade);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(stats));
+  } catch (err) {
+    console.error("Error fetching attendance stats by class:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch attendance statistics by class" }));
+  }
+};
+
 exports.getAttendanceRecords = async (req, res) => {
   try {
     const parsed = new URL(req.url, `http://${req.headers.host}`);
