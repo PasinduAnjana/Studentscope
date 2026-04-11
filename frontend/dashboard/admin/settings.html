@@ -1,0 +1,97 @@
+<h2 class="heading">
+  <i class="fas fa-cog"></i>
+  <span data="sidebar.settings">Settings</span>
+</h2>
+
+<div class="card-grid">
+  <!-- School Details Card -->
+  <div class="card w-2">
+    <h3 class="tile-label" data-en="School Details" data-si="පාලන විස්තර" data-ta="பள்ளி விவரங்கள்">School Details</h3>
+    <p class="text-sm text-muted" style="margin-bottom: 16px;" data-en="Configure your school information that appears on certificates" data-si="සහතලයක් මත පෙන්වන පාලන තොරතුරු වින්‍යාස කරන්න" data-ta="சான்றுகளில் தோன்றும் பள்ளி தகவல்களை உள்ளமைக்க">Configure your school information that appears on certificates</p>
+    
+    <form id="schoolDetailsForm" style="margin-top: 16px;">
+      <div class="input-group">
+        <label class="input-label" data-en="School Name" data-si="පාලනයේ නම" data-ta="பள்ளி பெயர்">School Name</label>
+        <input type="text" id="schoolName" class="input-field" required>
+      </div>
+      
+      <div class="input-group">
+        <label class="input-label" data-en="Address" data-si="ලිපිනය" data-ta="முகவரி">Address</label>
+        <textarea id="schoolAddress" class="input-field" rows="3"></textarea>
+      </div>
+      
+      <div class="input-group">
+        <label class="input-label" data-en="Phone" data-si="දුරකථනය" data-ta="தொலைபேசி">Phone</label>
+        <input type="text" id="schoolPhone" class="input-field">
+      </div>
+      
+      <div class="input-group">
+        <label class="input-label" data-en="Email" data-si="විද්‍යුත් තැපෑල" data-ta="மின்னஞ்சல்">Email</label>
+        <input type="email" id="schoolEmail" class="input-field">
+      </div>
+      
+      <div class="input-group">
+        <label class="input-label" data-en="Principal Name" data-si="විද්‍යාපාරුවගේ නම" data-ta="தலைமையாசிரியர் பெயர்">Principal Name</label>
+        <input type="text" id="principalName" class="input-field">
+      </div>
+      
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
+        <i class="fas fa-save"></i>
+        <span data-en="Save Details" data-si="විස්තර සුරකින්න" data-ta="விவரங்களைச் சேமி">Save Details</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function showToast(message, icon) {
+    if (typeof toast === "function") {
+      toast(message, icon);
+    } else {
+      alert(message);
+    }
+  }
+
+  async function loadSchoolDetails() {
+    try {
+      const res = await api.admin.schoolDetails.get();
+      if (!res.ok) throw new Error("Failed to load");
+      const data = await res.json();
+      
+      if (data) {
+        document.getElementById("schoolName").value = data.school_name || "";
+        document.getElementById("schoolAddress").value = data.address || "";
+        document.getElementById("schoolPhone").value = data.phone || "";
+        document.getElementById("schoolEmail").value = data.email || "";
+        document.getElementById("principalName").value = data.principal_name || "";
+      }
+    } catch (err) {
+      console.error("Error loading school details:", err);
+    }
+  }
+
+  async function saveSchoolDetails(e) {
+    e.preventDefault();
+    
+    const data = {
+      school_name: document.getElementById("schoolName").value,
+      address: document.getElementById("schoolAddress").value,
+      phone: document.getElementById("schoolPhone").value,
+      email: document.getElementById("schoolEmail").value,
+      principal_name: document.getElementById("principalName").value,
+    };
+    
+    try {
+      const res = await api.admin.schoolDetails.update(data);
+      if (!res.ok) throw new Error("Failed to save");
+      
+      showToast("School details saved successfully!", "fa-solid fa-check");
+    } catch (err) {
+      console.error("Error saving school details:", err);
+      showToast("Failed to save details", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  document.getElementById("schoolDetailsForm").addEventListener("submit", saveSchoolDetails);
+  loadSchoolDetails();
+</script>

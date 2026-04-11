@@ -35,7 +35,8 @@
     "behavior": "Behavior Reports",
     "certificates": "Certificates",
     "certificateApproval": "Certificate Approval",
-    "events": "Events"
+    "events": "Events",
+    "settings": "Settings"
   },
   "profile": {
     "quickStats": "Quick Stats",

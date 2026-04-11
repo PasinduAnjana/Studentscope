@@ -842,6 +842,18 @@ async function run() {
     console.log(
       "🎉 Database seeded successfully with behavior records, timetable, attendance, and exam marks!"
     );
+
+    // Seed school details
+    try {
+      await pool.query(`
+        INSERT INTO school_details (school_name, address, phone, email, principal_name)
+        VALUES ('St. Mary''s High School', '123 Education Street, Academic City', '(555) 123-4567', 'info@stmarys.edu', 'Rev. Father Thomas')
+        ON CONFLICT DO NOTHING
+      `);
+      console.log("✅ School details seeded");
+    } catch (err) {
+      console.error("❌ School details seeding error:", err);
+    }
   } catch (err) {
     console.error("❌ Seeding error:", err);
   } finally {

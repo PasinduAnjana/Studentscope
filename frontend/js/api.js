@@ -309,6 +309,23 @@ const api = {
       getAll: () => api.request("/admin/alerts"),
       getDetails: (type) => api.request(`/admin/alerts/details?type=${type}`),
     },
+    certificates: {
+      getAll: (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.status) params.set("status", filters.status);
+        if (filters.type) params.set("type", filters.type);
+        if (filters.class_id) params.set("class_id", filters.class_id);
+        if (filters.search) params.set("search", filters.search);
+        return api.request(`/admin/certificates?${params.toString()}`);
+      },
+      getById: (id) => api.request(`/admin/certificates/${id}`),
+      approve: (id) => api.request(`/admin/certificates/${id}/approve`, "PUT"),
+      reject: (id) => api.request(`/admin/certificates/${id}/reject`, "PUT"),
+    },
+    schoolDetails: {
+      get: () => api.request("/admin/school-details"),
+      update: (data) => api.request("/admin/school-details", "PUT", data),
+    },
   },
 
   // Student endpoints
@@ -340,6 +357,10 @@ const api = {
     },
     events: {
       getAll: () => api.request("/student/events"),
+    },
+    certificates: {
+      getAll: () => api.request("/student/certificates"),
+      create: (data) => api.request("/student/certificates", "POST", data),
     },
   },
 

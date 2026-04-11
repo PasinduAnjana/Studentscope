@@ -316,3 +316,58 @@ exports.getTermTestTrend = async (req, res) => {
     res.end(JSON.stringify({ error: "Failed to fetch term test trend" }));
   }
 };
+
+exports.getCertificates = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Unauthorized" }));
+      return;
+    }
+
+    const certificates = await studentService.getCertificates(userId);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(certificates));
+  } catch (err) {
+    console.error("Database error:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch certificates" }));
+  }
+};
+
+exports.createCertificate = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Unauthorized" }));
+      return;
+    }
+
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", async () => {
+      try {
+        const data = JSON.parse(body);
+        if (!data.type || !data.reason) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "type and reason are required" }));
+          return;
+        }
+
+        const certificate = await studentService.createCertificate(userId, data);
+        res.writeHead(201, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(certificate));
+      } catch (parseErr) {
+        console.error("Parse error:", parseErr);
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Invalid request body" }));
+      }
+    });
+  } catch (err) {
+    console.error("Database error:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to create certificate" }));
+  }
+};

@@ -320,6 +320,56 @@ module.exports = (req, res) => {
     );
   }
 
+  // Certificate routes - more specific first (get single by ID)
+  if (req.method === "GET" && req.url.startsWith("/api/admin/certificates/")) {
+    const id = req.url.split("/api/admin/certificates/")[1];
+    if (id && !id.includes("?")) {
+      return protect("admin")(req, res, () =>
+        profileController.getCertificateById(req, res)
+      );
+    }
+  }
+
+  // Certificate routes - list all (handles query params)
+  if (req.method === "GET" && (req.url === "/api/admin/certificates" || req.url.startsWith("/api/admin/certificates?"))) {
+    return protect("admin")(req, res, () =>
+      profileController.getCertificates(req, res)
+    );
+  }
+
+  if (req.method === "PUT" && req.url.endsWith("/approve")) {
+    const id = req.url.split("/api/admin/certificates/")[1]?.replace("/approve", "");
+    if (id) {
+      req.certId = id;
+      return protect("admin")(req, res, () =>
+        profileController.approveCertificate(req, res)
+      );
+    }
+  }
+
+  if (req.method === "PUT" && req.url.endsWith("/reject")) {
+    const id = req.url.split("/api/admin/certificates/")[1]?.replace("/reject", "");
+    if (id) {
+      req.certId = id;
+      return protect("admin")(req, res, () =>
+        profileController.rejectCertificate(req, res)
+      );
+    }
+  }
+
+  // School details routes - with query param handling
+  if (req.method === "GET" && (req.url === "/api/admin/school-details" || req.url.startsWith("/api/admin/school-details?"))) {
+    return protect("admin")(req, res, () =>
+      profileController.getSchoolDetails(req, res)
+    );
+  }
+
+  if (req.method === "PUT" && (req.url === "/api/admin/school-details" || req.url.startsWith("/api/admin/school-details?"))) {
+    return protect("admin")(req, res, () =>
+      profileController.updateSchoolDetails(req, res)
+    );
+  }
+
   res.writeHead(404, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Not Found" }));
 };

@@ -328,6 +328,32 @@ END $$;
         approved_at TIMESTAMPTZ
       );
     `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS certificates (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        student_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+        type TEXT NOT NULL CHECK (type IN ('character', 'leaving', 'enrollment')),
+        reason TEXT,
+        status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS school_details (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        school_name TEXT NOT NULL,
+        address TEXT,
+        phone TEXT,
+        email TEXT,
+        logo_url TEXT,
+        principal_name TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `);
   } catch (err) {
     console.error("❌ Error initializing database:", err);
   } finally {

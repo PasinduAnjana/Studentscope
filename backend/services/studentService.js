@@ -411,3 +411,28 @@ exports.getTermTestTrend = async (studentId) => {
   
   return result.rows;
 };
+
+exports.getCertificates = async (studentId) => {
+  const result = await pool.query(
+    `
+    SELECT id, type, reason, status, created_at
+    FROM certificates
+    WHERE student_id = $1
+    ORDER BY created_at DESC
+    `,
+    [studentId]
+  );
+  return result.rows;
+};
+
+exports.createCertificate = async (studentId, { type, reason }) => {
+  const result = await pool.query(
+    `
+    INSERT INTO certificates (student_id, type, reason)
+    VALUES ($1, $2, $3)
+    RETURNING id, type, reason, status, created_at
+    `,
+    [studentId, type, reason]
+  );
+  return result.rows[0];
+};

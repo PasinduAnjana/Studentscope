@@ -1,301 +1,490 @@
-<h2 class="heading">
-  <i class="fas fa-certificate"></i>
-  <span data-en="Certificate Approvals"</div>
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-certificate"></i>
+    <span data="sidebar.certificateApproval">Certificate Approvals</span>
+  </h2>
 
-</h2>
+  <!-- Summary Tiles -->
+  <div class="card-grid" style="margin-bottom: 24px;">
+    <div class="card">
+      <div class="icon-title">
+        <i class="fas fa-clock icon"></i>
+        <p class="tile-label" data-en="Pending" data-si="බලාපොරොත්තු" data-ta="நிலுவையில்">Pending</p>
+      </div>
+      <p class="tile-value" id="pendingCount">-</p>
+    </div>
+    <div class="card">
+      <div class="icon-title">
+        <i class="fas fa-check-circle icon"></i>
+        <p class="tile-label" data-en="Approved" data-si="අනුමත" data-ta="அங்கீகரிக்கப்பட்ட">Approved</p>
+      </div>
+      <p class="tile-value" id="approvedCount">-</p>
+    </div>
+    <div class="card">
+      <div class="icon-title">
+        <i class="fas fa-times-circle icon"></i>
+        <p class="tile-label" data-en="Rejected" data-si="ප්‍රතික්ෂේප" data-ta="நிராகரிக்கப்பட்ட">Rejected</p>
+      </div>
+      <p class="tile-value" id="rejectedCount">-</p>
+    </div>
+    <div class="card">
+      <div class="icon-title">
+        <i class="fas fa-file-alt icon"></i>
+        <p class="tile-label" data-en="Total" data-si="මුළු" data-ta="மொத்த">Total</p>
+      </div>
+      <p class="tile-value" id="totalCount">-</p>
+    </div>
+  </div>
 
-<!-- Summary Tiles -->
-<div class="summary-tiles">
-  <div class="card dashboard-tile summary-card">
+  <!-- Certificate Requests Table -->
+  <div class="card">
     <div class="icon-title">
-      <i class="fas fa-clock icon"></i>
-      <p data-en="Pending Requests" data-si="බලාපොරොත්තු ඉල්ලීම්" data-ta="நிலுவையிலுள்ள கோரிக்கைகள்">Pending Requests</p>
-    </div>
-    <p class="tile-value" id="pendingCount">0</p>
-  </div>
-  <div class="card dashboard-tile summary-card">
-    <div class="icon-title">
-      <i class="fas fa-check-circle icon"></i>
-      <p data-en="Approved Certificates" data-si="අනුමත කළ සහතික" data-ta="அங்கீகரிக்கப்பட்ட சான்றிதழ்கள்">Approved</p>
-    </div>
-    <p class="tile-value" id="approvedCount">0</p>
-  </div>
-  <div class="card dashboard-tile summary-card">
-    <div class="icon-title">
-      <i class="fas fa-times-circle icon"></i>
-      <p data-en="Rejected Certificates" data-si="ප්‍රතික්ෂේප කළ සහතික" data-ta="நிராகரிக்கப்பட்ட சான்றிதழ்கள்">Rejected</p>
-    </div>
-    <p class="tile-value" id="rejectedCount">0</p>
-  </div>
-  <div class="card dashboard-tile summary-card">
-    <div class="icon-title">
-      <i class="fas fa-file-alt icon"></i>
-      <p data-en="Total Requests" data-si="මුළු ඉල්ලීම්" data-ta="மொத்த கோரிக்கைகள்">Total Requests</p>
-    </div>
-    <p class="tile-value" id="totalRequests">0</p>
-  </div>
-</div>
-
-<!-- Certificate Requests Table -->
-<div class="card dashboard-tile">
-  <div class="icon-title">
-    <i class="fas fa-table icon"></i>
-    <p class="tile-label" data-en="Certificate Requests" data-si="සහතික ඉල්ලීම්" data-ta="சான்றிதழ் கோரிக்கைகள்">Certificate Requests</p>
-  </div>
-
-  <div class="filter-group">
-    <div>
-      <select id="classFilter" class="dropdown-select" onchange="renderCertificates()">
-        <option value="all" data-en="All Classes">All Classes</option>
-        <option value="10A">Grade 10-A</option>
-        <option value="10B">Grade 10-B</option>
-        <option value="11A">Grade 11-A</option>
-      </select>
+      <i class="fas fa-table icon"></i>
+      <p class="tile-label" data-en="Certificate Requests" data-si="සහතික ඉල්ලීම්" data-ta="சான்றிதழ் கோர்க்கைகள்">Certificate Requests</p>
     </div>
 
-    <div>
-      <select id="typeFilter" class="dropdown-select" onchange="renderCertificates()">
-        <option value="all" data-en="All Certificates">All Certificates</option>
-        <option value="Leaving">Leaving Certificate</option>
-        <option value="Character">Character Certificate</option>
-        <option value="Attendance">Attendance Certificate</option>
-        <option value="Enrollment">Enrollment Certificate</option>
-        <option value="Transfer">Transfer Certificate</option>
-      </select>
-    </div>
-
-    <div>
-      <select id="statusFilter" class="dropdown-select" onchange="renderCertificates()">
+    <div class="input-group" style="display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap;">
+      <select id="statusFilter" class="input-field" style="width: auto; min-width: 150px;" onchange="loadCertificates()">
         <option value="all" data-en="All Status">All Status</option>
-        <option value="Pending">Pending</option>
-        <option value="Approved">Approved</option>
-        <option value="Rejected">Rejected</option>
+        <option value="pending" data-en="Pending">Pending</option>
+        <option value="approved" data-en="Approved">Approved</option>
+        <option value="rejected" data-en="Rejected">Rejected</option>
+      </select>
+      <select id="typeFilter" class="input-field" style="width: auto; min-width: 150px;" onchange="loadCertificates()">
+        <option value="all" data-en="All Types">All Types</option>
+        <option value="character" data-en="Character Certificate">Character Certificate</option>
+        <option value="leaving" data-en="Leaving Certificate">Leaving Certificate</option>
+        <option value="enrollment" data-en="Enrollment Letter">Enrollment Letter</option>
       </select>
     </div>
 
-    <div class="export-buttons">
-      <button class="btn btn-primary" onclick="exportPDF()">
-        <i class="fas fa-file-pdf"></i> PDF
-      </button>
-      <button class="btn btn-primary" onclick="exportCSV()">
-        <i class="fas fa-file-excel"></i> Excel
-      </button>
+    <div class="table-responsive">
+      <table id="certificatesTable" class="table">
+        <thead>
+          <tr>
+            <th data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்">Student</th>
+            <th data-en="Class" data-si="��න්තිය" data-ta="வகுப்பு">Class</th>
+            <th data-en="Type" data-si="වර්ගය" data-ta="வகை">Type</th>
+            <th data-en="Date" data-si="දිනය" data-ta="தேதி">Date</th>
+            <th data-en="Status" data-si="තත්ත්‍ය" data-ta="நிலை">Status</th>
+            <th data-en="Actions" data-si="ක්‍රියාකාරකම්" data-ta="செயல்பாடுகள்">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="certificatesBody">
+          <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
+</section>
 
-  <div class="table-responsive">
-    <table id="certificatesTable">
-      <thead>
-        <tr>
-          <th>Student</th>
-          <th>Class</th>
-          <th>Type</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="certificatesBody"></tbody>
-    </table>
+<!-- Modal for Preview using ModalDialog component -->
+<modal-dialog id="certModal" title="Certificate Preview">
+  <div id="certPreview" class="certificate-preview">
+    <!-- Certificate content will be rendered here -->
   </div>
-</div>
-
-
-
-<!-- Modal for Preview (same logic as before) -->
-<div id="certModal" class="modal-overlay" style="display:none;">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3 data-en="Certificate Preview" data-si="සහතික පෙරදැක්ම" data-ta="சான்றிதழ் முன்னோட்டம்">Certificate Preview</h3>
-      <button class="btn btn-secondary btn-small" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>
-    </div>
-
-    <div id="certPreview" class="certificate-preview"></div>
-
-    <div class="modal-actions">
-      <button class="btn btn-primary" onclick="approveFromModal()"><i class="fas fa-check"></i> Approve</button>
-      <button class="btn btn-danger" onclick="rejectFromModal()"><i class="fas fa-times"></i> Reject</button>
-      <button class="btn btn-secondary" onclick="printPreview()"><i class="fas fa-print"></i> Print</button>
-    </div>
+  <div class="modal-actions" style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--color-border);">
+    <button class="btn btn-primary" id="approveBtn" onclick="approveCertificate()">
+      <i class="fas fa-check"></i> <span data-en="Approve" data-si="අනුමත" data-ta="அங்கீகர்">Approve</span>
+    </button>
+    <button class="btn btn-danger" id="rejectBtn" onclick="rejectCertificate()">
+      <i class="fas fa-times"></i> <span data-en="Reject" data-si="ප්‍රතික්ෂ" data-ta="நிராகரி">Reject</span>
+    </button>
+    <button class="btn btn-secondary" onclick="printCertificate()">
+      <i class="fas fa-print"></i> <span data-en="Print" data-si="මුද්‍රණය" data-ta="அச்சுதல்">Print</span>
+    </button>
   </div>
-</div>
-
-<script src="../../js/dropdown.js"></script>
-<script>
-  // Same core logic as before (approve/reject/export/render etc.)
-  // but adds tile count updates and realistic filters.
-
-  let certificatesData = JSON.parse(localStorage.getItem('certificates')) || [
-    { id: 1, student: 'Hansa Nirmal', class: '10A', type: 'Character', date: '2025-08-29', status: 'Pending' },
-    { id: 2, student: 'Yoshadhi Edirisinghe', class: '10B', type: 'Attendance', date: '2025-08-27', status: 'Approved' },
-    { id: 3, student: 'Chandupa Silva', class: '11A', type: 'Leaving', date: '2025-08-26', status: 'Pending' },
-    { id: 4, student: 'Pasindu Anjana', class: '11A', type: 'Transfer', date: '2025-08-25', status: 'Rejected' }
-  ];
-
-  function renderCertificates() {
-    const cFilter = document.getElementById('classFilter').value;
-    const tFilter = document.getElementById('typeFilter').value;
-    const sFilter = document.getElementById('statusFilter').value;
-    const tbody = document.getElementById('certificatesBody');
-
-    const filtered = certificatesData.filter(c =>
-      (cFilter === 'all' || c.class === cFilter) &&
-      (tFilter === 'all' || c.type === tFilter) &&
-      (sFilter === 'all' || c.status === sFilter)
-    );
-
-    tbody.innerHTML = filtered.map(c => `
-      <tr>
-        <td>${c.student}</td>
-        <td>${c.class}</td>
-        <td>${c.type}</td>
-        <td>${c.date}</td>
-        <td>${c.status}</td>
-        <td>
-          <button class="btn btn-small" onclick="viewCert(${c.id})"><i class="fas fa-eye"></i> View</button>
-          <button class="btn btn-small" onclick="approveCertificate(${c.id})"><i class="fas fa-check"></i> Approve</button>
-          <button class="btn btn-danger btn-small" onclick="rejectCertificate(${c.id})"><i class="fas fa-times"></i> Reject</button>
-        </td>
-      </tr>
-    `).join('');
-
-    // Update tile counts
-    document.getElementById('pendingCount').textContent = certificatesData.filter(c => c.status === 'Pending').length;
-    document.getElementById('approvedCount').textContent = certificatesData.filter(c => c.status === 'Approved').length;
-    document.getElementById('rejectedCount').textContent = certificatesData.filter(c => c.status === 'Rejected').length;
-    document.getElementById('totalRequests').textContent = certificatesData.length;
-  }
-
-  function approveCertificate(id) {
-    const i = certificatesData.findIndex(c => c.id === id);
-    if (i !== -1) certificatesData[i].status = 'Approved';
-    localStorage.setItem('certificates', JSON.stringify(certificatesData));
-    renderCertificates();
-  }
-
-  function rejectCertificate(id) {
-    const i = certificatesData.findIndex(c => c.id === id);
-    if (i !== -1) certificatesData[i].status = 'Rejected';
-    localStorage.setItem('certificates', JSON.stringify(certificatesData));
-    renderCertificates();
-  }
-
-  function viewCert(id) {
-    const c = certificatesData.find(x => x.id === id);
-    document.getElementById('certPreview').innerHTML =
-      `<p><b>Student:</b> ${c.student}</p>
-       <p><b>Type:</b> ${c.type}</p>
-       <p><b>Status:</b> ${c.status}</p>
-       <p>Certificate preview will appear here.</p>`;
-    document.getElementById('certModal').style.display = 'flex';
-  }
-
-  function closeModal() { document.getElementById('certModal').style.display = 'none'; }
-
-  function exportCSV() {
-    const rows = [['Student,Class,Type,Date,Status'], ...certificatesData.map(c => `${c.student},${c.class},${c.type},${c.date},${c.status}`)];
-    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'certificates.csv';
-    a.click();
-  }
-
-  function exportPDF() {
-    const html = document.getElementById('certificatesTable').outerHTML;
-    const w = window.open();
-    w.document.write(html);
-    w.print();
-  }
-
-  // ✅ Persistent Language Logic (Fixed)
-  function updateText(lang) {
-    document.querySelectorAll('[data-en],[data-si],[data-ta]').forEach(el => {
-      el.textContent = el.getAttribute(`data-${lang}`) || el.getAttribute('data-en');
-    });
-  }
-
-  // Apply saved language or default English
-  let savedLang = localStorage.getItem('lang') || 'en';
-  updateText(savedLang);
-
-  // Watch for language changes across tabs
-  window.addEventListener('storage', e => {
-    if (e.key === 'lang') updateText(e.newValue || 'en');
-  });
-
-  // Auto-refresh texts if language manually changed in system
-  setInterval(() => {
-    const currentLang = localStorage.getItem('lang') || 'en';
-    if (currentLang !== savedLang) {
-      updateText(currentLang);
-      savedLang = currentLang;
-    }
-  }, 500);
-
-  // Initialize searchable dropdowns
-  function initializeSearchableDropdowns() {
-    const dropdowns = document.querySelectorAll(".dropdown-select");
-    dropdowns.forEach((select) => {
-      if (typeof makeSearchableDropdown === "function") {
-        makeSearchableDropdown(select.id, () => {
-          select.dispatchEvent(new Event("change"));
-        });
-      }
-    });
-  }
-
-  // Initialize after page loads
-  if (document.readyState === "loading") {
-    document.addEventListener(
-      "DOMContentLoaded",
-      initializeSearchableDropdowns
-    );
-  } else {
-    initializeSearchableDropdowns();
-  }
-
-  renderCertificates();
-</script>
-
+</modal-dialog>
 
 <style>
-  .summary-tiles {
-    display: grid; grid-template-columns: repeat(4,1fr);
-    gap: 15px; margin-bottom: 15px;
-  }
-  .modal-overlay {
-    position: fixed; inset: 0; display: none; justify-content: center; align-items: center;
-    background: rgba(0,0,0,0.35); z-index: 1000;
-  }
-  .modal-card {
-    background: var(--color-card); color: var(--color-text); border-radius: 12px;
-    width: 80%; max-width: 600px; padding: 20px;
-  }
-  .filter-group {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px;
-    margin-bottom: 20px;
-    align-items: flex-end;
-    width: auto;
-  }
-  .filter-group > div {
-    flex: 0 0 auto;
-    min-width: 200px;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-  .filter-group .export-buttons {
-    margin-left: auto;
-    min-width: auto;
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    align-items: flex-end;
-  }
-  .filter-group .export-buttons button {
+  .modal-actions { margin-top: 16px; display: flex; gap: 12px; justify-content: flex-end; }
+  .certificate-preview {
+    font-family: 'Times New Roman', serif; line-height: 1.6;
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 20px;
     margin: 0;
+    color: #333;
+  }
+  .cert-school-name {
+    font-size: 24px; font-weight: bold; text-align: center;
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+    color: #1a1a1a;
+  }
+  .cert-school-address {
+    text-align: center; margin-bottom: 20px; color: #555;
+  }
+  .cert-title {
+    font-size: 20px; font-weight: bold; text-align: center;
+    text-transform: uppercase;
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: 10px; margin-bottom: 20px;
+    color: #1a1a1a;
+  }
+  .cert-intro {
+    text-align: center; font-style: italic; margin-bottom: 20px;
+    color: #333;
+  }
+  .cert-detail {
+    margin: 12px 0; font-size: 16px;
+    color: #333;
+  }
+  .cert-detail strong { display: inline-block; width: 180px; color: #1a1a1a; }
+  .cert-achievements {
+    margin: 20px 0; padding: 15px; background: #f5f5f5; border-left: 3px solid #0066aa;
+  }
+  .cert-achievements-title {
+    font-weight: bold; margin-bottom: 10px;
+    color: #1a1a1a;
+  }
+  .cert-achievement-item {
+    margin: 8px 0; padding-left: 20px; position: relative;
+    color: #333;
+  }
+  .cert-achievement-item::before {
+    content: "•"; position: absolute; left: 0; color: #0066aa;
+  }
+  .cert-closing {
+    text-align: center; font-style: italic; margin: 20px 0;
+    color: #333;
+  }
+  .cert-signature {
+    margin-top: 40px; display: flex; justify-content: space-between;
+  }
+  .cert-signature-box {
+    text-align: center; width: 200px;
+  }
+  .cert-signature-line {
+    border-bottom: 2px solid #1a1a1a; margin-bottom: 8px; height: 50px;
+    color: #1a1a1a;
+  }
+  @media print {
+    body * { visibility: hidden; }
+    #certPreview, #certPreview * { visibility: visible; }
+    #certPreview {
+      position: absolute; left: 0; top: 0; width: 100%;
+      border: none; margin: 0; padding: 0;
+    }
+    .no-print { display: none !important; }
   }
 </style>
+
+<script>
+  let currentCertId = null;
+  let currentCertData = null;
+
+  function showToast(message, icon) {
+    if (typeof toast === "function") {
+      toast(message, icon);
+    } else {
+      alert(message);
+    }
+  }
+
+  async function loadCertificates() {
+    const tbody = document.getElementById("certificatesBody");
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Loading...</td></tr>';
+    
+    try {
+      const filters = {
+        status: document.getElementById("statusFilter").value,
+        type: document.getElementById("typeFilter").value,
+      };
+      const res = await api.admin.certificates.getAll(filters);
+      if (!res.ok) throw new Error("Failed to load");
+      const data = await res.json();
+      
+      // Update counts
+      const total = data.length;
+      const pending = data.filter(c => c.status === "pending").length;
+      const approved = data.filter(c => c.status === "approved").length;
+      const rejected = data.filter(c => c.status === "rejected").length;
+      
+      document.getElementById("pendingCount").textContent = pending;
+      document.getElementById("approvedCount").textContent = approved;
+      document.getElementById("rejectedCount").textContent = rejected;
+      document.getElementById("totalCount").textContent = total;
+      
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-subtext);">No certificates found</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = data.map(c => `
+        <tr>
+          <td>${c.student_name || c.index_number}</td>
+          <td>${c.class_display || "-"}</td>
+          <td>${c.type}</td>
+          <td>${new Date(c.created_at).toLocaleDateString()}</td>
+          <td>${c.status}</td>
+          <td>
+            <button class="btn btn-small btn-primary" onclick="viewCertificate(${c.id})">
+              <i class="fas fa-eye"></i>
+            </button>
+            ${c.status === "pending" ? `
+            <button class="btn btn-small btn-primary" onclick="quickApprove(${c.id})">
+              <i class="fas fa-check"></i>
+            </button>
+            <button class="btn btn-small btn-secondary" onclick="quickReject(${c.id})">
+              <i class="fas fa-times"></i>
+            </button>
+            ` : ""}
+          </td>
+        </tr>
+      `).join("");
+    } catch (err) {
+      console.error("Error loading certificates:", err);
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-error);">Error loading certificates</td></tr>';
+    }
+  }
+
+  async function viewCertificate(id) {
+    currentCertId = id;
+    try {
+      const res = await api.admin.certificates.getById(id);
+      if (!res.ok) throw new Error("Failed to load");
+      currentCertData = await res.json();
+      
+      renderCertificatePreview(currentCertData);
+      
+      // Show/hide buttons based on status
+      const approveBtn = document.getElementById("approveBtn");
+      const rejectBtn = document.getElementById("rejectBtn");
+      if (currentCertData.status === "pending") {
+        approveBtn.style.display = "inline-block";
+        rejectBtn.style.display = "inline-block";
+      } else {
+        approveBtn.style.display = "none";
+        rejectBtn.style.display = "none";
+      }
+      
+      // Use ModalDialog component's open() method
+      document.getElementById("certModal").open();
+    } catch (err) {
+      console.error("Error loading certificate:", err);
+      showToast("Error loading certificate", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+function closeModal() {
+    document.getElementById("certModal").close();
+    currentCertId = null;
+    currentCertData = null;
+  }
+
+  async function getSchoolDetails() {
+    try {
+      const res = await api.admin.schoolDetails.get();
+      if (!res.ok) return {};
+      return await res.json();
+    } catch (err) {
+      return {};
+    }
+  }
+
+  async function renderCertificatePreview(cert) {
+    const school = await getSchoolDetails();
+    const schoolName = school.school_name || "SCHOOL NAME";
+    const schoolAddress = school.address || "Address";
+    const schoolPhone = school.phone || "Phone";
+    const principalName = school.principal_name || "Principal";
+    
+    let achievementsHtml = "";
+    if (cert.type === "character" && cert.achievements && cert.achievements.length > 0) {
+      achievementsHtml = `
+        <div class="cert-achievements">
+          <div class="cert-achievements-title">Academic & Co-curricular Achievements:</div>
+          ${cert.achievements.map(a => `<div class="cert-achievement-item">${a.title} - ${new Date(a.achieved_at).getFullYear()}</div>`).join("")}
+        </div>
+      `;
+    }
+    
+    let typeSpecificHtml = "";
+    if (cert.type === "character") {
+      typeSpecificHtml = `
+        <div class="cert-intro">"This is to certify that the student has maintained excellent character and conduct during their tenure at our institution."</div>
+      `;
+    } else if (cert.type === "leaving") {
+      typeSpecificHtml = `
+        <div class="cert-intro">"This is to certify that the student was duly enrolled in this institution and has completed their studies satisfactorily."</div>
+        <div class="cert-detail"><strong>Reason for Leaving:</strong> ${cert.reason || "N/A"}</div>
+      `;
+    } else if (cert.type === "enrollment") {
+      typeSpecificHtml = `
+        <div class="cert-intro">"To Whom It May Concern - This letter serves as official confirmation of the current enrollment status."</div>
+        <div class="cert-detail"><strong>Enrollment Status:</strong> Active - Full Time Student</div>
+        <div class="cert-detail"><strong>Academic Standing:</strong> Good Standing</div>
+      `;
+    }
+    
+    const typeTitle = cert.type === "character" ? "Character Certificate" : 
+                    cert.type === "leaving" ? "Leaving Certificate" : "Enrollment Letter";
+    
+    document.getElementById("certPreview").innerHTML = `
+      <div class="certificate-preview">
+        <div class="cert-school-name">${schoolName}</div>
+        <div class="cert-school-address">${schoolAddress} | ${schoolPhone}</div>
+        <div class="cert-title">${typeTitle}</div>
+        
+        ${typeSpecificHtml}
+        
+        <div class="cert-detail"><strong>Student Name:</strong> ${cert.student_name || cert.index_number}</div>
+        <div class="cert-detail"><strong>Grade:</strong> ${cert.grade || "-"}</div>
+        <div class="cert-detail"><strong>Class:</strong> ${cert.class_name || "-"}</div>
+        <div class="cert-detail"><strong>Admission No:</strong> ${cert.index_number}</div>
+        
+        ${achievementsHtml}
+        
+        <div class="cert-closing">"We recommend this student for any future academic or professional endeavors."</div>
+        
+        <div class="cert-signature">
+          <div class="cert-signature-box">
+            <div class="cert-signature-line"></div>
+            <div>Class Teacher</div>
+          </div>
+          <div class="cert-signature-box">
+            <div class="cert-signature-line"></div>
+            <div>${principalName}</div>
+            <div>Principal</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function approveCertificate() {
+    if (!currentCertId) return;
+    try {
+      const res = await api.admin.certificates.approve(currentCertId);
+      if (!res.ok) throw new Error("Failed to approve");
+      showToast("Certificate approved!", "fa-solid fa-check");
+      closeModal();
+      loadCertificates();
+    } catch (err) {
+      console.error("Error approving certificate:", err);
+      showToast("Failed to approve", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  async function rejectCertificate() {
+    if (!currentCertId) return;
+    try {
+      const res = await api.admin.certificates.reject(currentCertId);
+      if (!res.ok) throw new Error("Failed to reject");
+      showToast("Certificate rejected!", "fa-solid fa-check");
+      closeModal();
+      loadCertificates();
+    } catch (err) {
+      console.error("Error rejecting certificate:", err);
+      showToast("Failed to reject", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  async function quickApprove(id) {
+    try {
+      const res = await api.admin.certificates.approve(id);
+      if (!res.ok) throw new Error("Failed to approve");
+      showToast("Certificate approved!", "fa-solid fa-check");
+      loadCertificates();
+    } catch (err) {
+      showToast("Failed to approve", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  async function quickReject(id) {
+    try {
+      const res = await api.admin.certificates.reject(id);
+      if (!res.ok) throw new Error("Failed to reject");
+      showToast("Certificate rejected!", "fa-solid fa-check");
+      loadCertificates();
+    } catch (err) {
+      showToast("Failed to reject", "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  async function printCertificate() {
+    // Get the print-ready content
+    const previewContent = document.getElementById("certPreview").innerHTML;
+    
+    // Open a new window for printing
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Certificate - ${currentCertData?.type || "Certificate"}</title>
+        <style>
+          * { box-sizing: border-box; }
+          body {
+            font-family: 'Times New Roman', serif;
+            margin: 0; padding: 40px;
+            line-height: 1.6;
+          }
+          .certificate-preview { max-width: 800px; margin: 0 auto; }
+          .cert-school-name {
+            font-size: 24px; font-weight: bold; text-align: center;
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+          }
+          .cert-school-address {
+            text-align: center; margin-bottom: 20px; color: #666;
+          }
+          .cert-title {
+            font-size: 20px; font-weight: bold; text-align: center;
+            text-transform: uppercase; border-bottom: 2px solid #333;
+            padding-bottom: 10px; margin-bottom: 20px;
+          }
+          .cert-intro {
+            text-align: center; font-style: italic; margin-bottom: 20px;
+          }
+          .cert-detail {
+            margin: 12px 0; font-size: 16px;
+          }
+          .cert-detail strong { display: inline-block; width: 180px; }
+          .cert-achievements {
+            margin: 20px 0; padding: 15px; background: #f9f9f9; border-left: 3px solid #0086bb;
+          }
+          .cert-achievements-title { font-weight: bold; margin-bottom: 10px; }
+          .cert-achievement-item { margin: 8px 0; padding-left: 20px; position: relative; }
+          .cert-achievement-item::before {
+            content: "•"; position: absolute; left: 0; color: #0086bb;
+          }
+          .cert-closing {
+            text-align: center; font-style: italic; margin: 20px 0;
+          }
+          .cert-signature {
+            margin-top: 40px; display: flex; justify-content: space-between;
+          }
+          .cert-signature-box {
+            text-align: center; width: 200px;
+          }
+          .cert-signature-line {
+            border-bottom: 2px solid #333; margin-bottom: 8px; height: 50px;
+          }
+          @media print {
+            body { padding: 20px; }
+            .no-print { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="certificate-preview">
+          ${previewContent}
+        </div>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 500);
+  }
+
+  // Click outside modal to close
+  document.getElementById("certModal").addEventListener("click", function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // Initialize
+  loadCertificates();
+</script>

@@ -1072,3 +1072,161 @@ exports.getAlertDetails = async (alertKey) => {
   }
   return result.rows;
 };
+
+// ============ CERTIFICATES ============
+exports.getCertificates = async (filters = {}) => {
+  let query = `
+    SELECT
+      cert.id,
+      cert.type,
+      cert.reason,
+      cert.status,
+      cert.created_at,
+      u.username as index_number,
+      s.full_name as student_name,
+      c.grade,
+      c.name as class_name,
+      CONCAT(c.grade, '-', c.name) as class_display
+    FROM certificates cert
+    JOIN users u ON cert.student_id = u.id
+    LEFT JOIN students s ON u.id = s.user_id
+    LEFT JOIN classes c ON u.class_id = c.id
+  `;
+
+  const conditions = [];
+  const params = [];
+
+  if (filters.status && filters.status !== "all") {
+    conditions.push(`cert.status = $${params.length + 1}`);
+    params.push(filters.status);
+  }
+
+  if (filters.type && filters.type !== "all") {
+    conditions.push(`cert.type = $${params.length + 1}`);
+    params.push(filters.type);
+  }
+
+  if (filters.class_id) {
+    conditions.push(`u.class_id = $${params.length + 1}`);
+    params.push(filters.class_id);
+  }
+
+  if (filters.search) {
+    conditions.push(
+      `(u.username ILIKE $${params.length + 1} OR s.full_name ILIKE $${params.length + 1})`
+    );
+    params.push(`%${filters.search}%`);
+  }
+
+  if (conditions.length) {
+    query += ` WHERE ${conditions.join(" AND ")}`;
+  }
+
+  query += ` ORDER BY cert.created_at DESC`;
+
+  const result = await pool.query(query, params);
+  return result.rows;
+};
+
+exports.getCertificateById = async (certId) => {
+  const result = await pool.query(`
+    SELECT
+      cert.id,
+      cert.type,
+      cert.reason,
+      cert.status,
+      cert.created_at,
+      cert.updated_at,
+      u.username as index_number,
+      s.full_name as student_name,
+      s.birthday,
+      c.grade,
+      c.name as class_name,
+      CONCAT(c.grade, '-', c.name) as class_display,
+      p.name as parent_name,
+      p.address as parent_address
+    FROM certificates cert
+    JOIN users u ON cert.student_id = u.id
+    LEFT JOIN students s ON u.id = s.user_id
+    LEFT JOIN classes c ON u.class_id = c.id
+    LEFT JOIN parents p ON s.parent_id = p.id
+    WHERE cert.id = $1
+  `, [certId]);
+
+  if (result.rows.length === 0) return null;
+
+  const cert = result.rows[0];
+
+  // Get achievements for character certificate
+  let achievements = [];
+  if (cert.type === "character") {
+    const achResult = await pool.query(`
+      SELECT title, description, category, achieved_at
+      FROM achievements
+      WHERE student_id = $1
+      ORDER BY achieved_at DESC
+    `, [cert.student_id]);
+    achievements = achResult.rows;
+  }
+
+  return { ...cert, achievements };
+};
+
+exports.approveCertificate = async (certId) => {
+  const result = await pool.query(`
+    UPDATE certificates 
+    SET status = 'approved', updated_at = now()
+    WHERE id = $1
+    RETURNING id, status
+  `, [certId]);
+  return result.rows[0];
+};
+
+exports.rejectCertificate = async (certId) => {
+  const result = await pool.query(`
+    UPDATE certificates 
+    SET status = 'rejected', updated_at = now()
+    WHERE id = $1
+    RETURNING id, status
+  `, [certId]);
+  return result.rows[0];
+};
+
+exports.getCertificateStats = async () => {
+  const result = await pool.query(`
+    SELECT
+      COUNT(*) as total,
+      COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending,
+      COUNT(CASE WHEN status = 'approved' THEN 1 END) as approved,
+      COUNT(CASE WHEN status = 'rejected' THEN 1 END) as rejected
+    FROM certificates
+  `);
+  return result.rows[0];
+};
+
+// ============ SCHOOL DETAILS ============
+exports.getSchoolDetails = async () => {
+  const result = await pool.query(`SELECT * FROM school_details LIMIT 1`);
+  return result.rows[0] || null;
+};
+
+exports.updateSchoolDetails = async (data) => {
+  const existing = await pool.query(`SELECT id FROM school_details LIMIT 1`);
+  
+  if (existing.rows.length === 0) {
+    const result = await pool.query(`
+      INSERT INTO school_details (school_name, address, phone, email, logo_url, principal_name)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+    `, [data.school_name, data.address, data.phone, data.email, data.logo_url, data.principal_name]);
+    return result.rows[0];
+  } else {
+    const result = await pool.query(`
+      UPDATE school_details 
+      SET school_name = $1, address = $2, phone = $3, email = $4, logo_url = $5, principal_name = $6, updated_at = now()
+      WHERE id = $7
+      RETURNING *
+    `, [data.school_name, data.address, data.phone, data.email, data.logo_url, data.principal_name, existing.rows[0].id]);
+    return result.rows[0];
+  }
+};

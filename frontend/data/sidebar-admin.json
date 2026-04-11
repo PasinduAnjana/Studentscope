@@ -33,5 +33,10 @@
     "label": "sidebar.announcements",
     "page": "announcements",
     "icon": "fas fa-bullhorn"
+  },
+  {
+    "label": "sidebar.settings",
+    "page": "settings",
+    "icon": "fas fa-cog"
   }
 ]

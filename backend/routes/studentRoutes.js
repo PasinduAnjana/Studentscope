@@ -95,6 +95,19 @@ module.exports = (req, res) => {
     );
   }
 
+  // Certificate routes
+  if (req.method === "GET" && req.url === "/api/student/certificates") {
+    return protect("student")(req, res, () =>
+      studentController.getCertificates(req, res)
+    );
+  }
+
+  if (req.method === "POST" && req.url === "/api/student/certificates") {
+    return protect("student")(req, res, () =>
+      studentController.createCertificate(req, res)
+    );
+  }
+
   res.writeHead(404, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Not Found" }));
 };
