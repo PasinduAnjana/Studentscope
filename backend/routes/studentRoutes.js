@@ -108,6 +108,12 @@ module.exports = (req, res) => {
     );
   }
 
+  if (req.method === "DELETE" && req.url.startsWith("/api/student/certificates")) {
+    return protect("student")(req, res, () =>
+      studentController.deleteCertificate(req, res)
+    );
+  }
+
   res.writeHead(404, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Not Found" }));
 };

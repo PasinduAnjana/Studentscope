@@ -436,3 +436,11 @@ exports.createCertificate = async (studentId, { type, reason }) => {
   );
   return result.rows[0];
 };
+
+exports.deleteCertificate = async (studentId, certId) => {
+  const result = await pool.query(
+    `DELETE FROM certificates WHERE id = $1 AND student_id = $2 AND status = 'pending' RETURNING id`,
+    [certId, studentId]
+  );
+  return result.rows.length > 0;
+};

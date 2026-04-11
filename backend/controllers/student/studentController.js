@@ -371,3 +371,31 @@ exports.createCertificate = async (req, res) => {
     res.end(JSON.stringify({ error: "Failed to create certificate" }));
   }
 };
+
+exports.deleteCertificate = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Unauthorized" }));
+      return;
+    }
+
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const certId = url.searchParams.get("id");
+
+    if (!certId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Certificate ID is required" }));
+      return;
+    }
+
+    await studentService.deleteCertificate(userId, parseInt(certId));
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ message: "Certificate deleted" }));
+  } catch (err) {
+    console.error("Database error:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to delete certificate" }));
+  }
+};
