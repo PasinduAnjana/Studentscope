@@ -43,40 +43,32 @@
       <p class="tile-label" data-en="Certificate Requests" data-si="සහතික ඉල්ලීම්" data-ta="சான்றிதழ் கோர்க்கைகள்">Certificate Requests</p>
     </div>
 
-    <div class="input-group" style="display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap;">
-      <select id="statusFilter" class="input-field" style="width: auto; min-width: 150px;" onchange="loadCertificates()">
-        <option value="all" data-en="All Status">All Status</option>
-        <option value="pending" data-en="Pending">Pending</option>
-        <option value="approved" data-en="Approved">Approved</option>
-        <option value="rejected" data-en="Rejected">Rejected</option>
-      </select>
-      <select id="typeFilter" class="input-field" style="width: auto; min-width: 150px;" onchange="loadCertificates()">
-        <option value="all" data-en="All Types">All Types</option>
-        <option value="character" data-en="Character Certificate">Character Certificate</option>
-        <option value="leaving" data-en="Leaving Certificate">Leaving Certificate</option>
-        <option value="enrollment" data-en="Enrollment Letter">Enrollment Letter</option>
-      </select>
-    </div>
-
-    <div class="table-responsive">
-      <table id="certificatesTable" class="table">
-        <thead>
-          <tr>
-            <th data-en="Student" data-si="ශිෂ්‍යයා" data-ta="மாணவர்">Student</th>
-            <th data-en="Class" data-si="��න්තිය" data-ta="வகுப்பு">Class</th>
-            <th data-en="Type" data-si="වර්ගය" data-ta="வகை">Type</th>
-            <th data-en="Date" data-si="දිනය" data-ta="தேதி">Date</th>
-            <th data-en="Status" data-si="තත්ත්‍ය" data-ta="நிலை">Status</th>
-            <th data-en="Actions" data-si="ක්‍රියාකාරකම්" data-ta="செயல்பாடுகள்">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="certificatesBody">
-          <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <data-table id="certificates-table">
+      <div slot="filters">
+        <div class="filter-group">
+          <div>
+            <select id="statusFilter" class="dropdown-select">
+              <option value="all" data-en="All Status">All Status</option>
+              <option value="pending" data-en="Pending">Pending</option>
+              <option value="approved" data-en="Approved">Approved</option>
+              <option value="rejected" data-en="Rejected">Rejected</option>
+            </select>
+          </div>
+          <div>
+            <select id="typeFilter" class="dropdown-select">
+              <option value="all" data-en="All Types">All Types</option>
+              <option value="character" data-en="Character Certificate">Character Certificate</option>
+              <option value="leaving" data-en="Leaving Certificate">Leaving Certificate</option>
+              <option value="enrollment" data-en="Enrollment Letter">Enrollment Letter</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </data-table>
   </div>
 </section>
+
+<link rel="stylesheet" href="../../css/dropdown.css" />
 
 <!-- Modal for Preview using ModalDialog component -->
 <modal-dialog id="certModal" title="Certificate Preview">
@@ -96,8 +88,43 @@
   </div>
 </modal-dialog>
 
+<script src="../../js/dropdown.js"></script>
 <style>
   .modal-actions { margin-top: 16px; display: flex; gap: 12px; justify-content: flex-end; }
+  .filter-group {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    margin: 16px 0;
+    align-items: flex-end;
+  }
+  .filter-group > div {
+    flex: 0 0 auto;
+    min-width: 180px;
+  }
+  .action-buttons {
+    display: flex;
+    gap: 6px;
+  }
+  .badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+  .badge-pending {
+    background: #fff3cd;
+    color: #856404;
+  }
+  .badge-approved {
+    background: #d4edda;
+    color: #155724;
+  }
+  .badge-rejected {
+    background: #f8d7da;
+    color: #721c24;
+  }
   .certificate-preview {
     font-family: 'Times New Roman', serif; line-height: 1.6;
     background: #fff;
@@ -181,60 +208,98 @@
     }
   }
 
-  async function loadCertificates() {
-    const tbody = document.getElementById("certificatesBody");
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Loading...</td></tr>';
+  function initTable() {
+    const table = document.getElementById("certificates-table");
     
-    try {
-      const filters = {
-        status: document.getElementById("statusFilter").value,
-        type: document.getElementById("typeFilter").value,
-      };
-      const res = await api.admin.certificates.getAll(filters);
-      if (!res.ok) throw new Error("Failed to load");
-      const data = await res.json();
-      
-      // Update counts
-      const total = data.length;
-      const pending = data.filter(c => c.status === "pending").length;
-      const approved = data.filter(c => c.status === "approved").length;
-      const rejected = data.filter(c => c.status === "rejected").length;
-      
-      document.getElementById("pendingCount").textContent = pending;
-      document.getElementById("approvedCount").textContent = approved;
-      document.getElementById("rejectedCount").textContent = rejected;
-      document.getElementById("totalCount").textContent = total;
-      
-      if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6"><empty-state-message message="No certificates found" icon="fas fa-certificate"></empty-state-message></td></tr>';
-        return;
-      }
-      
-      tbody.innerHTML = data.map(c => `
-        <tr>
-          <td>${c.student_name || c.index_number}</td>
-          <td>${c.class_display || "-"}</td>
-          <td>${c.type}</td>
-          <td>${new Date(c.created_at).toLocaleDateString()}</td>
-          <td>${c.status}</td>
-          <td>
-            <button class="btn btn-small btn-primary" onclick="viewCertificate(${c.id})">
+    table.setColumns([
+      { key: "student_name", header: "Student", searchable: true },
+      { key: "class_display", header: "Class", searchable: true },
+      { key: "type", header: "Type", searchable: true },
+      { 
+        key: "created_at", 
+        header: "Date",
+        render: (row) => new Date(row.created_at).toLocaleDateString()
+      },
+      { 
+        key: "status", 
+        header: "Status",
+        render: (row) => `<span class="badge badge-${row.status}">${row.status}</span>`
+      },
+      {
+        key: "actions",
+        header: "Actions",
+        render: (row) => {
+          const div = document.createElement("div");
+          div.className = "action-buttons";
+          div.innerHTML = `
+            <button class="btn btn-small btn-secondary" onclick="viewCertificate(${row.id})">
               <i class="fas fa-eye"></i>
             </button>
-            ${c.status === "pending" ? `
-            <button class="btn btn-small btn-primary" onclick="quickApprove(${c.id})">
+            ${row.status === "pending" ? `
+            <button class="btn btn-small btn-primary" onclick="quickApprove(${row.id})">
               <i class="fas fa-check"></i>
             </button>
-            <button class="btn btn-small btn-secondary" onclick="quickReject(${c.id})">
+            <button class="btn btn-small btn-danger" onclick="quickReject(${row.id})">
               <i class="fas fa-times"></i>
             </button>
             ` : ""}
-          </td>
-        </tr>
-      `).join("");
+          `;
+          return div;
+        }
+      }
+    ]);
+    
+    table.setEmptyState("No certificates found", "fas fa-certificate");
+  }
+
+  function setupFilters() {
+    const table = document.getElementById("certificates-table");
+    const statusFilter = document.getElementById("statusFilter");
+    const typeFilter = document.getElementById("typeFilter");
+
+    if (typeof makeSearchableDropdown === "function") {
+      makeSearchableDropdown("statusFilter", () => {
+        const val = statusFilter.value;
+        table.addFilter("status", (row) => val === "all" || row.status === val);
+        table.filterData();
+        updateSummaryTiles();
+      });
+
+      makeSearchableDropdown("typeFilter", () => {
+        const val = typeFilter.value;
+        table.addFilter("type", (row) => val === "all" || row.type === val);
+        table.filterData();
+        updateSummaryTiles();
+      });
+    }
+  }
+
+  function updateSummaryTiles() {
+    const table = document.getElementById("certificates-table");
+    const data = table.filteredData || [];
+    
+    const pending = data.filter(c => c.status === "pending").length;
+    const approved = data.filter(c => c.status === "approved").length;
+    const rejected = data.filter(c => c.status === "rejected").length;
+    const total = data.length;
+    
+    document.getElementById("pendingCount").textContent = pending;
+    document.getElementById("approvedCount").textContent = approved;
+    document.getElementById("rejectedCount").textContent = rejected;
+    document.getElementById("totalCount").textContent = total;
+  }
+
+  async function loadCertificates() {
+    try {
+      const res = await api.admin.certificates.getAll();
+      if (!res.ok) throw new Error("Failed to load");
+      const data = await res.json();
+      
+      const table = document.getElementById("certificates-table");
+      table.setData(data);
+      updateSummaryTiles();
     } catch (err) {
       console.error("Error loading certificates:", err);
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-error);">Error loading certificates</td></tr>';
     }
   }
 
@@ -486,5 +551,7 @@ function closeModal() {
   });
 
   // Initialize
+  initTable();
+  setupFilters();
   loadCertificates();
 </script>
