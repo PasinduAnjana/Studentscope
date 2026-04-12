@@ -277,7 +277,12 @@ const api = {
       getAttentionNeeded: () => api.request("/admin/academic/attention-needed"),
       getRecentExams: () => api.request("/admin/academic/recent-exams"),
       getPerformanceDistribution: () => api.request("/admin/academic/performance-distribution"),
-      getReportsFilters: () => api.request("/admin/academic/reports/filters"),
+      getReportsFilters: (examId = null, classId = null) => {
+        const params = new URLSearchParams();
+        if (examId) params.set("exam_id", examId);
+        if (classId) params.set("class_id", classId);
+        return api.request(`/admin/academic/reports/filters?${params.toString()}`);
+      },
       getReportsData: (filters = {}) => {
         const params = new URLSearchParams();
         if (filters.exam_id) params.set("exam_id", filters.exam_id);

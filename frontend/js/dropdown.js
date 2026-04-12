@@ -11,11 +11,8 @@ function makeSearchableDropdown(selectId, onSelect) {
   display.classList.add("dropdown-display");
 
   const selectedText = document.createElement("span");
-  // Use currently selected option if available; otherwise fall back to first non-empty or the first option
-  const initialSelectedOption =
-    select.options[select.selectedIndex] ||
-    Array.from(select.options).find((o) => o.value) ||
-    select.options[0];
+  // Use the currently selected option - respects whatever is actually selected (including empty values like "All")
+  const initialSelectedOption = select.options[select.selectedIndex];
   selectedText.textContent = initialSelectedOption
     ? initialSelectedOption.text
     : "";
@@ -86,7 +83,6 @@ function makeSearchableDropdown(selectId, onSelect) {
     }
 
     filtered.forEach((opt) => {
-      if (!opt.value) return;
       const item = document.createElement("div");
       item.classList.add("dropdown-item");
       item.textContent = opt.text;

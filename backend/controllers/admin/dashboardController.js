@@ -268,7 +268,10 @@ exports.getAllClerks = async (req, res) => {
 
 exports.getAcademicReportsFilters = async (req, res) => {
   try {
-    const filters = await adminService.getAcademicReportsFilters();
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const examId = url.searchParams.get("exam_id") || null;
+    const classId = url.searchParams.get("class_id") || null;
+    const filters = await adminService.getAcademicReportsFilters(examId, classId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(filters));
   } catch (err) {

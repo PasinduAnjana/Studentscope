@@ -185,40 +185,109 @@
   }
 
   /* =========================
+   Populate dropdown with options (preserving "All" option)
+   ========================= */
+  function populateDropdown(dropdownEl, options, textFn, defaultLabel) {
+    console.log("populateDropdown called for:", dropdownEl.id, "with options:", options);
+    // Keep the first option (the "All" option)
+    const firstOption = dropdownEl.options[0];
+    dropdownEl.length = 0;
+    dropdownEl.appendChild(firstOption);
+    
+    // Add new options
+    options.forEach(opt => {
+      const el = document.createElement("option");
+      el.value = opt.id;
+      el.textContent = textFn(opt);
+      dropdownEl.appendChild(el);
+    });
+    console.log("After populate, select has", dropdownEl.options.length, "options");
+    // Also verify the underlying select is populated
+    console.log("Underlying select options:", Array.from(dropdownEl.options).map(o => o.value + ":" + o.text));
+  }
+
+  /* =========================
    Load filters from backend
    ========================= */
-  async function loadFilters() {
+  async function loadFilters(examId = null, classId = null) {
     try {
-      const res = await api.admin.academic.getReportsFilters();
+      console.log("loadFilters called with:", examId, classId);
+      const res = await api.admin.academic.getReportsFilters(examId, classId);
       if (!res.ok) throw new Error("Failed to load filters");
-      filtersData = await res.json();
+      const data = await res.json();
+      console.log("Got filters data:", data);
 
-      // Populate exam dropdown
-      filtersData.exams.forEach((e) => {
-        const opt = document.createElement("option");
-        opt.value = e.id;
-        opt.textContent = e.name;
-        examEl.appendChild(opt);
-      });
-
-      // Populate class dropdown
-      filtersData.classes.forEach((c) => {
-        const opt = document.createElement("option");
-        opt.value = c.id;
-        opt.textContent = `Grade ${c.grade} - ${c.name}`;
-        classEl.appendChild(opt);
-      });
-
-      // Populate subject dropdown
-      filtersData.subjects.forEach((s) => {
-        const opt = document.createElement("option");
-        opt.value = s.id;
-        opt.textContent = s.name;
-        subjectEl.appendChild(opt);
-      });
+      if (examId && classId) {
+        // Both exam and class selected - update subjects only
+        populateDropdown(subjectEl, data.subjects, s => s.name, "All Subjects");
+        initSearchableDropdown("subjectFilter", () => loadData());
+      } else if (examId && !classId) {
+        // Exam selected - update classes and subjects
+        populateDropdown(classEl, data.classes, c => `Grade ${c.grade} - ${c.name}`, "All Classes");
+        populateDropdown(subjectEl, data.subjects, s => s.name, "All Subjects");
+        initSearchableDropdown("classFilter", () => onClassChange());
+        initSearchableDropdown("subjectFilter", () => loadData());
+      } else {
+        // No exam selected - reset class and subject (initial load or cleared)
+        console.log("Populating exam dropdown with:", data.exams);
+        populateDropdown(examEl, data.exams, e => e.name, "Select Exam");
+        populateDropdown(classEl, data.classes, c => `Grade ${c.grade} - ${c.name}`, "All Classes");
+        populateDropdown(subjectEl, data.subjects, s => s.name, "All Subjects");
+        initSearchableDropdown("examFilter", () => onExamChange());
+        initSearchableDropdown("classFilter", () => onClassChange());
+        initSearchableDropdown("subjectFilter", () => loadData());
+      }
     } catch (err) {
       console.error("Error loading filters:", err);
     }
+  }
+
+  /* =========================
+   Initialize a single searchable dropdown
+   ========================= */
+  let searchableDropdowns = {};
+  function initSearchableDropdown(selectId, onSelect) {
+    if (typeof makeSearchableDropdown === "function") {
+      // Destroy existing if any
+      if (searchableDropdowns[selectId]) {
+        searchableDropdowns[selectId].destroy();
+      }
+      // Create new
+      searchableDropdowns[selectId] = makeSearchableDropdown(selectId, onSelect);
+    }
+  }
+
+  /* =========================
+   Handle cascade filter changes
+   ========================= */
+  async function onExamChange() {
+    const examId = examEl.value;
+    
+    if (!examId) {
+      // Reset class and subject to all
+      await loadFilters(null, null);
+    } else {
+      // Load classes and subjects for this exam
+      await loadFilters(examId, null);
+    }
+    
+    // Reload data
+    await loadData();
+  }
+
+  async function onClassChange() {
+    const examId = examEl.value;
+    const classId = classEl.value;
+    
+    if (!examId || !classId) {
+      // Just reload data
+      await loadData();
+      return;
+    }
+    
+    // Load subjects for this exam + class
+    await loadFilters(examId, classId);
+    await loadData();
   }
 
   /* =========================
@@ -255,10 +324,17 @@
     emptyState.style.display = "none";
 
     try {
-      const query = buildQuery();
       const [dataRes, summaryRes] = await Promise.all([
-        api.admin.academic.getReportsData({ exam_id: filtersData.selectedExam, class_id: filtersData.selectedClass, subject_id: filtersData.selectedSubject, search: filtersData.searchTerm }),
-        api.admin.academic.getReportsSummary({ exam_id: filtersData.selectedExam, class_id: filtersData.selectedClass, subject_id: filtersData.selectedSubject }),
+        api.admin.academic.getReportsData({ 
+          exam_id: examEl.value, 
+          class_id: classEl.value, 
+          subject_id: subjectEl.value 
+        }),
+        api.admin.academic.getReportsSummary({ 
+          exam_id: examEl.value, 
+          class_id: classEl.value, 
+          subject_id: subjectEl.value 
+        }),
       ]);
 
       if (!dataRes.ok || !summaryRes.ok) throw new Error("Failed to load data");
@@ -379,9 +455,9 @@
   /* =========================
    Event listeners
    ========================= */
-  [examEl, classEl, subjectEl].forEach((el) => {
-    el.addEventListener("change", loadData);
-  });
+  examEl.addEventListener("change", onExamChange);
+  classEl.addEventListener("change", onClassChange);
+  subjectEl.addEventListener("change", loadData);
 
   const customSearch = document.getElementById("customSearch");
   if(customSearch) {
@@ -438,18 +514,16 @@
    Searchable dropdowns
    ========================= */
   function initializeSearchableDropdowns() {
-    if (typeof makeSearchableDropdown === "function") {
-      makeSearchableDropdown("examFilter", () => loadData());
-      makeSearchableDropdown("classFilter", () => loadData());
-      makeSearchableDropdown("subjectFilter", () => loadData());
-      makeSearchableDropdown("customPageSize", (val) => {
-        if (resultsTable) {
-          resultsTable.pageSize = parseInt(val);
-          resultsTable.currentPage = 1;
-          resultsTable.filterData();
-        }
-      });
-    }
+    initSearchableDropdown("examFilter", () => onExamChange());
+    initSearchableDropdown("classFilter", () => onClassChange());
+    initSearchableDropdown("subjectFilter", () => loadData());
+    initSearchableDropdown("customPageSize", (val) => {
+      if (resultsTable) {
+        resultsTable.pageSize = parseInt(val);
+        resultsTable.currentPage = 1;
+        resultsTable.filterData();
+      }
+    });
   }
 
   /* =========================

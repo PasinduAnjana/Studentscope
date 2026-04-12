@@ -805,17 +805,64 @@ exports.approvePasswordReset = async (resetId, approverId) => {
 
 // ============ ACADEMIC REPORTS ============
 
-// Get filter options for academic reports
-exports.getAcademicReportsFilters = async () => {
+// Get filter options for academic reports (with optional cascading based on exam/class)
+exports.getAcademicReportsFilters = async (examId = null, classId = null) => {
   const exams = await pool.query(
     `SELECT id, name, type, sub_type, year FROM exams ORDER BY year DESC, name`
   );
-  const classes = await pool.query(
-    `SELECT id, name, grade FROM classes ORDER BY grade, name`
-  );
-  const subjects = await pool.query(
-    `SELECT id, name FROM subjects ORDER BY name`
-  );
+
+  let classes, subjects;
+
+  if (examId && classId) {
+    // Both exam and class selected - get subjects that have marks for this combo
+    subjects = await pool.query(
+      `SELECT DISTINCT s.id, s.name 
+       FROM marks m
+       JOIN subjects s ON m.subject_id = s.id
+       WHERE m.exam_id = $1 AND m.student_id IN (
+         SELECT id FROM users WHERE class_id = $2
+       )
+       ORDER BY s.name`,
+      [examId, classId]
+    );
+    classes = await pool.query(
+      `SELECT DISTINCT c.id, c.name, c.grade
+       FROM marks m
+       JOIN users u ON m.student_id = u.id
+       JOIN classes c ON u.class_id = c.id
+       WHERE m.exam_id = $1
+       ORDER BY c.grade, c.name`,
+      [examId]
+    );
+  } else if (examId) {
+    // Only exam selected - get classes that have marks for this exam
+    classes = await pool.query(
+      `SELECT DISTINCT c.id, c.name, c.grade
+       FROM marks m
+       JOIN users u ON m.student_id = u.id
+       JOIN classes c ON u.class_id = c.id
+       WHERE m.exam_id = $1
+       ORDER BY c.grade, c.name`,
+      [examId]
+    );
+    subjects = await pool.query(
+      `SELECT DISTINCT s.id, s.name 
+       FROM marks m
+       JOIN subjects s ON m.subject_id = s.id
+       WHERE m.exam_id = $1
+       ORDER BY s.name`,
+      [examId]
+    );
+  } else {
+    // No exam selected - return all
+    classes = await pool.query(
+      `SELECT id, name, grade FROM classes ORDER BY grade, name`
+    );
+    subjects = await pool.query(
+      `SELECT id, name FROM subjects ORDER BY name`
+    );
+  }
+
   return {
     exams: exams.rows,
     classes: classes.rows,
@@ -829,7 +876,7 @@ exports.getAcademicReportsData = async (filters = {}) => {
     SELECT
       m.id,
       m.marks,
-      s.name as subject_name,
+      CASE WHEN e.sub_type = 'Grade5' THEN 'Total' ELSE s.name END as subject_name,
       u.username as index_number,
       st.full_name as student_name,
       c.grade,
