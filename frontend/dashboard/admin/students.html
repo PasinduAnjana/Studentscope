@@ -42,9 +42,6 @@
 
 <modal-dialog id="profile-modal" title="Student Profile">
   <div id="profile-content"></div>
-  <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-    <button id="profile-close" class="btn btn-secondary">Close</button>
-  </div>
 </modal-dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -239,9 +236,9 @@
         <div class="input-group" style="margin-bottom:12px;">
           <select id="marks-term-select" onchange="renderMarksTable()">
             <option value="">All Terms</option>
-            <option value="Term 1">Term 1</option>
-            <option value="Term 2">Term 2</option>
-            <option value="Term 3">Term 3</option>
+            <option value="Term1">Term 1</option>
+            <option value="Term2">Term 2</option>
+            <option value="Term3">Term 3</option>
           </select>
         </div>
         <div class="table-responsive">
@@ -387,12 +384,13 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    const closeBtn = document.getElementById("profile-close");
-    if (closeBtn) closeBtn.addEventListener("click", () => {
-      document.getElementById("profile-modal").close();
-      if (attChart) { attChart.destroy(); attChart = null; }
-      if (marksChart) { marksChart.destroy(); marksChart = null; }
-    });
+    const modal = document.getElementById("profile-modal");
+    if (modal) {
+      modal.addEventListener("close", () => {
+        if (attChart) { attChart.destroy(); attChart = null; }
+        if (marksChart) { marksChart.destroy(); marksChart = null; }
+      });
+    }
   });
 
   fetchClasses();
