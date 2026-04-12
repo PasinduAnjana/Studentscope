@@ -33,7 +33,6 @@
     <data-table id="students-table">
       <div slot="filters">
         <div style="display: flex; gap: 12px; align-items: center;">
-          <div style="width: 160px;"><select id="grade-filter" class="dropdown-select"><option value="">All Grades</option></select></div>
           <div style="width: 160px;"><select id="class-filter" class="dropdown-select"><option value="">All Classes</option></select></div>
         </div>
       </div>
@@ -99,14 +98,6 @@
       }
     ]);
 
-    const gradeFilter = document.getElementById("grade-filter");
-    if (gradeFilter) {
-      gradeFilter.addEventListener("change", () => {
-        const val = gradeFilter.value;
-        table.addFilter("grade", (row) => !val || String(row.grade) === val);
-      });
-    }
-
     const classFilter = document.getElementById("class-filter");
     if (classFilter) {
       classFilter.addEventListener("change", () => {
@@ -153,17 +144,7 @@
   }
 
   function populateFilters() {
-    const gradeFilter = document.getElementById("grade-filter");
     const classFilter = document.getElementById("class-filter");
-
-    const grades = [...new Set(allClasses.map(c => c.grade))].sort((a, b) => a - b);
-    gradeFilter.innerHTML = '<option value="">All Grades</option>';
-    grades.forEach(g => {
-      const opt = document.createElement("option");
-      opt.value = g;
-      opt.textContent = `Grade ${g}`;
-      gradeFilter.appendChild(opt);
-    });
 
     classFilter.innerHTML = '<option value="">All Classes</option>';
     allClasses.forEach(cls => {
@@ -174,8 +155,11 @@
     });
 
     if (typeof makeSearchableDropdown === "function") {
-      makeSearchableDropdown("grade-filter", () => {});
-      makeSearchableDropdown("class-filter", () => {});
+      makeSearchableDropdown("class-filter", (val, text) => {
+        const sel = document.getElementById("class-filter");
+        if (sel) sel.value = val;
+        sel.dispatchEvent(new Event('change'));
+      });
     }
   }
 
