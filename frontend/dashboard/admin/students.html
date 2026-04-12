@@ -229,7 +229,10 @@
           <div class="stat-card"><div class="stat-value">${currentAttendance.present || 0}</div><div class="stat-label">Days Present</div></div>
           <div class="stat-card"><div class="stat-value">${currentAttendance.absent || 0}</div><div class="stat-label">Days Absent</div></div>
         </div>
-        <div class="chart-container"><canvas id="attendance-chart"></canvas></div>
+        <div id="attendance-empty" style="display: none;">
+          <empty-state-message icon="fas fa-calendar-check" message="Attendance not marked"></empty-state-message>
+        </div>
+        <div class="chart-container" id="attendance-chart-container" style="display: none;"><canvas id="attendance-chart"></canvas></div>
       </div>
 
       <div id="tab-academics" class="profile-section">
@@ -247,7 +250,10 @@
             <tbody id="marks-table-body"></tbody>
           </table>
         </div>
-        <div class="chart-container"><canvas id="marks-chart"></canvas></div>
+        <div id="marks-empty" style="display: none;">
+          <empty-state-message icon="fas fa-file-alt" message="No marks available"></empty-state-message>
+        </div>
+        <div class="chart-container" id="marks-chart-container" style="display: none;"><canvas id="marks-chart"></canvas></div>
         <div id="gov-exams-block" style="margin-top:16px;"></div>
       </div>
 
@@ -309,12 +315,24 @@
 
   function renderMarksChart() {
     const canvas = document.getElementById("marks-chart");
+    const chartContainer = document.getElementById("marks-chart-container");
+    const emptyState = document.getElementById("marks-empty");
     if (!canvas || !canvas.offsetParent) return;
-    if (marksChart) marksChart.destroy();
 
     const termSelect = document.getElementById("marks-term-select");
     const term = termSelect ? termSelect.value : "";
     const filtered = term ? currentMarks.filter(m => m.sub_type === term) : currentMarks;
+
+    if (!filtered.length) {
+      if (chartContainer) chartContainer.style.display = "none";
+      if (emptyState) emptyState.style.display = "flex";
+      return;
+    }
+
+    if (chartContainer) chartContainer.style.display = "block";
+    if (emptyState) emptyState.style.display = "none";
+
+    if (marksChart) marksChart.destroy();
 
     const labels = filtered.map(m => m.subject);
     const values = filtered.map(m => { const n = parseFloat(m.marks); return isNaN(n) ? 0 : n; });
@@ -350,10 +368,23 @@
 
   function renderAttendanceChart() {
     const canvas = document.getElementById("attendance-chart");
+    const chartContainer = document.getElementById("attendance-chart-container");
+    const emptyState = document.getElementById("attendance-empty");
     if (!canvas || !canvas.offsetParent) return;
-    if (attChart) attChart.destroy();
 
     const records = currentAttendance.records || [];
+
+    if (!records.length) {
+      if (chartContainer) chartContainer.style.display = "none";
+      if (emptyState) emptyState.style.display = "flex";
+      return;
+    }
+
+    if (chartContainer) chartContainer.style.display = "block";
+    if (emptyState) emptyState.style.display = "none";
+
+    if (attChart) attChart.destroy();
+
     const labels = records.slice(-30).map(r => {
       const d = new Date(r.date);
       return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
@@ -363,10 +394,10 @@
     attChart = new Chart(canvas.getContext("2d"), {
       type: "line",
       data: {
-        labels: labels.length ? labels : ["No data"],
+        labels,
         datasets: [{
           label: "Present (1) / Absent (0)",
-          data: data.length ? data : [0],
+          data,
           borderColor: "#0086bb",
           backgroundColor: "rgba(0, 134, 187, 0.1)",
           fill: true,

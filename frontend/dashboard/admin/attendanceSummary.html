@@ -193,7 +193,10 @@
         <i class="fas fa-pie-chart"></i>
         Attendance Overview
       </h3>
-      <div class="chart-container">
+      <div id="overview-empty" style="display: none; justify-content: center;">
+        <empty-state-message icon="fas fa-calendar-check" message="No attendance marked for this date"></empty-state-message>
+      </div>
+      <div class="chart-container" id="overview-chart-container">
         <canvas id="attendance-overview-chart"></canvas>
       </div>
     </div>
@@ -208,7 +211,10 @@
           <option value="">All Grades</option>
         </select>
       </div>
-      <div class="chart-container">
+      <div id="by-class-empty" style="display: none; justify-content: center;">
+        <empty-state-message icon="fas fa-users" message="No attendance data available"></empty-state-message>
+      </div>
+      <div class="chart-container" id="by-class-chart-container">
         <canvas id="attendance-by-class-chart"></canvas>
       </div>
     </div>
@@ -499,6 +505,7 @@
   let searchableClassFilter = null;
   let searchableStatusFilter = null;
   let searchablePageSize = null;
+  let searchableGradeFilter = null;
   let overviewChartInstance = null;
   let byClassChartInstance = null;
   let allClassStats = {};
@@ -1323,6 +1330,9 @@
     const chartExists = document.getElementById("attendance-overview-chart");
     if (!chartExists) return;
 
+    const chartContainer = document.getElementById("overview-chart-container");
+    const emptyState = document.getElementById("overview-empty");
+
     try {
       const dateInput = document.getElementById("attendance-date");
       const selectedDate =
@@ -1335,7 +1345,14 @@
       const presentCount = stats.presentToday || 0;
       const absentCount = stats.absentToday || 0;
 
-      if (presentCount === 0 && absentCount === 0) return;
+      if (presentCount === 0 && absentCount === 0) {
+        if (chartContainer) chartContainer.style.display = "none";
+        if (emptyState) emptyState.style.display = "flex";
+        return;
+      }
+
+      if (chartContainer) chartContainer.style.display = "block";
+      if (emptyState) emptyState.style.display = "none";
 
       setTimeout(() => {
         const rootStyles = getComputedStyle(document.documentElement);
@@ -1389,6 +1406,11 @@
     const select = document.getElementById("chart-grade-filter");
     if (!select || !allClasses.length) return;
 
+    if (searchableGradeFilter && typeof searchableGradeFilter.destroy === "function") {
+      searchableGradeFilter.destroy();
+      searchableGradeFilter = null;
+    }
+
     const grades = [...new Set(allClasses.map((c) => c.grade))].sort((a, b) => a - b);
     select.innerHTML = '<option value="">All Grades</option>';
     grades.forEach((grade) => {
@@ -1397,6 +1419,14 @@
       option.textContent = `Grade ${grade}`;
       select.appendChild(option);
     });
+
+    if (typeof makeSearchableDropdown === "function") {
+      searchableGradeFilter = makeSearchableDropdown("chart-grade-filter", (val, text) => {
+        const sel = document.getElementById("chart-grade-filter");
+        if (sel) sel.value = val;
+        sel.dispatchEvent(new Event('change'));
+      });
+    }
   }
 
   // Fetch all class stats from backend
@@ -1421,6 +1451,9 @@
     const chartExists = document.getElementById("attendance-by-class-chart");
     if (!chartExists) return;
 
+    const chartContainer = document.getElementById("by-class-chart-container");
+    const emptyState = document.getElementById("by-class-empty");
+
     const gradeFilter = document.getElementById("chart-grade-filter")?.value || null;
 
     let classData = allClassStats;
@@ -1434,7 +1467,15 @@
     }
 
     const labels = Object.keys(classData);
-    if (labels.length === 0) return;
+    const hasData = labels.some(cls => classData[cls].present > 0 || classData[cls].absent > 0);
+    if (!hasData) {
+      if (chartContainer) chartContainer.style.display = "none";
+      if (emptyState) emptyState.style.display = "flex";
+      return;
+    }
+
+    if (chartContainer) chartContainer.style.display = "block";
+    if (emptyState) emptyState.style.display = "none";
 
     const presentData = labels.map((cls) => classData[cls].present);
     const absentData = labels.map((cls) => classData[cls].absent);
