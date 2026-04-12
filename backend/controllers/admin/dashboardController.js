@@ -317,3 +317,38 @@ exports.getAcademicReportsSummary = async (req, res) => {
     res.end(JSON.stringify({ error: "Failed to fetch report summary" }));
   }
 };
+
+exports.getAcademicReportsDataPivot = async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const filters = {
+      exam_id: url.searchParams.get("exam_id") || null,
+      class_id: url.searchParams.get("class_id") || null,
+      search: url.searchParams.get("search") || null,
+    };
+    const result = await adminService.getAcademicReportsDataPivot(filters);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(result));
+  } catch (err) {
+    console.error("Error fetching academic report pivot data:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch report data" }));
+  }
+};
+
+exports.getAcademicReportsPivotSummary = async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const filters = {
+      exam_id: url.searchParams.get("exam_id") || null,
+      class_id: url.searchParams.get("class_id") || null,
+    };
+    const summary = await adminService.getAcademicReportsPivotSummary(filters);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(summary));
+  } catch (err) {
+    console.error("Error fetching academic report pivot summary:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to fetch report summary" }));
+  }
+};

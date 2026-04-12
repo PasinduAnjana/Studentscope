@@ -70,11 +70,6 @@
         <option value="" data-en="All Classes">All Classes</option>
       </select>
     </div>
-    <div>
-      <select id="subjectFilter" class="dropdown-select">
-        <option value="" data-en="All Subjects">All Subjects</option>
-      </select>
-    </div>
     <div class="search-group" style="max-width: 260px">
       <input type="text" id="customSearch" class="search-input" placeholder="Search student..." />
       <span class="search-icon"><i class="fas fa-search"></i></span>
@@ -141,7 +136,6 @@
   const filterInfo = document.getElementById("filterInfo");
   const examEl = document.getElementById("examFilter");
   const classEl = document.getElementById("classFilter");
-  const subjectEl = document.getElementById("subjectFilter");
 
   /* =========================
    Primary color
@@ -182,13 +176,46 @@
       },
       { key: "exam", header: translate("Exam", "විභාගය", "தேர்வு"), searchable: true }
     ]);
-  }
+   }
+   
+    /* =========================
+     Update table headers with dynamic subject columns
+     ========================= */
+    function updateTableHeadersWithSubjects(subjects) {
+      if (!resultsTable) return;
+      if (!subjects || subjects.length === 0) return;
+      
+      const lang = localStorage.getItem("lang") || "en";
+      const translate = (en, si, ta) => lang === "si" ? si : lang === "ta" ? ta : en;
+     
+     const columns = [
+       { key: "student_name", header: translate("Student", "ශිෂ්‍යයා", "மாணவர்"), searchable: true },
+       { key: "index_number", header: translate("Index No", "සුචක අංකය", "குறியீட்டு எண்"), searchable: true },
+       { key: "class_display", header: translate("Class", "පන්තිය", "வகுப்பு"), searchable: true },
+     ];
+     
+     // Add subject columns with color-coded marks
+     subjects.forEach(subject => {
+       columns.push({
+         key: subject,
+         header: subject,
+         render: (row) => {
+           const marks = row[subject];
+           const m = parseInt(marks);
+           if (!marks) return "-";
+           const color = isNaN(m) ? "var(--color-text)" : (m >= 50 ? "var(--color-success)" : "var(--color-error)");
+           return `<span style="font-weight:600; color: ${color}">${marks}</span>`;
+         }
+       });
+     });
+     
+     resultsTable.setColumns(columns);
+   }
 
   /* =========================
    Populate dropdown with options (preserving "All" option)
    ========================= */
   function populateDropdown(dropdownEl, options, textFn, defaultLabel) {
-    console.log("populateDropdown called for:", dropdownEl.id, "with options:", options);
     // Keep the first option (the "All" option)
     const firstOption = dropdownEl.options[0];
     dropdownEl.length = 0;
@@ -201,9 +228,6 @@
       el.textContent = textFn(opt);
       dropdownEl.appendChild(el);
     });
-    console.log("After populate, select has", dropdownEl.options.length, "options");
-    // Also verify the underlying select is populated
-    console.log("Underlying select options:", Array.from(dropdownEl.options).map(o => o.value + ":" + o.text));
   }
 
   /* =========================
@@ -211,31 +235,20 @@
    ========================= */
   async function loadFilters(examId = null, classId = null) {
     try {
-      console.log("loadFilters called with:", examId, classId);
       const res = await api.admin.academic.getReportsFilters(examId, classId);
       if (!res.ok) throw new Error("Failed to load filters");
       const data = await res.json();
-      console.log("Got filters data:", data);
 
-      if (examId && classId) {
-        // Both exam and class selected - update subjects only
-        populateDropdown(subjectEl, data.subjects, s => s.name, "All Subjects");
-        initSearchableDropdown("subjectFilter", () => loadData());
-      } else if (examId && !classId) {
-        // Exam selected - update classes and subjects
+      if (examId && !classId) {
+        // Exam selected - update classes
         populateDropdown(classEl, data.classes, c => `Grade ${c.grade} - ${c.name}`, "All Classes");
-        populateDropdown(subjectEl, data.subjects, s => s.name, "All Subjects");
         initSearchableDropdown("classFilter", () => onClassChange());
-        initSearchableDropdown("subjectFilter", () => loadData());
       } else {
-        // No exam selected - reset class and subject (initial load or cleared)
-        console.log("Populating exam dropdown with:", data.exams);
+        // No exam selected - reset (initial load or cleared)
         populateDropdown(examEl, data.exams, e => e.name, "Select Exam");
         populateDropdown(classEl, data.classes, c => `Grade ${c.grade} - ${c.name}`, "All Classes");
-        populateDropdown(subjectEl, data.subjects, s => s.name, "All Subjects");
         initSearchableDropdown("examFilter", () => onExamChange());
         initSearchableDropdown("classFilter", () => onClassChange());
-        initSearchableDropdown("subjectFilter", () => loadData());
       }
     } catch (err) {
       console.error("Error loading filters:", err);
@@ -264,10 +277,10 @@
     const examId = examEl.value;
     
     if (!examId) {
-      // Reset class and subject to all
+      // Reset class to all
       await loadFilters(null, null);
     } else {
-      // Load classes and subjects for this exam
+      // Load classes for this exam
       await loadFilters(examId, null);
     }
     
@@ -276,29 +289,8 @@
   }
 
   async function onClassChange() {
-    const examId = examEl.value;
-    const classId = classEl.value;
-    
-    if (!examId || !classId) {
-      // Just reload data
-      await loadData();
-      return;
-    }
-    
-    // Load subjects for this exam + class
-    await loadFilters(examId, classId);
+    // Just reload data when class changes
     await loadData();
-  }
-
-  /* =========================
-   Build query string from filters
-   ========================= */
-  function buildQuery() {
-    const params = new URLSearchParams();
-    if (examEl.value) params.set("exam_id", examEl.value);
-    if (classEl.value) params.set("class_id", classEl.value);
-    if (subjectEl.value) params.set("subject_id", subjectEl.value);
-    return params.toString();
   }
 
   /* =========================
@@ -325,32 +317,37 @@
 
     try {
       const [dataRes, summaryRes] = await Promise.all([
-        api.admin.academic.getReportsData({ 
+        api.admin.academic.getReportsDataPivot({ 
           exam_id: examEl.value, 
-          class_id: classEl.value, 
-          subject_id: subjectEl.value 
+          class_id: classEl.value 
         }),
-        api.admin.academic.getReportsSummary({ 
+        api.admin.academic.getReportsPivotSummary({ 
           exam_id: examEl.value, 
-          class_id: classEl.value, 
-          subject_id: subjectEl.value 
+          class_id: classEl.value 
         }),
       ]);
 
       if (!dataRes.ok || !summaryRes.ok) throw new Error("Failed to load data");
 
-      allRecords = await dataRes.json();
+      const pivotResult = await dataRes.json();
       const summary = await summaryRes.json();
 
-      // Update summary tiles
-      document.getElementById("statStudents").textContent = summary.totalStudents;
-      document.getElementById("statAvg").textContent = summary.avgMarks + "%";
-      document.getElementById("statPassRate").textContent = summary.passRate + "%";
-      document.getElementById("statTopSubject").textContent = summary.topSubject;
+      allRecords = pivotResult.data || [];
+      const subjects = pivotResult.subjects || [];
 
-      // Render table
-      if (resultsTable) {
+      // Update summary tiles
+      document.getElementById("statStudents").textContent = summary.totalStudents || 0;
+      document.getElementById("statAvg").textContent = (summary.avgMarks || 0) + "%";
+      document.getElementById("statPassRate").textContent = (summary.passRate || 0) + "%";
+      document.getElementById("statTopSubject").textContent = summary.topSubject || "--";
+
+      // Render table with dynamic subject columns
+      if (resultsTable && subjects.length > 0) {
+        updateTableHeadersWithSubjects(subjects);
         resultsTable.setData(allRecords);
+      } else if (resultsTable) {
+        resultsTable.setEmptyState("No marks data for this exam.", "fas fa-file-alt");
+        resultsTable.setData([]);
       }
 
       // Render charts
@@ -368,17 +365,38 @@
     if (chartA) chartA.destroy();
     if (chartB) chartB.destroy();
 
+    // Don't render charts if no data
+    if (!allRecords || allRecords.length === 0) return;
+
     const primaryColor = getPrimaryColor();
     const ctxA = document.getElementById("chartSubjects").getContext("2d");
     const ctxB = document.getElementById("chartDistribution").getContext("2d");
 
-    // Subject performance chart
+    // Subject performance chart - pivoted data has subjects as columns
     const subjectMap = {};
-    allRecords.forEach((r) => {
-      const marks = parseInt(r.marks);
-      if (isNaN(marks)) return;
-      if (!subjectMap[r.subject]) subjectMap[r.subject] = [];
-      subjectMap[r.subject].push(marks);
+    const subjectCols = []; // Track which columns are subjects
+    
+    if (allRecords.length > 0) {
+      // Identify subject columns (exclude metadata columns)
+      const firstRow = allRecords[0];
+      const metaKeys = ['student_name', 'index_number', 'grade', 'class_name', 'class_display', 'exam_name', 'exam_id'];
+      for (const key of Object.keys(firstRow)) {
+        if (!metaKeys.includes(key)) {
+          subjectCols.push(key);
+        }
+      }
+    }
+    
+    // Aggregate marks per subject
+    subjectCols.forEach(subject => {
+      const marksArr = [];
+      allRecords.forEach(r => {
+        const marks = parseInt(r[subject]);
+        if (!isNaN(marks)) marksArr.push(marks);
+      });
+      if (marksArr.length > 0) {
+        subjectMap[subject] = marksArr;
+      }
     });
 
     const subjects = Object.keys(subjectMap);
@@ -408,21 +426,25 @@
       },
     });
 
-    // Mark distribution chart
+    // Mark distribution chart - pivoted data
     const buckets = [0, 35, 50, 65, 75, 100];
     const labels = ["0-34", "35-49", "50-64", "65-74", "75-100"];
     const counts = new Array(buckets.length - 1).fill(0);
 
-    allRecords.forEach((r) => {
-      const marks = parseInt(r.marks);
-      if (isNaN(marks)) return;
-      for (let i = 0; i < buckets.length - 1; i++) {
-        if (marks >= buckets[i] && marks < buckets[i + 1]) {
-          counts[i]++;
-          break;
+    // Use the same subjectCols identified above
+
+    allRecords.forEach(r => {
+      subjectCols.forEach(subject => {
+        const marks = parseInt(r[subject]);
+        if (isNaN(marks)) return;
+        for (let i = 0; i < buckets.length - 1; i++) {
+          if (marks >= buckets[i] && marks < buckets[i + 1]) {
+            counts[i]++;
+            break;
+          }
         }
-      }
-      if (marks === 100) counts[counts.length - 1]++;
+        if (marks === 100) counts[counts.length - 1]++;
+      });
     });
 
     chartB = new Chart(ctxB, {
@@ -457,7 +479,6 @@
    ========================= */
   examEl.addEventListener("change", onExamChange);
   classEl.addEventListener("change", onClassChange);
-  subjectEl.addEventListener("change", loadData);
 
   const customSearch = document.getElementById("customSearch");
   if(customSearch) {
@@ -516,7 +537,6 @@
   function initializeSearchableDropdowns() {
     initSearchableDropdown("examFilter", () => onExamChange());
     initSearchableDropdown("classFilter", () => onClassChange());
-    initSearchableDropdown("subjectFilter", () => loadData());
     initSearchableDropdown("customPageSize", (val) => {
       if (resultsTable) {
         resultsTable.pageSize = parseInt(val);

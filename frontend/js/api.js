@@ -298,6 +298,19 @@ const api = {
         if (filters.subject_id) params.set("subject_id", filters.subject_id);
         return api.request(`/admin/academic/reports/summary?${params.toString()}`);
       },
+      getReportsDataPivot: (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.exam_id) params.set("exam_id", filters.exam_id);
+        if (filters.class_id) params.set("class_id", filters.class_id);
+        if (filters.search) params.set("search", filters.search);
+        return api.request(`/admin/academic/reports/data-pivot?${params.toString()}`);
+      },
+      getReportsPivotSummary: (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.exam_id) params.set("exam_id", filters.exam_id);
+        if (filters.class_id) params.set("class_id", filters.class_id);
+        return api.request(`/admin/academic/reports/summary-pivot?${params.toString()}`);
+      },
     },
     teachers: {
       getAll: () => api.request("/admin/teachers"),

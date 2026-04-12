@@ -1009,6 +1009,158 @@ exports.getAcademicReportsSummary = async (filters = {}) => {
   };
 };
 
+// Get academic report data pivoted (one row per student, subjects as columns)
+exports.getAcademicReportsDataPivot = async (filters = {}) => {
+  if (!filters.exam_id) {
+    return { data: [], subjects: [] };
+  }
+
+  // First, get the list of subjects for this exam (optionally filtered by class)
+  // Also include null subject for exams like Grade 5 Scholarship (total marks)
+  let subjectsQuery = `
+    SELECT DISTINCT s.id, s.name 
+    FROM marks m
+    LEFT JOIN subjects s ON m.subject_id = s.id
+    WHERE m.exam_id = $1
+  `;
+  const subjectParams = [filters.exam_id];
+
+  if (filters.class_id) {
+    subjectsQuery += ` AND m.student_id IN (SELECT id FROM users WHERE class_id = $2)`;
+    subjectParams.push(filters.class_id);
+  }
+
+  subjectsQuery += ` ORDER BY s.name`;
+
+  const subjectsRes = await pool.query(subjectsQuery, subjectParams);
+  
+  // Handle null subject (for exams like Grade 5 Scholarship)
+  const subjects = subjectsRes.rows;
+  
+  // Check if there's a null subject (for Grade 5)
+  const hasNullSubject = subjects.some(s => s.id === null);
+  if (hasNullSubject) {
+    // Filter out the null entry and add "Total" as a special subject
+    const filteredSubjects = subjects.filter(s => s.id !== null);
+    filteredSubjects.unshift({ id: 'TOTAL', name: 'Total' });
+    subjects.length = 0;
+    subjects.push(...filteredSubjects);
+  }
+  
+  if (subjects.length === 0) {
+    return { data: [], subjects: [] };
+  }
+
+  // Build dynamic CASE expressions for each subject
+  // Handle special case for Total (null subject_id)
+  const caseExpressions = subjects.map(s => {
+    if (s.id === 'TOTAL') {
+      return `MAX(CASE WHEN m.subject_id IS NULL THEN m.marks END) AS "Total"`;
+    }
+    return `MAX(CASE WHEN s.id = ${s.id} THEN m.marks END) AS "${s.name}"`;
+  }).join(',\n      ');
+
+  let query = `
+    SELECT 
+      st.full_name as student_name,
+      u.username as index_number,
+      c.grade,
+      c.name as class_name,
+      CONCAT(c.grade, '-', c.name) as class_display,
+      e.name as exam_name,
+      ${caseExpressions}
+    FROM marks m
+    JOIN users u ON m.student_id = u.id
+    LEFT JOIN subjects s ON m.subject_id = s.id
+    JOIN classes c ON u.class_id = c.id
+    LEFT JOIN students st ON u.id = st.user_id
+    JOIN exams e ON m.exam_id = e.id
+  `;
+
+  const conditions = [`m.exam_id = $1`];
+  const params = [filters.exam_id];
+
+  if (filters.class_id) {
+    conditions.push(`u.class_id = $2`);
+    params.push(filters.class_id);
+  }
+
+  if (filters.search) {
+    conditions.push(`(u.username ILIKE $${params.length + 1} OR st.full_name ILIKE $${params.length + 1})`);
+    params.push(`%${filters.search}%`);
+  }
+
+  query += ` WHERE ${conditions.join(" AND ")}`;
+  query += ` GROUP BY st.full_name, u.username, c.grade, c.name, e.name`;
+  query += ` ORDER BY c.grade, c.name, st.full_name`;
+  query += ` LIMIT 500`;
+
+  const result = await pool.query(query, params);
+
+  return {
+    data: result.rows,
+    subjects: subjects.map(s => s.name)
+  };
+};
+
+// Get summary stats for pivoted academic reports
+exports.getAcademicReportsPivotSummary = async (filters = {}) => {
+  if (!filters.exam_id) {
+    return { totalStudents: 0, avgMarks: 0, passRate: 0, topSubject: "--" };
+  }
+
+  // Get total students with marks for this exam
+  const studentQuery = `
+    SELECT COUNT(DISTINCT m.student_id) as total_students
+    FROM marks m
+    WHERE m.exam_id = $1
+  `;
+  const studentRes = await pool.query(studentQuery, [filters.exam_id]);
+  const totalStudents = parseInt(studentRes.rows[0].total_students) || 0;
+
+  // Get average marks across all subjects
+  const avgQuery = `
+    SELECT ROUND(AVG(CAST(m.marks AS NUMERIC)), 1) as avg_marks
+    FROM marks m
+    WHERE m.exam_id = $1
+  `;
+  const avgRes = await pool.query(avgQuery, [filters.exam_id]);
+  const avgMarks = parseFloat(avgRes.rows[0].avg_marks) || 0;
+
+  // Get pass rate (marks >= 50)
+  const passQuery = `
+    SELECT 
+      COUNT(*) as total,
+      COUNT(CASE WHEN CAST(m.marks AS NUMERIC) >= 50 THEN 1 END) as pass_count
+    FROM marks m
+    WHERE m.exam_id = $1
+  `;
+  const passRes = await pool.query(passQuery, [filters.exam_id]);
+  const total = parseInt(passRes.rows[0].total) || 0;
+  const passCount = parseInt(passRes.rows[0].pass_count) || 0;
+  const passRate = total > 0 ? Math.round((passCount / total) * 100) : 0;
+
+  // Get top subject (highest average)
+  const topQuery = `
+    SELECT s.name, ROUND(AVG(CAST(m.marks AS NUMERIC)), 1) as avg
+    FROM marks m
+    JOIN subjects s ON m.subject_id = s.id
+    WHERE m.exam_id = $1
+    GROUP BY s.id, s.name
+    ORDER BY avg DESC NULLS LAST
+    LIMIT 1
+  `;
+  const topRes = await pool.query(topQuery, [filters.exam_id]);
+  const topSubject = topRes.rows[0];
+
+  return {
+    totalStudents,
+    avgMarks,
+    passRate,
+    topSubject: topSubject && topSubject.avg ? `${topSubject.name} (${topSubject.avg}%)` : "--"
+  };
+};
+
 exports.rejectPasswordReset = async (resetId, rejectedBy) => {
   try {
     const resetResult = await pool.query(

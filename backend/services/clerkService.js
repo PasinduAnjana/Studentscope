@@ -895,14 +895,22 @@ exports.saveExamMarks = async function(examId, marksData) {
         else if (examRow.name && (examRow.name.includes('Grade 5') || examRow.name.includes('Scholarship'))) examRow.sub_type = 'Grade5';
       }
       if (examRow.sub_type === 'Grade5') {
-        // Get first compulsory subject for grade 5 as the "total" subject
-        const subRes = await client.query(
-          `SELECT cs.subject_id FROM class_subjects cs
-         JOIN classes c ON cs.class_id = c.id
-         WHERE c.grade = 5
-         ORDER BY cs.display_order LIMIT 1`
+        // First check if "Total" subject exists (for proper Grade 5 Scholarship handling)
+        const totalSubRes = await client.query(
+          `SELECT id FROM subjects WHERE name = 'Total' LIMIT 1`
         );
-        if (subRes.rows.length) grade5SubjectId = subRes.rows[0].subject_id;
+        if (totalSubRes.rows.length) {
+          grade5SubjectId = totalSubRes.rows[0].id;
+        } else {
+          // Fallback: get first compulsory subject for grade 5 as the "total" subject
+          const subRes = await client.query(
+            `SELECT cs.subject_id FROM class_subjects cs
+           JOIN classes c ON cs.class_id = c.id
+           WHERE c.grade = 5
+           ORDER BY cs.display_order LIMIT 1`
+          );
+          if (subRes.rows.length) grade5SubjectId = subRes.rows[0].subject_id;
+        }
       }
     }
 

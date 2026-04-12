@@ -175,10 +175,12 @@ async function run() {
       } else {
         // It's a bucket object (e.g. 10-11 or 12-13)
         Object.values(val).forEach(bucketSubjects =>
-          bucketSubjects.forEach(s => allSubjects.add(s))
+          bucketSubjects.forEach((s) => allSubjects.add(s))
         );
       }
     });
+    // Add "Total" subject for Grade 5 Scholarship and similar exams
+    allSubjects.add("Total");
 
     for (const name of allSubjects) {
       const res = await pool.query(

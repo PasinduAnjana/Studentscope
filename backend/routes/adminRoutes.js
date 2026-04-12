@@ -244,12 +244,69 @@ module.exports = (req, res) => {
     );
   }
 
+  // More specific routes must come before general ones
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/admin/academic/reports/data-pivot")
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getAcademicReportsDataPivot(req, res)
+    );
+  }
+
   if (
     req.method === "GET" &&
     req.url.startsWith("/api/admin/academic/reports/data")
   ) {
     return protect("admin")(req, res, () =>
       adminController.getAcademicReportsData(req, res)
+    );
+  }
+
+  // More specific routes must come before general ones
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/admin/academic/reports/data-pivot")
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getAcademicReportsDataPivot(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/admin/academic/reports/summary-pivot")
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getAcademicReportsPivotSummary(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/admin/academic/reports/summary")
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getAcademicReportsDataPivot(req, res)
+    );
+  }
+
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/admin/academic/reports/summary-pivot")
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getAcademicReportsPivotSummary(req, res)
+    );
+  }
+
+  // More specific routes must come before general ones
+  if (
+    req.method === "GET" &&
+    req.url.startsWith("/api/admin/academic/reports/summary-pivot")
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.getAcademicReportsPivotSummary(req, res)
     );
   }
 
