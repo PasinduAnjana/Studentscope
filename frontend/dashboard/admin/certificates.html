@@ -206,7 +206,7 @@
       document.getElementById("totalCount").textContent = total;
       
       if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-subtext);">No certificates found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6"><empty-state-message message="No certificates found" icon="fas fa-certificate"></empty-state-message></td></tr>';
         return;
       }
       
