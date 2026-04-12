@@ -270,11 +270,6 @@ const api = {
       update: (id, data) => api.request(`/admin/announcements/${id}`, "PUT", data),
       delete: (id) => api.request(`/admin/announcements/${id}`, "DELETE"),
     },
-    events: {
-      getAll: () => api.request("/admin/events"),
-      create: (data) => api.request("/admin/events", "POST", data),
-      delete: (id) => api.request(`/admin/events/${id}`, "DELETE"),
-    },
     academic: {
       getPerformanceByGrade: () => api.request("/admin/academic/performance/grades"),
       getSubjectPerformance: () => api.request("/admin/academic/performance/subjects"),
