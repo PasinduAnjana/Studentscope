@@ -3,7 +3,7 @@
   <div class="card greeting-tile w-2">
     <div class="greeting-content">
       <h2 class="greeting-heading" data="student.greeting"></h2>
-      <p class="greeting-subtext">You are logged in as an Administrator</p>
+      <p class="greeting-subtext">You are logged in as an Administrator.</p>
     </div>
     <img
       src="/assets/images/admin-clipart.svg"
@@ -123,9 +123,12 @@
       const res = await api.admin.dashboard.get();
       if (res.ok) {
         const data = await res.json();
-        document.getElementById("total-students").textContent = data.students ?? "-";
-        document.getElementById("total-teachers").textContent = data.teachers ?? "-";
-        document.getElementById("total-classes").textContent = data.classes ?? "-";
+        document.getElementById("total-students").textContent =
+          data.students ?? "-";
+        document.getElementById("total-teachers").textContent =
+          data.teachers ?? "-";
+        document.getElementById("total-classes").textContent =
+          data.classes ?? "-";
       }
     } catch (err) {
       console.error("Error loading school overview:", err);
@@ -155,7 +158,9 @@
 
       setTimeout(() => {
         const rootStyles = getComputedStyle(document.documentElement);
-        const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
+        const primaryColor = rootStyles
+          .getPropertyValue("--color-primary")
+          .trim();
 
         const centerTextPlugin = {
           id: "centerText",
@@ -172,7 +177,7 @@
             ctx.fillText(
               `${data.presentToday}/${markedCount}`,
               width / 2,
-              chart.getDatasetMeta(0).data[0]?.y || height / 2
+              chart.getDatasetMeta(0).data[0]?.y || height / 2,
             );
             ctx.restore();
           },
@@ -182,11 +187,21 @@
           type: "doughnut",
           data: {
             labels: ["Present", "Absent", "Not Marked"],
-            datasets: [{
-              data: [data.presentToday, data.absentToday, data.notMarkedToday],
-              backgroundColor: [primaryColor, primaryColor + "40", primaryColor + "20"],
-              borderRadius: 10,
-            }],
+            datasets: [
+              {
+                data: [
+                  data.presentToday,
+                  data.absentToday,
+                  data.notMarkedToday,
+                ],
+                backgroundColor: [
+                  primaryColor,
+                  primaryColor + "40",
+                  primaryColor + "20",
+                ],
+                borderRadius: 10,
+              },
+            ],
           },
           options: {
             responsive: true,
@@ -219,7 +234,8 @@
       const container = document.getElementById("academic-performance-content");
 
       if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-sm">No academic data available</p>';
+        container.innerHTML =
+          '<p class="text-sm">No academic data available</p>';
         return;
       }
 
@@ -227,22 +243,24 @@
 
       setTimeout(() => {
         const rootStyles = getComputedStyle(document.documentElement);
-        const primaryColor = rootStyles.getPropertyValue("--color-primary").trim();
+        const primaryColor = rootStyles
+          .getPropertyValue("--color-primary")
+          .trim();
 
         const levelColors = {
           excellent: primaryColor,
           good: primaryColor + "AA",
           average: primaryColor + "55",
-          poor: primaryColor + "22"
+          poor: primaryColor + "22",
         };
 
-        const levelOrder = ['excellent', 'good', 'average', 'poor'];
-        const sortedData = levelOrder.map(level => {
-          const item = data.find(d => d.performance_level === level);
+        const levelOrder = ["excellent", "good", "average", "poor"];
+        const sortedData = levelOrder.map((level) => {
+          const item = data.find((d) => d.performance_level === level);
           return {
             level: level.charAt(0).toUpperCase() + level.slice(1),
             count: item ? parseInt(item.student_count) : 0,
-            color: levelColors[level]
+            color: levelColors[level],
           };
         });
 
@@ -262,7 +280,7 @@
             ctx.fillText(
               `${total}`,
               width / 2,
-              chart.getDatasetMeta(0).data[0]?.y || height / 2
+              chart.getDatasetMeta(0).data[0]?.y || height / 2,
             );
             ctx.restore();
           },
@@ -271,12 +289,14 @@
         new Chart(document.getElementById("academicPerformanceChart"), {
           type: "doughnut",
           data: {
-            labels: sortedData.map(d => d.level),
-            datasets: [{
-              data: sortedData.map(d => d.count),
-              backgroundColor: sortedData.map(d => d.color),
-              borderRadius: 10,
-            }],
+            labels: sortedData.map((d) => d.level),
+            datasets: [
+              {
+                data: sortedData.map((d) => d.count),
+                backgroundColor: sortedData.map((d) => d.color),
+                borderRadius: 10,
+              },
+            ],
           },
           options: {
             responsive: true,
@@ -297,7 +317,8 @@
       }, 100);
     } catch (err) {
       console.error("Error loading academic performance:", err);
-      document.getElementById("academic-performance-content").innerHTML = '<p class="text-sm">Error loading academic data</p>';
+      document.getElementById("academic-performance-content").innerHTML =
+        '<p class="text-sm">Error loading academic data</p>';
     }
   }
 
@@ -310,18 +331,21 @@
       const announcementsList = document.getElementById("announcements-list");
 
       if (!announcements || announcements.length === 0) {
-        announcementsList.innerHTML = '<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="No announcements" icon="fas fa-bullhorn"></empty-state-message></li>';
+        announcementsList.innerHTML =
+          '<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="No announcements" icon="fas fa-bullhorn"></empty-state-message></li>';
         return;
       }
 
       const recentAnnouncements = announcements.slice(0, 3);
       announcementsList.innerHTML = recentAnnouncements
-        .map((announcement) => `
+        .map(
+          (announcement) => `
           <li onclick="window.location.href='layout.html?role=admin&page=announcements'" style="cursor: pointer;">
             <span class="subject-name">${announcement.title}</span>
-            <span class="text-sm text-muted">by ${announcement.created_by_name || announcement.created_by || 'Admin'}</span>
+            <span class="text-sm text-muted">by ${announcement.created_by_name || announcement.created_by || "Admin"}</span>
           </li>
-        `)
+        `,
+        )
         .join("");
 
       if (announcements.length > 3) {
@@ -348,13 +372,15 @@
       resetsList.innerHTML = "";
 
       if (resets.length === 0) {
-        resetsList.innerHTML = '<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="No pending requests" icon="fas fa-check-circle"></empty-state-message></li>';
+        resetsList.innerHTML =
+          '<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="No pending requests" icon="fas fa-check-circle"></empty-state-message></li>';
         return;
       }
 
       resets.forEach((reset) => {
         const li = document.createElement("li");
-        li.style.cssText = "padding: 12px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;";
+        li.style.cssText =
+          "padding: 12px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;";
         li.innerHTML = `
           <div>
             <p class="subject-name" style="margin: 0; font-weight: 500;">${reset.username}</p>
@@ -419,19 +445,24 @@
       const alertsList = document.getElementById("dashboard-alerts-list");
 
       if (!alerts || alerts.length === 0) {
-        alertsList.innerHTML = '<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="No alerts" icon="fas fa-check-circle"></empty-state-message></li>';
+        alertsList.innerHTML =
+          '<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="No alerts" icon="fas fa-check-circle"></empty-state-message></li>';
         return;
       }
 
-      alertsList.innerHTML = alerts.map(alert => `
+      alertsList.innerHTML = alerts
+        .map(
+          (alert) => `
         <li style="cursor: pointer; padding: 12px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;" onclick="showAlertDetails('${alert.key}')">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <i class="${alert.icon}" style="color: ${alert.type === 'danger' ? '#ef4444' : alert.type === 'warning' ? '#f59e0b' : 'var(--color-primary)'};"></i>
+            <i class="${alert.icon}" style="color: ${alert.type === "danger" ? "#ef4444" : alert.type === "warning" ? "#f59e0b" : "var(--color-primary)"};"></i>
             <span>${alert.message.en} (${alert.count})</span>
           </div>
           <i class="fas fa-chevron-right text-muted"></i>
         </li>
-      `).join("");
+      `,
+        )
+        .join("");
     } catch (err) {
       console.error("Error loading alerts:", err);
     }
@@ -452,10 +483,10 @@
         container.innerHTML = `
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
-              <tr>${keys.map(k => `<th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--color-border);">${k.replace(/_/g, ' ')}</th>`).join('')}</tr>
+              <tr>${keys.map((k) => `<th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--color-border);">${k.replace(/_/g, " ")}</th>`).join("")}</tr>
             </thead>
             <tbody>
-              ${details.map(row => `<tr>${keys.map(k => `<td style="padding: 8px; border-bottom: 1px solid var(--color-border);">${row[k] ?? '-'}</td>`).join('')}</tr>`).join('')}
+              ${details.map((row) => `<tr>${keys.map((k) => `<td style="padding: 8px; border-bottom: 1px solid var(--color-border);">${row[k] ?? "-"}</td>`).join("")}</tr>`).join("")}
             </tbody>
           </table>
         `;
