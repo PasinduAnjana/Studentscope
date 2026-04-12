@@ -674,7 +674,7 @@ exports.getBehaviorRecords = async (filters = {}) => {
       s.full_name as student_name,
       c.grade,
       c.name as class_name,
-      CONCAT(c.grade, c.name) as class_display,
+      CONCAT(c.grade, '-', c.name) as class_display,
       reporter.full_name as reported_by_name
     FROM behavior_records br
     JOIN users u ON br.student_id = u.id

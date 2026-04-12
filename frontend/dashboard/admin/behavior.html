@@ -270,7 +270,7 @@
       classFilterSelect.innerHTML = '<option value="all" data-en="All Classes">All Classes</option>';
       allClasses.forEach((cls) => {
         const option = document.createElement("option");
-        option.value = `${cls.grade}${cls.class_name}`;
+        option.value = `${cls.grade}-${cls.class_name}`;
         option.textContent = `Grade ${cls.grade}-${cls.class_name}`;
         classFilterSelect.appendChild(option);
       });
@@ -289,7 +289,7 @@
     let filtered = allRecords;
 
     if (classFilter !== "all") {
-      filtered = filtered.filter((r) => r.class_display === classFilter);
+      filtered = filtered.filter((r) => r.class === classFilter);
     }
 
     if (typeFilter !== "all") {
