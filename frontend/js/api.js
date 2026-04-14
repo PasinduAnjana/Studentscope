@@ -317,6 +317,10 @@ const api = {
     },
     clerks: {
       getAll: () => api.request("/admin/clerks"),
+      create: (data) => api.request("/admin/clerks", "POST", data),
+      update: (id, data) => api.request(`/admin/clerks/${id}`, "PUT", data),
+      delete: (id) => api.request(`/admin/clerks/${id}`, "DELETE"),
+      resetPassword: (id, password) => api.request(`/admin/clerks/${id}/reset-password`, "POST", { password }),
     },
     passwordResets: {
       getPending: () => api.request("/admin/password-resets/pending"),

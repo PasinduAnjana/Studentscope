@@ -264,6 +264,107 @@ exports.getAllClerks = async (req, res) => {
   }
 };
 
+exports.createClerk = async (req, res) => {
+  try {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", async () => {
+      const data = JSON.parse(body);
+      const clerk = await adminService.createClerk(data);
+      res.writeHead(201, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Clerk created successfully", data: clerk }));
+    });
+  } catch (err) {
+    console.error("Error creating clerk:", err);
+    const status = err.message === "NIC already exists" ? 400 : 500;
+    res.writeHead(status, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: err.message || "Failed to create clerk" }));
+  }
+};
+
+exports.updateClerk = async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const parts = url.pathname.split("/");
+    const clerkId = parts[parts.length - 1];
+
+    if (!clerkId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Clerk ID required" }));
+    }
+
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", async () => {
+      const data = JSON.parse(body);
+      await adminService.updateClerk(parseInt(clerkId), data);
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Clerk updated successfully" }));
+    });
+  } catch (err) {
+    console.error("Error updating clerk:", err);
+    const status = err.message === "NIC already exists" ? 400 : 500;
+    res.writeHead(status, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: err.message || "Failed to update clerk" }));
+  }
+};
+
+exports.deleteClerk = async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const parts = url.pathname.split("/");
+    const clerkId = parts[parts.length - 1];
+
+    if (!clerkId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Clerk ID required" }));
+    }
+
+    const deleted = await adminService.deleteClerk(parseInt(clerkId));
+    if (!deleted) {
+      res.writeHead(404, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Clerk not found" }));
+    }
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ message: "Clerk deleted successfully" }));
+  } catch (err) {
+    console.error("Error deleting clerk:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to delete clerk" }));
+  }
+};
+
+exports.resetClerkPassword = async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const parts = url.pathname.split("/");
+    const clerkId = parts[parts.length - 2];
+
+    if (!clerkId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Clerk ID required" }));
+    }
+
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", async () => {
+      const { password } = JSON.parse(body);
+      if (!password || password.length < 4) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Password must be at least 4 characters" }));
+      }
+      await adminService.resetClerkPassword(parseInt(clerkId), password);
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Password reset successfully" }));
+    });
+  } catch (err) {
+    console.error("Error resetting clerk password:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: err.message || "Failed to reset password" }));
+  }
+};
+
 // ============ ACADEMIC REPORTS ============
 
 exports.getAcademicReportsFilters = async (req, res) => {

@@ -1,4 +1,15 @@
 const pool = require("../db");
+const crypto = require("crypto");
+
+const ITERATIONS = 100_000;
+const KEYLEN = 64;
+const DIGEST = "sha512";
+
+function hashPassword(password, salt) {
+  return crypto
+    .pbkdf2Sync(password, salt, ITERATIONS, KEYLEN, DIGEST)
+    .toString("hex");
+}
 
 exports.getDashboardStats = async () => {
   // Get total students
@@ -637,6 +648,134 @@ exports.getAllClerks = async () => {
     ORDER BY cd.full_name
   `);
   return result.rows;
+};
+
+exports.createClerk = async ({
+  full_name,
+  nic,
+  address,
+  phone_number,
+  birthday,
+  appointment_date,
+  first_appointment_date,
+}) => {
+  const checkResult = await pool.query(
+    "SELECT id FROM users WHERE username = $1",
+    [nic]
+  );
+  if (checkResult.rows.length > 0) {
+    throw new Error("NIC already exists");
+  }
+
+  const roleRes = await pool.query(
+    "SELECT id FROM roles WHERE name = 'clerk'"
+  );
+  if (!roleRes.rows.length) throw new Error("Role 'clerk' not found");
+  const roleId = roleRes.rows[0].id;
+
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hashedPassword = hashPassword(nic, salt);
+
+  const userResult = await pool.query(
+    `INSERT INTO users (username, password, salt, role_id)
+     VALUES ($1, $2, $3, $4)
+     RETURNING id`,
+    [nic, hashedPassword, salt, roleId]
+  );
+  const userId = userResult.rows[0].id;
+
+  await pool.query(
+    `INSERT INTO clerk_details (clerk_id, full_name, nic, address, phone_number, appointment_date, first_appointment_date, birthday)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    [
+      userId,
+      full_name,
+      nic,
+      address || null,
+      phone_number || null,
+      appointment_date || null,
+      first_appointment_date || null,
+      birthday || null,
+    ]
+  );
+
+  return { id: userId, full_name, nic, username: nic };
+};
+
+exports.updateClerk = async (
+  clerkId,
+  {
+    full_name,
+    nic,
+    address,
+    phone_number,
+    birthday,
+    appointment_date,
+    first_appointment_date,
+  }
+) => {
+  const checkResult = await pool.query(
+    "SELECT id FROM users WHERE username = $1 AND id != $2",
+    [nic, clerkId]
+  );
+  if (checkResult.rows.length > 0) {
+    throw new Error("NIC already exists");
+  }
+
+  await pool.query(
+    `UPDATE clerk_details SET
+       full_name = $1,
+       nic = $2,
+       address = $3,
+       phone_number = $4,
+       birthday = $5,
+       appointment_date = $6,
+       first_appointment_date = $7
+     WHERE clerk_id = $8`,
+    [
+      full_name,
+      nic,
+      address || null,
+      phone_number || null,
+      birthday || null,
+      appointment_date || null,
+      first_appointment_date || null,
+      clerkId,
+    ]
+  );
+
+  await pool.query("UPDATE users SET username = $1 WHERE id = $2", [
+    nic,
+    clerkId,
+  ]);
+
+  return { id: clerkId, full_name, nic, username: nic };
+};
+
+exports.deleteClerk = async (clerkId) => {
+  await pool.query("DELETE FROM sessions WHERE user_id = $1", [clerkId]);
+  await pool.query("DELETE FROM clerk_details WHERE clerk_id = $1", [clerkId]);
+  const result = await pool.query(
+    "DELETE FROM users WHERE id = $1 RETURNING id",
+    [clerkId]
+  );
+  return result.rows.length > 0;
+};
+
+exports.resetClerkPassword = async (clerkId, newPassword) => {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hashedPassword = hashPassword(newPassword, salt);
+
+  const result = await pool.query(
+    `UPDATE users SET password = $1, salt = $2 WHERE id = $3 AND role_id = (SELECT id FROM roles WHERE name = 'clerk') RETURNING id`,
+    [hashedPassword, salt, clerkId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Clerk not found");
+  }
+
+  return { id: clerkId };
 };
 
 // ============ BEHAVIOR RECORDS ============

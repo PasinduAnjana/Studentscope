@@ -25,6 +25,11 @@
     "icon": "fas fa-users"
   },
   {
+    "label": "sidebar.clerks",
+    "page": "clerks",
+    "icon": "fas fa-user-tie"
+  },
+  {
     "label": "sidebar.certificateApproval",
     "page": "certificates",
     "icon": "fas fa-certificate"

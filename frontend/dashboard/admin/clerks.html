@@ -1,0 +1,298 @@
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-user-tie"></i>
+    <span data-en="Clerk Management" data-si="ක්ලාක් කළමනාකරණය" data-ta="கலர்க் மேலாண்மை">Clerk Management</span>
+  </h2>
+
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div class="icon-title">
+        <i class="fas fa-users icon"></i>
+        <p class="tile-label" data-en="Clerks" data-si="ක්ලාක්" data-ta="கலர்கள்">Clerks</p>
+      </div>
+      <button class="btn btn-primary" onclick="openAddModal()">
+        <i class="fas fa-plus"></i> <span data-en="Add Clerk" data-si="ක්ලාක් එකතු කරන්න" data-ta="கலர் சேர்">Add Clerk</span>
+      </button>
+    </div>
+
+    <data-table id="clerks-table"></data-table>
+  </div>
+</section>
+
+<link rel="stylesheet" href="../../css/dropdown.css" />
+
+<modal-dialog id="clerkModal" title="Add Clerk">
+  <form id="clerkForm" onsubmit="saveClerk(event)">
+    <input type="hidden" id="clerkId" value="">
+    <div class="form-group">
+      <label for="fullName" data-en="Full Name" data-si="සම්පූර්ණ නම" data-ta="முழு பெயர்">Full Name <span class="required">*</span></label>
+      <input type="text" id="fullName" required>
+    </div>
+    <div class="form-group">
+      <label for="nic" data-en="NIC (Username)" data-si="ජාතික අනන්‍යතා අංකය" data-ta="தேசிய அடையாள எண்">NIC (Username) <span class="required">*</span></label>
+      <input type="text" id="nic" required>
+      <small class="form-hint" data-en="NIC will be used as username and default password" data-si="ජාතික අනන්‍යතා අංකය පරිශීර්ණ නාමය සහ පෙරනිමි මුරපදය ලෙස භාවිත කෙරේ" data-ta="தேசிய அடையாள எண் பயனர் பெயர் மற்றும் இயல்புநிலை கடவுச்சொல்லாக பயன்படுத்தப்படும்">NIC will be used as username and default password</small>
+    </div>
+    <div class="form-group">
+      <label for="phoneNumber" data-en="Phone Number" data-si="දුරකථන අංකය" data-ta="தொலைபேசி எண்">Phone Number</label>
+      <input type="text" id="phoneNumber">
+    </div>
+    <div class="form-group">
+      <label for="address" data-en="Address" data-si="ලිපිනය" data-ta="முகவரி">Address</label>
+      <input type="text" id="address">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="birthday" data-en="Birthday" data-si="උපන් දිනය" data-ta="பிறந்த தேதி">Birthday</label>
+        <input type="date" id="birthday">
+      </div>
+      <div class="form-group">
+        <label for="appointmentDate" data-en="Appointment Date" data-si="පත් කිරීමේ දිනය" data-ta="நியமன தேதி">Appointment Date</label>
+        <input type="date" id="appointmentDate">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="firstAppointmentDate" data-en="First Appointment Date" data-si="පළමු පත් කිරීමේ දිනය" data-ta="முதல் நியமன தேதி">First Appointment Date</label>
+      <input type="date" id="firstAppointmentDate">
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeClerkModal()">
+        <span data-en="Cancel" data-si="අවලංගු කරන්න" data-ta="ரத்து">Cancel</span>
+      </button>
+      <button type="submit" class="btn btn-primary">
+        <span data-en="Save" data-si="සුරකින්න" data-ta="சேமி">Save</span>
+      </button>
+    </div>
+  </form>
+</modal-dialog>
+
+<modal-dialog id="passwordModal" title="Reset Password">
+  <form id="passwordForm" onsubmit="resetPassword(event)">
+    <input type="hidden" id="passwordClerkId" value="">
+    <div class="form-group">
+      <label for="newPassword" data-en="New Password" data-si="නව මුරපදය" data-ta="புதிய கடவுச்சொல்">New Password <span class="required">*</span></label>
+      <input type="password" id="newPassword" required minlength="4">
+    </div>
+    <div class="form-group">
+      <label for="confirmPassword" data-en="Confirm Password" data-si="මුරපදය තහවුරු කරන්න" data-ta="கடவுச்சொல்லை உறுதிப்படுத்தவும்">Confirm Password <span class="required">*</span></label>
+      <input type="password" id="confirmPassword" required minlength="4">
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">
+        <span data-en="Cancel" data-si="අවලංගු කරන්න" data-ta="ரத்து">Cancel</span>
+      </button>
+      <button type="submit" class="btn btn-primary">
+        <span data-en="Reset Password" data-si="මුරපදය නැවත සකසන්න" data-ta="கடவுச்சொல்லை மீட்டமை">Reset Password</span>
+      </button>
+    </div>
+  </form>
+</modal-dialog>
+
+<modal-dialog id="deleteModal" title="Delete Clerk">
+  <div style="padding: 16px 0;">
+    <p data-en="Are you sure you want to delete this clerk? This action cannot be undone." data-si="ඔබට මෙම ක්ලාක් මකා දැමීමට අවශ්‍යද? මෙම ක්‍රියාව විය නොහැක." data-ta="இந்த கலரை நீக்க விரும்புகிறீர்களா? இந்த செயலை செயல்தவிர்க்க முடியாது.">Are you sure you want to delete this clerk? This action cannot be undone.</p>
+    <p id="deleteClerkName" style="font-weight: 600; margin-top: 8px;"></p>
+  </div>
+  <input type="hidden" id="deleteClerkId" value="">
+  <div class="modal-actions">
+    <button class="btn btn-secondary" onclick="closeDeleteModal()">
+      <span data-en="Cancel" data-si="අවලංගු කරන්න" data-ta="ரத்து">Cancel</span>
+    </button>
+    <button class="btn btn-danger" onclick="confirmDelete()">
+      <i class="fas fa-trash"></i> <span data-en="Delete" data-si="මකන්න" data-ta="நீக்கு">Delete</span>
+    </button>
+  </div>
+</modal-dialog>
+
+<style>
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; margin-bottom: 6px; font-weight: 500; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 14px; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--color-primary); }
+  .form-hint { display: block; margin-top: 4px; font-size: 12px; color: var(--color-subtext); }
+  .required { color: #e74c3c; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--color-border); }
+  .action-buttons { display: flex; gap: 6px; }
+  @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  let allClerks = [];
+
+  function initTable() {
+    const table = document.getElementById("clerks-table");
+    table.setColumns([
+      { key: "full_name", header: "Full Name", searchable: true },
+      { key: "nic", header: "NIC", searchable: true },
+      { key: "phone_number", header: "Phone", searchable: false },
+      { 
+        key: "appointment_date", 
+        header: "Appointment Date",
+        render: (row) => row.appointment_date ? new Date(row.appointment_date).toLocaleDateString() : "—"
+      },
+      {
+        key: "actions",
+        header: "Actions",
+        render: (row) => {
+          const div = document.createElement("div");
+          div.className = "action-buttons";
+          div.innerHTML = `
+            <button class="btn btn-small btn-secondary" onclick="openEditModal(${row.id})" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-small btn-primary" onclick="openPasswordModal(${row.id})" title="Reset Password">
+              <i class="fas fa-key"></i>
+            </button>
+            <button class="btn btn-small btn-danger" onclick="openDeleteModal(${row.id}, '${row.full_name.replace(/'/g, "\\'")}')" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          `;
+          return div;
+        }
+      }
+    ]);
+    table.setEmptyState("No clerks found", "fas fa-user-tie");
+  }
+
+  function loadClerks() {
+    api.admin.clerks.getAll()
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch clerks");
+        return res.json();
+      })
+      .then(data => {
+        allClerks = data.data || data;
+        document.getElementById("clerks-table").setData(allClerks);
+      })
+      .catch(err => {
+        console.error(err);
+        toast("Error loading clerks", "fa-solid fa-circle-exclamation");
+      });
+  }
+
+  function openAddModal() {
+    document.getElementById("clerkForm").reset();
+    document.getElementById("clerkId").value = "";
+    document.getElementById("clerkModal").setTitle("Add Clerk");
+    document.getElementById("clerkModal").open();
+  }
+
+  function openEditModal(id) {
+    const clerk = allClerks.find(c => c.id === parseInt(id) || c.id === String(id));
+    if (!clerk) return;
+
+    document.getElementById("clerkId").value = clerk.id;
+    document.getElementById("fullName").value = clerk.full_name || "";
+    document.getElementById("nic").value = clerk.nic || "";
+    document.getElementById("phoneNumber").value = clerk.phone_number || "";
+    document.getElementById("address").value = clerk.address || "";
+    document.getElementById("birthday").value = clerk.birthday ? new Date(clerk.birthday).toISOString().split("T")[0] : "";
+    document.getElementById("appointmentDate").value = clerk.appointment_date ? new Date(clerk.appointment_date).toISOString().split("T")[0] : "";
+    document.getElementById("firstAppointmentDate").value = clerk.first_appointment_date ? new Date(clerk.first_appointment_date).toISOString().split("T")[0] : "";
+
+    document.getElementById("clerkModal").setTitle("Edit Clerk");
+    document.getElementById("clerkModal").open();
+  }
+
+  function closeClerkModal() {
+    document.getElementById("clerkModal").close();
+  }
+
+  async function saveClerk(e) {
+    e.preventDefault();
+    const id = document.getElementById("clerkId").value;
+    const data = {
+      full_name: document.getElementById("fullName").value,
+      nic: document.getElementById("nic").value,
+      phone_number: document.getElementById("phoneNumber").value,
+      address: document.getElementById("address").value,
+      birthday: document.getElementById("birthday").value,
+      appointment_date: document.getElementById("appointmentDate").value,
+      first_appointment_date: document.getElementById("firstAppointmentDate").value,
+    };
+
+    try {
+      const res = id 
+        ? await api.admin.clerks.update(parseInt(id), data)
+        : await api.admin.clerks.create(data);
+      
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to save clerk");
+      }
+
+      toast("Clerk saved successfully", "fa-solid fa-check");
+      closeClerkModal();
+      loadClerks();
+    } catch (err) {
+      console.error(err);
+      toast(err.message, "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  function openPasswordModal(id) {
+    document.getElementById("passwordForm").reset();
+    document.getElementById("passwordClerkId").value = parseInt(id) || id;
+    document.getElementById("passwordModal").open();
+  }
+
+  function closePasswordModal() {
+    document.getElementById("passwordModal").close();
+  }
+
+  async function resetPassword(e) {
+    e.preventDefault();
+    const id = document.getElementById("passwordClerkId").value;
+    const newPass = document.getElementById("newPassword").value;
+    const confirmPass = document.getElementById("confirmPassword").value;
+
+    if (newPass !== confirmPass) {
+      toast("Passwords do not match", "fa-solid fa-circle-exclamation");
+      return;
+    }
+
+    try {
+      const res = await api.admin.clerks.resetPassword(parseInt(id), newPass);
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to reset password");
+      }
+      toast("Password reset successfully", "fa-solid fa-check");
+      closePasswordModal();
+    } catch (err) {
+      console.error(err);
+      toast(err.message, "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  function openDeleteModal(id, name) {
+    document.getElementById("deleteClerkId").value = parseInt(id) || id;
+    document.getElementById("deleteClerkName").textContent = name;
+    document.getElementById("deleteModal").open();
+  }
+
+  function closeDeleteModal() {
+    document.getElementById("deleteModal").close();
+  }
+
+  async function confirmDelete() {
+    const id = document.getElementById("deleteClerkId").value;
+    try {
+      const res = await api.admin.clerks.delete(parseInt(id));
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to delete clerk");
+      }
+      toast("Clerk deleted successfully", "fa-solid fa-check");
+      closeDeleteModal();
+      loadClerks();
+    } catch (err) {
+      console.error(err);
+      toast(err.message, "fa-solid fa-circle-exclamation");
+    }
+  }
+
+  initTable();
+  loadClerks();
+</script>

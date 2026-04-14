@@ -170,6 +170,40 @@ module.exports = (req, res) => {
     );
   }
 
+  // Clerk CRUD routes
+  if (req.method === "POST" && req.url === "/api/admin/clerks") {
+    return protect("admin")(req, res, () =>
+      adminController.createClerk(req, res)
+    );
+  }
+
+  if (
+    req.method === "PUT" &&
+    req.url.match(/^\/api\/admin\/clerks\/\d+$/)
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.updateClerk(req, res)
+    );
+  }
+
+  if (
+    req.method === "DELETE" &&
+    req.url.match(/^\/api\/admin\/clerks\/\d+$/)
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.deleteClerk(req, res)
+    );
+  }
+
+  if (
+    req.method === "POST" &&
+    req.url.match(/^\/api\/admin\/clerks\/\d+\/reset-password$/)
+  ) {
+    return protect("admin")(req, res, () =>
+      adminController.resetClerkPassword(req, res)
+    );
+  }
+
   // Announcements route
   if (req.method === "GET" && req.url === "/api/admin/announcements/recent") {
     return protect("admin")(req, res, () =>
