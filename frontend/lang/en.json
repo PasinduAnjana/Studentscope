@@ -215,6 +215,37 @@
       "pdfEmptyTitles": "Empty Column Titles (comma-separated, e.g., Signature, Date, Notes):",
       "present": "Present",
       "absent": "Absent"
+    },
+    "academic": {
+      "title": "Academic Reports",
+      "students": "Students",
+      "avgMarks": "Avg Marks",
+      "avgMarksFull": "Average Marks",
+      "passRate": "Pass Rate",
+      "topSubject": "Top Subject",
+      "results": "Results",
+      "selectExam": "Select Exam",
+      "searchStudent": "Search student...",
+      "noExamSelected": "Select an exam to view reports",
+      "noRecords": "No matching records found for these filters.",
+      "noMarksData": "No marks data for this exam.",
+      "loadError": "Error loading reports data.",
+      "subjectPerformance": "Subject Performance",
+      "markDistribution": "Mark Distribution",
+      "student": "Student",
+      "indexNo": "Index No",
+      "class": "Class",
+      "subject": "Subject",
+      "marks": "Marks",
+      "exam": "Exam",
+      "gradeX": "Grade {grade}",
+      "distribution": {
+        "range1": "0-34",
+        "range2": "35-49",
+        "range3": "50-64",
+        "range4": "65-74",
+        "range5": "75-100"
+      }
     }
   }
 }

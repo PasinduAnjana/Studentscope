@@ -219,6 +219,37 @@
       "pdfEmptyTitles": "හිස් සංඛ්‍යාලේඛන මාතෘකා (කොමා වෙන් කළ යුතුය, උදා: අත්සන්, දිනය, සටහන්):",
       "present": "පැමිණි",
       "absent": "නොපැමිණි"
+    },
+    "academic": {
+      "title": "අධ්‍යාපනික වාර්තා",
+      "students": "ශිෂ්‍යයන්",
+      "avgMarks": "සාමාන්‍ය ලකුණු",
+      "avgMarksFull": "සාමාන්‍ය ලකුණු",
+      "passRate": "සමත් අනුපාතය",
+      "topSubject": "ප්‍රමුඛ විෂය",
+      "results": "ප්‍රතිඵල",
+      "selectExam": "පරීක්ෂණය තෝරන්න",
+      "searchStudent": "ශිෂ්‍යයා සොයන්න...",
+      "noExamSelected": "වාර්තා බැලීමට පරීක්ෂණයක් තෝරන්න",
+      "noRecords": "මෙම පෙරහනුවල ගැලපෙන වාර්තා නැත.",
+      "noMarksData": "මෙම පරීක්ෂණය සඳහා ලකුණු නැත.",
+      "loadError": "වාර්තා දත්ත පූරණය කිරීමේ දෝෂය",
+      "subjectPerformance": "විෂය කාර්ය සාධනය",
+      "markDistribution": "ලකුණු බෙදීම",
+      "student": "ශිෂ්‍යයා",
+      "indexNo": "සුචක අංකය",
+      "class": "පන්තිය",
+      "subject": "විෂය",
+      "marks": "ලකුණු",
+      "exam": "පරීක්ෂණය",
+      "gradeX": "පන්තිය {grade}",
+      "distribution": {
+        "range1": "0-34",
+        "range2": "35-49",
+        "range3": "50-64",
+        "range4": "65-74",
+        "range5": "75-100"
+      }
     }
   }
 }

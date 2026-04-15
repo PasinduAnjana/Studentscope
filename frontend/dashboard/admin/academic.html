@@ -1,11 +1,6 @@
 <h2 class="heading">
   <i class="fas fa-chart-bar"></i>
-  <span
-    data-en="Academic Reports"
-    data-si="අධ්‍යාපනික වාර්තා"
-    data-ta="கல்வி அறிக்கைகள்"
-    >Academic Reports</span
-  >
+  <span data="admin.academic.title">Academic Reports</span>
 </h2>
 
 <div id="summaryTilesContainer" style="display: none; margin-bottom: 24px;">
@@ -14,7 +9,7 @@
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
         <i class="fas fa-users icon"></i>
-        <p class="tile-label" data-en="Students" data-si="ශිෂ්‍යයන්" data-ta="மாணவர்கள்">Students</p>
+        <p class="tile-label" data="admin.academic.students">Students</p>
       </div>
       <p class="tile-value" id="statStudents">--</p>
     </div>
@@ -22,7 +17,7 @@
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
         <i class="fas fa-signal icon"></i>
-        <p class="tile-label" data-en="Avg Marks" data-si="සාමාන්‍ය ලකුණු" data-ta="சராசரி மதிப்பெண்">Avg Marks</p>
+        <p class="tile-label" data="admin.academic.avgMarks">Avg Marks</p>
       </div>
       <p class="tile-value" id="statAvg">--</p>
     </div>
@@ -30,7 +25,7 @@
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
         <i class="fas fa-poll icon"></i>
-        <p class="tile-label" data-en="Pass Rate" data-si="සමත් අනුපාතය" data-ta="தேர்ச்சி விகிதம்">Pass Rate</p>
+        <p class="tile-label" data="admin.academic.passRate">Pass Rate</p>
       </div>
       <p class="tile-value" id="statPassRate">--</p>
     </div>
@@ -38,7 +33,7 @@
     <div class="card w-1 h-1 dashboard-tile">
       <div class="icon-title">
         <i class="fas fa-award icon"></i>
-        <p class="tile-label" data-en="Top Subject" data-si="ප්‍රථම විෂය" data-ta="சிறந்த பாடம்">Top Subject</p>
+        <p class="tile-label" data="admin.academic.topSubject">Top Subject</p>
       </div>
       <p class="tile-value" id="statTopSubject" style="font-size: 16px">--</p>
     </div>
@@ -49,7 +44,7 @@
 <div class="card dashboard-tile" style="margin-top: 0">
   <div class="icon-title">
     <i class="fas fa-table icon"></i>
-    <p class="tile-label" data-en="Results" data-si="ප්‍රතිඵಲ" data-ta="முடிவுகள்">Results</p>
+    <p class="tile-label" data="admin.academic.results">Results</p>
   </div>
 
   <style>
@@ -62,16 +57,16 @@
   <div class="filter-group">
     <div>
       <select id="examFilter" class="dropdown-select">
-        <option value="" data-en="Select Exam">Select Exam</option>
+        <option value="" data="admin.academic.selectExam">Select Exam</option>
       </select>
     </div>
     <div>
       <select id="classFilter" class="dropdown-select">
-        <option value="" data-en="All Classes">All Classes</option>
+        <option value="" data="common.allClasses">All Classes</option>
       </select>
     </div>
     <div class="search-group" style="max-width: 260px">
-      <input type="text" id="customSearch" class="search-input" placeholder="Search student..." />
+      <input type="text" id="customSearch" class="search-input" data-placeholder="admin.academic.searchStudent" placeholder="Search student..." />
       <span class="search-icon"><i class="fas fa-search"></i></span>
     </div>
 
@@ -87,13 +82,13 @@
         </select>
       </div>
       <button id="customExportBtn" class="btn btn-secondary" style="padding: 8px 12px; height: 100%;">
-        <i class="fas fa-download"></i> Export
+        <i class="fas fa-download"></i> <span data="buttons.export">Export</span>
       </button>
     </div>
   </div>
 
   <div id="emptyState" style="margin: 40px 0;">
-    <empty-state-message message="Select an exam to view reports" icon="fas fa-file-alt"></empty-state-message>
+    <empty-state-message message="Select an exam to view reports" icon="fas fa-file-alt" data-message="admin.academic.noExamSelected"></empty-state-message>
   </div>
 
   <div class="table-container" id="tableContent" style="display: none; margin-top: 16px;">
@@ -107,7 +102,7 @@
     <div class="card w-1 h-1 dashboard-tile chart-tile">
       <div class="icon-title">
         <i class="fas fa-chart-bar icon"></i>
-        <p class="tile-label" data-en="Subject Performance" data-si="විෂය කාර්යසාධන" data-ta="பாட செயல்திறன்">Subject Performance</p>
+        <p class="tile-label" data="admin.academic.subjectPerformance">Subject Performance</p>
       </div>
       <div class="chart-wrapper"><canvas id="chartSubjects"></canvas></div>
     </div>
@@ -115,7 +110,7 @@
     <div class="card w-1 h-1 dashboard-tile chart-tile">
       <div class="icon-title">
         <i class="fas fa-chart-pie icon"></i>
-        <p class="tile-label" data-en="Mark Distribution" data-si="ලකුණු ව්‍යාප්තිය" data-ta="மதிப்பெண் விநியோகம்">Mark Distribution</p>
+        <p class="tile-label" data="admin.academic.markDistribution">Mark Distribution</p>
       </div>
       <div class="chart-wrapper"><canvas id="chartDistribution"></canvas></div>
     </div>
@@ -132,6 +127,7 @@
   let filtersData = {};
   let chartA, chartB;
   let resultsTable = null;
+  let currentSubjects = [];
 
   const filterInfo = document.getElementById("filterInfo");
   const examEl = document.getElementById("examFilter");
@@ -146,52 +142,48 @@
       .trim();
   }
 
-  /* =========================
+/* =========================
    Init Data Table component
    ========================= */
   function initTable() {
     resultsTable = document.getElementById("results-table");
-    resultsTable.setEmptyState("No matching records found for these filters.", "fas fa-search");
+    resultsTable.setEmptyState(t("admin.academic.noRecords"), "fas fa-search");
   }
 
   /* =========================
-   Update table headers text based on lang
+   Update table headers text based on current language
    ========================= */
-  function updateTableHeaders(lang) {
+  function updateTableHeaders() {
     if (!resultsTable) return;
-    const translate = (en, si, ta) => lang === "si" ? si : lang === "ta" ? ta : en;
     resultsTable.setColumns([
-      { key: "student_name", header: translate("Student", "ශිෂ්‍යයා", "மாணவர்"), searchable: true },
-      { key: "index_number", header: translate("Index No", "සුචක අංකය", "குறியீட்டு எண்"), searchable: true },
-      { key: "class", header: translate("Class", "පන්තිය", "வகுப்பு"), searchable: true },
-      { key: "subject", header: translate("Subject", "විෂය", "பாடம்"), searchable: true },
+      { key: "student_name", header: t("admin.academic.student"), searchable: true },
+      { key: "index_number", header: t("admin.academic.indexNo"), searchable: true },
+      { key: "class", header: t("admin.academic.class"), searchable: true },
+      { key: "subject", header: t("admin.academic.subject"), searchable: true },
       { 
         key: "marks", 
-        header: translate("Marks", "ලකුණු", "மதிப்பெண்"),
+        header: t("admin.academic.marks"),
         render: (row) => {
           const m = parseInt(row.marks);
           const color = isNaN(m) ? "var(--color-text)" : (m >= 50 ? "var(--color-success)" : "var(--color-error)");
           return `<span style="font-weight:600; color: ${color}">${row.marks}</span>`;
         }
       },
-      { key: "exam", header: translate("Exam", "විභාගය", "தேர்வு"), searchable: true }
+      { key: "exam", header: t("admin.academic.exam"), searchable: true }
     ]);
-   }
-   
+}
+    
     /* =========================
      Update table headers with dynamic subject columns
      ========================= */
     function updateTableHeadersWithSubjects(subjects) {
       if (!resultsTable) return;
       if (!subjects || subjects.length === 0) return;
-      
-      const lang = localStorage.getItem("lang") || "en";
-      const translate = (en, si, ta) => lang === "si" ? si : lang === "ta" ? ta : en;
      
      const columns = [
-       { key: "student_name", header: translate("Student", "ශිෂ්‍යයා", "மாணவர்"), searchable: true },
-       { key: "index_number", header: translate("Index No", "සුචක අංකය", "குறியீட்டு எண்"), searchable: true },
-       { key: "class_display", header: translate("Class", "පන්තිය", "வகுப்பு"), searchable: true },
+       { key: "student_name", header: t("admin.academic.student"), searchable: true },
+       { key: "index_number", header: t("admin.academic.indexNo"), searchable: true },
+       { key: "class_display", header: t("admin.academic.class"), searchable: true },
      ];
      
      // Add subject columns with color-coded marks
@@ -210,7 +202,7 @@
      });
      
      resultsTable.setColumns(columns);
-   }
+    }
 
   /* =========================
    Populate dropdown with options (preserving "All" option)
@@ -241,12 +233,12 @@
 
       if (examId && !classId) {
         // Exam selected - update classes
-        populateDropdown(classEl, data.classes, c => `Grade ${c.grade} - ${c.name}`, "All Classes");
+        populateDropdown(classEl, data.classes, c => `${t("admin.academic.gradeX", {grade: c.grade})} - ${c.name}`, t("common.allClasses"));
         initSearchableDropdown("classFilter", () => onClassChange());
       } else {
         // No exam selected - reset (initial load or cleared)
-        populateDropdown(examEl, data.exams, e => e.name, "Select Exam");
-        populateDropdown(classEl, data.classes, c => `Grade ${c.grade} - ${c.name}`, "All Classes");
+        populateDropdown(examEl, data.exams, e => e.name, t("admin.academic.selectExam"));
+        populateDropdown(classEl, data.classes, c => `${t("admin.academic.gradeX", {grade: c.grade})} - ${c.name}`, t("common.allClasses"));
         initSearchableDropdown("examFilter", () => onExamChange());
         initSearchableDropdown("classFilter", () => onClassChange());
       }
@@ -342,11 +334,12 @@
       document.getElementById("statTopSubject").textContent = summary.topSubject || "--";
 
       // Render table with dynamic subject columns
+      currentSubjects = subjects;  // Store for language change
       if (resultsTable && subjects.length > 0) {
         updateTableHeadersWithSubjects(subjects);
         resultsTable.setData(allRecords);
       } else if (resultsTable) {
-        resultsTable.setEmptyState("No marks data for this exam.", "fas fa-file-alt");
+        resultsTable.setEmptyState(t("admin.academic.noMarksData"), "fas fa-file-alt");
         resultsTable.setData([]);
       }
 
@@ -354,7 +347,7 @@
       renderCharts();
     } catch (err) {
       console.error("Error loading data:", err);
-      if (resultsTable) resultsTable.setEmptyState("Error loading reports data.", "fas fa-exclamation-triangle");
+      if (resultsTable) resultsTable.setEmptyState(t("admin.academic.loadError"), "fas fa-exclamation-triangle");
     }
   }
 
@@ -410,7 +403,7 @@
         labels: subjects.length > 10 ? subjects.slice(0, 10) : subjects,
         datasets: [
           {
-            label: "Average Marks",
+            label: t("admin.academic.avgMarksFull"),
             data: subjects.length > 10 ? avgs.slice(0, 10) : avgs,
             backgroundColor: primaryColor + "33",
             borderColor: primaryColor,
@@ -428,7 +421,13 @@
 
     // Mark distribution chart - pivoted data
     const buckets = [0, 35, 50, 65, 75, 100];
-    const labels = ["0-34", "35-49", "50-64", "65-74", "75-100"];
+    const labels = [
+      t("admin.academic.distribution.range1"),
+      t("admin.academic.distribution.range2"),
+      t("admin.academic.distribution.range3"),
+      t("admin.academic.distribution.range4"),
+      t("admin.academic.distribution.range5")
+    ];
     const counts = new Array(buckets.length - 1).fill(0);
 
     // Use the same subjectCols identified above
@@ -503,23 +502,29 @@
   /* =========================
    Language handling
    ========================= */
-  function updateText(lang) {
-    if (!["en", "si", "ta"].includes(lang)) lang = "en";
-    document.querySelectorAll("[data-en]").forEach((el) => {
-      const next = el.getAttribute(`data-${lang}`);
-      if (next != null) el.textContent = next;
-    });
-    
-    // Update data-table headers translation
-    updateTableHeaders(lang);
+  function refreshTranslations() {
+    // Apply translations to static elements
+    if (typeof applyTranslations === 'function') {
+      applyTranslations();
+    }
+    // Update table headers with new language (use dynamic columns if available)
+    if (currentSubjects && currentSubjects.length > 0) {
+      updateTableHeadersWithSubjects(currentSubjects);
+    } else {
+      updateTableHeaders();
+    }
   }
 
   window.addEventListener("storage", (e) => {
-    if (e.key === "lang") updateText(e.newValue || "en");
+    if (e.key === "lang") {
+      refreshTranslations();
+    }
   });
   window.addEventListener("languageChange", (e) => {
     const newLang = e.detail?.lang;
-    if (newLang && ["en", "si", "ta"].includes(newLang)) updateText(newLang);
+    if (newLang) {
+      refreshTranslations();
+    }
   });
 
   let _lastLangPoll = localStorage.getItem("lang") || "en";
@@ -527,7 +532,7 @@
     const cur = localStorage.getItem("lang") || "en";
     if (cur !== _lastLangPoll) {
       _lastLangPoll = cur;
-      updateText(cur);
+      refreshTranslations();
     }
   }, 400);
 
@@ -551,7 +556,7 @@
    ========================= */
   async function initializePage() {
     initTable();
-    updateText(localStorage.getItem("lang") || "en");
+    refreshTranslations();
     await loadFilters();
     initializeSearchableDropdowns();
     await loadData();
