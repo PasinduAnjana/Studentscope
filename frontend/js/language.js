@@ -52,6 +52,15 @@ function applyTranslations() {
     }
   });
 
+  // Handle data-placeholder for input placeholders
+  document.querySelectorAll("[data-placeholder]").forEach((el) => {
+    const key = el.getAttribute("data-placeholder");
+    const value = getNestedValue(translations, key);
+    if (value) {
+      el.placeholder = value;
+    }
+  });
+
   // Also apply direct language attributes
   const lang = localStorage.getItem("lang") || "en";
   applyDirectLanguageAttributes(lang);
@@ -60,6 +69,16 @@ function applyTranslations() {
 // Helper to support nested keys like "buttons.save"
 function getNestedValue(obj, key) {
   return key.split(".").reduce((o, k) => (o || {})[k], obj);
+}
+
+// Translation helper for JavaScript - use for dynamic content
+// Usage: t("admin.dashboard.totalStudents") or t("admin.dashboard.totalStudents", { count: 5 })
+function t(key, params) {
+  const value = getNestedValue(window.currentTranslations, key) || key;
+  if (params && typeof value === 'string') {
+    return value.replace(/{(\w+)}/g, (match, paramKey) => params[paramKey] !== undefined ? params[paramKey] : match);
+  }
+  return value;
 }
 
 // Initialize on page load

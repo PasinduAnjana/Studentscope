@@ -26,7 +26,14 @@ class ModalDialog extends HTMLElement {
       this.style.justifyContent = "center";
       this.classList.add("modal");
 
-      const title = this.getAttribute("title") || "";
+      const titleAttr = this.getAttribute("title");
+      const dataTitleAttr = this.getAttribute("data-title");
+      let title = titleAttr || "";
+      
+      // Support data-title attribute for translation keys
+      if (dataTitleAttr && window.currentTranslations) {
+        title = getNestedValue(window.currentTranslations, dataTitleAttr) || title;
+      }
 
       // Create the modal card wrapper
       const wrapper = document.createElement("div");

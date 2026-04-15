@@ -15,7 +15,13 @@ class EmptyStateMessage extends HTMLElement {
 
   render() {
       const icon = this.getAttribute('icon') || 'fas fa-info-circle';
-      const message = this.getAttribute('message') || 'No data available';
+      let message = this.getAttribute('message') || 'No data available';
+      
+      // Support data-message attribute for translation keys
+      const dataMessage = this.getAttribute('data-message');
+      if (dataMessage && window.currentTranslations) {
+        message = getNestedValue(window.currentTranslations, dataMessage) || message;
+      }
 
       this.innerHTML = `
         <div class="empty-state">

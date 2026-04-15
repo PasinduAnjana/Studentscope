@@ -3,7 +3,7 @@
   <div class="card greeting-tile w-2">
     <div class="greeting-content">
       <h2 class="greeting-heading" data="student.greeting"></h2>
-      <p class="greeting-subtext">You are logged in as an Administrator.</p>
+      <p class="greeting-subtext" data="admin.dashboard.loggedInAs">You are logged in as an Administrator.</p>
     </div>
     <img
       src="/assets/images/admin-clipart.svg"
@@ -13,11 +13,11 @@
     />
   </div>
 
-  <!-- School Overview -->
+<!-- School Overview -->
   <div class="card dashboard-tile w-1 h-2" id="school-overview">
     <div class="icon-title">
       <i class="fas fa-school icon"></i>
-      <p class="tile-label">School Overview</p>
+      <p class="tile-label" data="admin.dashboard.schoolOverview">School Overview</p>
     </div>
     <div class="stats-content">
       <div class="stat-item">
@@ -25,21 +25,21 @@
           <i class="fas fa-users"></i>
         </div>
         <span class="stat-number" id="total-students">-</span>
-        <span class="stat-label">Students</span>
+        <span class="stat-label" data="admin.dashboard.students">Students</span>
       </div>
       <div class="stat-item">
         <div class="stat-icon">
           <i class="fas fa-chalkboard-teacher"></i>
         </div>
         <span class="stat-number" id="total-teachers">-</span>
-        <span class="stat-label">Teachers</span>
+        <span class="stat-label" data="admin.dashboard.teachers">Teachers</span>
       </div>
       <div class="stat-item">
         <div class="stat-icon">
           <i class="fas fa-building"></i>
         </div>
         <span class="stat-number" id="total-classes">-</span>
-        <span class="stat-label">Classes</span>
+        <span class="stat-label" data="admin.dashboard.classes">Classes</span>
       </div>
     </div>
   </div>
@@ -48,7 +48,7 @@
   <div class="card dashboard-tile w-1 h-2" id="attendance-overview">
     <div class="icon-title">
       <i class="fas fa-clipboard-check icon"></i>
-      <p class="tile-label">Today's Attendance</p>
+      <p class="tile-label" data="admin.dashboard.todaysAttendance">Today's Attendance</p>
     </div>
     <div id="attendance-overview-content">
       <!-- Content will be injected by JS -->
@@ -82,7 +82,7 @@
     </div>
     <div>
       <ul class="tile-list" id="dashboard-resets-list">
-        <li class="text-sm">Loading...</li>
+        <li class="text-sm" data="common.loading">Loading...</li>
       </ul>
     </div>
   </div>
@@ -91,7 +91,7 @@
   <div class="card dashboard-tile w-1 h-2" id="academic-performance">
     <div class="icon-title">
       <i class="fas fa-chart-pie icon"></i>
-      <p class="tile-label">Academic Performance</p>
+      <p class="tile-label" data="admin.dashboard.academicPerformance">Academic Performance</p>
     </div>
     <div id="academic-performance-content">
       <!-- Chart will be injected by JS -->
@@ -102,18 +102,18 @@
   <div class="card dashboard-tile flex-column h-2">
     <div class="icon-title">
       <i class="fas fa-triangle-exclamation icon"></i>
-      <p class="tile-label">Alerts</p>
+      <p class="tile-label" data="admin.dashboard.alerts">Alerts</p>
     </div>
     <div>
       <ul class="tile-list" id="dashboard-alerts-list">
-        <li class="text-sm">Loading...</li>
+        <li class="text-sm" data="common.loading">Loading...</li>
       </ul>
     </div>
   </div>
 </div>
 
 <!-- Alert Details Modal -->
-<modal-dialog id="alert-details-modal" title="Alert Details">
+<modal-dialog id="alert-details-modal" data-title="admin.dashboard.alertDetails" title="Alert Details">
   <div id="alert-details-container"></div>
 </modal-dialog>
 
@@ -148,7 +148,7 @@
       if (!data || data.notMarkedToday === data.totalStudents) {
         container.innerHTML = `
           <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px; gap: 8px;">
-            <empty-state-message message="Attendance not marked" icon="fas fa-exclamation-circle"></empty-state-message>
+            <empty-state-message message="${t("admin.dashboard.attendanceNotMarked")}" icon="fas fa-exclamation-circle"></empty-state-message>
           </div>
         `;
         return;
@@ -186,7 +186,7 @@
         new Chart(document.getElementById("adminAttendanceChart"), {
           type: "doughnut",
           data: {
-            labels: ["Present", "Absent", "Not Marked"],
+            labels: [t("admin.dashboard.present"), t("admin.dashboard.absent"), t("admin.dashboard.notMarked")],
             datasets: [
               {
                 data: [
@@ -211,7 +211,7 @@
               legend: { display: false },
               title: {
                 display: true,
-                text: `${data.averageAttendance}% Present`,
+                text: `${data.averageAttendance}% ${t("admin.dashboard.present")}`,
                 font: { size: 14, weight: "bold" },
                 position: "bottom",
               },
@@ -235,7 +235,7 @@
 
       if (!data || data.length === 0) {
         container.innerHTML =
-          '<p class="text-sm">No academic data available</p>';
+          `<p class="text-sm">${t("admin.dashboard.noAcademicData")}</p>`;
         return;
       }
 
@@ -306,7 +306,7 @@
               legend: { display: false },
               title: {
                 display: true,
-                text: `Total: ${total} Students`,
+                text: t("admin.dashboard.totalStudents", { count: total }),
                 font: { size: 14, weight: "bold" },
                 position: "bottom",
               },
@@ -318,7 +318,7 @@
     } catch (err) {
       console.error("Error loading academic performance:", err);
       document.getElementById("academic-performance-content").innerHTML =
-        '<p class="text-sm">Error loading academic data</p>';
+        `<p class="text-sm">${t("admin.dashboard.errorLoadingAcademic")}</p>`;
     }
   }
 
@@ -332,7 +332,7 @@
 
       if (!announcements || announcements.length === 0) {
         announcementsList.innerHTML =
-          '<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="No announcements" icon="fas fa-bullhorn"></empty-state-message></li>';
+          `<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="${t("admin.dashboard.noAnnouncements")}" icon="fas fa-bullhorn"></empty-state-message></li>`;
         return;
       }
 
@@ -342,7 +342,7 @@
           (announcement) => `
           <li onclick="window.location.href='layout.html?role=admin&page=announcements'" style="cursor: pointer;">
             <span class="subject-name">${announcement.title}</span>
-            <span class="text-sm text-muted">by ${announcement.created_by_name || announcement.created_by || "Admin"}</span>
+            <span class="text-sm text-muted">${t("common.by")} ${announcement.created_by_name || announcement.created_by || "Admin"}</span>
           </li>
         `,
         )
@@ -351,7 +351,7 @@
       if (announcements.length > 3) {
         announcementsList.innerHTML += `
           <li onclick="window.location.href='layout.html?role=admin&page=announcements'" style="cursor: pointer; border-top: 1px solid var(--color-border); margin-top: 8px; padding-top: 8px;">
-            <span class="subject-name text-sm">View all announcements...</span>
+            <span class="subject-name text-sm">${t("admin.dashboard.viewAllAnnouncements")}</span>
           </li>
         `;
       }
@@ -373,7 +373,7 @@
 
       if (resets.length === 0) {
         resetsList.innerHTML =
-          '<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="No pending requests" icon="fas fa-check-circle"></empty-state-message></li>';
+          `<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="${t("admin.dashboard.noPendingRequests")}" icon="fas fa-check-circle"></empty-state-message></li>`;
         return;
       }
 
@@ -387,8 +387,8 @@
             <p class="text-sm" style="margin: 4px 0 0 0; color: #666;">${reset.role}</p>
           </div>
           <div style="display: flex; gap: 8px;">
-            <button onclick="approveReset(${reset.id})" class="btn btn-primary">Approve</button>
-            <button onclick="rejectReset(${reset.id})" class="btn btn-secondary">Reject</button>
+            <button onclick="approveReset(${reset.id})" class="btn btn-primary">${t("admin.dashboard.approve")}</button>
+            <button onclick="rejectReset(${reset.id})" class="btn btn-secondary">${t("admin.dashboard.reject")}</button>
           </div>
         `;
         resetsList.appendChild(li);
@@ -402,14 +402,14 @@
     try {
       const res = await api.admin.passwordResets.approve(resetId);
       if (res.ok) {
-        showToast("Password reset approved", "fa-solid fa-check");
+        showToast(t("admin.dashboard.passwordApproved"), "fa-solid fa-check");
         loadPendingResets();
       } else {
-        showToast("Failed to approve reset", "fa-solid fa-circle-exclamation");
+        showToast(t("admin.dashboard.failedApprove"), "fa-solid fa-circle-exclamation");
       }
     } catch (err) {
       console.error("Error approving reset:", err);
-      showToast("Error approving reset", "fa-solid fa-circle-exclamation");
+      showToast(t("admin.dashboard.errorApprove"), "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -417,14 +417,14 @@
     try {
       const res = await api.admin.passwordResets.reject(resetId);
       if (res.ok) {
-        showToast("Password reset rejected", "fa-solid fa-check");
+        showToast(t("admin.dashboard.passwordRejected"), "fa-solid fa-check");
         loadPendingResets();
       } else {
-        showToast("Failed to reject reset", "fa-solid fa-circle-exclamation");
+        showToast(t("admin.dashboard.failedReject"), "fa-solid fa-circle-exclamation");
       }
     } catch (err) {
       console.error("Error rejecting reset:", err);
-      showToast("Error rejecting reset", "fa-solid fa-circle-exclamation");
+      showToast(t("admin.dashboard.errorReject"), "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -446,7 +446,7 @@
 
       if (!alerts || alerts.length === 0) {
         alertsList.innerHTML =
-          '<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="No alerts" icon="fas fa-check-circle"></empty-state-message></li>';
+          `<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="${t("admin.dashboard.noAlerts")}" icon="fas fa-check-circle"></empty-state-message></li>`;
         return;
       }
 
@@ -477,7 +477,7 @@
       const container = document.getElementById("alert-details-container");
 
       if (!details || details.length === 0) {
-        container.innerHTML = '<p class="text-sm">No records found</p>';
+        container.innerHTML = `<p class="text-sm">${t("admin.dashboard.noRecordsFound")}</p>`;
       } else {
         const keys = Object.keys(details[0]);
         container.innerHTML = `

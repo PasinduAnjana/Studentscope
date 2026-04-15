@@ -151,7 +151,7 @@
 <section class="section">
   <h2 class="heading">
     <i class="fas fa-clipboard-check"></i>
-    <span>Attendance Reports</span>
+    <span data="admin.attendance.title">Attendance Reports</span>
   </h2>
 
   <!-- Statistics Tiles -->
@@ -161,28 +161,28 @@
         <i class="fas fa-users"></i>
       </div>
       <div class="stat-number" id="total-students">-</div>
-      <div class="stat-label">Total Students</div>
+      <div class="stat-label" data="admin.attendance.totalStudents">Total Students</div>
     </div>
     <div class="stat-tile">
       <div class="stat-icon">
         <i class="fas fa-user-check"></i>
       </div>
       <div class="stat-number" id="present-today">-</div>
-      <div class="stat-label">Present Today</div>
+      <div class="stat-label" data="admin.attendance.presentToday">Present Today</div>
     </div>
     <div class="stat-tile">
       <div class="stat-icon">
         <i class="fas fa-user-times"></i>
       </div>
       <div class="stat-number" id="absent-today">-</div>
-      <div class="stat-label">Absent Today</div>
+      <div class="stat-label" data="admin.attendance.absentToday">Absent Today</div>
     </div>
     <div class="stat-tile">
       <div class="stat-icon">
         <i class="fas fa-percentage"></i>
       </div>
       <div class="stat-number" id="average-attendance">-%</div>
-      <div class="stat-label">Average Attendance</div>
+      <div class="stat-label" data="admin.attendance.averageAttendance">Average Attendance</div>
     </div>
   </div>
 
@@ -191,7 +191,7 @@
     <div class="chart-card">
       <h3>
         <i class="fas fa-pie-chart"></i>
-        Attendance Overview
+        <span data="admin.attendance.overview">Attendance Overview</span>
       </h3>
       <div id="overview-empty" style="display: none; justify-content: center;">
         <empty-state-message icon="fas fa-calendar-check" message="No attendance marked for this date"></empty-state-message>
@@ -204,15 +204,15 @@
     <div class="chart-card">
       <h3>
         <i class="fas fa-chart-bar"></i>
-        Attendance by Class
+        <span data="admin.attendance.byClass">Attendance by Class</span>
       </h3>
       <div class="flex gap-2 mb-2" style="align-items: center">
         <select id="chart-grade-filter" class="input" style="max-width: 200px">
-          <option value="">All Grades</option>
+          <option value="" data="common.allGrades">All Grades</option>
         </select>
       </div>
       <div id="by-class-empty" style="display: none; justify-content: center;">
-        <empty-state-message icon="fas fa-users" message="No attendance data available"></empty-state-message>
+        <empty-state-message icon="fas fa-users" data-message="admin.attendance.noData" message="No attendance data available"></empty-state-message>
       </div>
       <div class="chart-container" id="by-class-chart-container">
         <canvas id="attendance-by-class-chart"></canvas>
@@ -222,13 +222,13 @@
 
   <div class="card">
     <div class="flex-between mb-2">
-      <h1 class="title">Today's Attendance</h1>
+      <h1 class="title" data="admin.attendance.todaysAttendance">Today's Attendance</h1>
       <div class="flex gap-2" style="gap: 16px">
         <button id="export-pdf-btn" class="btn btn-primary">
-          <i class="fas fa-file-pdf"></i> Export PDF
+          <i class="fas fa-file-pdf"></i> <span data="buttons.exportPDF">Export PDF</span>
         </button>
         <button id="export-btn" class="btn btn-primary">
-          <i class="fas fa-download"></i> Export CSV
+          <i class="fas fa-download"></i> <span data="buttons.exportCSV">Export CSV</span>
         </button>
       </div>
     </div>
@@ -243,20 +243,21 @@
           type="text"
           id="attendance-search"
           class="search-input"
+          data-placeholder="common.searchStudents"
           placeholder="Search students..."
         />
         <span class="search-icon"><i class="fas fa-search"></i></span>
       </div>
       <div class="input-group">
         <select id="class-filter">
-          <option value="">All Classes</option>
+          <option value="" data="common.allClasses">All Classes</option>
         </select>
       </div>
       <div class="input-group">
         <select id="status-filter">
-          <option value="">All Status</option>
-          <option value="present">Present</option>
-          <option value="absent">Absent</option>
+          <option value="" data="common.allStatus">All Status</option>
+          <option value="present" data="admin.attendance.present">Present</option>
+          <option value="absent" data="admin.attendance.absent">Absent</option>
         </select>
       </div>
       <div class="input-group">
@@ -281,12 +282,12 @@
       <table id="attendance-table">
         <thead>
           <tr>
-            <th>Student Name</th>
-            <th>Index Number</th>
-            <th>Class</th>
-            <th>Status</th>
-            <th>Time</th>
-            <th>Actions</th>
+            <th data="admin.attendance.studentName">Student Name</th>
+            <th data="admin.attendance.indexNumber">Index Number</th>
+            <th data="admin.attendance.class">Class</th>
+            <th data="admin.attendance.status">Status</th>
+            <th data="admin.attendance.time">Time</th>
+            <th data="admin.attendance.actions">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -307,11 +308,11 @@
       "
     >
       <button id="prev-page" class="btn btn-secondary" disabled>
-        <i class="fas fa-chevron-left"></i> Previous
+        <i class="fas fa-chevron-left"></i> <span data="common.previous">Previous</span>
       </button>
       <div id="page-numbers" style="display: flex; gap: 5px"></div>
       <button id="next-page" class="btn btn-secondary" disabled>
-        Next <i class="fas fa-chevron-right"></i>
+        <span data="common.next">Next</span> <i class="fas fa-chevron-right"></i>
       </button>
       <span
         id="page-info"
@@ -527,7 +528,7 @@
     const tbody = document.querySelector("#attendance-table tbody");
     tbody.innerHTML = "";
     if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center">No attendance records found</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center">${t("common.noRecords")}</td></tr>`;
       updatePaginationControls(0);
       return;
     }
@@ -584,7 +585,7 @@
     // Update page info
     const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
     const endItem = Math.min(currentPage * pageSize, totalItems);
-    pageInfo.textContent = `Showing ${startItem}-${endItem} of ${totalItems} attendance records`;
+    pageInfo.textContent = t("common.showingItems", { start: startItem, end: endItem, total: totalItems });
 
     // Generate page number buttons
     pageNumbers.innerHTML = "";
@@ -911,7 +912,7 @@
 
     if (!status || !time) {
       toast(
-        "Please fill in all required fields",
+        t("admin.attendance.requiredFields"),
         "fa-solid fa-circle-exclamation"
       );
       return;
@@ -931,25 +932,25 @@
       };
 
       // Mock save for now - replace with actual API call
-      toast("Attendance marked successfully", "fa-solid fa-check-circle");
+      toast(t("admin.attendance.savedSuccess"), "fa-solid fa-check-circle");
       document.getElementById("mark-attendance-modal").style.display = "none";
       refreshAttendance();
     } catch (err) {
       console.error(err);
-      toast("Error saving attendance", "fa-solid fa-circle-exclamation");
+      toast(t("admin.attendance.saveError"), "fa-solid fa-circle-exclamation");
     }
   }
 
   function editAttendance(recordId) {
     const record = allAttendanceRecords.find((r) => r.id == recordId);
     if (!record) {
-      toast("Attendance record not found", "fa-solid fa-circle-exclamation");
+      toast(t("admin.attendance.notFound"), "fa-solid fa-circle-exclamation");
       return;
     }
 
     currentStudentId = record.student_id;
     document.getElementById("attendance-modal-title").textContent =
-      "Edit Attendance";
+      t("admin.attendance.editAttendance");
     document.getElementById("attendance-status").value = record.status;
     document.getElementById("attendance-time").value = record.time || "";
     document.getElementById("attendance-notes").value = record.notes || "";
@@ -959,12 +960,12 @@
 
   function deleteAttendance(recordId) {
     toast(
-      "Are you sure you want to delete this attendance record?",
+      t("admin.attendance.confirmDelete"),
       "fa-solid fa-trash",
       {
         confirm: true,
-        confirmText: "Delete",
-        cancelText: "Cancel",
+        confirmText: t("buttons.delete"),
+        cancelText: t("buttons.cancel"),
         onConfirm: async () => {
           try {
             // Mock delete for now - replace with actual API call
@@ -972,14 +973,14 @@
               (r) => r.id != recordId
             );
             toast(
-              "Attendance record deleted successfully",
+              t("admin.attendance.deleteSuccess"),
               "fa-solid fa-check-circle"
             );
             filterAndRender();
           } catch (err) {
             console.error(err);
             toast(
-              "Error deleting attendance record",
+              t("admin.attendance.deleteError"),
               "fa-solid fa-circle-exclamation"
             );
           }
@@ -1027,7 +1028,7 @@
     confirmBtn.addEventListener("click", () => {
       const selectedFields = getSelectedFields();
       if (selectedFields.length === 0) {
-        alert("Please select at least one field to export.");
+        alert(t("admin.attendance.selectFieldError"));
         return;
       }
 
@@ -1078,7 +1079,7 @@
         .filter((t) => t);
       const selectedFields = getSelectedPDFFields();
       if (selectedFields.length === 0) {
-        alert("Please select at least one field to export.");
+        alert(t("admin.attendance.selectFieldError"));
         return;
       }
       const filteredRecords = getFilteredAttendanceRecords();
@@ -1162,7 +1163,7 @@
   // Export to CSV
   function exportToCSV(records, fields) {
     if (records.length === 0) {
-      alert("No attendance records to export.");
+      alert(t("admin.attendance.noExportData"));
       return;
     }
 
@@ -1214,7 +1215,7 @@
     emptyTitles
   ) {
     if (records.length === 0) {
-      alert("No attendance records to export.");
+      alert(t("admin.attendance.noExportData"));
       return;
     }
 
@@ -1296,11 +1297,11 @@
   // Get display name for attendance field
   function getAttendanceFieldDisplayName(field) {
     const fieldNames = {
-      name: "Student Name",
-      index: "Index Number",
-      class: "Class",
-      status: "Status",
-      time: "Time",
+      name: t("admin.attendance.studentName"),
+      index: t("admin.attendance.indexNumber"),
+      class: t("admin.attendance.class"),
+      status: t("admin.attendance.status"),
+      time: t("admin.attendance.time"),
     };
     return fieldNames[field] || field;
   }
@@ -1372,7 +1373,7 @@
           overviewChartInstance = new Chart(ctx, {
             type: "doughnut",
             data: {
-              labels: ["Present", "Absent"],
+              labels: [t("admin.dashboard.present"), t("admin.dashboard.absent")],
               datasets: [
                 {
                   data: [presentCount, absentCount],
@@ -1412,11 +1413,11 @@
     }
 
     const grades = [...new Set(allClasses.map((c) => c.grade))].sort((a, b) => a - b);
-    select.innerHTML = '<option value="">All Grades</option>';
+    select.innerHTML = `<option value="">${t("common.allGrades")}</option>`;
     grades.forEach((grade) => {
       const option = document.createElement("option");
       option.value = grade;
-      option.textContent = `Grade ${grade}`;
+      option.textContent = `${t("common.grade")} ${grade}`;
       select.appendChild(option);
     });
 
@@ -1501,7 +1502,7 @@
             labels: labels,
             datasets: [
               {
-                label: "Present",
+                label: t("admin.dashboard.present"),
                 data: presentData,
                 backgroundColor: primaryColor,
                 borderColor: primaryColor,
@@ -1509,7 +1510,7 @@
                 borderRadius: 4,
               },
               {
-                label: "Absent",
+                label: t("admin.dashboard.absent"),
                 data: absentData,
                 backgroundColor: primaryHover,
                 borderColor: primaryHover,
