@@ -129,8 +129,9 @@
     "submit": "Submit",
     "edit": "Edit",
     "delete": "Delete",
-    "exportPDF": "Export PDF",
-    "exportCSV": "Export CSV",
+    "exportPDF": "PDF",
+    "exportCSV": "CSV",
+    "exportExcel": "Excel",
     "export": "Export"
   },
   "errors": {
@@ -246,6 +247,31 @@
         "range4": "65-74",
         "range5": "75-100"
       }
+    },
+    "behavior": {
+      "title": "Student Behavior Reports",
+      "totalCases": "Total Cases",
+      "goodBehavior": "Good Behavior",
+      "disciplinaryCases": "Disciplinary Cases",
+      "rewards": "Rewards/Appreciations",
+      "distribution": "Behavior Distribution",
+      "monthlyTrend": "Monthly Discipline Trend",
+      "records": "Behavior Records",
+      "class": "Class",
+      "student": "Student",
+      "date": "Date",
+      "type": "Type",
+      "severity": "Severity",
+      "description": "Description",
+      "reportedBy": "Reported By",
+      "allBehaviours": "All Behaviours",
+      "good": "Good",
+      "disciplinary": "Disciplinary",
+      "reward": "Reward",
+      "noRecords": "No records found",
+      "gradeX": "Grade {grade}",
+      "goodBehaviorTrend": "Good Behavior",
+      "disciplinaryTrend": "Disciplinary Cases"
     }
   }
 }

@@ -131,9 +131,10 @@
     "submit": "ඇතුල් කරන්න",
     "edit": "සකසන්න",
     "delete": "මකන්න",
-    "exportPDF": "PDF නිර්යානය කරන්න",
-    "exportCSV": "CSV නිර්යානය කරන්න",
-    "export": "නිර්යානය කරන්න"
+    "exportPDF": "PDF",
+    "exportCSV": "CSV",
+    "exportExcel": "Excel",
+    "export": "නිර්යානය"
   },
 
   "errors": {
@@ -250,6 +251,31 @@
         "range4": "65-74",
         "range5": "75-100"
       }
+    },
+    "behavior": {
+      "title": "ශිෂ්‍ය හැසිරීම් වාර්තා",
+      "totalCases": "මුළු ඩිජිටල් සිටුවම්",
+      "goodBehavior": "හොඳ හැසිරීම",
+      "disciplinaryCases": "විනය ක්‍රියා",
+      "rewards": "ප්‍රශංසා/ ත්‍යාග",
+      "distribution": "හැසිරීම් ව්‍යාප්තිය",
+      "monthlyTrend": "මාසික විනය ප්‍රවණතාව",
+      "records": "හැසිරීම් වාර්තා",
+      "class": "පන්තිය",
+      "student": "ශිෂ්‍යයා",
+      "date": "දිනය",
+      "type": "වර්ගය",
+      "severity": "බරපතලකම",
+      "description": "විස්තරය",
+      "reportedBy": "වාර්තා කළ අය",
+      "allBehaviours": "සියලු හැසිරීම්",
+      "good": "හොඳ",
+      "disciplinary": "විනය",
+      "reward": "ත්‍යාග",
+      "noRecords": "වාර්තා සොයා ගත නොහැක",
+      "gradeX": "පන්තිය {grade}",
+      "goodBehaviorTrend": "හොඳ හැසිරීම",
+      "disciplinaryTrend": "විනය ක්‍රියා"
     }
   }
 }

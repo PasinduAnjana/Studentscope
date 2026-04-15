@@ -111,8 +111,9 @@
     "submit": "சமர்ப்பிக்க",
     "edit": "திருத்த",
     "delete": "அழி",
-    "exportPDF": "PDF ஏற்றுமதி",
-    "exportCSV": "CSV ஏற்றுமதி",
+    "exportPDF": "PDF",
+    "exportCSV": "CSV",
+    "exportExcel": "Excel",
     "export": "ஏற்றுமதி"
   },
   "errors": {
@@ -228,6 +229,31 @@
         "range4": "65-74",
         "range5": "75-100"
       }
+    },
+    "behavior": {
+      "title": "மாணவர் நடத்தை அறிக்கைகள்",
+      "totalCases": "மொத்த வழக்குகள்",
+      "goodBehavior": "நல்ல நடத்தை",
+      "disciplinaryCases": "ஒழுங்கு நடவடிக்கைகள்",
+      "rewards": "வாழ்த்துக்கள்/பரிசுகள்",
+      "distribution": "நடத்தை விநியோகம்",
+      "monthlyTrend": "மாதாந்திர ஒழுக்கம் போக்கு",
+      "records": "நடத்தை பதிவுகள்",
+      "class": "வகுப்பு",
+      "student": "மாணவர்",
+      "date": "தேதி",
+      "type": "வகை",
+      "severity": "தீவிரம்",
+      "description": "விளக்கம்",
+      "reportedBy": "அறிக்கையாளர்",
+      "allBehaviours": "அனைத்து நடத்தைகள்",
+      "good": "நல்ல",
+      "disciplinary": "ஒழுங்கு",
+      "reward": "பரிசு",
+      "noRecords": "பதிவுகள் கிடைக்கவில்லை",
+      "gradeX": "பகுதி {grade}",
+      "goodBehaviorTrend": "நல்ல நடத்தை",
+      "disciplinaryTrend": "ஒழுங்கு நடவடிக்கைகள்"
     }
   }
 }
