@@ -287,7 +287,6 @@
             <th data="admin.attendance.class">Class</th>
             <th data="admin.attendance.status">Status</th>
             <th data="admin.attendance.time">Time</th>
-            <th data="admin.attendance.actions">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -548,23 +547,10 @@
         <td>${record.username || "N/A"}</td>
         <td>${record.class_name || "N/A"}</td>
         <td><span class="${statusClass}">${
-        record.status.charAt(0).toUpperCase() + record.status.slice(1)
+record.status.charAt(0).toUpperCase() + record.status.slice(1)
       }</span></td>
         <td>${record.time || "N/A"}</td>
-        <td>
-          <div class="action-buttons">
-            <button class="btn-icon btn-edit" onclick="editAttendance(${
-              record.id
-            })" title="Edit">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn-icon btn-delete" onclick="deleteAttendance(${
-              record.id
-            })" title="Delete">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </td>
+      </tr>
       `;
       tbody.appendChild(row);
     });
@@ -939,54 +925,6 @@
       console.error(err);
       toast(t("admin.attendance.saveError"), "fa-solid fa-circle-exclamation");
     }
-  }
-
-  function editAttendance(recordId) {
-    const record = allAttendanceRecords.find((r) => r.id == recordId);
-    if (!record) {
-      toast(t("admin.attendance.notFound"), "fa-solid fa-circle-exclamation");
-      return;
-    }
-
-    currentStudentId = record.student_id;
-    document.getElementById("attendance-modal-title").textContent =
-      t("admin.attendance.editAttendance");
-    document.getElementById("attendance-status").value = record.status;
-    document.getElementById("attendance-time").value = record.time || "";
-    document.getElementById("attendance-notes").value = record.notes || "";
-
-    document.getElementById("mark-attendance-modal").style.display = "flex";
-  }
-
-  function deleteAttendance(recordId) {
-    toast(
-      t("admin.attendance.confirmDelete"),
-      "fa-solid fa-trash",
-      {
-        confirm: true,
-        confirmText: t("buttons.delete"),
-        cancelText: t("buttons.cancel"),
-        onConfirm: async () => {
-          try {
-            // Mock delete for now - replace with actual API call
-            allAttendanceRecords = allAttendanceRecords.filter(
-              (r) => r.id != recordId
-            );
-            toast(
-              t("admin.attendance.deleteSuccess"),
-              "fa-solid fa-check-circle"
-            );
-            filterAndRender();
-          } catch (err) {
-            console.error(err);
-            toast(
-              t("admin.attendance.deleteError"),
-              "fa-solid fa-circle-exclamation"
-            );
-          }
-        },
-      }
-    );
   }
 
   function refreshAttendance() {
