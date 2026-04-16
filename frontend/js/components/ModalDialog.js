@@ -8,9 +8,6 @@ class ModalDialog extends HTMLElement {
   connectedCallback() {
     if (this.hasAttribute('rendered')) return;
 
-    // Save original parent for potential return on close
-    this._originalParent = this.parentNode;
-
     // Use setTimeout to ensure children are parsed when using innerHTML
     setTimeout(() => {
       // Save original children (the form content)
@@ -119,11 +116,19 @@ class ModalDialog extends HTMLElement {
       document.body.appendChild(this);
     }
     this.style.display = "block";
+    this._keydownHandler = (e) => {
+      if (e.key === 'Escape') this.close();
+    };
+    document.addEventListener('keydown', this._keydownHandler);
     this.dispatchEvent(new Event("modal-open"));
   }
 
   close() {
     this.style.display = "none";
+    if (this._keydownHandler) {
+      document.removeEventListener('keydown', this._keydownHandler);
+      this._keydownHandler = null;
+    }
     this.dispatchEvent(new Event("modal-close"));
   }
 
