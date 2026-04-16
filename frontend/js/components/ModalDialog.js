@@ -8,6 +8,9 @@ class ModalDialog extends HTMLElement {
   connectedCallback() {
     if (this.hasAttribute('rendered')) return;
 
+    // Save original parent for potential return on close
+    this._originalParent = this.parentNode;
+
     // Use setTimeout to ensure children are parsed when using innerHTML
     setTimeout(() => {
       // Save original children (the form content)
@@ -15,15 +18,14 @@ class ModalDialog extends HTMLElement {
 
       // Basic styles for the container itself (the modal overlay)
       this.style.display = "none";
-      this.style.position = "fixed";
+      this.style.position = "absolute";
       this.style.zIndex = "1000";
       this.style.left = "0";
       this.style.top = "0";
-      this.style.width = "100%";
-      this.style.height = "100%";
+      this.style.width = "100vw";
+      this.style.height = "100vh";
       this.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-      this.style.alignItems = "center";
-      this.style.justifyContent = "center";
+      this.style.overflow = "auto";
       this.classList.add("modal");
 
       const titleAttr = this.getAttribute("title");
@@ -38,7 +40,7 @@ class ModalDialog extends HTMLElement {
       // Create the modal card wrapper
       const wrapper = document.createElement("div");
       wrapper.className = "modal-content";
-      wrapper.style.cssText = "background-color: var(--color-card); border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; display: flex; flex-direction: column; padding: 0;";
+      wrapper.style.cssText = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: var(--color-card); border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; display: flex; flex-direction: column; padding: 0;";
 
       // Header
       const header = document.createElement("div");
@@ -96,14 +98,9 @@ class ModalDialog extends HTMLElement {
     }
   }
 
-  // Not strictly necessary to remove if elements are destroyed, 
-  // but good practice if the component is moved/detached.
   disconnectedCallback() {
-    this.removeEventListener("click", this.handleOutsideClick);
-    const closeBtn = this.querySelector(".modal-close-btn");
-    if (closeBtn) {
-      closeBtn.removeEventListener("click", this.handleCloseClick);
-    }
+    // Don't remove listeners here - they're removed when element is truly destroyed
+    // Moving within the same document keeps listeners intact
   }
 
   handleOutsideClick(e) {
@@ -118,8 +115,10 @@ class ModalDialog extends HTMLElement {
   }
 
   open() {
-    console.log("ModalDialog: open() called for", this.getAttribute("title"));
-    this.style.display = "flex";
+    if (this.parentNode !== document.body) {
+      document.body.appendChild(this);
+    }
+    this.style.display = "block";
     this.dispatchEvent(new Event("modal-open"));
   }
 

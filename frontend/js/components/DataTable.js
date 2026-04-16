@@ -251,9 +251,9 @@ class DataTable extends HTMLElement {
 
         // Export
         const exportBtn = this.querySelector(`#${this._id('dt-export-btn')}`);
-        const exportModal = this.querySelector(`#${this._id('dt-export-modal')}`);
-        const exportCancel = this.querySelector(`#${this._id('dt-export-cancel')}`);
-        const exportConfirm = this.querySelector(`#${this._id('dt-export-confirm')}`);
+        const exportModal = document.getElementById(this._id('dt-export-modal'));
+        const exportCancel = document.getElementById(this._id('dt-export-cancel'));
+        const exportConfirm = document.getElementById(this._id('dt-export-confirm'));
 
         if (exportBtn) {
             exportBtn.addEventListener('click', () => this.openExportModal());
@@ -269,8 +269,8 @@ class DataTable extends HTMLElement {
     }
 
     openExportModal() {
-        const modal = this.querySelector(`#${this._id('dt-export-modal')}`);
-        const container = this.querySelector(`#${this._id('dt-export-columns')}`);
+        const modal = document.getElementById(this._id('dt-export-modal'));
+        const container = document.getElementById(this._id('dt-export-columns'));
         if (!modal || !container) return;
 
         container.innerHTML = '';
@@ -317,11 +317,12 @@ class DataTable extends HTMLElement {
     }
 
     executeExport() {
-        const modal = this.querySelector(`#${this._id('dt-export-modal')}`);
-        const format = this.querySelector(`input[name="${this._id('export-format')}"]:checked`).value;
+        const modal = document.getElementById(this._id('dt-export-modal'));
+        const format = document.querySelector(`input[name="${this._id('export-format')}"]:checked`).value;
 
         // Find all active toggle buttons
-        const activeBtns = Array.from(this.querySelectorAll(`#${this._id('dt-export-columns')} .toggle-btn.active`));
+        const container = document.getElementById(this._id('dt-export-columns'));
+        const activeBtns = Array.from(container.querySelectorAll('.toggle-btn.active'));
 
         if (activeBtns.length === 0) {
             alert("Please select at least one column.");
