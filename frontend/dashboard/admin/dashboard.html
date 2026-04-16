@@ -216,7 +216,7 @@
 
   async function loadAdminAnnouncements() {
     try {
-      const res = await api.admin.announcements.getAll();
+      const res = await api.admin.announcements.getStaff();
       if (!res.ok) return;
 
       const announcements = await res.json();
@@ -228,19 +228,19 @@
         return;
       }
 
-      const recentAnnouncements = announcements.slice(0, 3);
+      const recentAnnouncements = announcements.slice(0, 4);
       announcementsList.innerHTML = recentAnnouncements
         .map(
           (announcement) => `
           <li onclick="window.location.href='layout.html?role=admin&page=announcements'" style="cursor: pointer;">
             <span class="subject-name">${announcement.title}</span>
-            <span class="text-sm text-muted">${t("common.by")} ${announcement.created_by_name || announcement.created_by || "Admin"}</span>
+            <span class="text-sm text-muted">${t("common.by")} ${announcement.created_by_name || announcement.created_by || "Staff"}</span>
           </li>
         `,
         )
         .join("");
 
-      if (announcements.length > 3) {
+      if (announcements.length > 4) {
         announcementsList.innerHTML += `
           <li onclick="window.location.href='layout.html?role=admin&page=announcements'" style="cursor: pointer; border-top: 1px solid var(--color-border); margin-top: 8px; padding-top: 8px;">
             <span class="subject-name text-sm">${t("admin.dashboard.viewAllAnnouncements")}</span>
