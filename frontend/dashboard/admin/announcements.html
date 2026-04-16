@@ -205,15 +205,13 @@
   }
 
   function fetchStaffAnnouncements() {
-    api.admin.announcements.getAll()
+    api.admin.announcements.getStaff()
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch staff announcements");
         return res.json();
       })
       .then((data) => {
-        const all = data.data || data;
-        const staff = all.filter(a => a.created_by_role !== "admin");
-        renderStaffAnnouncements(staff);
+        renderStaffAnnouncements(data);
       })
       .catch((err) => {
         console.error(err);

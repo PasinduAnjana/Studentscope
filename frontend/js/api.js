@@ -265,6 +265,7 @@ const api = {
     },
     announcements: {
       getAll: () => api.request("/admin/announcements"),
+      getStaff: () => api.request("/admin/announcements?role=staff"),
       getRecent: () => api.request("/admin/announcements/recent"),
       create: (data) => api.request("/admin/announcements", "POST", data),
       update: (id, data) => api.request(`/admin/announcements/${id}`, "PUT", data),
