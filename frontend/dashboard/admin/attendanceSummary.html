@@ -430,6 +430,8 @@
     statusFilter.addEventListener("change", () => {
       filterAndRender();
     });
+
+    document.getElementById("chart-grade-filter").addEventListener("change", renderAttendanceByClassChart);
   }
 
   function setupModal() {
