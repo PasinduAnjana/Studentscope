@@ -97,15 +97,15 @@
   function initTable() {
     const table = document.getElementById("behaviorTable");
     table.setColumns([
-      { key: "class", header: "Class", searchable: true },
-      { key: "student", header: "Student", searchable: true },
-      { key: "date", header: "Date", searchable: false },
-      { key: "type", header: "Type", searchable: true },
-      { key: "severity", header: "Severity", searchable: false },
-      { key: "description", header: "Description", searchable: false },
-      { key: "reportedBy", header: "Reported By", searchable: true }
+      { key: "class", header: t("admin.behavior.class"), searchable: true },
+      { key: "student", header: t("admin.behavior.student"), searchable: true },
+      { key: "date", header: t("admin.behavior.date"), searchable: false },
+      { key: "type", header: t("admin.behavior.type"), searchable: true },
+      { key: "severity", header: t("admin.behavior.severity"), searchable: false },
+      { key: "description", header: t("admin.behavior.description"), searchable: false },
+      { key: "reportedBy", header: t("admin.behavior.reportedBy"), searchable: true }
     ]);
-    table.setEmptyState("No behavior records found", "fas fa-user-shield");
+    table.setEmptyState(t("admin.behavior.noRecords"), "fas fa-user-shield");
   }
 
   // Custom plugin to draw center text in doughnut chart
@@ -311,6 +311,8 @@
     if (typeof applyTranslations === 'function') {
       applyTranslations();
     }
+    // Reinitialize table with new language
+    initTable();
     // Reload classes to update dropdown translations
     loadClasses();
     // Update charts with new language
