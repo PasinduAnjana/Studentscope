@@ -7,23 +7,20 @@
   let calendar;
   let allEvents = [];
   let currentEventId = null;
-  let currentUserId = null; // We need to know who is reading to show delete
+  let currentUserId = null;
+  let currentEventData = null;
 
-  async function fetchEvents() {
-    try {
-      // Decode user info from auth
-      const meInfo = await api.auth.me().then(res => res.json());
+  function fetchEvents() {
+    api.auth.me().then(res => res.json()).then(meInfo => {
       currentUserId = meInfo.userId;
-
-      const res = await api.teacher.events.getAll();
-      if (res.ok) {
-        allEvents = await res.json();
-        renderCalendar();
-      }
-    } catch (e) {
+      return api.teacher.events.getAll();
+    }).then(res => res.json()).then(data => {
+      allEvents = data;
+      renderCalendar();
+    }).catch(e => {
       console.error(e);
       toast("Error loading events", "fa-solid fa-circle-exclamation");
-    }
+    });
   }
 
   function renderCalendar() {
@@ -56,74 +53,133 @@
     calendar.render();
   }
 
-  function openCreateEventModal(dateStr = '') {
-    document.getElementById('create-event-form').reset();
-    document.getElementById('event-date').value = dateStr || new Date().toISOString().split('T')[0];
-    document.getElementById('create-event-modal').open();
+  function openCreateEventModal(dateStr) {
+    var form = document.getElementById('create-event-form');
+    var modal = document.getElementById('create-event-modal');
+    var dateEl = document.getElementById('event-date');
+    
+    if (form) {
+      form.reset();
+      form.dataset.editMode = 'false';
+      var h2el = modal.querySelector('h2');
+      if (h2el) h2el.textContent = 'Create New Event';
+    }
+    if (dateEl) dateEl.value = dateStr || new Date().toISOString().split('T')[0];
+    if (modal) modal.open();
   }
 
-  async function handleCreateEvent(e) {
-    e.preventDefault();
-    const title = document.getElementById('event-title').value;
-    const description = document.getElementById('event-desc').value;
-    const dateInput = document.getElementById('event-date').value;
+  function openEditEventModal() {
+    if (!currentEventData || !currentEventData.extendedProps) return;
+    var props = currentEventData.extendedProps;
     
-    // Fix timezone offset by adding one day
-    const dateObj = new Date(dateInput);
-    dateObj.setDate(dateObj.getDate() + 1);
-    const event_date = dateObj.toISOString().split('T')[0];
+    var form = document.getElementById('create-event-form');
+    var modal = document.getElementById('create-event-modal');
+    var h2el = modal ? modal.querySelector('h2') : null;
+    
+    var titleEl = document.getElementById('event-title');
+    var descEl = document.getElementById('event-desc');
+    var dateEl = document.getElementById('event-date');
+    
+    if (titleEl) titleEl.value = currentEventData.title || '';
+    if (descEl) descEl.value = props.description || '';
+    if (dateEl) dateEl.value = currentEventData.startStr || '';
+    if (form) form.dataset.editMode = 'true';
+    if (h2el) h2el.textContent = 'Edit Event';
+    if (modal) modal.open();
+  }
 
-    try {
-      const res = await api.teacher.events.create({ title, description, event_date });
+  function handleCreateEvent(e) {
+    e.preventDefault();
+    var form = document.getElementById('create-event-form');
+    if (!form) return;
+    
+    var isEditMode = form.dataset.editMode === 'true';
+    
+    var title = document.getElementById('event-title').value;
+    var description = document.getElementById('event-desc').value;
+    var dateInput = document.getElementById('event-date').value;
+    
+    var dateObj = new Date(dateInput);
+    dateObj.setDate(dateObj.getDate() + 1);
+    var event_date = dateObj.toISOString().split('T')[0];
+
+    var action = isEditMode 
+      ? api.teacher.events.update(currentEventId, { title: title, description: description, event_date: event_date })
+      : api.teacher.events.create({ title: title, description: description, event_date: event_date });
+
+    var modal = document.getElementById('create-event-modal');
+    var detailsModal = document.getElementById('event-details-modal');
+    var h2el = modal ? modal.querySelector('h2') : null;
+
+    action.then(res => {
       if (res.ok) {
-        toast("Class event created successfully", "fa-solid fa-check");
-        document.getElementById('create-event-modal').close();
+        toast(isEditMode ? "Event updated successfully" : "Class event created successfully", "fa-solid fa-check");
+        if (modal) modal.close();
+        form.reset();
+        form.dataset.editMode = 'false';
+        if (h2el) h2el.textContent = 'Create New Event';
         fetchEvents();
-      } else toast("Failed to create event", "fa-solid fa-circle-exclamation");
-    } catch (err) {
+        if (detailsModal) detailsModal.close();
+      } else {
+        toast(isEditMode ? "Failed to update event" : "Failed to create event", "fa-solid fa-circle-exclamation");
+      }
+    }).catch(err => {
       console.error(err);
       toast("Error creating event", "fa-solid fa-circle-exclamation");
-    }
+    });
   }
 
   function showEventDetails(event) {
     currentEventId = event.id;
-    const props = event.extendedProps;
-    document.getElementById('detail-title').textContent = event.title;
-    document.getElementById('detail-date').textContent = new Date(event.start).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    document.getElementById('detail-creator').textContent = props.creator;
-    document.getElementById('detail-role').textContent = props.role;
+    currentEventData = event;
+    var props = event.extendedProps || {};
     
-    const audienceLabels = { 'both': 'Everyone', 'teachers': 'Teachers', 'my_students': 'My Class', 'students': 'Students' };
-    document.getElementById('detail-audience').textContent = audienceLabels[props.audience] || props.audience;
-    document.getElementById('detail-desc').textContent = props.description;
+    var detailTitle = document.getElementById('detail-title');
+    var detailDate = document.getElementById('detail-date');
+    var detailCreator = document.getElementById('detail-creator');
+    var detailRole = document.getElementById('detail-role');
+    var detailAudience = document.getElementById('detail-audience');
+    var detailDesc = document.getElementById('detail-desc');
+    var modal = document.getElementById('event-details-modal');
     
-    // Only show delete button if teacher created it
-    const delBtn = document.getElementById('detail-delete-btn');
+    if (detailTitle) detailTitle.textContent = event.title || '';
+    if (detailDate) detailDate.textContent = event.start ? new Date(event.start).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '';
+    if (detailCreator) detailCreator.textContent = props.creator || '';
+    if (detailRole) detailRole.textContent = props.role || '';
+    
+    var audienceLabels = { 'both': 'Everyone', 'teachers': 'Teachers', 'my_students': 'My Class', 'students': 'Students' };
+    if (detailAudience) detailAudience.textContent = audienceLabels[props.audience] || props.audience || '';
+    if (detailDesc) detailDesc.textContent = props.description || '';
+    
+    var delBtn = document.getElementById('detail-delete-btn');
+    var editBtn = document.getElementById('detail-edit-btn');
     if (props.creator_id == currentUserId) {
-      delBtn.style.display = 'inline-flex';
+      if (delBtn) delBtn.style.display = 'inline-flex';
+      if (editBtn) editBtn.style.display = 'inline-flex';
     } else {
-      delBtn.style.display = 'none';
+      if (delBtn) delBtn.style.display = 'none';
+      if (editBtn) editBtn.style.display = 'none';
     }
     
-    document.getElementById('event-details-modal').open();
+    if (modal) modal.open();
   }
 
-  async function deleteCurrentEvent() {
+  function deleteCurrentEvent() {
     if (!currentEventId) return;
     if (!confirm("Are you sure you want to delete this event?")) return;
 
-    try {
-      const res = await api.teacher.events.delete(currentEventId);
+    api.teacher.events.delete(currentEventId).then(res => {
       if (res.ok) {
         toast("Event deleted successfully", "fa-solid fa-check");
         document.getElementById('event-details-modal').close();
         fetchEvents();
-      } else toast("Failed to delete event", "fa-solid fa-circle-exclamation");
-    } catch (err) {
+      } else {
+        toast("Failed to delete event", "fa-solid fa-circle-exclamation");
+      }
+    }).catch(err => {
       console.error(err);
       toast("Error deleting event", "fa-solid fa-circle-exclamation");
-    }
+    });
   }
 
   function initCalendar() {
@@ -190,6 +246,9 @@
     <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
       <button class="btn btn-danger" id="detail-delete-btn" style="display: none;" onclick="deleteCurrentEvent()">
         <i class="fas fa-trash"></i> <span data-en="Delete">Delete</span>
+      </button>
+      <button class="btn btn-primary" id="detail-edit-btn" style="display: none;" onclick="openEditEventModal()">
+        <i class="fas fa-edit"></i> <span data-en="Edit">Edit</span>
       </button>
       <button class="btn btn-secondary" onclick="document.getElementById('event-details-modal').close()" data-en="Close">Close</button>
     </div>

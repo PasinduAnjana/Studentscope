@@ -72,6 +72,9 @@
       <button class="btn btn-danger" id="detail-delete-btn" style="display: none;" onclick="deleteCurrentEvent()">
         <i class="fas fa-trash"></i> <span data-en="Delete">Delete</span>
       </button>
+      <button class="btn btn-primary" id="detail-edit-btn" style="display: none;" onclick="openEditEventModal()">
+        <i class="fas fa-edit"></i> <span data-en="Edit">Edit</span>
+      </button>
       <button class="btn btn-secondary" onclick="document.getElementById('event-details-modal').close()" data-en="Close">Close</button>
     </div>
   </div>
@@ -81,20 +84,22 @@
   let calendar;
   let allEvents = [];
   let currentEventId = null;
+  let currentEventData = null;
 
-  async function fetchEvents() {
-    try {
-      const res = await api.clerk.events.getAll();
+  function fetchEvents() {
+    api.clerk.events.getAll().then(res => {
       if (res.ok) {
-        allEvents = await res.json();
-        renderCalendar();
+        return res.json();
       } else {
-        toast("Failed to load events", "fa-solid fa-circle-exclamation");
+        throw new Error("Failed to load events");
       }
-    } catch (e) {
+    }).then(data => {
+      allEvents = data;
+      renderCalendar();
+    }).catch(e => {
       console.error(e);
       toast("Error loading events", "fa-solid fa-circle-exclamation");
-    }
+    });
   }
 
   function renderCalendar() {
@@ -138,75 +143,56 @@
     calendar.render();
   }
 
-  function openCreateEventModal(dateStr = '') {
-    document.getElementById('create-event-form').reset();
-    if (dateStr) {
-      document.getElementById('event-date').value = dateStr;
-    } else {
-      document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
+  function openCreateEventModal(dateStr) {
+    var form = document.getElementById('create-event-form');
+    var modal = document.getElementById('create-event-modal');
+    var dateEl = document.getElementById('event-date');
+    var h2el = modal ? modal.querySelector('h2') : null;
+    
+    if (form) {
+      form.reset();
+      form.dataset.editMode = 'false';
+      if (h2el) h2el.textContent = 'Create New Event';
     }
-    document.getElementById('create-event-modal').open();
-  }
-
-  async function handleCreateEvent(e) {
-    e.preventDefault();
-    const title = document.getElementById('event-title').value;
-    const description = document.getElementById('event-desc').value;
-    const dateInput = document.getElementById('event-date').value;
-    const audience = document.getElementById('event-audience').value;
-
-    // Fix timezone offset by adding one day
-    const dateObj = new Date(dateInput);
-    dateObj.setDate(dateObj.getDate() + 1);
-    const event_date = dateObj.toISOString().split('T')[0];
-
-    try {
-      const res = await api.clerk.events.create({ title, description, event_date, target_audience: audience });
-
-      if (res.ok) {
-        toast("Event created successfully", "fa-solid fa-check");
-        document.getElementById('create-event-modal').close();
-        fetchEvents();
-      } else {
-        toast("Failed to create event", "fa-solid fa-circle-exclamation");
-      }
-    } catch (err) {
-      console.error(err);
-      toast("Error creating event", "fa-solid fa-circle-exclamation");
-    }
+    if (dateEl) dateEl.value = dateStr || new Date().toISOString().split('T')[0];
+    if (modal) modal.open();
   }
 
   function showEventDetails(event) {
     currentEventId = event.id;
-    const props = event.extendedProps;
+    currentEventData = event;
+    var props = event.extendedProps || {};
     
-    document.getElementById('detail-title').textContent = event.title;
-    document.getElementById('detail-date').textContent = new Date(event.start).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    document.getElementById('detail-creator').textContent = props.creator || 'Admin';
-    document.getElementById('detail-role').textContent = props.role || 'Admin';
+    var detailTitle = document.getElementById('detail-title');
+    var detailDate = document.getElementById('detail-date');
+    var detailCreator = document.getElementById('detail-creator');
+    var detailRole = document.getElementById('detail-role');
+    var detailAudience = document.getElementById('detail-audience');
+    var detailDesc = document.getElementById('detail-desc');
+    var modal = document.getElementById('event-details-modal');
     
-    const audienceLabels = {
-      'both': 'Everyone',
-      'students': 'Students',
-      'teachers': 'Teachers',
-      'my_students': 'My Class'
-    };
-    document.getElementById('detail-audience').textContent = audienceLabels[props.audience] || props.audience;
-    document.getElementById('detail-desc').textContent = props.description;
+    if (detailTitle) detailTitle.textContent = event.title || '';
+    if (detailDate) detailDate.textContent = event.start ? new Date(event.start).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '';
+    if (detailCreator) detailCreator.textContent = props.creator || 'Admin';
+    if (detailRole) detailRole.textContent = props.role || 'Admin';
     
-    // Admins can delete any event
-    document.getElementById('detail-delete-btn').style.display = 'inline-flex';
+    var audienceLabels = { 'both': 'Everyone', 'students': 'Students', 'teachers': 'Teachers', 'my_students': 'My Class' };
+    if (detailAudience) detailAudience.textContent = audienceLabels[props.audience] || props.audience || '';
+    if (detailDesc) detailDesc.textContent = props.description || '';
     
-    document.getElementById('event-details-modal').open();
+    var delBtn = document.getElementById('detail-delete-btn');
+    var editBtn = document.getElementById('detail-edit-btn');
+    if (delBtn) delBtn.style.display = 'inline-flex';
+    if (editBtn) editBtn.style.display = 'inline-flex';
+    
+    if (modal) modal.open();
   }
 
-  async function deleteCurrentEvent() {
+  function deleteCurrentEvent() {
     if (!currentEventId) return;
     if (!confirm("Are you sure you want to delete this event?")) return;
 
-    try {
-      const res = await api.clerk.events.delete(currentEventId);
-
+    api.clerk.events.delete(currentEventId).then(res => {
       if (res.ok) {
         toast("Event deleted successfully", "fa-solid fa-check");
         document.getElementById('event-details-modal').close();
@@ -214,10 +200,76 @@
       } else {
         toast("Failed to delete event", "fa-solid fa-circle-exclamation");
       }
-    } catch (err) {
+    }).catch(err => {
       console.error(err);
       toast("Error deleting event", "fa-solid fa-circle-exclamation");
+    });
+  }
+
+  function openEditEventModal() {
+    if (!currentEventData) return;
+    var props = currentEventData.extendedProps;
+    
+    var titleEl = document.getElementById('event-title');
+    var descEl = document.getElementById('event-desc');
+    var dateEl = document.getElementById('event-date');
+    var audEl = document.getElementById('event-audience');
+    var form = document.getElementById('create-event-form');
+    var modal = document.getElementById('create-event-modal');
+    
+    if (titleEl) titleEl.value = currentEventData.title;
+    if (descEl) descEl.value = props.description;
+    if (dateEl) dateEl.value = currentEventData.startStr;
+    if (audEl) audEl.value = props.audience || 'both';
+    
+    if (form) form.dataset.editMode = 'true';
+    if (modal) {
+      var h2el = modal.querySelector('h2');
+      if (h2el) h2el.textContent = 'Edit Event';
+      modal.open();
     }
+  }
+
+  function handleCreateEvent(e) {
+    e.preventDefault();
+    var form = document.getElementById('create-event-form');
+    if (!form) return;
+    
+    var isEditMode = form.dataset.editMode === 'true';
+    
+    var title = document.getElementById('event-title').value;
+    var description = document.getElementById('event-desc').value;
+    var dateInput = document.getElementById('event-date').value;
+    var audience = document.getElementById('event-audience').value;
+
+    var dateObj = new Date(dateInput);
+    dateObj.setDate(dateObj.getDate() + 1);
+    var event_date = dateObj.toISOString().split('T')[0];
+
+    var action = isEditMode
+      ? api.clerk.events.update(currentEventId, { title: title, description: description, event_date: event_date, target_audience: audience })
+      : api.clerk.events.create({ title: title, description: description, event_date: event_date, target_audience: audience });
+
+    var modal = document.getElementById('create-event-modal');
+    var detailsModal = document.getElementById('event-details-modal');
+    var h2el = modal ? modal.querySelector('h2') : null;
+
+    action.then(res => {
+      if (res.ok) {
+        toast(isEditMode ? "Event updated successfully" : "Event created successfully", "fa-solid fa-check");
+        if (modal) modal.close();
+        form.reset();
+        form.dataset.editMode = 'false';
+        if (h2el) h2el.textContent = 'Create New Event';
+        fetchEvents();
+        if (detailsModal) detailsModal.close();
+      } else {
+        toast(isEditMode ? "Failed to update event" : "Failed to create event", "fa-solid fa-circle-exclamation");
+      }
+    }).catch(err => {
+      console.error(err);
+      toast(isEditMode ? "Error updating event" : "Error creating event", "fa-solid fa-circle-exclamation");
+    });
   }
 
   // Init

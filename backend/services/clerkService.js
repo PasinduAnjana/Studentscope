@@ -312,6 +312,18 @@ exports.deleteEvent = async (id) => {
   await pool.query("DELETE FROM events WHERE id = $1", [id]);
 };
 
+exports.updateEvent = async (id, data) => {
+  const { title, description, event_date, target_audience } = data;
+  const result = await pool.query(
+    `UPDATE events 
+     SET title = $1, description = $2, event_date = $3, target_audience = $4 
+     WHERE id = $5 
+     RETURNING *`,
+    [title, description, event_date, target_audience, id]
+  );
+  return result.rows[0];
+};
+
 // ---------------------------
 // Subjects
 exports.getSubjects = async () => {

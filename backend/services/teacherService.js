@@ -711,6 +711,18 @@ exports.deleteEvent = async (id, teacherId) => {
   await pool.query("DELETE FROM events WHERE id = $1 AND created_by = $2", [id, teacherId]);
 };
 
+exports.updateEvent = async (id, data, teacherId) => {
+  const { title, description, event_date } = data;
+  const result = await pool.query(
+    `UPDATE events 
+     SET title = $1, description = $2, event_date = $3 
+     WHERE id = $4 AND created_by = $5 
+     RETURNING *`,
+    [title, description, event_date, id, teacherId]
+  );
+  return result.rows[0];
+};
+
 // ---------------------------
 // Announcements functions
 exports.getAnnouncementsByClass = async (classId) => {

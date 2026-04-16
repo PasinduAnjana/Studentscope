@@ -124,6 +124,7 @@ const api = {
     events: {
       getAll: () => api.request("/teacher/events"),
       create: (data) => api.request("/teacher/events", "POST", data),
+      update: (id, data) => api.request(`/teacher/events/${id}`, "PUT", data),
       delete: (id) => api.request(`/teacher/events/${id}`, "DELETE"),
     },
   },
@@ -191,6 +192,7 @@ const api = {
     events: {
       getAll: () => api.request("/clerk/events"),
       create: (data) => api.request("/clerk/events", "POST", data),
+      update: (id, data) => api.request(`/clerk/events/${id}`, "PUT", data),
       delete: (id) => api.request(`/clerk/events/${id}`, "DELETE"),
     },
     pin: {

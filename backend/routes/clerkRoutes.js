@@ -231,6 +231,10 @@ module.exports = (req, res) => {
     return protect("clerk")(req, res, () => eventsController.deleteEvent(req, res));
   }
 
+  if (req.method === "PUT" && req.url.match(/^\/api\/clerk\/events\/\d+$/)) {
+    return protect("clerk")(req, res, () => eventsController.updateEvent(req, res));
+  }
+
   // Password reset routes
   if (
     req.method === "GET" &&

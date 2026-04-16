@@ -320,6 +320,10 @@ module.exports = (req, res) => {
     return protect("teacher")(req, res, () => eventsController.deleteEvent(req, res));
   }
 
+  if (req.method === "PUT" && req.url.match(/^\/api\/teacher\/events\/\d+$/)) {
+    return protect("teacher")(req, res, () => eventsController.updateEvent(req, res));
+  }
+
   // Teacher behavior records routes
   if (req.method === "GET" && req.url === "/api/teacher/behavior/records") {
     return protect("teacher")(req, res, () =>
