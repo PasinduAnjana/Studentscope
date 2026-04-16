@@ -328,6 +328,11 @@
     }
   }
 
+  function getAlertMessage(alert) {
+    const lang = localStorage.getItem("lang") || "en";
+    return alert.message[lang] || alert.message.en || "Unknown alert";
+  }
+
   async function loadAlerts() {
     try {
       const res = await api.admin.alerts.getAll();
@@ -348,7 +353,7 @@
         <li style="cursor: pointer; padding: 12px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;" onclick="showAlertDetails('${alert.key}')">
           <div style="display: flex; align-items: center; gap: 10px;">
             <i class="${alert.icon}" style="color: ${alert.type === "danger" ? "#ef4444" : alert.type === "warning" ? "#f59e0b" : "var(--color-primary)"};"></i>
-            <span>${alert.message.en} (${alert.count})</span>
+            <span>${getAlertMessage(alert)} (${alert.count})</span>
           </div>
           <i class="fas fa-chevron-right text-muted"></i>
         </li>
@@ -372,10 +377,42 @@
         container.innerHTML = `<p class="text-sm">${t("admin.dashboard.noRecordsFound")}</p>`;
       } else {
         const keys = Object.keys(details[0]);
+        
+        const columnTranslations = {
+          student_name: "admin.attendance.studentName",
+          student_id: "admin.attendance.studentName",
+          class_name: "admin.attendance.class",
+          class_id: "admin.attendance.class",
+          grade: "common.grade",
+          date: "admin.behavior.date",
+          subject: "admin.academic.subject",
+          teacher: "common.teacher",
+          type: "admin.behavior.type",
+          status: "admin.attendance.status",
+          marks: "admin.academic.marks",
+          username: "admin.academic.indexNo",
+          full_name: "profile.fullName",
+          email: "profile.email",
+          phone: "profile.phoneNumber",
+          address: "profile.address",
+          nic: "profile.nic",
+          attendance_status: "admin.attendance.status",
+          exam_name: "admin.academic.exam",
+          exam_date: "admin.behavior.date",
+        };
+
+        const translateColumn = (key) => {
+          const translationKey = columnTranslations[key];
+          if (translationKey) {
+            return t(translationKey);
+          }
+          return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        };
+
         container.innerHTML = `
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
-              <tr>${keys.map((k) => `<th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--color-border);">${k.replace(/_/g, " ")}</th>`).join("")}</tr>
+              <tr>${keys.map((k) => `<th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--color-border);">${translateColumn(k)}</th>`).join("")}</tr>
             </thead>
             <tbody>
               ${details.map((row) => `<tr>${keys.map((k) => `<td style="padding: 8px; border-bottom: 1px solid var(--color-border);">${row[k] ?? "-"}</td>`).join("")}</tr>`).join("")}
