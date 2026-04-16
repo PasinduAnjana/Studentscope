@@ -1,11 +1,10 @@
-<h2 class="heading">
-  <i class="fas fa-user-shield"></i>
-  <span data="admin.behavior.title">Student Behavior Reports</span>
-</h2>
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-user-shield"></i>
+    <span data="admin.behavior.title">Student Behavior Reports</span>
+  </h2>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<div style="display: flex; flex-direction: column; gap: 24px">
+  <div style="display: flex; flex-direction: column; gap: 24px">
   <!-- Summary Tiles -->
   <div class="card-grid">
     <div class="card dashboard-tile summary-card">
@@ -57,96 +56,32 @@
       <canvas id="trendChart"></canvas>
     </div>
   </div>
-  <!-- Behavior Records -->
-  <div class="card dashboard-tile">
-    <div class="icon-title">
-      <i class="fas fa-table icon"></i>
-      <p class="tile-label" data="admin.behavior.records">Behavior Records</p>
-    </div>
-    <div class="filter-group">
-      <div>
-        <select
-          id="classFilter"
-          class="dropdown-select"
-          onchange="filterBehavior()"
-        >
-          <option value="all" data="common.allClasses">All Classes</option>
-        </select>
-      </div>
-      <div>
-        <select
-          id="typeFilter"
-          class="dropdown-select"
-          onchange="filterBehavior()"
-        >
-          <option value="all" data="admin.behavior.allBehaviours">All Behaviours</option>
-          <option value="Good" data="admin.behavior.good">Good</option>
-          <option value="Disciplinary" data="admin.behavior.disciplinary">Disciplinary</option>
-          <option value="Reward" data="admin.behavior.reward">Reward</option>
-        </select>
-      </div>
-      <div>
-        <select id="behavior-page-size">
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="25" selected>25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-      </div>
-      <div class="export-buttons">
-        <button class="btn btn-primary" onclick="exportPDF()">
-          <i class="fas fa-file-pdf"></i> <span data="buttons.exportPDF">PDF</span>
-        </button>
-        <button class="btn btn-primary" onclick="exportCSV()">
-          <i class="fas fa-file-excel"></i> <span data="buttons.exportExcel">Excel</span>
-        </button>
-      </div>
-    </div>
-    <div class="table-container">
-      <table id="behaviorTable">
-        <thead>
-          <tr>
-            <th data="admin.behavior.class">Class</th>
-            <th data="admin.behavior.student">Student</th>
-            <th data="admin.behavior.date">Date</th>
-            <th data="admin.behavior.type">Type</th>
-            <th data="admin.behavior.severity">Severity</th>
-            <th data="admin.behavior.description">Description</th>
-            <th data="admin.behavior.reportedBy">Reported By</th>
-          </tr>
-        </thead>
-        <tbody id="behaviorBody">
-        </tbody>
-      </table>
-    </div>
-    <!-- Pagination Controls -->
-    <div
-      class="pagination-controls"
-      style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        margin-top: 20px;
-        flex-wrap: nowrap;
-      "
-    >
-      <button id="behavior-prev-page" class="btn btn-secondary" disabled title="Previous">
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <div id="behavior-page-numbers" style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: center;"></div>
-      <button id="behavior-next-page" class="btn btn-secondary" disabled title="Next">
-        <i class="fas fa-chevron-right"></i>
-      </button>
-      <span
-        id="behavior-page-info"
-        style="margin-left: 20px; color: var(--color-subtext); white-space: nowrap;"
-      ></span>
-    </div>
-  </div>
 
-</div>
+  <!-- Behavior Records -->
+  <div class="card">
+    <div class="flex-between mb-2">
+      <h1 class="title" data="admin.behavior.records">Behavior Records</h1>
+    </div>
+
+    <data-table id="behaviorTable">
+      <div slot="filters" style="display: flex; gap: 16px; align-items: baseline;">
+        <div class="input-group">
+          <select id="classFilter" class="dropdown-select">
+            <option value="all" data="common.allClasses">All Classes</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <select id="typeFilter" class="dropdown-select">
+            <option value="all" data="admin.behavior.allBehaviours">All Behaviours</option>
+            <option value="Good" data="admin.behavior.good">Good</option>
+            <option value="Disciplinary" data="admin.behavior.disciplinary">Disciplinary</option>
+            <option value="Reward" data="admin.behavior.reward">Reward</option>
+          </select>
+        </div>
+      </div>
+    </data-table>
+  </div>
+</section>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="../../js/dropdown.js"></script>
@@ -158,11 +93,20 @@
   let allRecords = []; // Store all records for filtering
   let behaviorStats = {};
   let allClasses = [];
-  
-  // Pagination variables
-  let currentPage = 1;
-  let pageSize = 25;
-  let totalPages = 1;
+
+  function initTable() {
+    const table = document.getElementById("behaviorTable");
+    table.setColumns([
+      { key: "class", header: "Class", searchable: true },
+      { key: "student", header: "Student", searchable: true },
+      { key: "date", header: "Date", searchable: false },
+      { key: "type", header: "Type", searchable: true },
+      { key: "severity", header: "Severity", searchable: false },
+      { key: "description", header: "Description", searchable: false },
+      { key: "reportedBy", header: "Reported By", searchable: true }
+    ]);
+    table.setEmptyState("No behavior records found", "fas fa-user-shield");
+  }
 
   // Custom plugin to draw center text in doughnut chart
   const centerTextPlugin = {
@@ -210,9 +154,12 @@
       const response = await api.admin.behavior.getRecords();
       if (!response.ok) throw new Error("Failed to fetch behavior records");
       allRecords = await response.json();
-      filterBehavior(); // Apply filters and render
+      const table = document.getElementById("behaviorTable");
+      table.setData(allRecords);
+      filterBehavior();
     } catch (err) {
       console.error("Error loading behavior records:", err);
+      document.getElementById("behaviorTable").setData([]);
     }
   }
 
@@ -237,217 +184,18 @@
     }
   }
 
-  // Store filtered records for pagination
-  let currentFilteredRecords = [];
-
   function filterBehavior() {
+    const table = document.getElementById("behaviorTable");
     const classFilter = document.getElementById("classFilter").value;
     const typeFilter = document.getElementById("typeFilter").value;
 
-    let filtered = allRecords;
-
+    // Clear existing filters and reapply
     if (classFilter !== "all") {
-      filtered = filtered.filter((r) => r.class === classFilter);
+      table.addFilter("class", (row) => row.class === classFilter);
     }
-
     if (typeFilter !== "all") {
-      filtered = filtered.filter((r) => r.type === typeFilter);
+      table.addFilter("type", (row) => row.type === typeFilter);
     }
-
-    // Store filtered records and reset to page 1
-    currentFilteredRecords = filtered;
-    currentPage = 1;
-    renderBehaviorTable();
-  }
-
-  function renderBehaviorTable() {
-    const tbody = document.getElementById("behaviorBody");
-    const filtered = currentFilteredRecords;
-    
-    if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center">${t("common.noRecords")}</td></tr>`;
-      updateBehaviorPaginationControls(0);
-      return;
-    }
-
-    // Calculate pagination
-    totalPages = Math.ceil(filtered.length / pageSize);
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const recordsToShow = filtered.slice(startIndex, endIndex);
-
-    tbody.innerHTML = recordsToShow
-      .map(
-        (record) => `
-      <tr>
-        <td>${record.class}</td>
-        <td>${record.student}</td>
-        <td>${record.date}</td>
-        <td>${record.type}</td>
-        <td>${record.severity}</td>
-        <td>${record.description}</td>
-        <td>${record.reportedBy}</td>
-      </tr>
-    `
-      )
-      .join("");
-
-    updateBehaviorPaginationControls(filtered.length);
-  }
-
-  function updateBehaviorPaginationControls(totalItems) {
-    const prevBtn = document.getElementById("behavior-prev-page");
-    const nextBtn = document.getElementById("behavior-next-page");
-    const pageNumbers = document.getElementById("behavior-page-numbers");
-    const pageInfo = document.getElementById("behavior-page-info");
-
-    if (!prevBtn || !nextBtn || !pageNumbers || !pageInfo) {
-      console.warn("Pagination controls not found");
-      return;
-    }
-
-    // Update button states
-    prevBtn.disabled = currentPage <= 1;
-    nextBtn.disabled = currentPage >= totalPages;
-
-    // Update page info
-    const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
-    const endItem = Math.min(currentPage * pageSize, totalItems);
-    pageInfo.textContent = t("common.showingItems", { start: startItem, end: endItem, total: totalItems });
-
-    // Generate page number buttons
-    pageNumbers.innerHTML = "";
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    // Add first page button if not in range
-    if (startPage > 1) {
-      const firstBtn = document.createElement("button");
-      firstBtn.className = "btn btn-secondary";
-      firstBtn.textContent = "1";
-      firstBtn.onclick = () => goBehaviorPage(1);
-      pageNumbers.appendChild(firstBtn);
-
-      if (startPage > 2) {
-        const ellipsis = document.createElement("span");
-        ellipsis.textContent = "...";
-        ellipsis.style.margin = "0 5px";
-        pageNumbers.appendChild(ellipsis);
-      }
-    }
-
-    // Add page number buttons
-    for (let i = startPage; i <= endPage; i++) {
-      const pageBtn = document.createElement("button");
-      pageBtn.className = `btn ${
-        i === currentPage ? "btn-primary" : "btn-secondary"
-      }`;
-      pageBtn.textContent = i;
-      pageBtn.onclick = () => goBehaviorPage(i);
-      pageNumbers.appendChild(pageBtn);
-    }
-
-    // Add last page button if not in range
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        const ellipsis = document.createElement("span");
-        ellipsis.textContent = "...";
-        ellipsis.style.margin = "0 5px";
-        pageNumbers.appendChild(ellipsis);
-      }
-
-      const lastBtn = document.createElement("button");
-      lastBtn.className = "btn btn-secondary";
-      lastBtn.textContent = totalPages;
-      lastBtn.onclick = () => goBehaviorPage(totalPages);
-      pageNumbers.appendChild(lastBtn);
-    }
-  }
-
-  function goBehaviorPage(page) {
-    if (page >= 1 && page <= totalPages) {
-      currentPage = page;
-      renderBehaviorTable();
-    }
-  }
-
-  function exportCSV() {
-    const filtered = currentFilteredRecords;
-
-    const csv = [
-      "Class,Student,Date,Type,Severity,Description,Reported By",
-      ...filtered.map((r) =>
-        [
-          r.class,
-          r.student,
-          r.date,
-          r.type,
-          r.severity,
-          r.description,
-          r.reportedBy,
-        ]
-          .map((cell) => `"${cell}"`)
-          .join(",")
-      ),
-    ];
-
-    const blob = new Blob([csv.join("\n")], { type: "text/csv" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `behavior_report_${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-  }
-
-  function exportPDF() {
-    const filtered = currentFilteredRecords;
-
-    const tempTable = document.createElement("table");
-    tempTable.style.borderCollapse = "collapse";
-    tempTable.style.width = "100%";
-    tempTable.style.border = "1px solid black";
-
-    const thead = document.createElement("thead");
-    const headerRow = document.createElement("tr");
-    ["Class", "Student", "Date", "Type", "Severity", "Description", "Reported By"].forEach(
-      (header) => {
-        const th = document.createElement("th");
-        th.textContent = header;
-        th.style.border = "1px solid black";
-        th.style.padding = "8px";
-        th.style.backgroundColor = "#f0f0f0";
-        headerRow.appendChild(th);
-      }
-    );
-    thead.appendChild(headerRow);
-    tempTable.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-    filtered.forEach((record) => {
-      const row = document.createElement("tr");
-      [record.class, record.student, record.date, record.type, record.severity, record.description, record.reportedBy].forEach(
-        (cell) => {
-          const td = document.createElement("td");
-          td.textContent = cell;
-          td.style.border = "1px solid black";
-          td.style.padding = "8px";
-          row.appendChild(td);
-        }
-      );
-      tbody.appendChild(row);
-    });
-    tempTable.appendChild(tbody);
-
-    const win = window.open("", "", "width=900,height=600");
-    win.document.write("<html><head><title>Behavior Report</title></head><body>");
-    win.document.write(tempTable.outerHTML);
-    win.document.write("</body></html>");
-    win.document.close();
-    win.print();
   }
 
   function updateBehaviorChart() {
@@ -595,6 +343,8 @@
   function initializeSearchableDropdowns() {
     const dropdowns = document.querySelectorAll(".dropdown-select");
     dropdowns.forEach((select) => {
+      // Skip DataTable's built-in page size dropdown
+      if (select.id && select.id.includes("dt-page-size")) return;
       if (typeof makeSearchableDropdown === "function") {
         makeSearchableDropdown(select.id, () => {
           select.dispatchEvent(new Event("change"));
@@ -607,64 +357,28 @@
   async function initializePage() {
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", async () => {
+        initTable();
         await loadClasses();
         await loadBehaviorStats();
         await loadBehaviorRecords();
         updateTrendChart();
         initializeSearchableDropdowns();
-        setupPaginationControls();
+        setupFilterListeners();
       });
     } else {
+      initTable();
       await loadClasses();
       await loadBehaviorStats();
       await loadBehaviorRecords();
       updateTrendChart();
       initializeSearchableDropdowns();
-      setupPaginationControls();
+      setupFilterListeners();
     }
   }
 
-  function setupPaginationControls() {
-    // Set initial page size
-    const pageSizeElement = document.getElementById("behavior-page-size");
-    if (!pageSizeElement) {
-      console.error("behavior-page-size element not found");
-      return;
-    }
-
-    pageSize = parseInt(pageSizeElement.value);
-
-    // Make page size dropdown searchable
-    if (typeof makeSearchableDropdown === "function") {
-      makeSearchableDropdown("behavior-page-size", (val, text) => {
-        pageSize = parseInt(val);
-        currentPage = 1;
-        renderBehaviorTable();
-      });
-    }
-
-    // Page size change event (fallback if searchable dropdown doesn't work)
-    pageSizeElement.addEventListener("change", (e) => {
-      pageSize = parseInt(e.target.value);
-      currentPage = 1;
-      renderBehaviorTable();
-    });
-
-    // Pagination button events
-    const prevBtn = document.getElementById("behavior-prev-page");
-    const nextBtn = document.getElementById("behavior-next-page");
-
-    if (prevBtn) {
-      prevBtn.addEventListener("click", () => {
-        goBehaviorPage(currentPage - 1);
-      });
-    }
-
-    if (nextBtn) {
-      nextBtn.addEventListener("click", () => {
-        goBehaviorPage(currentPage + 1);
-      });
-    }
+  function setupFilterListeners() {
+    document.getElementById("classFilter").addEventListener("change", filterBehavior);
+    document.getElementById("typeFilter").addEventListener("change", filterBehavior);
   }
 
   initializePage();
@@ -692,46 +406,5 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 15px;
     margin-bottom: 15px;
-  }
-  .filter-group {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px;
-    margin-bottom: 20px;
-    align-items: flex-end;
-    width: auto;
-  }
-  .filter-group > div {
-    flex: 0 0 auto;
-    min-width: 200px;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-  .filter-group .export-buttons {
-    margin-left: auto;
-    min-width: auto;
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    align-items: flex-end;
-  }
-  .filter-group .export-buttons button {
-    margin: 0;
-  }
-  .pagination-controls {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-    flex-wrap: nowrap;
-  }
-  #behavior-page-numbers {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    justify-content: center;
   }
 </style>

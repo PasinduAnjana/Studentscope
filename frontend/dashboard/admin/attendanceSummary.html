@@ -1,65 +1,4 @@
 <style>
-  /* Modal Styles */
-  .modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-content {
-    background-color: var(--color-card);
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .modal-header h3 {
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  .modal-close {
-    font-size: 28px;
-    font-weight: bold;
-    color: var(--color-subtext);
-    cursor: pointer;
-    line-height: 1;
-  }
-
-  .modal-close:hover {
-    color: var(--color-text);
-  }
-
-  .modal-body {
-    padding: 20px;
-  }
-
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 20px;
-    border-top: 1px solid var(--color-border);
-  }
-
   /* Stats tiles styling */
   .stats-grid {
     display: grid;
@@ -223,292 +162,88 @@
   <div class="card">
     <div class="flex-between mb-2">
       <h1 class="title" data="admin.attendance.todaysAttendance">Today's Attendance</h1>
-      <div class="flex gap-2" style="gap: 16px">
-        <button id="export-pdf-btn" class="btn btn-primary">
-          <i class="fas fa-file-pdf"></i> <span data="buttons.exportPDF">Export PDF</span>
-        </button>
-        <button id="export-btn" class="btn btn-primary">
-          <i class="fas fa-download"></i> <span data="buttons.exportCSV">Export CSV</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Search Bar and Class Dropdown -->
-    <div
-      class="flex mb-2 filter-controls"
-      style="gap: 16px; align-items: baseline; flex-wrap: wrap"
-    >
-      <div class="search-group" style="max-width: 350px">
-        <input
-          type="text"
-          id="attendance-search"
-          class="search-input"
-          data-placeholder="common.searchStudents"
-          placeholder="Search students..."
-        />
-        <span class="search-icon"><i class="fas fa-search"></i></span>
-      </div>
-      <div class="input-group">
-        <select id="class-filter">
-          <option value="" data="common.allClasses">All Classes</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <select id="status-filter">
-          <option value="" data="common.allStatus">All Status</option>
-          <option value="present" data="admin.attendance.present">Present</option>
-          <option value="absent" data="admin.attendance.absent">Absent</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <select id="page-size">
-          <option value="10">10</option>
-          <option value="25" selected>25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-      </div>
-      <div class="input-group">
+      <div class="input-group" style="margin-bottom: 0;">
         <input
           type="date"
           id="attendance-date"
           class="input"
-          style="width: auto"
         />
       </div>
     </div>
 
-    <div class="table-responsive">
-      <table id="attendance-table">
-        <thead>
-          <tr>
-            <th data="admin.attendance.studentName">Student Name</th>
-            <th data="admin.attendance.indexNumber">Index Number</th>
-            <th data="admin.attendance.class">Class</th>
-            <th data="admin.attendance.status">Status</th>
-            <th data="admin.attendance.time">Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Attendance records will be loaded here -->
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pagination Controls -->
-    <div
-      class="pagination-controls"
-      style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        margin-top: 20px;
-      "
-    >
-      <button id="prev-page" class="btn btn-secondary" disabled>
-        <i class="fas fa-chevron-left"></i> <span data="common.previous">Previous</span>
-      </button>
-      <div id="page-numbers" style="display: flex; gap: 5px"></div>
-      <button id="next-page" class="btn btn-secondary" disabled>
-        <span data="common.next">Next</span> <i class="fas fa-chevron-right"></i>
-      </button>
-      <span
-        id="page-info"
-        style="margin-left: 20px; color: var(--color-subtext)"
-      ></span>
-    </div>
+    <data-table id="attendance-table">
+      <div slot="filters" style="display: flex; gap: 16px; align-items: baseline;">
+        <div class="input-group">
+          <select id="class-filter">
+            <option value="" data="common.allClasses">All Classes</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <select id="status-filter">
+            <option value="" data="common.allStatus">All Status</option>
+            <option value="present" data="admin.attendance.present">Present</option>
+            <option value="absent" data="admin.attendance.absent">Absent</option>
+          </select>
+        </div>
+      </div>
+    </data-table>
   </div>
 </section>
 
-<!-- Export Modal -->
-<div id="export-modal" class="modal" style="display: none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Export Attendance to CSV</h3>
-      <span class="modal-close">&times;</span>
+<!-- Mark Attendance Modal using ModalDialog component -->
+<modal-dialog id="mark-attendance-modal" title="Mark Attendance">
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+    <div class="input-group">
+      <label for="attendance-status" style="display: block; margin-bottom: 6px; font-weight: 500;">Status:</label>
+      <select id="attendance-status" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--color-border);">
+        <option value="present">Present</option>
+        <option value="absent">Absent</option>
+      </select>
     </div>
-    <div class="modal-body">
-      <p>Select the fields you want to include in the CSV export:</p>
-      <div class="export-fields">
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-name" checked />
-          <span class="checkmark"></span>
-          Student Name
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-index" checked />
-          <span class="checkmark"></span>
-          Index Number
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-class" checked />
-          <span class="checkmark"></span>
-          Class
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-status" checked />
-          <span class="checkmark"></span>
-          Status
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="export-time" />
-          <span class="checkmark"></span>
-          Time
-        </label>
-      </div>
+    <div class="input-group">
+      <label for="attendance-time" style="display: block; margin-bottom: 6px; font-weight: 500;">Time:</label>
+      <input type="time" id="attendance-time" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--color-border);" />
     </div>
-    <div class="modal-footer">
-      <button id="export-cancel" class="btn btn-secondary">Cancel</button>
-      <button id="export-confirm" class="btn btn-primary">Export</button>
+    <div class="input-group">
+      <label for="attendance-notes" style="display: block; margin-bottom: 6px; font-weight: 500;">Notes (Optional):</label>
+      <textarea id="attendance-notes" rows="3" placeholder="Additional notes..." maxlength="200" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--color-border); resize: vertical;"></textarea>
     </div>
-  </div>
-</div>
-
-<!-- Export PDF Modal -->
-<div id="export-pdf-modal" class="modal" style="display: none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Export Attendance to PDF</h3>
-      <span class="modal-close">&times;</span>
-    </div>
-    <div class="modal-body">
-      <div class="input-group" style="margin-bottom: 15px">
-        <label for="pdf-heading">Heading:</label>
-        <input
-          type="text"
-          id="pdf-heading"
-          class="input"
-          placeholder="Enter heading..."
-        />
-      </div>
-      <div class="input-group" style="margin-bottom: 15px">
-        <label for="pdf-subheading">Subheading:</label>
-        <input
-          type="text"
-          id="pdf-subheading"
-          class="input"
-          placeholder="Enter subheading..."
-        />
-      </div>
-      <div class="input-group" style="margin-bottom: 15px">
-        <label for="pdf-empty-columns"
-          >Number of Empty Columns (for signatures, etc.):</label
-        >
-        <input
-          type="number"
-          id="pdf-empty-columns"
-          class="input"
-          placeholder="0"
-          min="0"
-          max="10"
-        />
-      </div>
-      <div class="input-group" style="margin-bottom: 15px">
-        <label for="pdf-empty-titles"
-          >Empty Column Titles (comma-separated, e.g., Signature, Date,
-          Notes):</label
-        >
-        <input
-          type="text"
-          id="pdf-empty-titles"
-          class="input"
-          placeholder="Signature, Date, Notes"
-        />
-      </div>
-      <p>Select the fields you want to include in the PDF export:</p>
-      <div class="export-fields">
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-name" checked />
-          <span class="checkmark"></span>
-          Student Name
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-index" checked />
-          <span class="checkmark"></span>
-          Index Number
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-class" checked />
-          <span class="checkmark"></span>
-          Class
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-status" checked />
-          <span class="checkmark"></span>
-          Status
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="pdf-export-time" />
-          <span class="checkmark"></span>
-          Time
-        </label>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button id="export-pdf-cancel" class="btn btn-secondary">Cancel</button>
-      <button id="export-pdf-confirm" class="btn btn-primary">
-        Export PDF
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Mark Attendance Modal -->
-<div id="mark-attendance-modal" class="modal" style="display: none">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="attendance-modal-title">Mark Attendance</h3>
-      <span class="modal-close">&times;</span>
-    </div>
-    <div class="modal-body">
-      <div class="input-group">
-        <label for="attendance-status">Status:</label>
-        <select id="attendance-status" required>
-          <option value="present">Present</option>
-          <option value="absent">Absent</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label for="attendance-time">Time:</label>
-        <input type="time" id="attendance-time" required />
-      </div>
-      <div class="input-group">
-        <label for="attendance-notes">Notes (Optional):</label>
-        <textarea
-          id="attendance-notes"
-          rows="3"
-          placeholder="Additional notes..."
-          maxlength="200"
-        ></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button id="attendance-modal-cancel" class="btn btn-secondary">
-        Cancel
-      </button>
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
+      <button id="attendance-modal-cancel" class="btn btn-secondary">Cancel</button>
       <button id="attendance-modal-save" class="btn btn-primary">Save</button>
     </div>
   </div>
-</div>
+</modal-dialog>
 
 <script>
   let allAttendanceRecords = [];
   let allStudents = [];
   let allClasses = [];
   let currentStudentId = null;
-  // Pagination variables
-  let currentPage = 1;
-  let pageSize = 25;
-  let totalPages = 1;
   // references to searchable dropdown wrappers so we can destroy/recreate when class lists change
   let searchableClassFilter = null;
   let searchableStatusFilter = null;
-  let searchablePageSize = null;
   let searchableGradeFilter = null;
   let overviewChartInstance = null;
   let byClassChartInstance = null;
   let allClassStats = {};
+
+  function initTable() {
+    const table = document.getElementById("attendance-table");
+    table.setColumns([
+      { key: "student_name", header: "Student Name", searchable: true },
+      { key: "username", header: "Index Number", searchable: true },
+      { key: "class_name", header: "Class", searchable: false },
+      { 
+        key: "status", 
+        header: "Status", 
+        searchable: false,
+        render: (row) => `<span class="status-${row.status}">${row.status.charAt(0).toUpperCase() + row.status.slice(1)}</span>`
+      },
+      { key: "time", header: "Time", searchable: false }
+    ]);
+    table.setEmptyState("No attendance records found", "fas fa-calendar-check");
+  }
 
   function updateSearchableDisplay(selectId) {
     const select = document.getElementById(selectId);
@@ -523,124 +258,17 @@
     }
   }
 
-  function renderAttendance(filtered) {
-    const tbody = document.querySelector("#attendance-table tbody");
-    tbody.innerHTML = "";
-    if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center">${t("common.noRecords")}</td></tr>`;
-      updatePaginationControls(0);
-      return;
+  function filterAndRender() {
+    const table = document.getElementById("attendance-table");
+    const classFilter = document.getElementById("class-filter").value;
+    const statusFilter = document.getElementById("status-filter").value;
+
+    if (classFilter) {
+      table.addFilter("class", (row) => String(row.class_id) === classFilter);
     }
-
-    // Calculate pagination
-    totalPages = Math.ceil(filtered.length / pageSize);
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const recordsToShow = filtered.slice(startIndex, endIndex);
-
-    recordsToShow.forEach((record) => {
-      const statusClass = `status-${record.status}`;
-
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${record.student_name || "Unknown Student"}</td>
-        <td>${record.username || "N/A"}</td>
-        <td>${record.class_name || "N/A"}</td>
-        <td><span class="${statusClass}">${
-record.status.charAt(0).toUpperCase() + record.status.slice(1)
-      }</span></td>
-        <td>${record.time || "N/A"}</td>
-      </tr>
-      `;
-      tbody.appendChild(row);
-    });
-
-    updatePaginationControls(filtered.length);
-  }
-
-  function updatePaginationControls(totalItems) {
-    const prevBtn = document.getElementById("prev-page");
-    const nextBtn = document.getElementById("next-page");
-    const pageNumbers = document.getElementById("page-numbers");
-    const pageInfo = document.getElementById("page-info");
-
-    // Update button states
-    prevBtn.disabled = currentPage <= 1;
-    nextBtn.disabled = currentPage >= totalPages;
-
-    // Update page info
-    const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
-    const endItem = Math.min(currentPage * pageSize, totalItems);
-    pageInfo.textContent = t("common.showingItems", { start: startItem, end: endItem, total: totalItems });
-
-    // Generate page number buttons
-    pageNumbers.innerHTML = "";
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    if (statusFilter) {
+      table.addFilter("status", (row) => row.status === statusFilter);
     }
-
-    // Add first page button if not in range
-    if (startPage > 1) {
-      const firstBtn = document.createElement("button");
-      firstBtn.className = "btn btn-secondary";
-      firstBtn.textContent = "1";
-      firstBtn.onclick = () => goToPage(1);
-      pageNumbers.appendChild(firstBtn);
-
-      if (startPage > 2) {
-        const ellipsis = document.createElement("span");
-        ellipsis.textContent = "...";
-        ellipsis.style.margin = "0 5px";
-        pageNumbers.appendChild(ellipsis);
-      }
-    }
-
-    // Add page number buttons
-    for (let i = startPage; i <= endPage; i++) {
-      const pageBtn = document.createElement("button");
-      pageBtn.className = `btn ${
-        i === currentPage ? "btn-primary" : "btn-secondary"
-      }`;
-      pageBtn.textContent = i;
-      pageBtn.onclick = () => goToPage(i);
-      pageNumbers.appendChild(pageBtn);
-    }
-
-    // Add last page button if not in range
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        const ellipsis = document.createElement("span");
-        ellipsis.textContent = "...";
-        ellipsis.style.margin = "0 5px";
-        pageNumbers.appendChild(ellipsis);
-      }
-
-      const lastBtn = document.createElement("button");
-      lastBtn.className = "btn btn-secondary";
-      lastBtn.textContent = totalPages;
-      lastBtn.onclick = () => goToPage(totalPages);
-      pageNumbers.appendChild(lastBtn);
-    }
-  }
-
-  function goToPage(page) {
-    if (page >= 1 && page <= totalPages) {
-      currentPage = page;
-      filterAndRender();
-    }
-  }
-
-  function filterAndRender(resetPage = false) {
-    // Reset to page 1 when filters change
-    if (resetPage) {
-      currentPage = 1;
-    }
-    // Fetch filtered records from server
-    fetchAttendanceRecords();
   }
 
   async function fetchAttendanceStats() {
@@ -680,22 +308,19 @@ record.status.charAt(0).toUpperCase() + record.status.slice(1)
       const selectedDate =
         dateInput.value || new Date().toISOString().split("T")[0];
 
-      const classId = document.getElementById("class-filter").value;
-      const status = document.getElementById("status-filter").value;
-      const search = document.getElementById("attendance-search").value.trim();
-
-      const recordsRes = await api.admin.attendance.getRecords(selectedDate, { classId, status, search });
+      const recordsRes = await api.admin.attendance.getRecords(selectedDate, {});
       if (recordsRes.ok) {
         allAttendanceRecords = await recordsRes.json();
-        renderAttendance(allAttendanceRecords);
       } else {
         allAttendanceRecords = [];
-        renderAttendance(allAttendanceRecords);
       }
+      const table = document.getElementById("attendance-table");
+      table.setData(allAttendanceRecords);
+      filterAndRender();
     } catch (err) {
       console.error("Error fetching attendance records:", err);
       allAttendanceRecords = [];
-      renderAttendance(allAttendanceRecords);
+      document.getElementById("attendance-table").setData([]);
     }
   }
 
@@ -787,96 +412,38 @@ record.status.charAt(0).toUpperCase() + record.status.slice(1)
     }
   }
 
-  function populatePageSizeSelect() {
-    const select = document.getElementById("page-size");
-    // destroy previous searchable instance if any
-    if (
-      searchablePageSize &&
-      typeof searchablePageSize.destroy === "function"
-    ) {
-      searchablePageSize.destroy();
-      searchablePageSize = null;
-    }
-    select.innerHTML = "";
-    const pageSizeOptions = [
-      { value: "10", text: "10" },
-      { value: "25", text: "25" },
-      { value: "50", text: "50" },
-      { value: "100", text: "100" },
-    ];
-    pageSizeOptions.forEach((option) => {
-      const opt = document.createElement("option");
-      opt.value = option.value;
-      opt.textContent = option.text;
-      if (option.value === "25") opt.selected = true; // Default to 25
-      select.appendChild(opt);
-    });
-    // transform into searchable dropdown
-    if (typeof makeSearchableDropdown === "function") {
-      searchablePageSize = makeSearchableDropdown("page-size", (val, text) => {
-        // Update pageSize and refresh display
-        pageSize = parseInt(val);
-        currentPage = 1; // Reset to first page when page size changes
-        filterAndRender();
-      });
-    }
-  }
-
-  function setupSearch() {
-    document
-      .getElementById("attendance-search")
-      .addEventListener("input", () => filterAndRender(true));
-    document.getElementById("page-size").addEventListener("change", (e) => {
-      pageSize = parseInt(e.target.value);
-      currentPage = 1; // Reset to first page when page size changes
-      filterAndRender();
-    });
-    document
-      .getElementById("prev-page")
-      .addEventListener("click", () => goToPage(currentPage - 1));
-    document
-      .getElementById("next-page")
-      .addEventListener("click", () => goToPage(currentPage + 1));
-    document
-      .getElementById("chart-grade-filter")
-      .addEventListener("change", () => {
-        renderAttendanceByClassChart();
-      });
-  }
-
   function setupDatePicker() {
     const dateInput = document.getElementById("attendance-date");
-    // Set default to today
+    const classFilter = document.getElementById("class-filter");
+    const statusFilter = document.getElementById("status-filter");
+
     const today = new Date().toISOString().split("T")[0];
     dateInput.value = today;
 
     dateInput.addEventListener("change", () => {
       refreshAttendance();
     });
+
+    classFilter.addEventListener("change", () => {
+      filterAndRender();
+    });
+
+    statusFilter.addEventListener("change", () => {
+      filterAndRender();
+    });
   }
 
   function setupModal() {
     const modal = document.getElementById("mark-attendance-modal");
-    const closeBtn = document.querySelector(
-      "#mark-attendance-modal .modal-close"
-    );
     const cancelBtn = document.getElementById("attendance-modal-cancel");
     const saveBtn = document.getElementById("attendance-modal-save");
 
     const closeModal = () => {
-      if (modal) modal.style.display = "none";
+      if (modal) modal.close();
       currentStudentId = null;
     };
 
-    if (closeBtn) closeBtn.addEventListener("click", closeModal);
     if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
-
-    if (modal) {
-      modal.addEventListener("click", (e) => {
-        if (e.target === modal) closeModal();
-      });
-    }
-
     if (saveBtn) saveBtn.addEventListener("click", saveAttendance);
   }
 
@@ -919,7 +486,7 @@ record.status.charAt(0).toUpperCase() + record.status.slice(1)
 
       // Mock save for now - replace with actual API call
       toast(t("admin.attendance.savedSuccess"), "fa-solid fa-check-circle");
-      document.getElementById("mark-attendance-modal").style.display = "none";
+      document.getElementById("mark-attendance-modal").close();
       refreshAttendance();
     } catch (err) {
       console.error(err);
@@ -932,336 +499,6 @@ record.status.charAt(0).toUpperCase() + record.status.slice(1)
     fetchAttendanceRecords();
     loadAttendanceOverviewChart();
     fetchAllClassStats();
-  }
-
-  // Setup export functionality
-  function setupExport() {
-    const exportBtn = document.getElementById("export-btn");
-    const modal = document.getElementById("export-modal");
-    const closeBtn = document.querySelector("#export-modal .modal-close");
-    const cancelBtn = document.getElementById("export-cancel");
-    const confirmBtn = document.getElementById("export-confirm");
-
-    // Show modal
-    exportBtn.addEventListener("click", () => {
-      modal.style.display = "flex";
-    });
-
-    // Hide modal
-    const closeModal = () => {
-      modal.style.display = "none";
-    };
-
-    closeBtn.addEventListener("click", closeModal);
-    cancelBtn.addEventListener("click", closeModal);
-
-    // Close modal when clicking outside
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        closeModal();
-      }
-    });
-
-    // Export functionality
-    confirmBtn.addEventListener("click", () => {
-      const selectedFields = getSelectedFields();
-      if (selectedFields.length === 0) {
-        alert(t("admin.attendance.selectFieldError"));
-        return;
-      }
-
-      const filteredRecords = getFilteredAttendanceRecords();
-      exportToCSV(filteredRecords, selectedFields);
-      closeModal();
-    });
-  }
-
-  // Setup PDF export functionality
-  function setupExportPDF() {
-    const exportPdfBtn = document.getElementById("export-pdf-btn");
-    const modal = document.getElementById("export-pdf-modal");
-    const closeBtn = document.querySelector("#export-pdf-modal .modal-close");
-    const cancelBtn = document.getElementById("export-pdf-cancel");
-    const confirmBtn = document.getElementById("export-pdf-confirm");
-
-    // Show modal
-    exportPdfBtn.addEventListener("click", () => {
-      modal.style.display = "flex";
-    });
-
-    // Hide modal
-    const closeModal = () => {
-      modal.style.display = "none";
-    };
-
-    closeBtn.addEventListener("click", closeModal);
-    cancelBtn.addEventListener("click", closeModal);
-
-    // Close modal when clicking outside
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        closeModal();
-      }
-    });
-
-    // Export PDF functionality
-    confirmBtn.addEventListener("click", () => {
-      const heading = document.getElementById("pdf-heading").value.trim();
-      const subheading = document.getElementById("pdf-subheading").value.trim();
-      const emptyColumns =
-        parseInt(document.getElementById("pdf-empty-columns").value) || 0;
-      const emptyTitles = document
-        .getElementById("pdf-empty-titles")
-        .value.split(",")
-        .map((t) => t.trim())
-        .filter((t) => t);
-      const selectedFields = getSelectedPDFFields();
-      if (selectedFields.length === 0) {
-        alert(t("admin.attendance.selectFieldError"));
-        return;
-      }
-      const filteredRecords = getFilteredAttendanceRecords();
-      exportToPDF(
-        filteredRecords,
-        selectedFields,
-        heading,
-        subheading,
-        emptyColumns,
-        emptyTitles
-      );
-      closeModal();
-    });
-  }
-
-  // Get selected fields from checkboxes
-  function getSelectedFields() {
-    const fields = [];
-    const checkboxes = document.querySelectorAll(
-      "#export-modal input[type='checkbox']"
-    );
-
-    checkboxes.forEach((checkbox) => {
-      if (checkbox.checked) {
-        const fieldId = checkbox.id.replace("export-", "");
-        fields.push(fieldId);
-      }
-    });
-
-    return fields;
-  }
-
-  // Get selected fields from PDF checkboxes
-  function getSelectedPDFFields() {
-    const fields = [];
-    const checkboxes = document.querySelectorAll(
-      "#export-pdf-modal input[type='checkbox']"
-    );
-
-    checkboxes.forEach((checkbox) => {
-      if (checkbox.checked) {
-        const fieldId = checkbox.id.replace("pdf-export-", "");
-        fields.push(fieldId);
-      }
-    });
-
-    return fields;
-  }
-
-  // Get currently filtered attendance records
-  function getFilteredAttendanceRecords() {
-    const q = (document.getElementById("attendance-search")?.value || "")
-      .trim()
-      .toLowerCase();
-    const classId = document.getElementById("class-filter").value;
-    const status = document.getElementById("status-filter").value;
-    let filtered = allAttendanceRecords;
-
-    if (classId) {
-      filtered = filtered.filter((r) => String(r.class_id) === String(classId));
-    }
-
-    if (status) {
-      filtered = filtered.filter((r) => r.status === status);
-    }
-
-    if (q) {
-      filtered = filtered.filter((record) => {
-        return (
-          (record.student_name &&
-            record.student_name.toLowerCase().includes(q)) ||
-          (record.username && record.username.toLowerCase().includes(q)) ||
-          (record.class_name && record.class_name.toLowerCase().includes(q))
-        );
-      });
-    }
-
-    return filtered;
-  }
-
-  // Export to CSV
-  function exportToCSV(records, fields) {
-    if (records.length === 0) {
-      alert(t("admin.attendance.noExportData"));
-      return;
-    }
-
-    // Create CSV header
-    const headers = fields.map((field) => getAttendanceFieldDisplayName(field));
-    let csvContent = headers.join(",") + "\n";
-
-    // Add data rows
-    records.forEach((record) => {
-      const row = fields.map((field) => {
-        let value = getAttendanceFieldValue(record, field);
-        // Escape commas and quotes in CSV
-        if (
-          typeof value === "string" &&
-          (value.includes(",") || value.includes('"') || value.includes("\n"))
-        ) {
-          value = '"' + value.replace(/"/g, '""') + '"';
-        }
-        return value;
-      });
-      csvContent += row.join(",") + "\n";
-    });
-
-    // Download the file
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute(
-        "download",
-        `attendance_export_${new Date().toISOString().split("T")[0]}.csv`
-      );
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  }
-
-  // Export to PDF
-  function exportToPDF(
-    records,
-    fields,
-    heading,
-    subheading,
-    emptyColumns,
-    emptyTitles
-  ) {
-    if (records.length === 0) {
-      alert(t("admin.attendance.noExportData"));
-      return;
-    }
-
-    // Create HTML content
-    let htmlContent = `
-      <html>
-        <head>
-          <title>Attendance Export</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1 { text-align: center; }
-            h2 { text-align: center; margin-bottom: 20px; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-          </style>
-        </head>
-        <body>
-    `;
-
-    if (heading) {
-      htmlContent += `<h1>${heading}</h1>`;
-    }
-    if (subheading) {
-      htmlContent += `<h2>${subheading}</h2>`;
-    }
-
-    htmlContent += `
-          <table>
-            <thead>
-              <tr>
-    `;
-
-    // Add headers based on selected fields
-    fields.forEach((field) => {
-      htmlContent += `<th>${getAttendanceFieldDisplayName(field)}</th>`;
-    });
-
-    // Add empty column headers with titles
-    for (let i = 0; i < emptyColumns; i++) {
-      const title = emptyTitles[i] || "";
-      htmlContent += `<th>${title}</th>`;
-    }
-
-    htmlContent += `
-              </tr>
-            </thead>
-            <tbody>
-    `;
-
-    // Add data rows
-    records.forEach((record) => {
-      htmlContent += `<tr>`;
-      fields.forEach((field) => {
-        const value = getAttendanceFieldValue(record, field);
-        htmlContent += `<td>${value}</td>`;
-      });
-      // Add empty cells
-      for (let i = 0; i < emptyColumns; i++) {
-        htmlContent += `<td></td>`;
-      }
-      htmlContent += `</tr>`;
-    });
-
-    htmlContent += `
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
-
-    // Open new window and print
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-    printWindow.print();
-  }
-
-  // Get display name for attendance field
-  function getAttendanceFieldDisplayName(field) {
-    const fieldNames = {
-      name: t("admin.attendance.studentName"),
-      index: t("admin.attendance.indexNumber"),
-      class: t("admin.attendance.class"),
-      status: t("admin.attendance.status"),
-      time: t("admin.attendance.time"),
-    };
-    return fieldNames[field] || field;
-  }
-
-  // Get field value from attendance record
-  function getAttendanceFieldValue(record, field) {
-    switch (field) {
-      case "name":
-        return record.student_name || "Unknown Student";
-      case "index":
-        return record.username || "N/A";
-      case "class":
-        return record.class_name || "N/A";
-      case "status":
-        return record.status
-          ? record.status.charAt(0).toUpperCase() + record.status.slice(1)
-          : "N/A";
-      case "time":
-        return record.time || "N/A";
-      default:
-        return "";
-    }
   }
 
   // Load attendance overview chart (Present vs Absent pie chart)
@@ -1483,13 +720,9 @@ record.status.charAt(0).toUpperCase() + record.status.slice(1)
   }
 
   // Initialize
-  populatePageSizeSelect();
-  pageSize = parseInt(document.getElementById("page-size").value);
+  initTable();
   setupDatePicker();
-  setupSearch();
   setupModal();
-  setupExport();
-  setupExportPDF();
   (async () => {
     await fetchClasses();
     refreshAttendance();
