@@ -18,7 +18,9 @@
     "previous": "முன்",
     "next": "அடுத்த",
     "noRecords": "பதிவுகள் கிடைக்கவில்லை",
-    "showingItems": "{total}-ல் {start}-{end} காட்டுகிறது"
+    "showingItems": "{total}-ல் {start}-{end} காட்டுகிறது",
+    "male": "ஆண்",
+    "female": "பெண்"
   },
   "login": {
     "welcome": "வரவேற்கிறோம்!",
@@ -196,6 +198,92 @@
       "pdfEmptyTitles": "வெற்று நிரல் தலைப்புகள் (கமாவால் பிரிக்கவும், எ.கா. கையொப்பம், தேதி, குறிப்புகள்):",
       "present": "வருகை",
       "absent": "வராதவர்"
+    },
+    "students": {
+      "title": "மாணவர் சுயவிவரங்கள்",
+      "heading": "மாணவர்கள்",
+      "allClasses": "அனைத்து வகுப்புகள்",
+      "name": "பெயர்",
+      "indexNumber": "குறியீடு எண்",
+      "birthday": "பிறந்த தேதி",
+      "gender": "பால்",
+      "parent": "பெற்றோர்/காப்பாளர்",
+      "actions": "செயல்கள்",
+      "viewProfile": "சுயவிவரம் காண",
+      "noStudents": "மாணவர்கள் இல்லை",
+      "loadingError": "மாணவர்களை ஏற்றுவதில் பிழை",
+      "class": "வகுப்பு",
+"profileInfo": {
+        "title": "மாணவர் சுயவிவரம்",
+        "overview": "மேலோட்டம்",
+        "attendance": "வருகை",
+        "academics": "கல்வி",
+        "academicsData": {
+          "exam": "தேர்வு",
+          "subject": "பாடம்",
+          "marks": "மதிப்பெண்",
+          "noMarks": "மதிப்பெண் தரவு இல்லை",
+          "allTerms": "அனைத்து தவுழுகள்",
+          "term1": "தவுழு 1",
+          "term2": "தவுழு 2",
+          "term3": "தவுழு 3"
+        },
+        "behavior": "நடத்தை",
+        "behaviorData": {
+          "date": "தேதி",
+          "type": "வகை",
+          "severity": "தீவிரம்",
+          "description": "விளக்கம்",
+          "reportedBy": "தெரிவித்தவர்",
+          "noRecords": "நடத்தை பதிவுகள் இல்லை"
+        },
+        "exportPDF": "PDF ஏற்றுமதி",
+        "fullName": "முழு பெயர்",
+        "indexNo": "குறியீடு எண்",
+        "gradeClass": "வகுப்பு",
+        "gender": "பால்",
+        "birthday": "பிறந்த தேதி",
+        "nationality": "தேசியம்",
+        "guardian": "காப்பாளர்",
+        "address": "முகவரி",
+        "guardianAddress": "காப்பாளர் முகவரி",
+        "attendanceStats": {
+          "attendance": "வருகை",
+          "daysPresent": "வந்த நாட்கள்",
+          "daysAbsent": "வராத நாட்கள்"
+        },
+        "academics": {
+          "exam": "தேர்வு",
+          "subject": "பாடம்",
+          "marks": "மதிப்பெண்",
+          "noMarks": "மதிப்பெண் தரவு இல்லை",
+          "allTerms": "அனைத்து தவுழுக்கள்",
+          "term1": "தவுழு 1",
+          "term2": "தவுழு 2",
+          "term3": "தவுழு 3"
+        },
+        "behavior": {
+          "date": "தேதி",
+          "type": "வகை",
+          "severity": "தீவிரம்",
+          "description": "விளக்கம்",
+          "reportedBy": "தெரிவித்தவர்",
+          "noRecords": "நடத்தை பதிவுகள் இல்லை"
+        },
+        "governmentExams": "அரசு தேர்வுகள்",
+        "grade5Scholarship": "5 ஆம் வகுப்பு உதவித்தொகை",
+        "ol": "G.C.E. O/L",
+        "al": "G.C.E. A/L",
+        "score": "மதிப்பெண்",
+        "status": "நிலை",
+        "result": "முடிவு",
+        "zScore": "Z-மதிப்பெண்",
+        "districtRank": "மாவட்ட தரவரிசை",
+        "islandRank": "தீவிர தரவரிசை"
+      },
+      "loading": "சுயவிவரம் ஏறுகிறது...",
+      "loadFailed": "சுயவிவரம் ஏற்பதில் பிழை. மீண்டும் முயற்சிக்கவும்.",
+      "notMarked": "வருகை குறிக்கப்படவில்லை"
     },
     "academic": {
       "title": "கல்வி அறிக்கைகள்",

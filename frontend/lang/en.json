@@ -18,7 +18,9 @@
     "previous": "Previous",
     "next": "Next",
     "noRecords": "No records found",
-    "showingItems": "Showing {start}-{end} of {total} records"
+    "showingItems": "Showing {start}-{end} of {total} records",
+    "male": "Male",
+    "female": "Female"
   },
   "login": {
     "title": "Login to StudentScope",
@@ -214,6 +216,74 @@
       "pdfEmptyTitles": "Empty Column Titles (comma-separated, e.g., Signature, Date, Notes):",
       "present": "Present",
       "absent": "Absent"
+    },
+    "students": {
+      "title": "Student Profiles",
+      "heading": "Students",
+      "allClasses": "All Classes",
+      "name": "Name",
+      "indexNumber": "Index Number",
+      "birthday": "Birthday",
+      "gender": "Gender",
+      "parent": "Parent/Guardian",
+      "actions": "Actions",
+      "viewProfile": "View Profile",
+      "noStudents": "No students found",
+      "loadingError": "Error loading students",
+      "class": "Class",
+      "profileInfo": {
+        "title": "Student Profile",
+        "overview": "Overview",
+        "attendance": "Attendance",
+        "academics": "Academics",
+        "academicsData": {
+          "exam": "Exam",
+          "subject": "Subject",
+          "marks": "Marks",
+          "noMarks": "No marks data",
+          "allTerms": "All Terms",
+          "term1": "Term 1",
+          "term2": "Term 2",
+          "term3": "Term 3"
+        },
+        "behavior": "Behavior",
+        "behaviorData": {
+          "date": "Date",
+          "type": "Type",
+          "severity": "Severity",
+          "description": "Description",
+          "reportedBy": "Reported By",
+          "noRecords": "No behavior records"
+        },
+        "exportPDF": "Export PDF",
+        "fullName": "Full Name",
+        "indexNo": "Index Number",
+        "gradeClass": "Grade & Class",
+        "gender": "Gender",
+        "birthday": "Birthday",
+        "nationality": "Nationality",
+        "guardian": "Guardian",
+        "address": "Address",
+        "guardianAddress": "Guardian Address",
+        "attendanceStats": {
+          "attendance": "Attendance",
+          "daysPresent": "Days Present",
+          "daysAbsent": "Days Absent"
+        },
+        "governmentExams": "Government Exams",
+        "grade5Scholarship": "Grade 5 Scholarship",
+        "ol": "G.C.E. O/L",
+        "al": "G.C.E. A/L",
+        "score": "Score",
+        "status": "Status",
+        "result": "Result",
+        "zScore": "Z-Score",
+        "districtRank": "District Rank",
+        "islandRank": "Island Rank"
+      },
+      "loading": "Loading profile...",
+      "loadFailed": "Failed to load profile. Please try again.",
+      "notMarked": "Attendance not marked"
     },
     "academic": {
       "title": "Academic Reports",

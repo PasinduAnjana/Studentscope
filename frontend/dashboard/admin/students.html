@@ -26,10 +26,10 @@
 <section class="section">
   <h2 class="heading">
     <i class="fas fa-id-card"></i>
-    <span data-en="Student Profiles" data-si="ශිෂ්‍ය ප්‍රොෆයිල" data-ta="மாணவர் சுயவிவரங்கள்">Student Profiles</span>
+    <span data="admin.students.title">Student Profiles</span>
   </h2>
   <div class="card">
-    <h1 class="title" data-en="Students" data-si="ශිෂ්‍යයන්" data-ta="மாணவர்கள்">Students</h1>
+    <h1 class="title" data="admin.students.heading">Students</h1>
     <data-table id="students-table">
       <div slot="filters">
         <div style="display: flex; gap: 12px; align-items: center;">
@@ -40,7 +40,7 @@
   </div>
 </section>
 
-<modal-dialog id="profile-modal" title="Student Profile">
+<modal-dialog id="profile-modal" data-title="admin.students.profileInfo.title" title="Student Profile">
   <div id="profile-content"></div>
 </modal-dialog>
 
@@ -59,11 +59,11 @@
   function initTable() {
     const table = document.getElementById("students-table");
     table.setColumns([
-      { key: "full_name", header: "Name", searchable: true },
-      { key: "username", header: "Index Number", searchable: true },
+      { key: "full_name", header: t("admin.students.name"), searchable: true },
+      { key: "username", header: t("admin.students.indexNumber"), searchable: true },
       {
         key: "class_id",
-        header: "Class",
+        header: t("admin.students.class"),
         render: (row) => {
           const cls = allClasses.find((c) => c.id == row.class_id);
           return cls ? `${cls.grade} - ${cls.class_name}` : "";
@@ -71,25 +71,25 @@
       },
       {
         key: "birthday",
-        header: "Birthday",
+        header: t("admin.students.birthday"),
         render: (row) => row.birthday ? new Date(row.birthday).toLocaleDateString() : "—"
       },
       {
         key: "gender",
-        header: "Gender",
-        render: (row) => row.gender === "M" ? "Male" : row.gender === "F" ? "Female" : "—"
+        header: t("admin.students.gender"),
+        render: (row) => row.gender === "M" ? t("common.male") : row.gender === "F" ? t("common.female") : "—"
       },
       {
         key: "parent",
-        header: "Parent",
+        header: t("admin.students.parent"),
         render: (row) => row.parent ? row.parent.name : "—"
       },
       {
         key: "actions",
-        header: "Actions",
+        header: t("admin.students.actions"),
         render: (row) => {
           const div = document.createElement("div");
-          div.innerHTML = `<button class="btn btn-secondary" onclick="viewStudentProfile(${row.id})"><i class="fas fa-eye"></i> View Profile</button>`;
+          div.innerHTML = `<button class="btn btn-secondary" onclick="viewStudentProfile(${row.id})"><i class="fas fa-eye"></i> ${t("admin.students.viewProfile")}</button>`;
           return div;
         }
       }
@@ -103,7 +103,7 @@
       });
     }
 
-    table.setEmptyState("No students found", "fas fa-users-slash");
+    table.setEmptyState(t("admin.students.noStudents"), "fas fa-users-slash");
   }
 
   function fetchStudents() {
@@ -143,7 +143,7 @@
   function populateFilters() {
     const classFilter = document.getElementById("class-filter");
 
-    classFilter.innerHTML = '<option value="">All Classes</option>';
+    classFilter.innerHTML = `<option value="">${t("admin.students.allClasses")}</option>`;
     allClasses.forEach(cls => {
       const opt = document.createElement("option");
       opt.value = cls.id;
@@ -152,6 +152,15 @@
     });
 
     if (typeof makeSearchableDropdown === "function") {
+      const existingWrapper = classFilter.parentElement;
+      if (existingWrapper.classList.contains("searchable-select")) {
+        const portal = existingWrapper.nextElementSibling;
+        if (portal && portal.classList.contains("dropdown-portal")) {
+          portal.remove();
+        }
+        existingWrapper.remove();
+      }
+      classFilter.style.display = "";
       makeSearchableDropdown("class-filter", (val, text) => {
         const sel = document.getElementById("class-filter");
         if (sel) sel.value = val;
@@ -163,7 +172,7 @@
   async function viewStudentProfile(id) {
     const modal = document.getElementById("profile-modal");
     const content = document.getElementById("profile-content");
-    content.innerHTML = '<p style="text-align:center;color:var(--color-subtext);padding:40px 0;">Loading profile...</p>';
+    content.innerHTML = `<p style="text-align:center;color:var(--color-subtext);padding:40px 0;">${t("admin.students.loading")}</p>`;
     modal.open();
 
     try {
@@ -190,7 +199,7 @@
       renderProfile();
     } catch (err) {
       console.error("Failed to load profile:", err);
-      content.innerHTML = '<p style="text-align:center;color:#e74c3c;padding:40px 0;">Failed to load profile. Please try again.</p>';
+      content.innerHTML = `<p style="text-align:center;color:#e74c3c;padding:40px 0;">${t("admin.students.loadFailed")}</p>`;
     }
   }
 
@@ -198,45 +207,45 @@
     const p = currentProfile;
     const content = document.getElementById("profile-content");
 
-    const genderLabel = p.gender === "M" ? "Male" : p.gender === "F" ? "Female" : "—";
+    const genderLabel = p.gender === "M" ? t("common.male") : p.gender === "F" ? t("common.female") : "—";
     const classDisplay = p.grade ? `${p.grade} - ${p.class_name || ""}` : "—";
 
     content.innerHTML = `
       <div style="margin-bottom: 16px;">
         <button class="btn btn-primary" onclick="exportProfilePDF()">
-          <i class="fas fa-file-pdf"></i> Export PDF
+          <i class="fas fa-file-pdf"></i> ${t("admin.students.profileInfo.exportPDF")}
         </button>
       </div>
 
       <div class="profile-tabs">
-        <button class="btn active" onclick="switchProfileTab('overview')">Overview</button>
-        <button class="btn" onclick="switchProfileTab('attendance')">Attendance</button>
-        <button class="btn" onclick="switchProfileTab('academics')">Academics</button>
-        <button class="btn" onclick="switchProfileTab('behavior')">Behavior</button>
+        <button class="btn active" onclick="switchProfileTab('overview')">${t("admin.students.profileInfo.overview")}</button>
+        <button class="btn" onclick="switchProfileTab('attendance')">${t("admin.students.profileInfo.attendance")}</button>
+        <button class="btn" onclick="switchProfileTab('academics')">${t("admin.students.profileInfo.academics")}</button>
+        <button class="btn" onclick="switchProfileTab('behavior')">${t("admin.students.profileInfo.behavior")}</button>
       </div>
 
       <div id="tab-overview" class="profile-section active">
         <div class="profile-info-grid">
-          <div class="info-item"><div class="info-label">Full Name</div><div class="info-value">${p.full_name || "—"}</div></div>
-          <div class="info-item"><div class="info-label">Index Number</div><div class="info-value">${p.index || "—"}</div></div>
-          <div class="info-item"><div class="info-label">Grade & Class</div><div class="info-value">${classDisplay}</div></div>
-          <div class="info-item"><div class="info-label">Gender</div><div class="info-value">${genderLabel}</div></div>
-          <div class="info-item"><div class="info-label">Birthday</div><div class="info-value">${p.birthday ? new Date(p.birthday).toLocaleDateString() : "—"}</div></div>
-          <div class="info-item"><div class="info-label">Nationality</div><div class="info-value">${p.nationality || "—"}</div></div>
-          <div class="info-item"><div class="info-label">Guardian</div><div class="info-value">${p.guardian || "—"}</div></div>
-          <div class="info-item"><div class="info-label">Address</div><div class="info-value">${p.address || "—"}</div></div>
-          ${p.guardian_address ? `<div class="info-item full-width"><div class="info-label">Guardian Address</div><div class="info-value">${p.guardian_address}</div></div>` : ""}
+          <div class="info-item"><div class="info-label">${t("admin.students.profileInfo.fullName")}</div><div class="info-value">${p.full_name || "—"}</div></div>
+          <div class="info-item"><div class="info-label">${t("admin.students.profileInfo.indexNo")}</div><div class="info-value">${p.index || "—"}</div></div>
+          <div class="info-item"><div class="info-label">${t("admin.students.profileInfo.gradeClass")}</div><div class="info-value">${classDisplay}</div></div>
+          <div class="info-item"><div class="info-label">${t("admin.students.profileInfo.gender")}</div><div class="info-value">${genderLabel}</div></div>
+          <div class="info-item"><div class="info-label">${t("admin.students.profileInfo.birthday")}</div><div class="info-value">${p.birthday ? new Date(p.birthday).toLocaleDateString() : "—"}</div></div>
+          <div class="info-item"><div class="info-label">${t("admin.students.profileInfo.nationality")}</div><div class="info-value">${p.nationality || "—"}</div></div>
+          <div class="info-item"><div class="info-label">${t("admin.students.profileInfo.guardian")}</div><div class="info-value">${p.guardian || "—"}</div></div>
+          <div class="info-item"><div class="info-label">${t("admin.students.profileInfo.address")}</div><div class="info-value">${p.address || "—"}</div></div>
+          ${p.guardian_address ? `<div class="info-item full-width"><div class="info-label">${t("admin.students.profileInfo.guardianAddress")}</div><div class="info-value">${p.guardian_address}</div></div>` : ""}
         </div>
       </div>
 
       <div id="tab-attendance" class="profile-section">
         <div class="stat-cards">
-          <div class="stat-card"><div class="stat-value">${currentAttendance.percent || 0}%</div><div class="stat-label">Attendance</div></div>
-          <div class="stat-card"><div class="stat-value">${currentAttendance.present || 0}</div><div class="stat-label">Days Present</div></div>
-          <div class="stat-card"><div class="stat-value">${currentAttendance.absent || 0}</div><div class="stat-label">Days Absent</div></div>
+          <div class="stat-card"><div class="stat-value">${currentAttendance.percent || 0}%</div><div class="stat-label">${t("admin.students.profileInfo.attendanceStats.attendance")}</div></div>
+          <div class="stat-card"><div class="stat-value">${currentAttendance.present || 0}</div><div class="stat-label">${t("admin.students.profileInfo.attendanceStats.daysPresent")}</div></div>
+          <div class="stat-card"><div class="stat-value">${currentAttendance.absent || 0}</div><div class="stat-label">${t("admin.students.profileInfo.attendanceStats.daysAbsent")}</div></div>
         </div>
         <div id="attendance-empty" style="display: none;">
-          <empty-state-message icon="fas fa-calendar-check" message="Attendance not marked"></empty-state-message>
+          <empty-state-message icon="fas fa-calendar-check" message="${t("admin.students.notMarked")}"></empty-state-message>
         </div>
         <div class="chart-container" id="attendance-chart-container" style="display: none;"><canvas id="attendance-chart"></canvas></div>
       </div>
@@ -244,20 +253,20 @@
       <div id="tab-academics" class="profile-section">
         <div class="input-group" style="margin-bottom:12px;">
           <select id="marks-term-select" onchange="renderMarksTable()">
-            <option value="">All Terms</option>
-            <option value="Term1">Term 1</option>
-            <option value="Term2">Term 2</option>
-            <option value="Term3">Term 3</option>
+            <option value="">${t("admin.students.profileInfo.academicsData.allTerms")}</option>
+            <option value="Term1">${t("admin.students.profileInfo.academicsData.term1")}</option>
+            <option value="Term2">${t("admin.students.profileInfo.academicsData.term2")}</option>
+            <option value="Term3">${t("admin.students.profileInfo.academicsData.term3")}</option>
           </select>
         </div>
         <div class="table-responsive">
           <table>
-            <thead><tr><th>Exam</th><th>Subject</th><th>Marks</th></tr></thead>
+            <thead><tr><th>${t("admin.students.profileInfo.academicsData.exam")}</th><th>${t("admin.students.profileInfo.academicsData.subject")}</th><th>${t("admin.students.profileInfo.academicsData.marks")}</th></tr></thead>
             <tbody id="marks-table-body"></tbody>
           </table>
         </div>
         <div id="marks-empty" style="display: none;">
-          <empty-state-message icon="fas fa-file-alt" message="No marks available"></empty-state-message>
+          <empty-state-message icon="fas fa-file-alt" message="${t("admin.students.profileInfo.academicsData.noMarks")}"></empty-state-message>
         </div>
         <div class="chart-container" id="marks-chart-container" style="display: none;"><canvas id="marks-chart"></canvas></div>
         <div id="gov-exams-block" style="margin-top:16px;"></div>
@@ -266,7 +275,7 @@
       <div id="tab-behavior" class="profile-section">
         <div class="table-responsive">
           <table>
-            <thead><tr><th>Date</th><th>Type</th><th>Severity</th><th>Description</th><th>Reported By</th></tr></thead>
+            <thead><tr><th>${t("admin.students.profileInfo.behaviorData.date")}</th><th>${t("admin.students.profileInfo.behaviorData.type")}</th><th>${t("admin.students.profileInfo.behaviorData.severity")}</th><th>${t("admin.students.profileInfo.behaviorData.description")}</th><th>${t("admin.students.profileInfo.behaviorData.reportedBy")}</th></tr></thead>
             <tbody id="behavior-table-body"></tbody>
           </table>
         </div>
@@ -293,7 +302,7 @@
     const tbody = document.getElementById("behavior-table-body");
     if (!tbody) return;
     if (!currentBehavior.length) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--color-subtext);">No behavior records</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--color-subtext);">${t("admin.students.profileInfo.behaviorData.noRecords")}</td></tr>`;
       return;
     }
     tbody.innerHTML = currentBehavior.map(b =>
@@ -310,7 +319,7 @@
     const filtered = term ? currentMarks.filter(m => m.sub_type === term) : currentMarks;
 
     if (!filtered.length) {
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--color-subtext);">No marks data</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--color-subtext);">${t("admin.students.profileInfo.academicsData.noMarks")}</td></tr>`;
     } else {
       tbody.innerHTML = filtered.map(m =>
         `<tr><td>${m.exam || m.sub_type || "—"}</td><td>${m.subject}</td><td>${m.marks}</td></tr>`
@@ -533,4 +542,32 @@
 
   fetchClasses();
   fetchStudents();
+
+  function refreshTranslations() {
+    if (typeof applyTranslations === 'function') {
+      applyTranslations();
+    }
+    initTable();
+    
+    const classFilter = document.getElementById("class-filter");
+    if (classFilter) {
+      const existingWrapper = classFilter.parentElement;
+      if (existingWrapper.classList.contains("searchable-select")) {
+        const displaySpan = existingWrapper.querySelector(".dropdown-display span");
+        if (displaySpan) {
+          const selectedOpt = classFilter.options[classFilter.selectedIndex];
+          displaySpan.textContent = selectedOpt ? selectedOpt.text : t("admin.students.allClasses");
+        }
+      }
+    }
+  }
+
+  let _lastLang = localStorage.getItem("lang") || "en";
+  setInterval(() => {
+    const cur = localStorage.getItem("lang") || "en";
+    if (cur !== _lastLang) {
+      _lastLang = cur;
+      refreshTranslations();
+    }
+  }, 400);
 </script>

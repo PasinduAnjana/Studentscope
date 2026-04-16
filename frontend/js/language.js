@@ -74,6 +74,7 @@ function getNestedValue(obj, key) {
 // Translation helper for JavaScript - use for dynamic content
 // Usage: t("admin.dashboard.totalStudents") or t("admin.dashboard.totalStudents", { count: 5 })
 function t(key, params) {
+  if (!window.currentTranslations) return key;
   const value = getNestedValue(window.currentTranslations, key) || key;
   if (params && typeof value === 'string') {
     return value.replace(/{(\w+)}/g, (match, paramKey) => params[paramKey] !== undefined ? params[paramKey] : match);
