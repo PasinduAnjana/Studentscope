@@ -239,8 +239,7 @@
         header: "Status", 
         searchable: false,
         render: (row) => `<span class="status-${row.status}">${row.status.charAt(0).toUpperCase() + row.status.slice(1)}</span>`
-      },
-      { key: "time", header: "Time", searchable: false }
+      }
     ]);
     table.setEmptyState("No attendance records found", "fas fa-calendar-check");
   }
