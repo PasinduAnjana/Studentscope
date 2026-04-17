@@ -23,7 +23,7 @@
 
 <!-- Edit Todo Modal -->
 <!-- Edit Todo Modal -->
-<modal-dialog id="editTodoModal" title="Edit Todo">
+<modal-dialog id="editTodoModal" data-title="teacher.todo.editTodo">
   <form onsubmit="handleEditSubmit(event)">
     <div style="padding: 20px;">
       <input type="text" id="editTodoInput" class="input-field" placeholder="Enter todo text..."
@@ -55,10 +55,10 @@
         <p class="todo-text"></p>
       </div>
       <div class="action-buttons">
-        <button class="btn-icon btn-edit" title="Edit">
+        <button class="btn-icon btn-edit" data-en="Edit" data-si="සංස්කරණය" data-ta="திருத்த" title="Edit">
           <i class="fas fa-edit"></i>
         </button>
-        <button class="btn-icon btn-delete" title="Delete">
+        <button class="btn-icon btn-delete" data-en="Delete" data-si="මකා දැමීම" data-ta="அழி" title="Delete">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -87,6 +87,15 @@
       savedSuccessfully: "Todo saved successfully",
       sessionExpired: "Your session has expired. Please log in again.",
       deleteError: "Failed to delete todo",
+      pleaseEnter: "Please enter a todo",
+      todoEmpty: "Todo cannot be empty",
+      taskComplete: "Task marked as complete",
+      taskPending: "Task marked as pending",
+      failedStatus: "Failed to update todo status",
+      markPending: "Mark as pending",
+      markComplete: "Mark as complete",
+      delete: "Delete",
+      cancel: "Cancel",
     },
     si: {
       loading: "පූරණය වෙමින්...",
@@ -96,10 +105,19 @@
       errorEditing: "කරණීය සංස්කරණ දෝෂ",
       errorDeleting: "කරණීය මකා දැමීමේ දෝෂ",
       errorDelConfirm: "ඔබට මෙම කරණීය මකා දැමීමට අවශ්‍යද?",
-      deletedSuccessfully: "කරණීය සფලව මකා දමන ලදී",
-      savedSuccessfully: "කරණීය සෙ‍ු‍‍ලව සුරකින ලදී",
+      deletedSuccessfully: "කරණීය සතුටින් මකන ලදි",
+      savedSuccessfully: "කරණීය සාර්ථකව සුරකින ලදි",
       sessionExpired: "ඔබගේ සැසිය අවසන් විය. කරුණාකර නැවත ඇතුල් වන්න.",
       deleteError: "කරණීය මකා දැමීම අපොහොසත් විය",
+      pleaseEnter: "කරණීයක් ඇතුල් කරන්න",
+      todoEmpty: "කරණීය පෑනක් නොමැත",
+      taskComplete: "කරණීය සම්පූර්ණ කළ ලදි",
+      taskPending: "කරණීය අත්හිටුවීමට සලකුණු කළ ලදි",
+      failedStatus: "කරණීය තත්වය යළි යොමන කිරීමට අසමත් විය",
+      markPending: "අත්හිටුවීමට සලකුණු කරන්න",
+      markComplete: "සම්පූර්ණ කිරීමට සලකුණු කරන්න",
+      delete: "මකා දැමීම",
+      cancel: "අවලංගු කරන්න",
     },
     ta: {
       loading: "சloading...",
@@ -113,11 +131,21 @@
       savedSuccessfully: "செய்ய வேண்டியது வெற்றிகரமாக சேமிக்கப்பட்டது",
       sessionExpired: "உங்கள் அமர்வு முடிந்துவிட்டது. மீண்டும் உள்நுழையவும்.",
       deleteError: "செய்ய வேண்டியதை நீக்கவில்லை",
+      pleaseEnter: "செய்ய வேண்டியதை உள்ளி���ுங்கள்",
+      todoEmpty: "செய்ய வேண்டியது இருக்கக் கூடாது",
+      taskComplete: "செய்ய வேண்டியது முடித்ததாகக் குறிப்பிடப்பட்டது",
+      taskPending: "செய்ய வேண்டியதைநீக்கக் குறிப்பிடப்பட்டது",
+      failedStatus: "செய்ய வேண்டியதின் நிலையைப் புதுப்பித்ததில் தோல்வியடைந்தது",
+      markPending: "செய்ய வேண்டியதாகக் குறிப்பிடவும்",
+      markComplete: "முடித்ததாகக் குறிப்பிடவும்",
+      delete: "அழி",
+      cancel: "ரத்து",
     },
   };
 
   function t(key) {
-    return translations[currentLang]?.[key] || translations.en[key];
+    const lang = localStorage.getItem("lang") || "en";
+    return translations[lang]?.[key] || translations.en[key];
   }
 
   async function loadTodos() {
@@ -172,9 +200,9 @@
         card.classList.add("completed-task-card");
         todoItem.classList.add("completed");
         checkbox.checked = true;
-        checkbox.title = "Mark as pending";
+        checkbox.title = t("markPending");
       } else {
-        checkbox.title = "Mark as complete";
+        checkbox.title = t("markComplete");
       }
 
       // Event listeners
@@ -219,7 +247,7 @@
     const text = input.value.trim();
 
     if (!text) {
-      toast("Please enter a todo", "fa-solid fa-circle-exclamation");
+      toast(t("pleaseEnter"), "fa-solid fa-circle-exclamation");
       return;
     }
 
@@ -268,7 +296,7 @@
     const newText = document.getElementById("editTodoInput").value.trim();
 
     if (!newText) {
-      toast("Todo cannot be empty", "fa-solid fa-circle-exclamation");
+      toast(t("todoEmpty"), "fa-solid fa-circle-exclamation");
       return;
     }
 
@@ -297,8 +325,8 @@
   async function deleteTodo(todoId) {
     toast(t("errorDelConfirm"), "fa-solid fa-trash-alt", {
       confirm: true,
-      confirmText: "Delete",
-      cancelText: "Cancel",
+      confirmText: t("delete") || "Delete",
+      cancelText: t("cancel") || "Cancel",
       onConfirm: async function () {
         try {
           const res = await api.teacher.todos.delete(todoId);
@@ -324,7 +352,7 @@
       const res = await api.teacher.todos.updateStatus(todoId, newStatus);
 
       if (!res.ok) {
-        throw new Error("Failed to update todo status");
+        throw new Error(t("failedStatus"));
       }
 
       // Update the local todo
@@ -335,7 +363,7 @@
       }
 
       toast(
-        isCompleted ? "Task marked as complete" : "Task marked as pending",
+        isCompleted ? t("taskComplete") : t("taskPending"),
         "fa-solid fa-check-circle"
       );
     } catch (err) {
@@ -351,6 +379,11 @@
   (function initTodoPage() {
     loadTodos();
   })();
+
+  // Re-render todos on language change
+  window.addEventListener("languageChanged", () => {
+    renderTodos();
+  });
 </script>
 
 

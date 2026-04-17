@@ -168,7 +168,17 @@
       "audienceTeachers": "Teachers",
       "audienceMyClass": "My Class",
       "audienceStudents": "Students",
-      "eventDetails": "Event Details"
+      "eventDetails": "Event Details",
+      "todo": {
+        "editTodo": "Edit Todo",
+        "pleaseEnter": "Please enter a todo",
+        "todoEmpty": "Todo cannot be empty",
+        "taskComplete": "Task marked as complete",
+        "taskPending": "Task marked as pending",
+        "failedStatus": "Failed to update todo status",
+        "markPending": "Mark as pending",
+        "markComplete": "Mark as complete"
+      }
     }
   },
   "clerk": {
