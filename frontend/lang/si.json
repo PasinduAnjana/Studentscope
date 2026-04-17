@@ -115,7 +115,23 @@
     "editAttendanceBtn": "පැමිණීම සංස්කරණය කරන්න",
     "deleteAttendanceBtn": "පැමිණීම මකන්න",
     "weeklyAttendance": "සතිපතා පැමිණීම",
-    "monthlyAttendance": "මාසික පැමිණීම"
+    "monthlyAttendance": "මාසික පැමිණීම",
+    "pendingTasks": "අපේක්ෂිත කාර්යයන්",
+    "noTasks": "අපේක්ෂිත කාර්යයන් නැත",
+    "viewAllTasks": "සියලුම කාර්යයන් බලන්න...",
+    "noClassNow": "දැන් පන්තියක් නැත",
+    "weekend": "සති අන්තය",
+    "passwordResets": "මුරපදය යළි පිහිටුවීම්",
+    "noPendingRequests": "පිටුවිලි ඉල්ලීම් නැත",
+    "approve": "අනුමත",
+    "reject": "ප්‍රතික්ෂ",
+    "passwordApproved": "මුරපදය යළි පිහිටුවීම අනුමත කරන ලදි",
+    "passwordRejected": "මුරපදය යළි පිහිටුවීම ප්‍රතික්ෂ කරන ලදි",
+    "failedApprove": "අනුමත කිරීමට අසමත් විය",
+    "failedReject": "ප්‍රතික්ෂ කිරීමට අසමත් විය",
+    "present": "පැමිණි",
+    "absent": "නොපැමිණි",
+    "noAnnouncements": "නිවේදන නැත"
   },
 
   "clerk": {
