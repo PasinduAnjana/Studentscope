@@ -150,6 +150,25 @@
       "indexNo": "Index No",
       "name": "Name",
       "subject": "Subject {n}"
+    },
+    "events": {
+      "errorLoading": "Error loading events",
+      "createNewEvent": "Create New Event",
+      "editEvent": "Edit Event",
+      "eventUpdated": "Event updated successfully",
+      "eventCreated": "Class event created successfully",
+      "failedUpdate": "Failed to update event",
+      "failedCreate": "Failed to create event",
+      "errorCreating": "Error creating event",
+      "deleteConfirm": "Are you sure you want to delete this event?",
+      "eventDeleted": "Event deleted successfully",
+      "failedDelete": "Failed to delete event",
+      "errorDeleting": "Error deleting event",
+      "audienceEveryone": "Everyone",
+      "audienceTeachers": "Teachers",
+      "audienceMyClass": "My Class",
+      "audienceStudents": "Students",
+      "eventDetails": "Event Details"
     }
   },
   "clerk": {

@@ -19,7 +19,7 @@
       renderCalendar();
     }).catch(e => {
       console.error(e);
-      toast("Error loading events", "fa-solid fa-circle-exclamation");
+      toast(t("teacher.events.errorLoading"), "fa-solid fa-circle-exclamation");
     });
   }
 
@@ -62,7 +62,7 @@
       form.reset();
       form.dataset.editMode = 'false';
       var h2el = modal.querySelector('h2');
-      if (h2el) h2el.textContent = 'Create New Event';
+      if (h2el) h2el.textContent = t("teacher.events.createNewEvent");
     }
     if (dateEl) dateEl.value = dateStr || new Date().toISOString().split('T')[0];
     if (modal) modal.open();
@@ -84,7 +84,7 @@
     if (descEl) descEl.value = props.description || '';
     if (dateEl) dateEl.value = currentEventData.startStr || '';
     if (form) form.dataset.editMode = 'true';
-    if (h2el) h2el.textContent = 'Edit Event';
+    if (h2el) h2el.textContent = t("teacher.events.editEvent");
     if (modal) modal.open();
   }
 
@@ -113,19 +113,19 @@
 
     action.then(res => {
       if (res.ok) {
-        toast(isEditMode ? "Event updated successfully" : "Class event created successfully", "fa-solid fa-check");
+        toast(isEditMode ? t("teacher.events.eventUpdated") : t("teacher.events.eventCreated"), "fa-solid fa-check");
         if (modal) modal.close();
         form.reset();
         form.dataset.editMode = 'false';
-        if (h2el) h2el.textContent = 'Create New Event';
+        if (h2el) h2el.textContent = t("teacher.events.createNewEvent");
         fetchEvents();
         if (detailsModal) detailsModal.close();
       } else {
-        toast(isEditMode ? "Failed to update event" : "Failed to create event", "fa-solid fa-circle-exclamation");
+        toast(isEditMode ? t("teacher.events.failedUpdate") : t("teacher.events.failedCreate"), "fa-solid fa-circle-exclamation");
       }
     }).catch(err => {
       console.error(err);
-      toast("Error creating event", "fa-solid fa-circle-exclamation");
+      toast(t("teacher.events.errorCreating"), "fa-solid fa-circle-exclamation");
     });
   }
 
@@ -147,7 +147,12 @@
     if (detailCreator) detailCreator.textContent = props.creator || '';
     if (detailRole) detailRole.textContent = props.role || '';
     
-    var audienceLabels = { 'both': 'Everyone', 'teachers': 'Teachers', 'my_students': 'My Class', 'students': 'Students' };
+    var audienceLabels = {
+      'both': t("teacher.events.audienceEveryone"),
+      'teachers': t("teacher.events.audienceTeachers"),
+      'my_students': t("teacher.events.audienceMyClass"),
+      'students': t("teacher.events.audienceStudents")
+    };
     if (detailAudience) detailAudience.textContent = audienceLabels[props.audience] || props.audience || '';
     if (detailDesc) detailDesc.textContent = props.description || '';
     
@@ -166,19 +171,19 @@
 
   function deleteCurrentEvent() {
     if (!currentEventId) return;
-    if (!confirm("Are you sure you want to delete this event?")) return;
+    if (!confirm(t("teacher.events.deleteConfirm"))) return;
 
     api.teacher.events.delete(currentEventId).then(res => {
       if (res.ok) {
-        toast("Event deleted successfully", "fa-solid fa-check");
+        toast(t("teacher.events.eventDeleted"), "fa-solid fa-check");
         document.getElementById('event-details-modal').close();
         fetchEvents();
       } else {
-        toast("Failed to delete event", "fa-solid fa-circle-exclamation");
+        toast(t("teacher.events.failedDelete"), "fa-solid fa-circle-exclamation");
       }
     }).catch(err => {
       console.error(err);
-      toast("Error deleting event", "fa-solid fa-circle-exclamation");
+      toast(t("teacher.events.errorDeleting"), "fa-solid fa-circle-exclamation");
     });
   }
 
@@ -189,6 +194,19 @@
     }
     fetchEvents();
   }
+
+  // Re-render calendar on language change
+  window.addEventListener("languageChanged", () => {
+    renderCalendar();
+    // Update modal titles if open
+    const createModal = document.getElementById('create-event-modal');
+    if (createModal && createModal.style.display !== 'none') {
+      const form = document.getElementById('create-event-form');
+      const isEdit = form && form.dataset.editMode === 'true';
+      createModal.setTitle(t(isEdit ? "teacher.events.editEvent" : "teacher.events.createNewEvent"));
+    }
+  });
+
   initCalendar();
 </script>
 
@@ -213,7 +231,7 @@
 </div>
 
 <!-- Create Event Modal -->
-<modal-dialog id="create-event-modal" title="Create New Event">
+<modal-dialog id="create-event-modal" data-title="teacher.events.createNewEvent">
   <form id="create-event-form" onsubmit="handleCreateEvent(event)">
     <div class="form-group">
       <label data-en="Event Title" data-si="සිදුවීමේ ශීර්ෂය" data-ta="நிகழ்வின் தலைப்பு">Event Title</label>
@@ -239,7 +257,7 @@
   </form>
 </modal-dialog>
 
-<modal-dialog id="event-details-modal" title="Event Details">
+<modal-dialog id="event-details-modal" data-title="teacher.events.eventDetails">
   <div id="event-details-content">
     <div class="event-details-meta">
       <h2 id="detail-title" style="margin: 0 0 12px 0; font-size: 1.4rem; color: var(--color-text);">Title</h2>

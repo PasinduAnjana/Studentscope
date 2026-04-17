@@ -148,6 +148,25 @@
       "indexNo": "இலக்க எண்",
       "name": "பெயர்",
       "subject": "பாடம் {n}"
+    },
+    "events": {
+      "errorLoading": "நிகழ்வுகளை ஏற்றத் தோல்வியடைந்தது",
+      "createNewEvent": "புதிய நிகழ்வு உருவாக்குங்கள்",
+      "editEvent": "நிகழ்வைத் திருத்துங்கள்",
+      "eventUpdated": "நிகழ்வு வெற்றியுடன் புதுப்பிக்கப்பட்டது",
+      "eventCreated": "வகுப்பு நிகழ்வு வெற்றியுடன் உருவாக்கப்பட்டது",
+      "failedUpdate": "நிகழ்வைப் புதுப்பித்தல் தோல்வியடைந்தது",
+      "failedCreate": "நிகழ்வு உருவாக்கத் தோல்வியடைந்தது",
+      "errorCreating": "நிகழ்வு உருவாக்குவதில் பிழை",
+      "deleteConfirm": "இந்த நிகழ்வை நீக்க விரும்புகிறீர்களா?",
+      "eventDeleted": "நிகழ்வு வெற்றியுடன் நீக்கப்பட்டது",
+      "failedDelete": "நிகழ்வை நீக்கத் தோல்வியடைந்தது",
+      "errorDeleting": "நிகழ்வை நீக்குவதில் பிழை",
+      "audienceEveryone": "everyone",
+      "audienceTeachers": "ஆசிரியர்கள்",
+      "audienceMyClass": "என் வகுப்பு",
+      "audienceStudents": "மாணவர்கள்",
+      "eventDetails": "நிகழ்வு விவரங்கள்"
     }
   },
   "student": {

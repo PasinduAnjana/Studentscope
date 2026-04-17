@@ -151,6 +151,25 @@
       "indexNo": "අනන්ය අංකය",
       "name": "නම",
       "subject": "විෂය {n}"
+    },
+    "events": {
+      "errorLoading": "සිදුවීම් පූරණය කිරීමට අසමත් විය",
+      "createNewEvent": "නව සිදුවීමක් සාදන්න",
+      "editEvent": "සිදුවීම සංස්කරණය කරන්න",
+      "eventUpdated": "සිදුවීම සර්ථකව යළි යොමන ලදි",
+      "eventCreated": "පන්ති සිදුවීම සාර්ථකව සාදන ලදි",
+      "failedUpdate": "සිදුවීම යළි යොමන කිරීමට අසමත් විය",
+      "failedCreate": "සිදුවීම සාදන කිරීමට අසමත් විය",
+      "errorCreating": "සිදුවීම සාදන කිරීමේ දෝෂයකි",
+      "deleteConfirm": "මෙම සිදුවීම මැකීමට ඔබ තහවුරු ද?",
+      "eventDeleted": "සිදුවීම සාර්ථකව මැකන ලදි",
+      "failedDelete": "සිදුවීම මැකීමට අසමත් විය",
+      "errorDeleting": "සිදුවීම මැකීමේ දෝෂයකි",
+      "audienceEveryone": "everyone",
+      "audienceTeachers": "ගුරුවරු",
+      "audienceMyClass": "මගේ පන්තිය",
+      "audienceStudents": "ශිෂ්‍යයන්",
+      "eventDetails": "සිදුවීමේ විසියවසින්"
     }
   },
 
