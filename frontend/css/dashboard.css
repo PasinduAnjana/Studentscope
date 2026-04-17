@@ -31,6 +31,11 @@
   gap: 16px;
 }
 
+.icon-title i {
+  font-size: 28px;
+  color: var(--color-primary);
+}
+
 .tile-label {
   font-size: 18px; /* 🔼 Slightly bigger */
   color: var(--color-subtext); /* 🎨 Primary color */

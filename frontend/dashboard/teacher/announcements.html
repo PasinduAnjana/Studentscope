@@ -19,36 +19,19 @@
     .checkbox-item label:hover {
       background-color: var(--color-hover);
     }
-
-    .section-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--color-text);
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .section-title i {
-      color: var(--color-primary);
-    }
-
-
   </style>
   <div class="card-grid">
     <!-- My Announcements Card -->
     <div class="card h-2">
       <div class="flex-between mb-2">
-        <h3 class="section-title">
-          <i class="fas fa-bullhorn"></i>
-          <span
+        <div class="icon-title">
+          <i class="fas fa-bullhorn icon"></i>
+          <p class="tile-label"
             data-en="My Announcements"
             data-si="මගේ නිවේදන"
             data-ta="எனது அறிவிப்புகள்"
-            >My Announcements</span
-          >
-        </h3>
+            >My Announcements</p>
+        </div>
         <button id="add-announcement-btn" class="btn btn-primary">
           <i class="fas fa-plus"></i>
           <span
@@ -65,16 +48,15 @@
     </div>
 
     <!-- Received Announcements Card -->
-    <div class="card h-2">
-      <h3 class="section-title">
-        <i class="fas fa-inbox"></i>
-        <span
+    <div class="card h-2 dashboard-tile">
+      <div class="icon-title">
+        <i class="fas fa-inbox icon"></i>
+        <p class="tile-label"
           data-en="Announcements for Me"
           data-si="මට අදාළ නිවේදන"
           data-ta="எனக்கான அறிவிப்புகள்"
-          >Announcements for Me</span
-        >
-      </h3>
+          >Announcements for Me</p>
+      </div>
       <div
         class="announcements-container"
         id="received-announcements-container"
