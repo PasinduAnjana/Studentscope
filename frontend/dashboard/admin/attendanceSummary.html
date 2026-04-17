@@ -231,17 +231,22 @@
   function initTable() {
     const table = document.getElementById("attendance-table");
     table.setColumns([
-      { key: "student_name", header: "Student Name", searchable: true },
-      { key: "username", header: "Index Number", searchable: true },
-      { key: "class_name", header: "Class", searchable: false },
+      { key: "student_name", header: t("admin.attendance.studentName"), searchable: true },
+      { key: "username", header: t("admin.attendance.indexNumber"), searchable: true },
+      { key: "class_name", header: t("admin.attendance.class"), searchable: false },
       { 
         key: "status", 
-        header: "Status", 
+        header: t("admin.attendance.status"), 
         searchable: false,
-        render: (row) => `<span class="status-${row.status}">${row.status.charAt(0).toUpperCase() + row.status.slice(1)}</span>`
+        render: (row) => {
+          const statusKey = `common.${row.status}`;
+          const statusText = row.status.charAt(0).toUpperCase() + row.status.slice(1);
+          const translatedStatus = t(statusKey);
+          return `<span class="status-${row.status}">${translatedStatus !== statusKey ? translatedStatus : statusText}</span>`;
+        }
       }
     ]);
-    table.setEmptyState("No attendance records found", "fas fa-calendar-check");
+    table.setEmptyState(t("admin.attendance.noData") || "No attendance records found", "fas fa-calendar-check");
   }
 
   function updateSearchableDisplay(selectId) {
@@ -730,4 +735,14 @@
   })();
   loadAttendanceOverviewChart();
   fetchAllClassStats();
+
+  // Re-init table on language change
+  let _lastLang = localStorage.getItem("lang") || "en";
+  setInterval(() => {
+    const cur = localStorage.getItem("lang") || "en";
+    if (cur !== _lastLang) {
+      _lastLang = cur;
+      initTable();
+    }
+  }, 400);
 </script>
