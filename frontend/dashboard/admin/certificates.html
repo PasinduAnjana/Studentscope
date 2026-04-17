@@ -9,28 +9,28 @@
     <div class="card">
       <div class="icon-title">
         <i class="fas fa-clock icon"></i>
-        <p class="tile-label" data-en="Pending" data-si="බලාපොරොත්තු" data-ta="நிலுவையில்">Pending</p>
+        <p class="tile-label" data="admin.certificates.pending">Pending</p>
       </div>
       <p class="tile-value" id="pendingCount">-</p>
     </div>
     <div class="card">
       <div class="icon-title">
         <i class="fas fa-check-circle icon"></i>
-        <p class="tile-label" data-en="Approved" data-si="අනුමත" data-ta="அங்கீகரிக்கப்பட்ட">Approved</p>
+        <p class="tile-label" data="admin.certificates.approved">Approved</p>
       </div>
       <p class="tile-value" id="approvedCount">-</p>
     </div>
     <div class="card">
       <div class="icon-title">
         <i class="fas fa-times-circle icon"></i>
-        <p class="tile-label" data-en="Rejected" data-si="ප්‍රතික්ෂේප" data-ta="நிராகரிக்கப்பட்ட">Rejected</p>
+        <p class="tile-label" data="admin.certificates.rejected">Rejected</p>
       </div>
       <p class="tile-value" id="rejectedCount">-</p>
     </div>
     <div class="card">
       <div class="icon-title">
         <i class="fas fa-file-alt icon"></i>
-        <p class="tile-label" data-en="Total" data-si="මුළු" data-ta="மொத்த">Total</p>
+        <p class="tile-label" data="admin.certificates.total">Total</p>
       </div>
       <p class="tile-value" id="totalCount">-</p>
     </div>
@@ -40,7 +40,7 @@
   <div class="card">
     <div class="icon-title">
       <i class="fas fa-table icon"></i>
-      <p class="tile-label" data-en="Certificate Requests" data-si="සහතික ඉල්ලීම්" data-ta="சான்றிதழ் கோர்க்கைகள்">Certificate Requests</p>
+      <p class="tile-label" data="admin.certificates.certificateRequests">Certificate Requests</p>
     </div>
 
     <data-table id="certificates-table">
@@ -48,18 +48,18 @@
         <div class="filter-group">
           <div>
             <select id="statusFilter" class="dropdown-select">
-              <option value="all" data-en="All Status">All Status</option>
-              <option value="pending" data-en="Pending">Pending</option>
-              <option value="approved" data-en="Approved">Approved</option>
-              <option value="rejected" data-en="Rejected">Rejected</option>
+              <option value="all" data="admin.certificates.allStatus">All Status</option>
+              <option value="pending" data="admin.certificates.pending">Pending</option>
+              <option value="approved" data="admin.certificates.approved">Approved</option>
+              <option value="rejected" data="admin.certificates.rejected">Rejected</option>
             </select>
           </div>
           <div>
             <select id="typeFilter" class="dropdown-select">
-              <option value="all" data-en="All Types">All Types</option>
-              <option value="character" data-en="Character Certificate">Character Certificate</option>
-              <option value="leaving" data-en="Leaving Certificate">Leaving Certificate</option>
-              <option value="enrollment" data-en="Enrollment Letter">Enrollment Letter</option>
+              <option value="all" data="admin.certificates.allTypes">All Types</option>
+              <option value="character" data="admin.certificates.characterCertificate">Character Certificate</option>
+              <option value="leaving" data="admin.certificates.leavingCertificate">Leaving Certificate</option>
+              <option value="enrollment" data="admin.certificates.enrollmentLetter">Enrollment Letter</option>
             </select>
           </div>
         </div>
@@ -71,19 +71,19 @@
 <link rel="stylesheet" href="../../css/dropdown.css" />
 
 <!-- Modal for Preview using ModalDialog component -->
-<modal-dialog id="certModal" title="Certificate Preview">
+<modal-dialog id="certModal" title="admin.certificates.certificatePreview">
   <div id="certPreview" class="certificate-preview">
     <!-- Certificate content will be rendered here -->
   </div>
   <div class="modal-actions" style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--color-border);">
     <button class="btn btn-primary" id="approveBtn" onclick="approveCertificate()">
-      <i class="fas fa-check"></i> <span data-en="Approve" data-si="අනුමත" data-ta="அங்கீகர்">Approve</span>
+      <i class="fas fa-check"></i> <span data="admin.certificates.approve">Approve</span>
     </button>
     <button class="btn btn-danger" id="rejectBtn" onclick="rejectCertificate()">
-      <i class="fas fa-times"></i> <span data-en="Reject" data-si="ප්‍රතික්ෂ" data-ta="நிராகரி">Reject</span>
+      <i class="fas fa-times"></i> <span data="admin.certificates.reject">Reject</span>
     </button>
     <button class="btn btn-secondary" onclick="printCertificate()">
-      <i class="fas fa-print"></i> <span data-en="Print" data-si="මුද්‍රණය" data-ta="அச்சுதல்">Print</span>
+      <i class="fas fa-print"></i> <span data="admin.certificates.print">Print</span>
     </button>
   </div>
 </modal-dialog>
@@ -208,26 +208,35 @@
     }
   }
 
+  function getStatusLabel(status) {
+    const labels = {
+      pending: t("admin.certificates.pending"),
+      approved: t("admin.certificates.approved"),
+      rejected: t("admin.certificates.rejected")
+    };
+    return labels[status] || status;
+  }
+
   function initTable() {
     const table = document.getElementById("certificates-table");
     
     table.setColumns([
-      { key: "student_name", header: "Student", searchable: true },
-      { key: "class_display", header: "Class", searchable: true },
-      { key: "type", header: "Type", searchable: true },
+      { key: "student_name", header: t("admin.certificates.student"), searchable: true },
+      { key: "class_display", header: t("admin.certificates.class"), searchable: true },
+      { key: "type", header: t("admin.certificates.type"), searchable: true },
       { 
         key: "created_at", 
-        header: "Date",
+        header: t("admin.certificates.date"),
         render: (row) => new Date(row.created_at).toLocaleDateString()
       },
       { 
         key: "status", 
-        header: "Status",
-        render: (row) => `<span class="badge badge-${row.status}">${row.status}</span>`
+        header: t("admin.certificates.status"),
+        render: (row) => `<span class="badge badge-${row.status}">${getStatusLabel(row.status)}</span>`
       },
       {
         key: "actions",
-        header: "Actions",
+        header: t("admin.certificates.actions"),
         render: (row) => {
           const div = document.createElement("div");
           div.className = "action-buttons";
@@ -249,8 +258,20 @@
       }
     ]);
     
-    table.setEmptyState("No certificates found", "fas fa-certificate");
+    table.setEmptyState(t("admin.certificates.noCertificatesFound"), "fas fa-certificate");
   }
+
+  // Reinitialize table on language change
+  window.addEventListener("languageChanged", () => {
+    const table = document.getElementById("certificates-table");
+    if (table) {
+      initTable();
+      // Re-render certificate preview if open
+      if (currentCertData) {
+        renderCertificatePreview(currentCertData);
+      }
+    }
+  });
 
   function setupFilters() {
     const table = document.getElementById("certificates-table");
@@ -327,7 +348,7 @@
       document.getElementById("certModal").open();
     } catch (err) {
       console.error("Error loading certificate:", err);
-      showToast("Error loading certificate", "fa-solid fa-circle-exclamation");
+      showToast(t("admin.certificates.certLoadError"), "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -358,7 +379,7 @@ function closeModal() {
     if (cert.type === "character" && cert.achievements && cert.achievements.length > 0) {
       achievementsHtml = `
         <div class="cert-achievements">
-          <div class="cert-achievements-title">Academic & Co-curricular Achievements:</div>
+          <div class="cert-achievements-title">${t("admin.certificates.academicAchievements")}</div>
           ${cert.achievements.map(a => `<div class="cert-achievement-item">${a.title} - ${new Date(a.achieved_at).getFullYear()}</div>`).join("")}
         </div>
       `;
@@ -367,23 +388,23 @@ function closeModal() {
     let typeSpecificHtml = "";
     if (cert.type === "character") {
       typeSpecificHtml = `
-        <div class="cert-intro">"This is to certify that the student has maintained excellent character and conduct during their tenure at our institution."</div>
+        <div class="cert-intro">"${t("admin.certificates.characterIntro")}"</div>
       `;
     } else if (cert.type === "leaving") {
       typeSpecificHtml = `
-        <div class="cert-intro">"This is to certify that the student was duly enrolled in this institution and has completed their studies satisfactorily."</div>
-        <div class="cert-detail"><strong>Reason for Leaving:</strong> ${cert.reason || "N/A"}</div>
+        <div class="cert-intro">"${t("admin.certificates.leavingIntro")}"</div>
+        <div class="cert-detail"><strong>${t("admin.certificates.reasonForLeaving")}</strong> ${cert.reason || t("admin.certificates.notApplicable")}</div>
       `;
     } else if (cert.type === "enrollment") {
       typeSpecificHtml = `
-        <div class="cert-intro">"To Whom It May Concern - This letter serves as official confirmation of the current enrollment status."</div>
-        <div class="cert-detail"><strong>Enrollment Status:</strong> Active - Full Time Student</div>
-        <div class="cert-detail"><strong>Academic Standing:</strong> Good Standing</div>
+        <div class="cert-intro">"${t("admin.certificates.enrollmentIntro")}"</div>
+        <div class="cert-detail"><strong>${t("admin.certificates.enrollmentStatus")}</strong> ${t("admin.certificates.activeFullTime")}</div>
+        <div class="cert-detail"><strong>${t("admin.certificates.academicStanding")}</strong> ${t("admin.certificates.goodStanding")}</div>
       `;
     }
     
-    const typeTitle = cert.type === "character" ? "Character Certificate" : 
-                    cert.type === "leaving" ? "Leaving Certificate" : "Enrollment Letter";
+    const typeTitle = cert.type === "character" ? t("admin.certificates.characterCertificate") : 
+                    cert.type === "leaving" ? t("admin.certificates.leavingCertificate") : t("admin.certificates.enrollmentLetter");
     
     document.getElementById("certPreview").innerHTML = `
       <div class="certificate-preview">
@@ -393,24 +414,24 @@ function closeModal() {
         
         ${typeSpecificHtml}
         
-        <div class="cert-detail"><strong>Student Name:</strong> ${cert.student_name || cert.index_number}</div>
-        <div class="cert-detail"><strong>Grade:</strong> ${cert.grade || "-"}</div>
-        <div class="cert-detail"><strong>Class:</strong> ${cert.class_name || "-"}</div>
-        <div class="cert-detail"><strong>Admission No:</strong> ${cert.index_number}</div>
+        <div class="cert-detail"><strong>${t("admin.certificates.studentName")}</strong> ${cert.student_name || cert.index_number}</div>
+        <div class="cert-detail"><strong>${t("admin.certificates.grade")}</strong> ${cert.grade || "-"}</div>
+        <div class="cert-detail"><strong>${t("admin.certificates.class")}</strong> ${cert.class_name || "-"}</div>
+        <div class="cert-detail"><strong>${t("admin.certificates.admissionNo")}</strong> ${cert.index_number}</div>
         
         ${achievementsHtml}
         
-        <div class="cert-closing">"We recommend this student for any future academic or professional endeavors."</div>
+        <div class="cert-closing">"${t("admin.certificates.weRecommend")}"</div>
         
         <div class="cert-signature">
           <div class="cert-signature-box">
             <div class="cert-signature-line"></div>
-            <div>Class Teacher</div>
+            <div>${t("admin.certificates.classTeacher")}</div>
           </div>
           <div class="cert-signature-box">
             <div class="cert-signature-line"></div>
             <div>${principalName}</div>
-            <div>Principal</div>
+            <div>${t("admin.certificates.principal")}</div>
           </div>
         </div>
       </div>
@@ -422,12 +443,12 @@ function closeModal() {
     try {
       const res = await api.admin.certificates.approve(currentCertId);
       if (!res.ok) throw new Error("Failed to approve");
-      showToast("Certificate approved!", "fa-solid fa-check");
+      showToast(t("admin.certificates.certApproved"), "fa-solid fa-check");
       closeModal();
       loadCertificates();
     } catch (err) {
       console.error("Error approving certificate:", err);
-      showToast("Failed to approve", "fa-solid fa-circle-exclamation");
+      showToast(t("admin.certificates.certApproveError"), "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -436,12 +457,12 @@ function closeModal() {
     try {
       const res = await api.admin.certificates.reject(currentCertId);
       if (!res.ok) throw new Error("Failed to reject");
-      showToast("Certificate rejected!", "fa-solid fa-check");
+      showToast(t("admin.certificates.certRejected"), "fa-solid fa-check");
       closeModal();
       loadCertificates();
     } catch (err) {
       console.error("Error rejecting certificate:", err);
-      showToast("Failed to reject", "fa-solid fa-circle-exclamation");
+      showToast(t("admin.certificates.certRejectError"), "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -449,10 +470,10 @@ function closeModal() {
     try {
       const res = await api.admin.certificates.approve(id);
       if (!res.ok) throw new Error("Failed to approve");
-      showToast("Certificate approved!", "fa-solid fa-check");
+      showToast(t("admin.certificates.certApproved"), "fa-solid fa-check");
       loadCertificates();
     } catch (err) {
-      showToast("Failed to approve", "fa-solid fa-circle-exclamation");
+      showToast(t("admin.certificates.certApproveError"), "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -460,10 +481,10 @@ function closeModal() {
     try {
       const res = await api.admin.certificates.reject(id);
       if (!res.ok) throw new Error("Failed to reject");
-      showToast("Certificate rejected!", "fa-solid fa-check");
+      showToast(t("admin.certificates.certRejected"), "fa-solid fa-check");
       loadCertificates();
     } catch (err) {
-      showToast("Failed to reject", "fa-solid fa-circle-exclamation");
+      showToast(t("admin.certificates.certRejectError"), "fa-solid fa-circle-exclamation");
     }
   }
 

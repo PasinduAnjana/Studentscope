@@ -1,17 +1,17 @@
 <section class="section">
   <h2 class="heading">
     <i class="fas fa-user-tie"></i>
-    <span data-en="Clerk Management" data-si="ක්ලාක් කළමනාකරණය" data-ta="கலர்க் மேலாண்மை">Clerk Management</span>
+    <span data="admin.clerks.title">Clerk Management</span>
   </h2>
 
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <div class="icon-title">
         <i class="fas fa-users icon"></i>
-        <p class="tile-label" data-en="Clerks" data-si="ක්ලාක්" data-ta="கலர்கள்">Clerks</p>
+        <p class="tile-label" data="admin.clerks.clerks">Clerks</p>
       </div>
       <button class="btn btn-primary" onclick="openAddModal()">
-        <i class="fas fa-plus"></i> <span data-en="Add Clerk" data-si="ක්ලාක් එකතු කරන්න" data-ta="கலர் சேர்">Add Clerk</span>
+        <i class="fas fa-plus"></i> <span data="admin.clerks.addClerk">Add Clerk</span>
       </button>
     </div>
 
@@ -21,85 +21,85 @@
 
 <link rel="stylesheet" href="../../css/dropdown.css" />
 
-<modal-dialog id="clerkModal" title="Add Clerk">
+<modal-dialog id="clerkModal" title="admin.clerks.addClerk">
   <form id="clerkForm" onsubmit="saveClerk(event)">
     <input type="hidden" id="clerkId" value="">
     <div class="form-group">
-      <label for="fullName" data-en="Full Name" data-si="සම්පූර්ණ නම" data-ta="முழு பெயர்">Full Name <span class="required">*</span></label>
+      <label for="fullName" data="admin.clerks.fullName">Full Name <span class="required">*</span></label>
       <input type="text" id="fullName" required>
     </div>
     <div class="form-group">
-      <label for="nic" data-en="NIC (Username)" data-si="ජාතික අනන්‍යතා අංකය" data-ta="தேசிய அடையாள எண்">NIC (Username) <span class="required">*</span></label>
+      <label for="nic" data="admin.clerks.nic">NIC (Username) <span class="required">*</span></label>
       <input type="text" id="nic" required>
-      <small class="form-hint" data-en="NIC will be used as username and default password" data-si="ජාතික අනන්‍යතා අංකය පරිශීර්ණ නාමය සහ පෙරනිමි මුරපදය ලෙස භාවිත කෙරේ" data-ta="தேசிய அடையாள எண் பயனர் பெயர் மற்றும் இயல்புநிலை கடவுச்சொல்லாக பயன்படுத்தப்படும்">NIC will be used as username and default password</small>
+      <small class="form-hint" data="admin.clerks.nicHint">NIC will be used as username and default password</small>
     </div>
     <div class="form-group">
-      <label for="phoneNumber" data-en="Phone Number" data-si="දුරකථන අංකය" data-ta="தொலைபேசி எண்">Phone Number</label>
+      <label for="phoneNumber" data="admin.clerks.phone">Phone Number</label>
       <input type="text" id="phoneNumber">
     </div>
     <div class="form-group">
-      <label for="address" data-en="Address" data-si="ලිපිනය" data-ta="முகவரி">Address</label>
+      <label for="address" data="admin.clerks.address">Address</label>
       <input type="text" id="address">
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label for="birthday" data-en="Birthday" data-si="උපන් දිනය" data-ta="பிறந்த தேதி">Birthday</label>
+        <label for="birthday" data="admin.clerks.birthday">Birthday</label>
         <input type="date" id="birthday">
       </div>
       <div class="form-group">
-        <label for="appointmentDate" data-en="Appointment Date" data-si="පත් කිරීමේ දිනය" data-ta="நியமன தேதி">Appointment Date</label>
+        <label for="appointmentDate" data="admin.clerks.appointmentDate">Appointment Date</label>
         <input type="date" id="appointmentDate">
       </div>
     </div>
     <div class="form-group">
-      <label for="firstAppointmentDate" data-en="First Appointment Date" data-si="පළමු පත් කිරීමේ දිනය" data-ta="முதல் நியமன தேதி">First Appointment Date</label>
+      <label for="firstAppointmentDate" data="admin.clerks.firstAppointmentDate">First Appointment Date</label>
       <input type="date" id="firstAppointmentDate">
     </div>
     <div class="modal-actions">
       <button type="button" class="btn btn-secondary" onclick="closeClerkModal()">
-        <span data-en="Cancel" data-si="අවලංගු කරන්න" data-ta="ரத்து">Cancel</span>
+        <span data="common.cancel">Cancel</span>
       </button>
       <button type="submit" class="btn btn-primary">
-        <span data-en="Save" data-si="සුරකින්න" data-ta="சேமி">Save</span>
+        <span data="common.save">Save</span>
       </button>
     </div>
   </form>
 </modal-dialog>
 
-<modal-dialog id="passwordModal" title="Reset Password">
+<modal-dialog id="passwordModal" title="admin.clerks.resetPassword">
   <form id="passwordForm" onsubmit="resetPassword(event)">
     <input type="hidden" id="passwordClerkId" value="">
     <div class="form-group">
-      <label for="newPassword" data-en="New Password" data-si="නව මුරපදය" data-ta="புதிய கடவுச்சொல்">New Password <span class="required">*</span></label>
+      <label for="newPassword" data="admin.clerks.newPassword">New Password <span class="required">*</span></label>
       <input type="password" id="newPassword" required minlength="4">
     </div>
     <div class="form-group">
-      <label for="confirmPassword" data-en="Confirm Password" data-si="මුරපදය තහවුරු කරන්න" data-ta="கடவுச்சொல்லை உறுதிப்படுத்தவும்">Confirm Password <span class="required">*</span></label>
+      <label for="confirmPassword" data="admin.clerks.confirmPassword">Confirm Password <span class="required">*</span></label>
       <input type="password" id="confirmPassword" required minlength="4">
     </div>
     <div class="modal-actions">
       <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">
-        <span data-en="Cancel" data-si="අවලංගු කරන්න" data-ta="ரத்து">Cancel</span>
+        <span data="common.cancel">Cancel</span>
       </button>
       <button type="submit" class="btn btn-primary">
-        <span data-en="Reset Password" data-si="මුරපදය නැවත සකසන්න" data-ta="கடவுச்சொல்லை மீட்டமை">Reset Password</span>
+        <span data="admin.clerks.resetPassword">Reset Password</span>
       </button>
     </div>
   </form>
 </modal-dialog>
 
-<modal-dialog id="deleteModal" title="Delete Clerk">
+<modal-dialog id="deleteModal" title="common.delete">
   <div style="padding: 16px 0;">
-    <p data-en="Are you sure you want to delete this clerk? This action cannot be undone." data-si="ඔබට මෙම ක්ලාක් මකා දැමීමට අවශ්‍යද? මෙම ක්‍රියාව විය නොහැක." data-ta="இந்த கலரை நீக்க விரும்புகிறீர்களா? இந்த செயலை செயல்தவிர்க்க முடியாது.">Are you sure you want to delete this clerk? This action cannot be undone.</p>
+    <p data="admin.clerks.deleteConfirm">Are you sure you want to delete this clerk? This action cannot be undone.</p>
     <p id="deleteClerkName" style="font-weight: 600; margin-top: 8px;"></p>
   </div>
   <input type="hidden" id="deleteClerkId" value="">
   <div class="modal-actions">
     <button class="btn btn-secondary" onclick="closeDeleteModal()">
-      <span data-en="Cancel" data-si="අවලංගු කරන්න" data-ta="ரத்து">Cancel</span>
+      <span data="common.cancel">Cancel</span>
     </button>
     <button class="btn btn-danger" onclick="confirmDelete()">
-      <i class="fas fa-trash"></i> <span data-en="Delete" data-si="මකන්න" data-ta="நீக்கு">Delete</span>
+      <i class="fas fa-trash"></i> <span data="common.delete">Delete</span>
     </button>
   </div>
 </modal-dialog>
@@ -123,28 +123,28 @@
   function initTable() {
     const table = document.getElementById("clerks-table");
     table.setColumns([
-      { key: "full_name", header: "Full Name", searchable: true },
-      { key: "nic", header: "NIC", searchable: true },
-      { key: "phone_number", header: "Phone", searchable: false },
+      { key: "full_name", header: t("admin.clerks.fullName"), searchable: true },
+      { key: "nic", header: t("admin.clerks.nic"), searchable: true },
+      { key: "phone_number", header: t("admin.clerks.phone"), searchable: false },
       { 
         key: "appointment_date", 
-        header: "Appointment Date",
+        header: t("admin.clerks.appointmentDate"),
         render: (row) => row.appointment_date ? new Date(row.appointment_date).toLocaleDateString() : "—"
       },
       {
         key: "actions",
-        header: "Actions",
+        header: t("common.actions"),
         render: (row) => {
           const div = document.createElement("div");
           div.className = "action-buttons";
           div.innerHTML = `
-            <button class="btn btn-small btn-secondary" onclick="openEditModal(${row.id})" title="Edit">
+            <button class="btn btn-small btn-secondary" onclick="openEditModal(${row.id})" title="${t("common.edit")}">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="btn btn-small btn-primary" onclick="openPasswordModal(${row.id})" title="Reset Password">
+            <button class="btn btn-small btn-primary" onclick="openPasswordModal(${row.id})" title="${t("admin.clerks.resetPassword")}">
               <i class="fas fa-key"></i>
             </button>
-            <button class="btn btn-small btn-danger" onclick="openDeleteModal(${row.id}, '${row.full_name.replace(/'/g, "\\'")}')" title="Delete">
+            <button class="btn btn-small btn-danger" onclick="openDeleteModal(${row.id}, '${row.full_name.replace(/'/g, "\\'")}')" title="${t("common.delete")}">
               <i class="fas fa-trash"></i>
             </button>
           `;
@@ -152,7 +152,7 @@
         }
       }
     ]);
-    table.setEmptyState("No clerks found", "fas fa-user-tie");
+    table.setEmptyState(t("admin.clerks.noClerksFound"), "fas fa-user-tie");
   }
 
   function loadClerks() {
@@ -167,14 +167,14 @@
       })
       .catch(err => {
         console.error(err);
-        toast("Error loading clerks", "fa-solid fa-circle-exclamation");
+        toast(t("admin.clerks.loadError"), "fa-solid fa-circle-exclamation");
       });
   }
 
   function openAddModal() {
     document.getElementById("clerkForm").reset();
     document.getElementById("clerkId").value = "";
-    document.getElementById("clerkModal").setTitle("Add Clerk");
+    document.getElementById("clerkModal").setTitle(t("admin.clerks.addClerk"));
     document.getElementById("clerkModal").open();
   }
 
@@ -191,7 +191,7 @@
     document.getElementById("appointmentDate").value = clerk.appointment_date ? new Date(clerk.appointment_date).toISOString().split("T")[0] : "";
     document.getElementById("firstAppointmentDate").value = clerk.first_appointment_date ? new Date(clerk.first_appointment_date).toISOString().split("T")[0] : "";
 
-    document.getElementById("clerkModal").setTitle("Edit Clerk");
+    document.getElementById("clerkModal").setTitle(t("admin.clerks.editClerk"));
     document.getElementById("clerkModal").open();
   }
 
@@ -222,12 +222,12 @@
         throw new Error(err.error || "Failed to save clerk");
       }
 
-      toast("Clerk saved successfully", "fa-solid fa-check");
+      toast(t("admin.clerks.saveSuccess"), "fa-solid fa-check");
       closeClerkModal();
       loadClerks();
     } catch (err) {
       console.error(err);
-      toast(err.message, "fa-solid fa-circle-exclamation");
+      toast(err.message || t("admin.clerks.saveError"), "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -248,7 +248,7 @@
     const confirmPass = document.getElementById("confirmPassword").value;
 
     if (newPass !== confirmPass) {
-      toast("Passwords do not match", "fa-solid fa-circle-exclamation");
+      toast(t("admin.clerks.passwordMismatch"), "fa-solid fa-circle-exclamation");
       return;
     }
 
@@ -258,11 +258,11 @@
         const err = await res.json();
         throw new Error(err.error || "Failed to reset password");
       }
-      toast("Password reset successfully", "fa-solid fa-check");
+      toast(t("admin.clerks.passwordResetSuccess"), "fa-solid fa-check");
       closePasswordModal();
     } catch (err) {
       console.error(err);
-      toast(err.message, "fa-solid fa-circle-exclamation");
+      toast(err.message || t("admin.clerks.passwordResetError"), "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -284,14 +284,23 @@
         const err = await res.json();
         throw new Error(err.error || "Failed to delete clerk");
       }
-      toast("Clerk deleted successfully", "fa-solid fa-check");
+      toast(t("admin.clerks.deleteSuccess"), "fa-solid fa-check");
       closeDeleteModal();
       loadClerks();
     } catch (err) {
       console.error(err);
-      toast(err.message, "fa-solid fa-circle-exclamation");
+      toast(err.message || t("admin.clerks.deleteError"), "fa-solid fa-circle-exclamation");
     }
   }
+
+  function refreshTranslations() {
+    if (typeof applyTranslations === 'function') {
+      applyTranslations();
+    }
+    initTable();
+  }
+
+  window.addEventListener("languageChanged", refreshTranslations);
 
   initTable();
   loadClerks();

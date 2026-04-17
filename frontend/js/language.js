@@ -13,6 +13,9 @@ function updateLanguage(lang) {
       if (typeof loadSidebar === "function") {
         loadSidebar(role);
       }
+
+      // Dispatch custom event for pages to reinitialize dynamic content
+      window.dispatchEvent(new CustomEvent("languageChanged", { detail: { lang } }));
     });
 }
 

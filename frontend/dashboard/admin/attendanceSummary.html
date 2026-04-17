@@ -739,12 +739,5 @@
   fetchAllClassStats();
 
   // Re-init table on language change
-  let _lastLang = localStorage.getItem("lang") || "en";
-  setInterval(() => {
-    const cur = localStorage.getItem("lang") || "en";
-    if (cur !== _lastLang) {
-      _lastLang = cur;
-      initTable();
-    }
-  }, 400);
+  window.addEventListener("languageChanged", initTable);
 </script>
