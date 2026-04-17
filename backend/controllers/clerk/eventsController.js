@@ -41,7 +41,11 @@ exports.deleteEvent = async (req, res) => {
   }
 
   try {
-    await clerkService.deleteEvent(eventId);
+    const deleted = await clerkService.deleteEvent(eventId, req.user.userId);
+    if (!deleted) {
+      res.writeHead(404, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Event not found or unauthorized" }));
+    }
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ message: "Event deleted successfully" }));
   } catch (err) {
@@ -67,7 +71,11 @@ exports.updateEvent = async (req, res) => {
   req.on("end", async () => {
     try {
       const data = JSON.parse(body);
-      const updatedEvent = await clerkService.updateEvent(eventId, data);
+      const updatedEvent = await clerkService.updateEvent(eventId, data, req.user.userId);
+      if (!updatedEvent) {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Event not found or unauthorized" }));
+      }
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(updatedEvent));
     } catch (err) {
