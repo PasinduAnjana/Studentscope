@@ -128,10 +128,10 @@
   <!-- Attendance Charts -->
   <div class="charts-grid">
     <div class="chart-card">
-      <h3>
-        <i class="fas fa-pie-chart"></i>
-        <span data="admin.attendance.overview">Attendance Overview</span>
-      </h3>
+      <div class="icon-title">
+        <i class="fas fa-pie-chart icon"></i>
+        <p class="tile-label" data="admin.attendance.overview">Attendance Overview</p>
+      </div>
       <div id="overview-empty" style="display: none; justify-content: center;">
         <empty-state-message icon="fas fa-calendar-check" message="No attendance marked for this date"></empty-state-message>
       </div>
@@ -141,10 +141,10 @@
     </div>
 
     <div class="chart-card">
-      <h3>
-        <i class="fas fa-chart-bar"></i>
-        <span data="admin.attendance.byClass">Attendance by Class</span>
-      </h3>
+      <div class="icon-title">
+        <i class="fas fa-chart-bar icon"></i>
+        <p class="tile-label" data="admin.attendance.byClass">Attendance by Class</p>
+      </div>
       <div class="flex gap-2 mb-2" style="align-items: center">
         <select id="chart-grade-filter" class="input" style="max-width: 200px">
           <option value="" data="common.allGrades">All Grades</option>
@@ -159,9 +159,11 @@
     </div>
   </div>
 
-  <div class="card">
-    <div class="flex-between mb-2">
-      <h1 class="title" data="admin.attendance.todaysAttendance">Today's Attendance</h1>
+  <div class="card dashboard-tile">
+    <div class="icon-title">
+      <i class="fas fa-clipboard-list icon"></i>
+      <p class="tile-label" data="admin.attendance.todaysAttendance">Today's Attendance</p>
+    </div>
       <div class="input-group" style="margin-bottom: 0;">
         <input
           type="date"

@@ -28,9 +28,12 @@
     <i class="fas fa-id-card"></i>
     <span data="admin.students.title">Student Profiles</span>
   </h2>
-  <div class="card">
-    <h1 class="title" data="admin.students.heading">Students</h1>
-    <data-table id="students-table">
+  <div class="card dashboard-tile">
+    <div class="icon-title">
+      <i class="fas fa-users icon"></i>
+      <p class="tile-label" data="admin.students.heading">Students</p>
+    </div>
+    <data-table id="students-table" style="width: 100%;">
       <div slot="filters">
         <div style="display: flex; gap: 12px; align-items: center;">
           <div style="width: 160px;"><select id="class-filter" class="dropdown-select"><option value="">All Classes</option></select></div>
