@@ -178,6 +178,9 @@
         "failedStatus": "Failed to update todo status",
         "markPending": "Mark as pending",
         "markComplete": "Mark as complete"
+      },
+      "behavior": {
+        "addRecord": "Add Behavior Record"
       }
     }
   },

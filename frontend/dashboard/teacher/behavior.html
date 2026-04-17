@@ -49,7 +49,7 @@
 </div>
 
 <!-- Add Behavior Record Modal -->
-<modal-dialog id="add-behavior-modal" title="Add Behavior Record">
+<modal-dialog id="add-behavior-modal" data-title="teacher.behavior.addRecord">
     <div style="padding: 20px;">
         <div class="filter-group" style="flex-direction: column !important; align-items: stretch;">
           <div style="width: 100%;">
@@ -175,6 +175,23 @@
 
   // Language variable
   let currentLanguage = localStorage.getItem("lang") || "en";
+
+  // Update language when changed
+  window.addEventListener("storage", (e) => {
+    if (e.key === "lang") {
+      currentLanguage = e.newValue || "en";
+    }
+  });
+  window.addEventListener("languageChanged", (e) => {
+    currentLanguage = e.detail?.lang || localStorage.getItem("lang") || "en";
+  });
+
+  // Column header translations
+  const columnHeaders = {
+    en: { date: "Date", student: "Student", type: "Type", severity: "Severity", description: "Description", actions: "Actions" },
+    si: { date: "දිනය", student: "ශිෂ්‍යයා", type: "වර්ගය", severity: "බරපතලකම්", description: "විස්තරය", actions: "ක්‍රියාම" },
+    ta: { date: "தேதி", student: "மாணவர்", type: "வகை", severity: "தீவிரம்", description: "விளக்கம்", actions: "செயல்கள்" }
+  };
 
   // Get teacher ID from localStorage (set during login)
   function getTeacherId() {
@@ -336,28 +353,31 @@
     }
   }
 
-  function initTable() {
+  let tableInitialized = false;
+
+function initTable() {
     const table = document.getElementById("behavior-table");
+    const headers = columnHeaders[currentLanguage] || columnHeaders.en;
     table.setColumns([
-        { 
-            key: "date", 
-            header: "Date",
+        {
+            key: "date",
+            header: headers.date,
             render: (row) => new Date(row.date).toLocaleDateString()
         },
-        { key: "student", header: "Student", searchable: true },
-        { 
-            key: "type", 
-            header: "Type", 
+        { key: "student", header: headers.student, searchable: true },
+        {
+            key: "type",
+            header: headers.type,
             render: (row) => {
                 const color = row.type === 'Good' || row.type === 'Reward' ? 'green' : 'red';
-                return `<span class="badge badge-${color}">${row.type}</span>`; 
+                return `<span class="badge badge-${color}">${row.type}</span>`;
             }
         },
-        { key: "severity", header: "Severity", render: (row) => row.severity || '-' },
-        { key: "description", header: "Description", searchable: true },
-        { 
-            key: "actions", 
-            header: "Actions",
+        { key: "severity", header: headers.severity, render: (row) => row.severity || '-' },
+        { key: "description", header: headers.description, searchable: true },
+        {
+            key: "actions",
+            header: headers.actions,
             render: (row) => {
                  // Inline onclick needs to pass ID carefully
                  return `
@@ -369,6 +389,23 @@
         }
     ]);
     table.setEmptyState("No behavior records found", "fas fa-clipboard-list");
+
+    // Only setup filters once
+    if (tableInitialized) {
+        // Just update columns, don't re-add filters
+        const table = document.getElementById("behavior-table");
+        const headers = columnHeaders[currentLanguage] || columnHeaders.en;
+        table.setColumns([
+            { key: "date", header: headers.date, render: (row) => new Date(row.date).toLocaleDateString() },
+            { key: "student", header: headers.student, searchable: true },
+            { key: "type", header: headers.type, render: (row) => `<span class="badge badge-${row.type === 'Good' || row.type === 'Reward' ? 'green' : 'red'}">${row.type}</span>` },
+            { key: "severity", header: headers.severity, render: (row) => row.severity || '-' },
+            { key: "description", header: headers.description, searchable: true },
+            { key: "actions", header: headers.actions, render: (row) => `<button class="btn-icon btn-delete" onclick="deleteRecord(${row.id})" title="Delete"><i class="fas fa-trash"></i></button>` }
+        ]);
+        return;
+    }
+    tableInitialized = true;
 
     const filterType = document.getElementById("filter-type");
     const filterSeverity = document.getElementById("filter-severity");
@@ -504,6 +541,12 @@
       // Initialize dropdowns locally if needed, or let global script handle generic ones
       // initializeSearchableDropdowns(); // Redundant if makeSearchableDropdown used inside initTable
   }
+
+  // Re-render table on language change
+  window.addEventListener("languageChanged", () => {
+      initTable();
+      loadMyRecords();
+  });
 
   function setupAddBehaviorModal() {
       const addBtn = document.getElementById("add-record-btn");
