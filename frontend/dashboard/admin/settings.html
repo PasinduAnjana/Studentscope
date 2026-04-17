@@ -8,40 +8,40 @@
   <div class="card w-2 dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-school icon"></i>
-      <p class="tile-label" data-en="School Details" data-si="පාලන විස්තර" data-ta="பள்ளி விவரங்கள்">School Details</p>
+      <p class="tile-label" data="admin.settings.schoolDetails">School Details</p>
     </div>
     <div style="width: 100%;">
-      <p class="text-sm text-muted" style="margin-bottom: 16px;" data-en="Configure your school information that appears on certificates" data-si="සහතලයක් මත පෙන්වන පාලන තොරතුරු වින්‍යාස කරන්න" data-ta="சான்றுகளில் தோன்றும் பள்ளி தகவல்களை உள்ளமைக்க">Configure your school information that appears on certificates</p>
+      <p class="text-sm text-muted" style="margin-bottom: 16px;" data="admin.settings.schoolDetailsDescription">Configure your school information that appears on certificates</p>
       
       <form id="schoolDetailsForm" style="margin-top: 16px;">
       <div class="input-group">
-        <label class="input-label" data-en="School Name" data-si="පාලනයේ නම" data-ta="பள்ளி பெயர்">School Name</label>
+        <label class="input-label" data="admin.settings.schoolName">School Name</label>
         <input type="text" id="schoolName" class="input-field" required>
       </div>
       
       <div class="input-group">
-        <label class="input-label" data-en="Address" data-si="ලිපිනය" data-ta="முகவரி">Address</label>
+        <label class="input-label" data="profile.address">Address</label>
         <textarea id="schoolAddress" class="input-field" rows="3"></textarea>
       </div>
       
       <div class="input-group">
-        <label class="input-label" data-en="Phone" data-si="දුරකථනය" data-ta="தொலைபேசி">Phone</label>
+        <label class="input-label" data="profile.phoneNumber">Phone</label>
         <input type="text" id="schoolPhone" class="input-field">
       </div>
       
       <div class="input-group">
-        <label class="input-label" data-en="Email" data-si="විද්‍යුත් තැපෑල" data-ta="மின்னஞ்சல்">Email</label>
+        <label class="input-label" data="profile.email">Email</label>
         <input type="email" id="schoolEmail" class="input-field">
       </div>
       
       <div class="input-group">
-        <label class="input-label" data-en="Principal Name" data-si="විද්‍යාපාරුවගේ නම" data-ta="தலைமையாசிரியர் பெயர்">Principal Name</label>
+        <label class="input-label" data="admin.settings.principalName">Principal Name</label>
         <input type="text" id="principalName" class="input-field">
       </div>
       
       <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
         <i class="fas fa-save"></i>
-        <span data-en="Save Details" data-si="විස්තර සුරකින්න" data-ta="விவரங்களைச் சேமி">Save Details</span>
+        <span data="admin.settings.saveDetails">Save Details</span>
       </button>
     </form>
     </div>
@@ -90,13 +90,20 @@
       const res = await api.admin.schoolDetails.update(data);
       if (!res.ok) throw new Error("Failed to save");
       
-      showToast("School details saved successfully!", "fa-solid fa-check");
+      showToast(t("admin.settings.saveSuccess"), "fa-solid fa-check");
     } catch (err) {
       console.error("Error saving school details:", err);
-      showToast("Failed to save details", "fa-solid fa-circle-exclamation");
+      showToast(t("admin.settings.saveError"), "fa-solid fa-circle-exclamation");
     }
   }
 
   document.getElementById("schoolDetailsForm").addEventListener("submit", saveSchoolDetails);
+  
+  window.addEventListener("languageChanged", () => {
+    if (typeof applyTranslations === "function") {
+      applyTranslations();
+    }
+  });
+
   loadSchoolDetails();
 </script>

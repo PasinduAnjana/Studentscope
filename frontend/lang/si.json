@@ -185,7 +185,9 @@
       "errorApprove": "අනුමත කිරීමේ දෝෂය",
       "errorReject": "ප්‍රතික්ෂ කිරීමේ දෝෂය",
       "noAlerts": "ඇඟවීම් නැත",
-      "noRecordsFound": "වාර්තා සොයා ගත නොහැක"
+      "noRecordsFound": "වාර්තා සොයා ගත නොහැක",
+      "passwordResets": "මුරපදය ප්‍රතිසර්ථන",
+      "passwordResetRole": "භූමිකාව:"
     },
     "attendance": {
       "title": "පැමිණීම් වාර්තා",
@@ -463,6 +465,15 @@
       "deleteError": "ලේකම් මකා දැමීමේ දෝෂය",
       "noClerksFound": "ලේකම් හමු නොවිණි",
       "loadError": "ලේකම් පූරණය කිරීමේ දෝෂය"
+    },
+    "settings": {
+      "schoolDetails": "පාසල් විස්තර",
+      "schoolDetailsDescription": "සහතික මත පෙන්වන පාසල් තොරතුරු වින්‍යාස කරන්න",
+      "schoolName": "පාසල් නම",
+      "principalName": "ප්‍රධානාචාර්ථි නම",
+      "saveDetails": "විස්තර සුරකින්න",
+      "saveSuccess": "පාසල් විස්තර සාර්ථකව සුරකින ලදි!",
+      "saveError": "විස්තර සුරකිමට අසමත් විය"
     }
   }
 }

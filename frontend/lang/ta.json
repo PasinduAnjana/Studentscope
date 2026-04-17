@@ -163,7 +163,9 @@
       "errorApprove": "ஒப்புதல் பிழை",
       "errorReject": "நிராகரிப்பதில் பிழை",
       "noAlerts": "எச்சரிக்கைகள் இல்லை",
-      "noRecordsFound": "பதிவுகள் கிடைக்கவில்லை"
+      "noRecordsFound": "பதிவுகள் கிடைக்கவில்லை",
+      "passwordResets": "கடவுச்சொல் மீட்டமைப்புகள்",
+      "passwordResetRole": "பாத்திரம்:"
     },
     "attendance": {
       "title": "வருகை அறிக்கைகள்",
@@ -402,6 +404,15 @@
       "deleteError": "குமாஸ்தா நீக்குவதில் பிழை",
       "noClerksFound": "குமாஸ்தாக்கள் இல்லை",
       "loadError": "குமாஸ்தாக்களை ஏற்றுவதில் பிழை"
+    },
+    "settings": {
+      "schoolDetails": "பள்ளி விவரங்கள்",
+      "schoolDetailsDescription": "சான்றுகளில் தோன்றும் பள்ளி தகவல்களை உள்ளமைக்க",
+      "schoolName": "பள்ளி பெயர்",
+      "principalName": "தலைமையாசிரியர் பெயர்",
+      "saveDetails": "விவரங்களைச் சேமி",
+      "saveSuccess": "பள்ளி விவரங்கள் வெற்றிகரமாக சேமிக்கப்பட்டன!",
+      "saveError": "விவரங்களைச் சேமிப்பதில் தோல்வி"
     }
   }
 }

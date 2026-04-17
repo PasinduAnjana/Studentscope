@@ -181,7 +181,9 @@
       "errorApprove": "Error approving reset",
       "errorReject": "Error rejecting reset",
       "noAlerts": "No alerts",
-      "noRecordsFound": "No records found"
+      "noRecordsFound": "No records found",
+      "passwordResets": "Password Resets",
+      "passwordResetRole": "Role:"
     },
     "attendance": {
       "title": "Attendance Reports",
@@ -459,6 +461,15 @@
       "deleteError": "Error deleting clerk",
       "noClerksFound": "No clerks found",
       "loadError": "Error loading clerks"
+    },
+    "settings": {
+      "schoolDetails": "School Details",
+      "schoolDetailsDescription": "Configure your school information that appears on certificates",
+      "schoolName": "School Name",
+      "principalName": "Principal Name",
+      "saveDetails": "Save Details",
+      "saveSuccess": "School details saved successfully!",
+      "saveError": "Failed to save details"
     }
   }
 }

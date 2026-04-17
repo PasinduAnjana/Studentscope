@@ -71,14 +71,7 @@
   <div class="card dashboard-tile flex-column">
     <div class="icon-title">
       <i class="fas fa-key icon"></i>
-      <p
-        class="tile-label"
-        data-en="Password Resets"
-        data-si="මුරපදය ප්‍රතිසර්ථන"
-        data-ta="கடவுச்சொல் மீட்டமைப்புகள்"
-      >
-        Password Resets
-      </p>
+      <p class="tile-label" data="admin.dashboard.passwordResets">Password Resets</p>
     </div>
     <div>
       <ul class="tile-list" id="dashboard-resets-list">
@@ -276,7 +269,7 @@
         li.innerHTML = `
           <div>
             <p class="subject-name" style="margin: 0; font-weight: 500;">${reset.username}</p>
-            <p class="text-sm" style="margin: 4px 0 0 0; color: #666;">${reset.role}</p>
+            <p class="text-sm" style="margin: 4px 0 0 0; color: #666;">${t("admin.dashboard.passwordResetRole")} ${reset.role}</p>
           </div>
           <div style="display: flex; gap: 8px;">
             <button onclick="approveReset(${reset.id})" class="btn btn-primary">${t("admin.dashboard.approve")}</button>
