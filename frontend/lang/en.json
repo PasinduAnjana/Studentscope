@@ -130,7 +130,27 @@
     "failedReject": "Failed to reject reset",
     "present": "Present",
     "absent": "Absent",
-    "noAnnouncements": "No announcements"
+    "noAnnouncements": "No announcements",
+    "classSubjects": {
+      "searchStudents": "Search students",
+      "managingClass": "Managing Class:",
+      "showClassSubjects": "Show Class Subjects",
+      "submit": "Submit",
+      "loadingYourClass": "Loading your assigned class...",
+      "notClassTeacher": "You are not assigned as a class teacher. Please contact the administrator.",
+      "failedLoadClass": "Failed to load your assigned class. Please refresh the page.",
+      "failedLoadData": "Failed to load data for your assigned class: {error}",
+      "noClassAssigned": "No class assigned",
+      "confirmSubmit": "Are you sure you want to submit subject assignments?",
+      "submitSuccess": "Subject assignments submitted successfully!",
+      "failedSubmit": "Failed to submit assignments",
+      "selectSubject": "Select subject",
+      "draftSaved": "Draft saved successfully!",
+      "failedDraft": "Failed to save draft",
+      "indexNo": "Index No",
+      "name": "Name",
+      "subject": "Subject {n}"
+    }
   },
   "clerk": {
     "greeting": "Welcome to StudentScope!",

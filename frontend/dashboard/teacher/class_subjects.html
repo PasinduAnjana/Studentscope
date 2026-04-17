@@ -6,13 +6,13 @@
 <div class="mark-controls">
   <!-- Search Bar -->
   <div class="input-group search-group">
-    <input type="text" id="student-search" class="search-input" placeholder="Search students" />
+    <input type="text" id="student-search" class="search-input" data-placeholder="teacher.classSubjects.searchStudents" placeholder="Search students" />
     <i class="fas fa-search search-icon"></i>
   </div>
 
   <!-- Class Info Display (instead of dropdown) -->
   <div class="input-group class-info" style="display: flex; align-items: center; gap: 8px; flex: 0 1 auto">
-    <label style="margin: 0; font-weight: 500; white-space: nowrap">Managing Class:</label>
+    <label style="margin: 0; font-weight: 500; white-space: nowrap" data="teacher.classSubjects.managingClass">Managing Class:</label>
     <span id="current-class-display" style="font-weight: 600; color: var(--color-primary); margin: 0">Loading...</span>
   </div>
 
@@ -20,7 +20,7 @@
   <div class="input-group" style="flex: 0 1 auto">
     <label style="margin: 0; display: flex; align-items: center; gap: 8px">
       <input type="checkbox" id="toggle-class-subjects" />
-      Show Class Subjects
+      <span data="teacher.classSubjects.showClassSubjects">Show Class Subjects</span>
     </label>
   </div>
 </div>
@@ -43,7 +43,8 @@
 
 <div class="actions">
   <button class="btn btn-primary" onclick="submitSubjects()">
-    <i class="fas fa-paper-plane"></i> Submit
+    <i class="fas fa-paper-plane"></i>
+    <span data="teacher.classSubjects.submit">Submit</span>
   </button>
 </div>
 
@@ -151,7 +152,7 @@
 
       if (!user || !user.is_class_teacher || !user.class_id) {
         showError(
-          "You are not assigned as a class teacher. Please contact the administrator."
+          t("teacher.classSubjects.notClassTeacher")
         );
         return;
       }
@@ -163,7 +164,7 @@
       await loadClassData(currentClassId);
     } catch (error) {
       console.error("Failed to load initial data:", error);
-      showError("Failed to load your assigned class. Please refresh the page.");
+      showError(t("teacher.classSubjects.failedLoadClass"));
     } finally {
       showLoading(false);
     }
@@ -208,7 +209,7 @@
     } catch (error) {
       console.error("Failed to load class data:", error);
       showError(
-        `Failed to load data for your assigned class: ${error.message}`
+        t("teacher.classSubjects.failedLoadData", { error: error.message })
       );
     } finally {
       showLoading(false);
@@ -245,13 +246,13 @@
 
     if (!classInfo.id) {
       table.innerHTML =
-        '<tr><td colspan="100%">Loading your assigned class...</td></tr>';
+        `<tr><td colspan="100%">${t("teacher.classSubjects.loadingYourClass")}</td></tr>`;
       return;
     }
 
     // Header
     const headerRow = document.createElement("tr");
-    headerRow.innerHTML = `<th>Index No</th><th>Name</th>`;
+    headerRow.innerHTML = `<th>${t("teacher.classSubjects.indexNo")}</th><th>${t("teacher.classSubjects.name")}</th>`;
 
     // Add headers for class subjects
     classSubjects.forEach((subject) => {
@@ -265,7 +266,7 @@
     const electiveCount = gradeRules.elective_count || 0;
 
     for (let i = 0; i < electiveCount; i++) {
-      headerRow.innerHTML += `<th>Subject ${i + 1}</th>`;
+      headerRow.innerHTML += `<th>${t("teacher.classSubjects.subject", { n: i + 1 })}</th>`;
     }
 
     table.appendChild(headerRow);
@@ -311,7 +312,7 @@
           <td>
             <select id="${id}" class="dropdown-select subject-select" data-student="${student.id
           }" data-elective-index="${i}">
-              <option value="">Select subject</option>
+              <option value="">${t("teacher.classSubjects.selectSubject")}</option>
               ${filteredSubjects
             .map(
               (sub) =>
@@ -405,18 +406,18 @@
 
   async function submitSubjects() {
     if (!currentClassId) {
-      showError("No class assigned");
+      showError(t("teacher.classSubjects.noClassAssigned"));
       return;
     }
 
     // Confirmation toast before submitting
     toast(
-      "Are you sure you want to submit subject assignments?",
+      t("teacher.classSubjects.confirmSubmit"),
       "fa-solid fa-paper-plane",
       {
         confirm: true,
-        confirmText: "Submit",
-        cancelText: "Cancel",
+        confirmText: t("teacher.classSubjects.submit"),
+        cancelText: t("common.cancel"),
         onConfirm: async function () {
           try {
             showLoading(true);
@@ -427,13 +428,13 @@
               .then((res) => res.json());
             if (result.success) {
               toast(
-                "Subject assignments submitted successfully!",
+                t("teacher.classSubjects.submitSuccess"),
                 "fa-solid fa-check-circle"
               );
               // Reload data to reflect changes
               await loadClassData(currentClassId);
             } else {
-              showError("Failed to submit assignments");
+              showError(t("teacher.classSubjects.failedSubmit"));
             }
           } catch (error) {
             console.error("Submit error:", error);
@@ -451,7 +452,7 @@
 
   async function saveDraft() {
     if (!currentClassId) {
-      showError("No class assigned");
+      showError(t("teacher.classSubjects.noClassAssigned"));
       return;
     }
 
@@ -465,13 +466,13 @@
         .then((res) => res.json());
 
       if (result.success) {
-        showSuccess("Draft saved successfully!");
+        showSuccess(t("teacher.classSubjects.draftSaved"));
       } else {
-        showError("Failed to save draft");
+        showError(t("teacher.classSubjects.failedDraft"));
       }
     } catch (error) {
       console.error("Save draft error:", error);
-      showError(`Failed to save draft: ${error.message}`);
+      showError(t("teacher.classSubjects.failedDraft"));
     }
   }
 
@@ -492,6 +493,16 @@
       console.error("Failed to save student subject:", error);
     }
   }
+
+  // Re-render table on language change
+  window.addEventListener("languageChanged", () => {
+    renderTable(allStudents);
+    // Re-apply class subjects visibility
+    const toggle = document.getElementById("toggle-class-subjects");
+    if (toggle) {
+      setClassSubjectsVisibility(toggle.checked);
+    }
+  });
 
   // Initialize the page
   loadSubjectAssignmentPage();

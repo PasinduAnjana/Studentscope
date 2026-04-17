@@ -131,7 +131,27 @@
     "failedReject": "ප්‍රතික්ෂ කිරීමට අසමත් විය",
     "present": "පැමිණි",
     "absent": "නොපැමිණි",
-    "noAnnouncements": "නිවේදන නැත"
+    "noAnnouncements": "නිවේදන නැත",
+    "classSubjects": {
+      "searchStudents": "ශිෂ්‍යයන් සොයන්න",
+      "managingClass": "කළමනාකරණය කරන පන්තිය:",
+      "showClassSubjects": "පන්ති විෂයන් පෙන්වන්න",
+      "submit": "ඉදිරිපත් කරන්න",
+      "loadingYourClass": "ඔබට පවරා ඇති පන්තිය පූරණය වෙමින්...",
+      "notClassTeacher": "ඔබ පන්ති ගුරුවරයෙකු ලෙස පවරා නැත. පරිපාලනය අමතන්න.",
+      "failedLoadClass": "ඔබට පවරා ඇති පන්තිය පූරණය කිරීමට අසමත් විය. පිටුව යළි පූරණය කරන්න.",
+      "failedLoadData": "ඔබට පවරා ඇති පන්තියේ දත්ත පූරණය කිරීමට අසමත් විය: {error}",
+      "noClassAssigned": "පන්තියක් පවරා නැත",
+      "confirmSubmit": "විෂය පැතිතුම් ඉදිරිපත් කිරීමට ඔබ තහවුරු ද?",
+      "submitSuccess": "විෂය පැතිතුම් සාර්ථකව ඉදිරිපත් කෙරුණි!",
+      "failedSubmit": "විෂය පැතිතුම් ඉදිරිපත් කිරීමට අසමත් විය",
+      "selectSubject": "විෂයක් තෝරන්න",
+      "draftSaved": "පිටපත සාර්ථකව සුරකිණි!",
+      "failedDraft": "පිටපත සුරැඳීමට අසමත් විය",
+      "indexNo": "අනන්ය අංකය",
+      "name": "නම",
+      "subject": "විෂය {n}"
+    }
   },
 
   "clerk": {
