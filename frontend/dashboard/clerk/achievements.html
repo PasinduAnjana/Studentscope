@@ -1,6 +1,7 @@
 
   <!-- Import Web Component -->
   <script src="js/components/ToggleSelect.js"></script>
+  <script src="../../js/dropdown.js"></script>
 
   <h2 class="heading">
     <i class="fas fa-trophy"></i>
@@ -42,7 +43,7 @@
           
           <div class="form-group">
             <label for="studentSelect" data="achievements.studentLabel">Student</label>
-            <select id="studentSelect" required style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text);">
+            <select id="studentSelect" required>
               <option value="" data="achievements.selectStudent">Select Student...</option>
             </select>
           </div>
@@ -83,6 +84,7 @@
   <script>
     let students = [];
     let isEditing = false;
+    let searchableStudentSelect;
 
     // Sync Web Component value with hidden input for form submission
     function syncCategory() {
@@ -110,6 +112,9 @@
                 option.textContent = `${s.full_name} (${s.username || t("achievements.noStudentId")})`;
                 select.appendChild(option);
               });
+              if (typeof makeSearchableDropdown === "function") {
+                searchableStudentSelect = makeSearchableDropdown("studentSelect");
+              }
           }
         }
       } catch (err) {
