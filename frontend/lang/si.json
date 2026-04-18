@@ -425,6 +425,47 @@
         "notFound": "ගුරුවරයා හමු නොවීය",
         "loadError": "ගුරුවරුන් පූරණය කිරීමේ දෝෂයකි"
       }
+    },
+    "classes": {
+      "title": "පන්ති කළමනාකරණය",
+      "grade": "{grade} ශ්‍රේණිය",
+      "notAvailable": "නොමැත",
+      "noTeacherAssigned": "ගුරුවරයෙකු පත් කර නැත",
+      "modal": {
+        "assignTeacher": "පන්ති ගුරුවරයා පත් කරන්න",
+        "assignTeacherTitle": "ගුරුවරයා පත් කරන්න - {grade} ශ්‍රේණිය {className}",
+        "addNewClassTitle": "නව පන්තියක් එකතු කරන්න - {grade} ශ්‍රේණිය"
+      },
+      "form": {
+        "className": "පන්තියේ නම",
+        "classNamePlaceholder": "පන්තියේ නම ඇතුළත් කරන්න (උදා: A, B, C)",
+        "teacher": "ගුරුවරයා",
+        "selectTeacher": "-- ගුරුවරයෙකු තෝරන්න --",
+        "removeTeacher": "ගුරුවරයා ඉවත් කරන්න",
+        "deleteClass": "පන්තිය මකන්න",
+        "cancel": "අවලංගු කරන්න",
+        "save": "සුරකින්න"
+      },
+      "validation": {
+        "teacherRequired": "කරුණාටුක් ගුරුවරයෙකු තෝරන්න",
+        "classNameRequired": "කරුණාටුක් පන්තියේ නම ඇතුළත් කරන්න"
+      },
+      "success": {
+        "teacherAssigned": "ගුරුවරයා සාර්ථකව පත් කරන ලදී!",
+        "teacherRemoved": "ගුරුවරයා සාර්ථකව ඉවත් කරන ලදී!",
+        "classDeleted": "පන්තිය සාර්ථකව මකන ලදී!"
+      },
+      "error": {
+        "loadError": "පන්ති පූරණය කළ නොහැක: ",
+        "saveError": "සුරකින්නේ දෝෂයකි",
+        "removeError": "ගුරුවරයා ඉවත් කිරීමේ දෝෂයකි",
+        "deleteError": "මකන්නේ දෝෂයකි",
+        "noClassSelected": "පන්තියක් තෝරා නැත"
+      },
+      "confirm": {
+        "removeTeacher": "ඔබට තහවුරුද මෙම පන්තියෙන් ගුරුවරයා ඉවත් කිරීමට?",
+        "deleteClass": "ඔබට තහවුරුද මෙම පන්තිය මකන්න?"
+      }
     }
   },
   "student": {

@@ -423,6 +423,47 @@
         "notFound": "Teacher not found",
         "loadError": "Error loading teachers"
       }
+    },
+    "classes": {
+      "title": "Class Management",
+      "grade": "Grade {grade}",
+      "notAvailable": "N/A",
+      "noTeacherAssigned": "No teacher assigned",
+      "modal": {
+        "assignTeacher": "Assign Class Teacher",
+        "assignTeacherTitle": "Assign Teacher - Grade {grade} {className}",
+        "addNewClassTitle": "Add New Class - Grade {grade}"
+      },
+      "form": {
+        "className": "Class Name",
+        "classNamePlaceholder": "Enter class name (e.g. A, B, C)",
+        "teacher": "Teacher",
+        "selectTeacher": "-- Select a teacher --",
+        "removeTeacher": "Remove Teacher",
+        "deleteClass": "Delete Class",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "validation": {
+        "teacherRequired": "Please select a teacher",
+        "classNameRequired": "Please enter a class name"
+      },
+      "success": {
+        "teacherAssigned": "Teacher assigned successfully!",
+        "teacherRemoved": "Teacher removed successfully!",
+        "classDeleted": "Class deleted successfully!"
+      },
+      "error": {
+        "loadError": "Unable to load classes: ",
+        "saveError": "An error occurred while saving",
+        "removeError": "An error occurred while removing teacher",
+        "deleteError": "An error occurred while deleting",
+        "noClassSelected": "No class selected"
+      },
+      "confirm": {
+        "removeTeacher": "Are you sure you want to remove the teacher from this class?",
+        "deleteClass": "Are you sure you want to delete this class?"
+      }
     }
   },
   "student": {
