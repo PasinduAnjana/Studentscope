@@ -1,6 +1,6 @@
 <h2 class="heading">
   <i class="fas fa-calendar-day"></i>
-  <span>Timetable Assignment</span>
+  <span data="clerk.timetable.title">Timetable Assignment</span>
 </h2>
 
 <div
@@ -8,9 +8,9 @@
   style="gap: 16px; align-items: baseline; flex-wrap: wrap"
 >
   <div class="input-group">
-    <label for="class-select">Select Class:</label>
+    <label for="class-select" data="clerk.timetable.selectClass">Select Class:</label>
     <select id="class-select">
-      <option value="">Select Class</option>
+      <option value="" data="clerk.timetable.selectClass">Select Class</option>
     </select>
   </div>
 </div>
@@ -18,35 +18,35 @@
 <div class="timetable" id="timetable">
   <!-- Header row -->
   <div class="timetable-row header-row" id="timetable-header-row">
-    <div class="timetable-cell header-cell">Time</div>
-    <div class="timetable-cell header-cell">Monday</div>
-    <div class="timetable-cell header-cell">Tuesday</div>
-    <div class="timetable-cell header-cell">Wednesday</div>
-    <div class="timetable-cell header-cell">Thursday</div>
-    <div class="timetable-cell header-cell">Friday</div>
+    <div class="timetable-cell header-cell" data="clerk.timetable.days.time">Time</div>
+    <div class="timetable-cell header-cell" data="clerk.timetable.days.monday">Monday</div>
+    <div class="timetable-cell header-cell" data="clerk.timetable.days.tuesday">Tuesday</div>
+    <div class="timetable-cell header-cell" data="clerk.timetable.days.wednesday">Wednesday</div>
+    <div class="timetable-cell header-cell" data="clerk.timetable.days.thursday">Thursday</div>
+    <div class="timetable-cell header-cell" data="clerk.timetable.days.friday">Friday</div>
   </div>
 </div>
 
 <!-- Assignment Modal -->
 <!-- Assignment Modal -->
-<modal-dialog id="assignment-modal" title="Assign to Slot">
+<modal-dialog id="assignment-modal" data-title="clerk.timetable.modal.assignToSlot" title="Assign to Slot">
     <div style="display: flex; flex-direction: column; gap: 20px;">
         
         <div class="form-group mb-0">
-          <label for="assign-subject" style="display: block; font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 8px;">Subject</label>
+          <label for="assign-subject" data="clerk.timetable.modal.subject" style="display: block; font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 8px;">Subject</label>
           <div style="position: relative;">
             <select id="assign-subject" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--color-border); background-color: var(--color-bg); font-size: 15px; appearance: none; -webkit-appearance: none;">
-              <option value="">Select Subject</option>
+              <option value="" data="clerk.timetable.modal.selectSubject">Select Subject</option>
             </select>
             <i class="fas fa-book-open" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--color-subtext); pointer-events: none;"></i>
           </div>
         </div>
 
         <div class="form-group mb-0">
-          <label for="assign-teacher" style="display: block; font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 8px;">Teacher</label>
+          <label for="assign-teacher" data="clerk.timetable.modal.teacher" style="display: block; font-weight: 600; font-size: 14px; color: var(--color-text); margin-bottom: 8px;">Teacher</label>
            <div style="position: relative;">
             <select id="assign-teacher" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--color-border); background-color: var(--color-bg); font-size: 15px; appearance: none; -webkit-appearance: none;">
-              <option value="">Select Teacher</option>
+              <option value="" data="clerk.timetable.modal.selectTeacher">Select Teacher</option>
             </select>
             <i class="fas fa-chalkboard-teacher" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--color-subtext); pointer-events: none;"></i>
           </div>
@@ -55,8 +55,8 @@
     </div>
 
     <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-      <button onclick="closeModal()" class="btn" style="background: transparent; color: var(--color-subtext); padding: 10px 20px;">Cancel</button>
-      <button id="modal-save" class="btn btn-primary" style="padding: 10px 24px; border-radius: 12px; font-weight: 600;">Assign</button>
+      <button onclick="closeModal()" class="btn" data="clerk.timetable.modal.cancel" style="background: transparent; color: var(--color-subtext); padding: 10px 20px;">Cancel</button>
+      <button id="modal-save" class="btn btn-primary" data="clerk.timetable.modal.assign" style="padding: 10px 24px; border-radius: 12px; font-weight: 600;">Assign</button>
     </div>
 </modal-dialog>
 
@@ -87,11 +87,11 @@
       if (!res.ok) throw new Error("Failed to fetch classes");
       const classes = await res.json();
       const select = document.getElementById("class-select");
-      select.innerHTML = '<option value="">Select Class</option>';
+      select.innerHTML = `<option value="">${t("clerk.timetable.selectClass")}</option>`;
       classes.forEach((cls) => {
         const opt = document.createElement("option");
         opt.value = cls.id;
-        opt.textContent = `Grade ${cls.grade} ${cls.class_name}`;
+        opt.textContent = t("clerk.timetable.classDisplay", { grade: cls.grade, className: cls.class_name });
         select.appendChild(opt);
       });
       if (typeof makeSearchableDropdown === "function") {
@@ -108,10 +108,9 @@
             if (val) {
               loadTimetable();
             } else {
-              // Clear timetable when no class is selected
               const timetableContainer = document.getElementById("timetable");
               timetableContainer.innerHTML =
-                '<empty-state-message message="Select a class to view timetable" icon="fas fa-chalkboard"></empty-state-message>';
+                `<empty-state-message message="${t("clerk.timetable.empty.selectClass")}" icon="fas fa-chalkboard"></empty-state-message>`;
             }
           }
         );
@@ -127,7 +126,7 @@
       if (!res.ok) throw new Error("Failed to fetch subjects");
       const subjects = await res.json();
       const select = document.getElementById("assign-subject");
-      select.innerHTML = '<option value="">Select Subject</option>';
+      select.innerHTML = `<option value="">${t("clerk.timetable.modal.selectSubject")}</option>`;
       subjects.forEach((sub) => {
         const opt = document.createElement("option");
         opt.value = sub.subject_id;
@@ -154,7 +153,7 @@
       if (!res.ok) throw new Error("Failed to fetch teachers");
       const teachers = await res.json();
       const select = document.getElementById("assign-teacher");
-      select.innerHTML = '<option value="">Select Teacher</option>';
+      select.innerHTML = `<option value="">${t("clerk.timetable.modal.selectTeacher")}</option>`;
       teachers.forEach((teacher) => {
         const opt = document.createElement("option");
         opt.value = teacher.teacher_id;
@@ -179,7 +178,7 @@
     if (!currentClass) {
       const timetableContainer = document.getElementById("timetable");
       timetableContainer.innerHTML =
-        '<empty-state-message message="Select a class to view timetable" icon="fas fa-chalkboard"></empty-state-message>';
+        `<empty-state-message message="${t("clerk.timetable.empty.selectClass")}" icon="fas fa-chalkboard"></empty-state-message>`;
       return;
     }
 
@@ -206,12 +205,12 @@
       const headerRow = document.createElement("div");
       headerRow.classList.add("timetable-row", "header-row");
       const headers = [
-        "Time",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
+        t("clerk.timetable.days.time"),
+        t("clerk.timetable.days.monday"),
+        t("clerk.timetable.days.tuesday"),
+        t("clerk.timetable.days.wednesday"),
+        t("clerk.timetable.days.thursday"),
+        t("clerk.timetable.days.friday"),
       ];
       headers.forEach((day) => {
         const cell = document.createElement("div");
@@ -248,14 +247,14 @@
 
             const teacherDiv = document.createElement("div");
             teacherDiv.classList.add("class-name");
-            teacherDiv.textContent = entry.teacher_name || "Assigned";
+            teacherDiv.textContent = entry.teacher_name || t("clerk.timetable.slot.assigned");
 
             card.appendChild(subjectDiv);
             card.appendChild(teacherDiv);
           } else {
             const emptyDiv = document.createElement("div");
             emptyDiv.classList.add("empty-slot");
-            emptyDiv.textContent = "Click to assign";
+            emptyDiv.textContent = t("clerk.timetable.slot.clickToAssign");
             card.appendChild(emptyDiv);
           }
 
@@ -272,7 +271,7 @@
           const breakCell = document.createElement("h3");
           breakCell.classList.add("timetable-cell", "interval-cell");
           breakCell.style.color = "var(--color-primary)";
-          breakCell.textContent = "INTERVAL";
+          breakCell.textContent = t("clerk.timetable.break.interval");
           breakCell.style.gridColumn = "1 / span 6";
 
           breakRow.appendChild(breakCell);
@@ -283,37 +282,38 @@
       console.error(err);
       const timetableContainer = document.getElementById("timetable");
       timetableContainer.innerHTML =
-        '<empty-state-message message="Unable to load timetable" icon="fas fa-exclamation-triangle"></empty-state-message>';
+        `<empty-state-message message="${t("clerk.timetable.error.loadFailed")}" icon="fas fa-exclamation-triangle"></empty-state-message>`;
     }
   }
 
   function openAssignmentModal(day, period) {
     currentSlot = { day, period };
-    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-    const dayName = days[day - 1]; // Assuming day 1-5
+    const days = [
+      t("clerk.timetable.days.monday"),
+      t("clerk.timetable.days.tuesday"),
+      t("clerk.timetable.days.wednesday"),
+      t("clerk.timetable.days.thursday"),
+      t("clerk.timetable.days.friday")
+    ];
+    const dayName = days[day - 1];
     const modal = document.getElementById("assignment-modal");
     
-    // Look up existing assignment for this slot
     const entry = timetableLookup[day] && timetableLookup[day][period];
 
-    // Pre-select subject dropdown
     const subjectSelect = document.getElementById("assign-subject");
     subjectSelect.value = entry ? String(entry.subject_id) : "";
     updateSearchableDisplay("assign-subject");
 
-    // Pre-select teacher dropdown
     const teacherSelect = document.getElementById("assign-teacher");
     teacherSelect.value = entry ? String(entry.teacher_id) : "";
     updateSearchableDisplay("assign-teacher");
 
-    // Create or update subtitle slot
     const subtitle = document.createElement("p");
     subtitle.style.cssText = "color: var(--color-subtext); font-size: 14px; margin-top: 4px; margin-bottom: 0;";
     subtitle.textContent = entry
-      ? `${dayName} • Currently: ${entry.subject} — ${entry.teacher_name}`
-      : `${dayName} • Select subject and teacher`;
+      ? `${dayName} • ${entry.subject} — ${entry.teacher_name}`
+      : `${dayName} • ${t("clerk.timetable.modal.selectSubject")} & ${t("clerk.timetable.modal.selectTeacher")}`;
     
-    // We can inject this into the slot we defined in the component
     const slot = modal.querySelector("#modal-subtitle-slot");
     if(slot) {
         slot.innerHTML = '';
@@ -335,7 +335,7 @@
 
     if (!subject || !teacher) {
       toast(
-        "Please select subject and teacher",
+        t("clerk.timetable.toast.selectSubjectTeacher"),
         "fa-solid fa-circle-exclamation"
       );
       return;
@@ -350,12 +350,12 @@
         teacher_id: teacher,
       });
       if (!res.ok) throw new Error("Failed to assign");
-      toast("Assignment saved successfully", "fa-solid fa-check-circle");
+      toast(t("clerk.timetable.toast.saved"), "fa-solid fa-check-circle");
       closeModal();
       loadTimetable();
     } catch (err) {
       console.error(err);
-      toast("Error saving assignment", "fa-solid fa-circle-exclamation");
+      toast(t("clerk.timetable.toast.error"), "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -364,6 +364,11 @@
   loadSubjects();
   loadTeachers();
   loadTimetable();
+
+  // Language change handler
+  window.addEventListener("languageChanged", () => {
+    loadTimetable();
+  });
 
   // Modal event listeners
   // document

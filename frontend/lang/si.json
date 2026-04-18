@@ -466,6 +466,46 @@
         "removeTeacher": "ඔබට තහවුරුද මෙම පන්තියෙන් ගුරුවරයා ඉවත් කිරීමට?",
         "deleteClass": "ඔබට තහවුරුද මෙම පන්තිය මකන්න?"
       }
+    },
+    "timetable": {
+      "title": "කාලසටහන පැවරීම",
+      "selectClass": "පන්තියක් තෝරන්න",
+      "days": {
+        "time": "වේලාව",
+        "monday": "සඳහන් දින",
+        "tuesday": "අඟහරු දින",
+        "wednesday": "බදාදුරු දින",
+        "thursday": "පස්දාදුරු දින",
+        "friday": "සිකුරු දින"
+      },
+      "modal": {
+        "assignToSlot": "ස්ලෝටයට පවරන්න",
+        "subject": "විෂය",
+        "selectSubject": "විෂයක් තෝරන්න",
+        "teacher": "ගුරුවරයා",
+        "selectTeacher": "ගුරුවරයෙක් තෝරන්න",
+        "cancel": "අවලංගු කරන්න",
+        "assign": "පවරන්න"
+      },
+      "classDisplay": "ශ්‍රේණිය {grade} {className}",
+      "empty": {
+        "selectClass": "කාලසටහන බැලීමට පන්තියක් තෝරන්න"
+      },
+      "slot": {
+        "assigned": "පවරා ඇත",
+        "clickToAssign": "පවරීමට ක්ලික් කරන්න"
+      },
+      "break": {
+        "interval": "විවේකය"
+      },
+      "error": {
+        "loadFailed": "කාලසටහන පූරණය කිරීමට අසමත් විය"
+      },
+      "toast": {
+        "selectSubjectTeacher": "විෂයක් සහ ගුරුවරයෙක් තෝරන්න",
+        "saved": "පවරීම සාර්ථකව සුරකින ලදි",
+        "error": "පවරීමේ දෝෂයකි"
+      }
     }
   },
   "student": {

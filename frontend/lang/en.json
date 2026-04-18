@@ -464,6 +464,46 @@
         "removeTeacher": "Are you sure you want to remove the teacher from this class?",
         "deleteClass": "Are you sure you want to delete this class?"
       }
+    },
+    "timetable": {
+      "title": "Timetable Assignment",
+      "selectClass": "Select Class",
+      "days": {
+        "time": "Time",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday"
+      },
+      "modal": {
+        "assignToSlot": "Assign to Slot",
+        "subject": "Subject",
+        "selectSubject": "Select Subject",
+        "teacher": "Teacher",
+        "selectTeacher": "Select Teacher",
+        "cancel": "Cancel",
+        "assign": "Assign"
+      },
+      "classDisplay": "Grade {grade} {className}",
+      "empty": {
+        "selectClass": "Select a class to view timetable"
+      },
+      "slot": {
+        "assigned": "Assigned",
+        "clickToAssign": "Click to assign"
+      },
+      "break": {
+        "interval": "INTERVAL"
+      },
+      "error": {
+        "loadFailed": "Unable to load timetable"
+      },
+      "toast": {
+        "selectSubjectTeacher": "Please select subject and teacher",
+        "saved": "Assignment saved successfully",
+        "error": "Error saving assignment"
+      }
     }
   },
   "student": {
