@@ -46,7 +46,13 @@
       }
     } catch (e) {
       console.error(e);
-      toast("Error loading events", "fa-solid fa-circle-exclamation");
+      const calendarEl = document.getElementById("calendar");
+      calendarEl.innerHTML = "";
+      const emptyEl = document.createElement("empty-state-message");
+      emptyEl.setAttribute("icon", "fas fa-exclamation-triangle");
+      emptyEl.setAttribute("data-message", "student.eventsPage.errorLoading");
+      emptyEl.style.gridColumn = "1 / -1";
+      calendarEl.appendChild(emptyEl);
     }
   }
 

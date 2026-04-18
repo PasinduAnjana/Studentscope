@@ -28,7 +28,7 @@
         <p class="tile-label" data="student.announcementsPage.title">My Announcements</p>
       </div>
       <div class="announcements-container" id="announcements-container">
-        <!-- Announcements will be loaded here dynamically -->
+        <empty-state-message icon="fas fa-bullhorn" data-message="student.announcementsPage.noAnnouncements"></empty-state-message>
       </div>
     </div>
   </div>
@@ -41,7 +41,10 @@
     const container = document.querySelector(`#${containerId}`);
     container.innerHTML = "";
     if (!announcements.length) {
-      container.innerHTML = `<div class="no-announcements text-center">${t("student.announcementsPage.noAnnouncements")}</div>`;
+      const emptyEl = document.createElement("empty-state-message");
+      emptyEl.setAttribute("icon", "fas fa-bullhorn");
+      emptyEl.setAttribute("data-message", "student.announcementsPage.noAnnouncements");
+      container.appendChild(emptyEl);
       return;
     }
 
@@ -114,7 +117,11 @@
       .catch((err) => {
         console.error("Error fetching announcements:", err);
         const container = document.querySelector("#announcements-container");
-        container.innerHTML = `<div class="no-announcements text-center">${t("student.announcementsPage.errorLoading")}</div>`;
+        container.innerHTML = "";
+        const emptyEl = document.createElement("empty-state-message");
+        emptyEl.setAttribute("icon", "fas fa-exclamation-triangle");
+        emptyEl.setAttribute("data-message", "student.announcementsPage.errorLoading");
+        container.appendChild(emptyEl);
       });
   }
 

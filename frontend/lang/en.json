@@ -715,14 +715,16 @@
       "approved": "Approved",
       "rejected": "Rejected",
       "noCertificates": "No certificates requested",
-      "requestSuccess": "Certificate request submitted successfully"
+      "requestSuccess": "Certificate request submitted successfully",
+      "errorLoading": "Error loading certificates"
     },
     "eventsPage": {
       "title": "Events",
       "noEvents": "No upcoming events",
       "date": "Date",
       "event": "Event",
-      "description": "Description"
+      "description": "Description",
+      "errorLoading": "Error loading events"
     },
     "announcementsPage": {
       "title": "Announcements",

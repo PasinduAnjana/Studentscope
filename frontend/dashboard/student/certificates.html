@@ -156,7 +156,11 @@
         const data = await res.json();
 
         if (data.length === 0) {
-          requestsList.innerHTML = '<p class="text-sm text-muted">No requests yet</p>';
+          requestsList.innerHTML = "";
+          const emptyEl = document.createElement("empty-state-message");
+          emptyEl.setAttribute("icon", "fas fa-file-alt");
+          emptyEl.setAttribute("data-message", "student.certificatesPage.noCertificates");
+          requestsList.appendChild(emptyEl);
           return;
         }
 
@@ -175,7 +179,11 @@
         `).join("");
       } catch (err) {
         console.error("Error loading certificates:", err);
-        requestsList.innerHTML = '<p class="text-error">Error loading requests</p>';
+        requestsList.innerHTML = "";
+        const emptyEl = document.createElement("empty-state-message");
+        emptyEl.setAttribute("icon", "fas fa-exclamation-triangle");
+        emptyEl.setAttribute("data-message", "student.certificatesPage.errorLoading");
+        requestsList.appendChild(emptyEl);
       }
     }
 
