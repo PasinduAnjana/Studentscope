@@ -21,23 +21,23 @@
 <section class="section">
   <h2 class="heading">
     <i class="fas fa-users"></i>
-    <span>Teacher Management</span>
+    <span data="clerk.teachers.title">Teacher Management</span>
   </h2>
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <div class="icon-title">
         <i class="fas fa-chalkboard-teacher icon"></i>
-        <p class="tile-label">Teachers</p>
+        <p class="tile-label" data="clerk.teachers.teachers">Teachers</p>
       </div>
       <button id="add-teacher-btn" class="btn btn-primary" onclick="openAddTeacherModal()">
-        <i class="fas fa-user-plus"></i> Add Teacher
+        <i class="fas fa-user-plus"></i> <span data="clerk.teachers.addTeacher">Add Teacher</span>
       </button>
     </div>
     <data-table id="teachers-table">
       <div slot="filters">
         <div class="input-group">
           <select id="level-filter">
-            <option value="all">All Grades</option>
+            <option value="all" data="clerk.teachers.filter.allGrades">All Grades</option>
           </select>
         </div>
       </div>
@@ -46,57 +46,57 @@
 </section>
 
 <!-- Add/Edit Teacher Modal -->
-<modal-dialog id="teacher-modal" title="Add Teacher">
+<modal-dialog id="teacher-modal" data-title="clerk.teachers.addTeacher">
   <div class="teacher-form-grid">
     <div class="input-group">
-      <label for="teacher-full-name">Full Name:</label>
-      <input type="text" id="teacher-full-name" placeholder="Enter full name" minlength="2" maxlength="100"
+      <label for="teacher-full-name" data="clerk.teachers.form.fullName">Full Name:</label>
+      <input type="text" id="teacher-full-name" data-placeholder="clerk.teachers.form.fullNamePlaceholder" placeholder="Enter full name" minlength="2" maxlength="100"
         pattern="[a-zA-Z\s\-']+" title="Name can only contain letters, spaces, hyphens, and apostrophes" />
     </div>
     <div class="input-group">
-      <label for="teacher-nic">NIC:</label>
-      <input type="text" id="teacher-nic" placeholder="Enter NIC" minlength="5" maxlength="20" />
+      <label for="teacher-nic" data="clerk.teachers.form.nic">NIC:</label>
+      <input type="text" id="teacher-nic" data-placeholder="clerk.teachers.form.nicPlaceholder" placeholder="Enter NIC" minlength="5" maxlength="20" />
     </div>
     <div class="input-group">
-      <label for="teacher-birthday">Birthday:</label>
+      <label for="teacher-birthday" data="clerk.teachers.form.birthday">Birthday:</label>
       <input type="date" id="teacher-birthday" />
     </div>
     <div class="input-group">
-      <label for="teacher-level">Grade:</label>
+      <label for="teacher-level" data="clerk.teachers.form.level">Grade:</label>
       <select id="teacher-level">
-        <option value="">Select Grade</option>
-        <option value="1">Grade 1</option>
-        <option value="2">Grade 2</option>
-        <option value="3">Grade 3</option>
+        <option value="" data="clerk.teachers.form.selectLevel">Select Grade</option>
+        <option value="1" data="clerk.teachers.form.grade1">Grade 1</option>
+        <option value="2" data="clerk.teachers.form.grade2">Grade 2</option>
+        <option value="3" data="clerk.teachers.form.grade3">Grade 3</option>
       </select>
     </div>
     <div class="input-group">
-      <label for="teacher-address">Address:</label>
-      <input type="text" id="teacher-address" placeholder="Enter address" maxlength="255" />
+      <label for="teacher-address" data="clerk.teachers.form.address">Address:</label>
+      <input type="text" id="teacher-address" data-placeholder="clerk.teachers.form.addressPlaceholder" placeholder="Enter address" maxlength="255" />
     </div>
     <div class="input-group">
-      <label for="teacher-phone">Phone Number:</label>
-      <input type="tel" id="teacher-phone" placeholder="Enter phone number" pattern="[0-9\s\-\+\(\)]+"
+      <label for="teacher-phone" data="clerk.teachers.form.phone">Phone Number:</label>
+      <input type="tel" id="teacher-phone" data-placeholder="clerk.teachers.form.phonePlaceholder" placeholder="Enter phone number" pattern="[0-9\s\-\+\(\)]+"
         title="Phone number can only contain digits, spaces, hyphens, plus sign, and parentheses" minlength="7"
         maxlength="20" />
     </div>
     <div class="input-group">
-      <label for="teacher-past-schools">Past Schools:</label>
-      <input type="text" id="teacher-past-schools" placeholder="Enter past schools" />
+      <label for="teacher-past-schools" data="clerk.teachers.form.pastSchools">Past Schools:</label>
+      <input type="text" id="teacher-past-schools" data-placeholder="clerk.teachers.form.pastSchoolsPlaceholder" placeholder="Enter past schools" />
     </div>
     <div class="input-group">
-      <label for="teacher-appointment-date">Appointment Date:</label>
+      <label for="teacher-appointment-date" data="clerk.teachers.form.appointmentDate">Appointment Date:</label>
       <input type="date" id="teacher-appointment-date" />
     </div>
     <div class="input-group" style="grid-column: span 2">
-      <label for="teacher-first-appointment-date">First Appointment Date:</label>
+      <label for="teacher-first-appointment-date" data="clerk.teachers.form.firstAppointmentDate">First Appointment Date:</label>
       <input type="date" id="teacher-first-appointment-date" />
     </div>
   </div>
 
   <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-    <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
-    <button id="modal-save" class="btn btn-primary">Save</button>
+    <button id="modal-cancel" class="btn btn-secondary" data="clerk.teachers.form.cancel">Cancel</button>
+    <button id="modal-save" class="btn btn-primary" data="clerk.teachers.form.save">Save</button>
   </div>
 </modal-dialog>
 
@@ -122,31 +122,31 @@
   function initTable() {
     const table = document.getElementById("teachers-table");
     table.setColumns([
-      { key: "full_name", header: "Name", searchable: true },
-      { key: "nic", header: "NIC", searchable: true },
-      { key: "level", header: "Grade" },
+      { key: "full_name", header: t("clerk.teachers.name"), searchable: true },
+      { key: "nic", header: t("clerk.teachers.nic"), searchable: true },
+      { key: "level", header: t("clerk.teachers.level") },
       {
         key: "birthday",
-        header: "Birthday",
+        header: t("clerk.teachers.birthday"),
         render: (row) => row.birthday ? new Date(row.birthday).toLocaleDateString() : ""
       },
-      { key: "phone_number", header: "Phone" },
+      { key: "phone_number", header: t("clerk.teachers.phone") },
       {
         key: "appointment_date",
-        header: "Appointment Date",
+        header: t("clerk.teachers.appointmentDate"),
         render: (row) => row.appointment_date ? new Date(row.appointment_date).toLocaleDateString() : ""
       },
       {
         key: "actions",
-        header: "Actions",
+        header: t("buttons.actions"),
         render: (row) => {
           const div = document.createElement("div");
           div.className = "action-buttons";
           div.innerHTML = `
-                    <button class="btn-icon btn-edit" onclick="editTeacher(${row.teacher_id})" title="Edit">
+                    <button class="btn-icon btn-edit" onclick="editTeacher(${row.teacher_id})" title="${t("buttons.edit")}">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-icon btn-delete" onclick="deleteTeacher(${row.teacher_id})" title="Delete">
+                    <button class="btn-icon btn-delete" onclick="deleteTeacher(${row.teacher_id})" title="${t("buttons.delete")}">
                       <i class="fas fa-trash"></i>
                     </button>
                 `;
@@ -166,7 +166,7 @@
       });
     }
 
-    table.setEmptyState("No teachers found", "fas fa-users-slash");
+    table.setEmptyState(t("clerk.teachers.noTeachersFound"), "fas fa-users-slash");
   }
 
   function fetchTeachers() {
@@ -182,7 +182,7 @@
       .catch((err) => {
         console.error(err);
         document.getElementById("teachers-table").setData([]);
-        document.getElementById("teachers-table").setEmptyState("Error loading teachers", "fas fa-exclamation-triangle");
+        document.getElementById("teachers-table").setEmptyState(t("clerk.teachers.loadError"), "fas fa-exclamation-triangle");
       });
   }
 
@@ -196,7 +196,7 @@
     function openAddModal() {
       editingTeacher = null;
       if (modal) {
-        modal.setTitle("Add Teacher");
+        modal.setTitle(t("clerk.teachers.addTeacher"));
         clearModal();
         modal.open();
       }
@@ -259,14 +259,14 @@
 
     // Check required fields
     if (!fullName) {
-      toast("Full Name is required", "fa-solid fa-circle-exclamation");
+      toast(t("clerk.teachers.validation.fullNameRequired"), "fa-solid fa-circle-exclamation");
       document.getElementById("teacher-full-name").focus();
       return false;
     }
 
     if (fullName.length < 2) {
       toast(
-        "Full Name must be at least 2 characters",
+        t("clerk.teachers.validation.fullNameMinLength"),
         "fa-solid fa-circle-exclamation"
       );
       document.getElementById("teacher-full-name").focus();
@@ -275,7 +275,7 @@
 
     if (!fullName.match(/^[a-zA-Z\s\-']+$/)) {
       toast(
-        "Full Name can only contain letters, spaces, hyphens, and apostrophes",
+        t("clerk.teachers.validation.fullNameInvalid"),
         "fa-solid fa-circle-exclamation"
       );
       document.getElementById("teacher-full-name").focus();
@@ -283,14 +283,14 @@
     }
 
     if (!nic) {
-      toast("NIC is required", "fa-solid fa-circle-exclamation");
+      toast(t("clerk.teachers.validation.nicRequired"), "fa-solid fa-circle-exclamation");
       document.getElementById("teacher-nic").focus();
       return false;
     }
 
     if (nic.length < 5) {
       toast(
-        "NIC must be at least 5 characters",
+        t("clerk.teachers.validation.nicMinLength"),
         "fa-solid fa-circle-exclamation"
       );
       document.getElementById("teacher-nic").focus();
@@ -298,7 +298,7 @@
     }
 
     if (!level) {
-      toast("Level is required", "fa-solid fa-circle-exclamation");
+      toast(t("clerk.teachers.validation.levelRequired"), "fa-solid fa-circle-exclamation");
       document.getElementById("teacher-level").focus();
       return false;
     }
@@ -308,7 +308,7 @@
       const birthDate = new Date(birthday);
       const today = new Date();
       if (birthDate >= today) {
-        toast("Birthday must be in the past", "fa-solid fa-circle-exclamation");
+        toast(t("clerk.teachers.validation.birthdayInvalid"), "fa-solid fa-circle-exclamation");
         document.getElementById("teacher-birthday").focus();
         return false;
       }
@@ -316,7 +316,7 @@
       const age = today.getFullYear() - birthDate.getFullYear();
       if (age < 18) {
         toast(
-          "Teacher must be at least 18 years old",
+          t("clerk.teachers.validation.birthdayMinAge"),
           "fa-solid fa-circle-exclamation"
         );
         document.getElementById("teacher-birthday").focus();
@@ -325,14 +325,14 @@
     }
 
     if (phone && !phone.match(/^[0-9\s\-\+\(\)]+$/) && phone.length > 0) {
-      toast("Phone number format is invalid", "fa-solid fa-circle-exclamation");
+      toast(t("clerk.teachers.validation.phoneInvalid"), "fa-solid fa-circle-exclamation");
       document.getElementById("teacher-phone").focus();
       return false;
     }
 
     if (phone && phone.length < 7) {
       toast(
-        "Phone number must be at least 7 characters",
+        t("clerk.teachers.validation.phoneMinLength"),
         "fa-solid fa-circle-exclamation"
       );
       document.getElementById("teacher-phone").focus();
@@ -344,7 +344,7 @@
       const birthDate = new Date(birthday);
       if (apptDate < birthDate) {
         toast(
-          "Appointment date cannot be before birthday",
+          t("clerk.teachers.validation.appointmentDateInvalid"),
           "fa-solid fa-circle-exclamation"
         );
         document.getElementById("teacher-appointment-date").focus();
@@ -387,12 +387,12 @@
         .then((res) => {
           if (!res.ok) throw new Error("Failed to save teacher");
           document.getElementById("teacher-modal").close();
-          toast("Teacher saved successfully", "fa-solid fa-check-circle");
+          toast(t("clerk.teachers.success.saved"), "fa-solid fa-check-circle");
           fetchTeachers();
         })
         .catch((err) => {
           console.error(err);
-          toast("Error saving teacher", "fa-solid fa-circle-exclamation");
+          toast(t("clerk.teachers.error.saveError"), "fa-solid fa-circle-exclamation");
         });
     };
 
@@ -406,7 +406,7 @@
   function editTeacher(id) {
     const teacher = allTeachers.find((t) => t.teacher_id == id);
     if (!teacher) {
-      toast("Teacher not found", "fa-solid fa-circle-exclamation");
+      toast(t("clerk.teachers.error.notFound"), "fa-solid fa-circle-exclamation");
       return;
     }
     editingTeacher = teacher;
@@ -433,30 +433,30 @@
     updateSearchableDisplay("teacher-level");
     const modal = document.getElementById("teacher-modal");
     if (modal) {
-      modal.setTitle("Edit Teacher");
+      modal.setTitle(t("clerk.teachers.editTeacher"));
       modal.open();
     }
   }
 
   function deleteTeacher(id) {
     toast(
-      "Are you sure you want to delete this teacher?",
+      t("clerk.teachers.confirm.delete"),
       "fa-solid fa-trash",
       {
         confirm: true,
-        confirmText: "Delete",
-        cancelText: "Cancel",
+        confirmText: t("clerk.teachers.confirm.deleteButton"),
+        cancelText: t("clerk.teachers.confirm.cancelButton"),
         onConfirm: () => {
           window.requirePinPrompt(() => {
             api.clerk.teachers.delete(id)
               .then((res) => {
                 if (!res.ok) throw new Error("Failed to delete teacher");
-                toast("Teacher deleted successfully", "fa-solid fa-check-circle");
+                toast(t("clerk.teachers.success.deleted"), "fa-solid fa-check-circle");
                 fetchTeachers();
               })
               .catch((err) => {
                 console.error(err);
-                toast("Error deleting teacher", "fa-solid fa-circle-exclamation");
+                toast(t("clerk.teachers.error.deleteError"), "fa-solid fa-circle-exclamation");
               });
           });
         },
@@ -477,11 +477,11 @@
       searchableLevelFilter.destroy();
       searchableLevelFilter = null;
     }
-    select.innerHTML = '<option value="all">All Grades</option>';
+    select.innerHTML = `<option value="all" data="clerk.teachers.filter.allGrades">${t("clerk.teachers.filter.allGrades")}</option>`;
     const levelOptions = [
-      { value: "1", text: "Grade 1" },
-      { value: "2", text: "Grade 2" },
-      { value: "3", text: "Grade 3" },
+      { value: "1", text: t("clerk.teachers.filter.grade1") },
+      { value: "2", text: t("clerk.teachers.filter.grade2") },
+      { value: "3", text: t("clerk.teachers.filter.grade3") },
     ];
     levelOptions.forEach((option) => {
       const opt = document.createElement("option");
@@ -516,11 +516,11 @@
       searchableTeacherLevel.destroy();
       searchableTeacherLevel = null;
     }
-    select.innerHTML = '<option value="">Select Grade</option>';
+    select.innerHTML = `<option value="" data="clerk.teachers.form.selectLevel">${t("clerk.teachers.form.selectLevel")}</option>`;
     const levelOptions = [
-      { value: "1", text: "Grade 1" },
-      { value: "2", text: "Grade 2" },
-      { value: "3", text: "Grade 3" },
+      { value: "1", text: t("clerk.teachers.form.grade1") },
+      { value: "2", text: t("clerk.teachers.form.grade2") },
+      { value: "3", text: t("clerk.teachers.form.grade3") },
     ];
     levelOptions.forEach((option) => {
       const opt = document.createElement("option");
@@ -545,4 +545,5 @@
   initTable();
   fetchTeachers();
   setupAddButton();
+  applyTranslations();
 </script>
