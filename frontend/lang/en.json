@@ -504,6 +504,45 @@
         "saved": "Assignment saved successfully",
         "error": "Error saving assignment"
       }
+    },
+    "announcements": {
+      "title": "Add Announcement",
+      "editTitle": "Edit Announcement",
+      "forMe": "Announcements For Me",
+      "myAnnouncements": "My Announcements",
+      "addAnnouncement": "Add Announcement",
+      "titleLabel": "Title:",
+      "descriptionLabel": "Description:",
+      "audienceLabel": "Audience:",
+      "placeholderTitle": "Enter announcement title...",
+      "placeholderDescription": "Enter announcement description...",
+      "allTeachersStudents": "All (Teachers & Students)",
+      "specificTeachers": "Specific Teachers",
+      "specificClasses": "Specific Classes",
+      "clerks": "Clerks",
+      "staff": "Staff",
+      "selectTeachers": "Select Teachers:",
+      "selectClasses": "Select Classes:",
+      "cancel": "Cancel",
+      "save": "Save",
+      "noAnnouncementsFound": "No announcements found",
+      "noAnnouncementsForMe": "No announcements for you",
+      "errorLoading": "Error loading announcements",
+      "noTeachers": "No teachers found",
+      "noClasses": "No classes found",
+      "showMore": "Show more",
+      "showLess": "Show less",
+      "validation": {
+        "selectTeacher": "Please select at least one teacher",
+        "selectClass": "Please select at least one class"
+      },
+      "toast": {
+        "savedSuccess": "Announcement saved successfully",
+        "savedError": "Error saving announcement",
+        "confirmDelete": "Are you sure you want to delete this announcement?",
+        "deletedSuccess": "Announcement deleted successfully",
+        "deletedError": "Error deleting announcement"
+      }
     }
   },
   "student": {

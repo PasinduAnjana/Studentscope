@@ -506,6 +506,45 @@
         "saved": "පවරීම සාර්ථකව සුරකින ලදි",
         "error": "පවරීමේ දෝෂයකි"
       }
+    },
+    "announcements": {
+      "title": "නිවේදනයක් එකතු කරන්න",
+      "editTitle": "නිවේදනයක් සංස්කරණය කරන්න",
+      "forMe": "මට අදාළ නිවේදන",
+      "myAnnouncements": "මගේ නිවේදන",
+      "addAnnouncement": "නිවේදනයක් එක් කරන්න",
+      "titleLabel": "මාතෘකාව:",
+      "descriptionLabel": "විස්තරය:",
+      "audienceLabel": "ප්‍රේකාකාරිය:",
+      "placeholderTitle": "නිවේදන මාතෘකාව ඇතුල් කරන්න...",
+      "placeholderDescription": "නිවේදන විස්තරය ඇතුල් කරන්න...",
+      "allTeachersStudents": "සියලු (ගුරුවරුන් සහ ශිෂ්‍යයින්)",
+      "specificTeachers": "නියම කළ ගුරුවරුන්",
+      "specificClasses": "නියම කළ පන්ති",
+      "clerks": "ක්ලාක්වරු",
+      "staff": "කාර්ය මණ්ඩලය",
+      "selectTeachers": "ගුරුවරුන් තෝරන්න:",
+      "selectClasses": "පන්ති තෝරන්න:",
+      "cancel": "අවලංගු කරන්න",
+      "save": "සුරකින්න",
+      "noAnnouncementsFound": "නිවේදන හමු නොවීය",
+      "noAnnouncementsForMe": "ඔබට අදාළ නිවේදන නැත",
+      "errorLoading": "නිවේදන පූරණය කිරීමේ දෝෂයකි",
+      "noTeachers": "ගුරුවරුන් හමු නොවීය",
+      "noClasses": "පන්ති හමු නොවීය",
+      "showMore": "තව බලන්න",
+      "showLess": "අවම කරන්න",
+      "validation": {
+        "selectTeacher": "ගුරුවරයෙක් හෝ වැඩි පිරිසක් තෝරන්න",
+        "selectClass": "පන්තියක් හෝ වැඩි පිරිසක් තෝරන්න"
+      },
+      "toast": {
+        "savedSuccess": "නිවේදනය සාර්ථකව සුරකින ලදි",
+        "savedError": "නිවේදනය සුරකීමේ දෝෂයකි",
+        "confirmDelete": "ඔබට තහවුරුද මෙම නිවේදනය මකන්න ද?",
+        "deletedSuccess": "නිවේදනය සාර්ථකව මකන ලදි",
+        "deletedError": "නිවේදනය මකන කිරීමේ දෝෂයකි"
+      }
     }
   },
   "student": {

@@ -48,7 +48,7 @@
     <div class="card h-2">
       <div class="icon-title">
         <i class="fas fa-inbox icon"></i>
-        <p class="tile-label">Announcements For Me</p>
+        <p class="tile-label" data="clerk.announcements.forMe">Announcements For Me</p>
       </div>
       <div class="announcements-container" id="announcements-for-me-container">
         <!-- Announcements for this clerk will be loaded here dynamically -->
@@ -60,10 +60,10 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <div class="icon-title">
           <i class="fas fa-bullhorn icon"></i>
-          <p class="tile-label" data="sidebar.announcements">My Announcements</p>
+          <p class="tile-label" data="clerk.announcements.myAnnouncements">My Announcements</p>
         </div>
         <button id="add-announcement-btn" class="btn btn-primary">
-          <i class="fas fa-plus"></i> Add Announcement
+          <i class="fas fa-plus"></i> <span data="clerk.announcements.addAnnouncement">Add Announcement</span>
         </button>
       </div>
       <div class="announcements-container" id="announcements-container">
@@ -75,46 +75,48 @@
 
 <!-- Add/Edit Announcement Modal -->
 <!-- Add/Edit Announcement Modal -->
-<modal-dialog id="announcement-modal" title="Add Announcement">
+<modal-dialog id="announcement-modal" data-title="clerk.announcements.title" title="Add Announcement">
       <div class="mb-2">
-        <label for="announcement-title">Title:</label>
+        <label for="announcement-title" data="clerk.announcements.titleLabel">Title:</label>
         <input
           type="text"
           id="announcement-title"
+          data-placeholder="clerk.announcements.placeholderTitle"
           placeholder="Enter announcement title..."
           class="mt-1"
         />
       </div>
       <div class="mb-2">
-        <label for="announcement-description">Description:</label>
+        <label for="announcement-description" data="clerk.announcements.descriptionLabel">Description:</label>
         <textarea
           id="announcement-description"
+          data-placeholder="clerk.announcements.placeholderDescription"
           placeholder="Enter announcement description..."
           class="mt-1"
         ></textarea>
       </div>
       <div class="mb-2">
-        <label for="announcement-audience">Audience:</label>
+        <label for="announcement-audience" data="clerk.announcements.audienceLabel">Audience:</label>
         <select id="announcement-audience" class="mt-1">
-          <option value="all">All (Teachers & Students)</option>
-          <option value="teachers">Specific Teachers</option>
-          <option value="students">Specific Classes</option>
+          <option value="all" data="clerk.announcements.allTeachersStudents">All (Teachers & Students)</option>
+          <option value="teachers" data="clerk.announcements.specificTeachers">Specific Teachers</option>
+          <option value="students" data="clerk.announcements.specificClasses">Specific Classes</option>
         </select>
       </div>
       <div id="teacher-selection" class="mb-2" style="display: none">
-        <label>Select Teachers:</label>
+        <label data="clerk.announcements.selectTeachers">Select Teachers:</label>
         <div id="teacher-checkboxes" class="mt-1"></div>
       </div>
       <div id="class-selection" class="mb-2" style="display: none">
-        <label>Select Classes:</label>
+        <label data="clerk.announcements.selectClasses">Select Classes:</label>
         <div id="class-checkboxes" class="mt-1"></div>
       </div>
-    
+     
     <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-      <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
-      <button id="modal-save" class="btn btn-primary">Save</button>
+      <button id="modal-cancel" class="btn btn-secondary" data="clerk.announcements.cancel">Cancel</button>
+      <button id="modal-save" class="btn btn-primary" data="clerk.announcements.save">Save</button>
     </div>
-</modal-dialog>
+  </modal-dialog>
 
 <script>
   let announcements = [];
@@ -130,7 +132,7 @@
       container.innerHTML = `
         <div class="empty-state">
           <i class="fas fa-bullhorn"></i>
-          <p class="empty-text">No announcements found</p>
+          <p class="empty-text">${t("clerk.announcements.noAnnouncementsFound")}</p>
         </div>
       `;
       return;
@@ -144,28 +146,21 @@
         announcement.created_at
       ).toLocaleDateString();
 
-      // Format audience display
-      let audienceDisplay = "";
-      switch (announcement.audience_type) {
-        case "all":
-          audienceDisplay = "All (Teachers & Students)";
-          break;
-        case "teachers":
-          audienceDisplay = "Teachers";
-          break;
-        case "students":
-          audienceDisplay = "Students";
-          break;
-      }
+      const audienceLabels = {
+        all: t("clerk.announcements.allTeachersStudents"),
+        teachers: t("clerk.announcements.specificTeachers"),
+        students: t("clerk.announcements.specificClasses")
+      };
+      const audienceDisplay = audienceLabels[announcement.audience_type] || announcement.audience_type;
 
       card.innerHTML = `
         <div class="announcement-title flex-between">
           <span>${announcement.title}</span>
           <div class="announcement-actions">
-            <button class="btn-icon btn-edit" onclick="editAnnouncement(${announcement.id})" title="Edit">
+            <button class="btn-icon btn-edit" onclick="editAnnouncement(${announcement.id})" title="${t("common.edit")}">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="btn-icon btn-delete" onclick="deleteAnnouncement(${announcement.id})" title="Delete">
+            <button class="btn-icon btn-delete" onclick="deleteAnnouncement(${announcement.id})" title="${t("common.delete")}">
               <i class="fas fa-trash"></i>
             </button>
           </div>
@@ -175,7 +170,7 @@
             ${announcement.description}
           </div>
           <button class="expand-btn" id="expand-${announcement.id}" style="display: none" onclick="toggleDescription(${announcement.id})">
-            <span>Show more</span>
+            <span>${t("clerk.announcements.showMore")}</span>
             <i class="fas fa-chevron-down"></i>
           </button>
         </div>
@@ -187,7 +182,6 @@
 
       container.appendChild(card);
 
-      // Check if description needs expand button
       setTimeout(() => {
         const descElement = document.getElementById(`desc-${announcement.id}`);
         const expandBtn = document.getElementById(`expand-${announcement.id}`);
@@ -222,7 +216,7 @@
         container.innerHTML = `
           <div class="empty-state">
             <i class="fas fa-exclamation-circle" style="color: var(--color-error);"></i>
-            <p class="empty-text">Error loading announcements</p>
+            <p class="empty-text">${t("clerk.announcements.errorLoading")}</p>
           </div>
         `;
       });
@@ -248,7 +242,7 @@
         container.innerHTML = `
           <div class="empty-state">
             <i class="fas fa-exclamation-circle" style="color: var(--color-error);"></i>
-            <p class="empty-text">Error loading announcements</p>
+            <p class="empty-text">${t("clerk.announcements.errorLoading")}</p>
           </div>
         `;
       });
@@ -263,7 +257,7 @@
       container.innerHTML = `
         <div class="empty-state">
           <i class="fas fa-inbox"></i>
-          <p class="empty-text">No announcements for you</p>
+          <p class="empty-text">${t("clerk.announcements.noAnnouncementsForMe")}</p>
         </div>
       `;
       return;
@@ -277,25 +271,15 @@
         announcement.created_at
       ).toLocaleDateString();
 
-      // Format audience display
-      let audienceDisplay = "";
-      switch (announcement.audience_type) {
-        case "all":
-          audienceDisplay = "All (Teachers & Students)";
-          break;
-        case "teachers":
-          audienceDisplay = "Teachers";
-          break;
-        case "clerks":
-          audienceDisplay = "Clerks";
-          break;
-        case "students":
-          audienceDisplay = "Students";
-          break;
-      }
+      const audienceLabels = {
+        all: t("clerk.announcements.allTeachersStudents"),
+        teachers: t("clerk.announcements.specificTeachers"),
+        clerks: t("clerk.announcements.clerks"),
+        students: t("clerk.announcements.specificClasses")
+      };
+      const audienceDisplay = audienceLabels[announcement.audience_type] || announcement.audience_type;
 
-      // Get creator info
-      const creatorRole = announcement.created_by_role || "Staff";
+      const creatorRole = announcement.created_by_role || t("clerk.announcements.staff");
       const creatorName = announcement.created_by_name || "Unknown";
 
       card.innerHTML = `
@@ -307,7 +291,7 @@
             ${announcement.description}
           </div>
           <button class="expand-btn" id="for-me-expand-${announcement.id}" style="display: none" onclick="toggleDescriptionForMe(${announcement.id})">
-            <span>Show more</span>
+            <span>${t("clerk.announcements.showMore")}</span>
             <i class="fas fa-chevron-down"></i>
           </button>
         </div>
@@ -322,7 +306,6 @@
 
       container.appendChild(card);
 
-      // Check if description needs expand button
       setTimeout(() => {
         const descElement = document.getElementById(
           `for-me-desc-${announcement.id}`
@@ -365,7 +348,6 @@
   function setupAddButton() {
     const addBtn = document.getElementById("add-announcement-btn");
     const modal = document.getElementById("announcement-modal");
-    // const closeBtn = document.querySelector("#announcement-modal .modal-close");
     const cancelBtn = document.getElementById("modal-cancel");
     const saveBtn = document.getElementById("modal-save");
     const audienceSelect = document.getElementById("announcement-audience");
@@ -373,7 +355,7 @@
     addBtn.addEventListener("click", () => {
       editingAnnouncement = null;
       if (modal) {
-        modal.setTitle("Add Announcement");
+        modal.setTitle(t("clerk.announcements.title"));
         clearModal();
         modal.open();
       }
@@ -383,15 +365,8 @@
       if (modal) modal.close();
     };
 
-    // closeBtn.addEventListener("click", closeModal);
     cancelBtn.addEventListener("click", closeModal);
     audienceSelect.addEventListener("change", handleAudienceChange);
-
-    // modal.addEventListener("click", (e) => {
-    //   if (e.target === modal) {
-    //     closeModal();
-    //   }
-    // });
 
     saveBtn.addEventListener("click", saveAnnouncement);
   }
@@ -446,7 +421,7 @@
     container.innerHTML = "";
 
     if (!allTeachers.length) {
-      container.innerHTML = "<p class='text-sm'>No teachers found</p>";
+      container.innerHTML = `<p class='text-sm'>${t("clerk.announcements.noTeachers")}</p>`;
       return;
     }
 
@@ -470,7 +445,7 @@
     container.innerHTML = "";
 
     if (!allClasses.length) {
-      container.innerHTML = "<p class='text-sm'>No classes found</p>";
+      container.innerHTML = `<p class='text-sm'>${t("clerk.announcements.noClasses")}</p>`;
       return;
     }
 
@@ -495,11 +470,10 @@
     const audience = document.getElementById("announcement-audience").value;
 
     if (!title || !description) {
-      toast("Please fill in all fields.", "fa-solid fa-circle-exclamation");
+      toast(t("common.fillRequiredFields"), "fa-solid fa-circle-exclamation");
       return;
     }
 
-    // Validate audience selection
     let teacherIds = [];
     let classIds = [];
 
@@ -509,7 +483,7 @@
       ).map((cb) => parseInt(cb.value));
       if (teacherIds.length === 0) {
         toast(
-          "Please select at least one teacher.",
+          t("clerk.announcements.validation.selectTeacher"),
           "fa-solid fa-circle-exclamation"
         );
         return;
@@ -520,7 +494,7 @@
       ).map((cb) => parseInt(cb.value));
       if (classIds.length === 0) {
         toast(
-          "Please select at least one class.",
+          t("clerk.announcements.validation.selectClass"),
           "fa-solid fa-circle-exclamation"
         );
         return;
@@ -547,12 +521,12 @@
       .then(() => {
         const modal = document.getElementById("announcement-modal");
         if(modal) modal.close();
-        toast("Announcement saved successfully", "fa-solid fa-check-circle");
+        toast(t("clerk.announcements.toast.savedSuccess"), "fa-solid fa-check-circle");
         fetchAnnouncements();
       })
       .catch((err) => {
         console.error(err);
-        toast("Error saving announcement", "fa-solid fa-circle-exclamation");
+        toast(t("clerk.announcements.toast.savedError"), "fa-solid fa-circle-exclamation");
       });
   }
 
@@ -593,8 +567,7 @@
     editingAnnouncement = announcement;
     const modal = document.getElementById("announcement-modal");
     if(modal) {
-        modal.setTitle("Edit Announcement");
-        // ...populate fields...
+        modal.setTitle(t("clerk.announcements.editTitle"));
     }
     
     document.getElementById("announcement-title").value = announcement.title;
@@ -654,12 +627,12 @@
 
   function deleteAnnouncement(id) {
     toast(
-      "Are you sure you want to delete this announcement?",
+      t("clerk.announcements.toast.confirmDelete"),
       "fa-solid fa-trash",
       {
         confirm: true,
-        confirmText: "Delete",
-        cancelText: "Cancel",
+        confirmText: t("common.delete"),
+        cancelText: t("common.cancel"),
         onConfirm: function () {
           api.clerk.announcements.delete(id)
             .then((res) => {
@@ -668,21 +641,20 @@
             })
             .then(() => {
               toast(
-                "Announcement deleted successfully",
+                t("clerk.announcements.toast.deletedSuccess"),
                 "fa-solid fa-check-circle"
               );
-              fetchAnnouncements(); // Refresh the list
+              fetchAnnouncements();
             })
             .catch((err) => {
               console.error("Error deleting announcement:", err);
               toast(
-                "Error deleting announcement",
+                t("clerk.announcements.toast.deletedError"),
                 "fa-solid fa-circle-exclamation"
               );
             });
         },
         onCancel: function () {
-          // Do nothing, just close toast
         },
       }
     );
@@ -695,24 +667,46 @@
     const btnIcon = expandBtn.querySelector("i");
 
     if (descElement.classList.contains("collapsed")) {
-      // Expand
       descElement.classList.remove("collapsed");
       descElement.classList.add("expanded");
-      btnText.textContent = "Show less";
+      btnText.textContent = t("clerk.announcements.showLess");
       expandBtn.classList.add("expanded");
     } else {
-      // Collapse
       descElement.classList.remove("expanded");
       descElement.classList.add("collapsed");
-      btnText.textContent = "Show more";
+      btnText.textContent = t("clerk.announcements.showMore");
       expandBtn.classList.remove("expanded");
     }
   }
+
+  window.toggleDescriptionForMe = function(id) {
+    const descElement = document.getElementById(`for-me-desc-${id}`);
+    const expandBtn = document.getElementById(`for-me-expand-${id}`);
+    const btnText = expandBtn.querySelector("span");
+
+    if (descElement.classList.contains("collapsed")) {
+      descElement.classList.remove("collapsed");
+      descElement.classList.add("expanded");
+      btnText.textContent = t("clerk.announcements.showLess");
+      expandBtn.classList.add("expanded");
+    } else {
+      descElement.classList.remove("expanded");
+      descElement.classList.add("collapsed");
+      btnText.textContent = t("clerk.announcements.showMore");
+      expandBtn.classList.remove("expanded");
+    }
+  };
 
   // Initialize
   fetchAnnouncements();
   fetchAnnouncementsForMe();
   setupAddButton();
-  loadTeachers(); // Pre-load teachers for better UX
-  loadClasses(); // Pre-load classes for better UX
+  loadTeachers();
+  loadClasses();
+
+  // Language change handler
+  window.addEventListener("languageChanged", () => {
+    fetchAnnouncements();
+    fetchAnnouncementsForMe();
+  });
 </script>
