@@ -28,6 +28,22 @@
   let currentClassId = null;
   let selectedDate = null; // YYYY-MM-DD
 
+  let currentLang = localStorage.getItem("lang") || "en";
+  const translations = {
+    en: { present: "Present", absent: "Absent", submit: "Submit", cancel: "Cancel" },
+    si: { present: "පැමිණි", absent: "නොපැමිණි", submit: "ඉදිරිපත් කරන්න", cancel: "අවලංගු කරන්න" },
+    ta: { present: "வருகை", absent: "இல்லை", submit: "சமர்ப்பிக்க", cancel: "ரத்து" }
+  };
+  function t(key) {
+    return translations[currentLang]?.[key] || translations.en[key];
+  }
+
+  // Update language when changed
+  window.addEventListener("languageChanged", () => {
+    currentLang = localStorage.getItem("lang") || "en";
+    renderStudents();
+  });
+
   function getSelectedDate() {
     const params = new URLSearchParams(window.location.search);
     const dateParam = params.get("date");
@@ -46,7 +62,7 @@
       const meRes = await api.auth.me();
       if (meRes.status === 401) {
         toast(
-          "Your session has expired. Please log in again.",
+          t("sessionExpired"),
           "fa-solid fa-circle-exclamation"
         );
         window.location.href = "/login.html";
@@ -57,14 +73,14 @@
       const me = await meRes.json();
       if (me.role !== "teacher") {
         renderMessage(
-          "Only teachers can mark attendance. Please log in as a teacher."
+          t("notTeacher")
         );
         return;
       }
 
       if (!me.class_id) {
         renderMessage(
-          "No class is assigned to your account. Contact the administrator."
+          t("noClass")
         );
         return;
       }
@@ -84,7 +100,7 @@
       }));
 
       if (students.length === 0) {
-        renderMessage("No students found for your class.");
+        renderMessage(t("noStudents"));
         return;
       }
 
@@ -94,7 +110,7 @@
       renderStudents();
     } catch (err) {
       console.error(err);
-      renderMessage("An error occurred while loading data.");
+      renderMessage(t("loadError"));
     }
   }
 
@@ -149,8 +165,7 @@
 
       const presentBtn = document.createElement("button");
       presentBtn.classList.add("btn", "btn-present");
-      presentBtn.innerHTML =
-        '<i class="fas fa-check"></i> <span data-en="Present" data-si="පැමිණි" data-ta="வருகை">Present</span>';
+      presentBtn.innerHTML = `<i class="fas fa-check"></i> <span>${t("present")}</span>`;
       presentBtn.onclick = () => {
         student.status = "present";
         renderStudents(); // refresh row
@@ -158,8 +173,7 @@
 
       const absentBtn = document.createElement("button");
       absentBtn.classList.add("btn", "btn-absent");
-      absentBtn.innerHTML =
-        '<i class="fas fa-times"></i> <span data-en="Absent" data-si="නොපැමිණි" data-ta="இல்லை">Absent</span>';
+      absentBtn.innerHTML = `<i class="fas fa-times"></i> <span>${t("absent")}</span>`;
       absentBtn.onclick = () => {
         student.status = "absent";
         renderStudents(); // refresh row
@@ -179,7 +193,6 @@
   function updatePagination() {
     const backBtn = document.getElementById("backBtn");
     const nextBtn = document.getElementById("nextBtn");
-    const currentLang = localStorage.getItem("lang") || "en";
 
     backBtn.disabled = currentPage === 1;
 
@@ -244,30 +257,20 @@
       status: s.status === "present" ? true : false,
     }));
 
-    // Show confirmation toast before submitting
-    const currentLang = localStorage.getItem("lang") || "en";
-    const confirmMessage =
-      {
-        en: "Are you sure you want to submit attendance?",
-        si: "ඔබට පැමිණීම ඇතුල් කිරීමට අවශ්‍ය බව විශ්වාසද?",
-        ta: "வருகையை சமர்ப்பிக்க விரும்புகிறீர்களா?",
-      }[currentLang] || "Are you sure you want to submit attendance?";
+// Show confirmation toast before submitting
+    const confirmText = {
+      en: "Submit",
+      si: "ඇතුල් කරන්න",
+      ta: "சமர்ப்பிக்க",
+    }[currentLang] || "Submit";
 
-    const confirmText =
-      {
-        en: "Submit",
-        si: "ඇතුල් කරන්න",
-        ta: "சமர்ப்பிக்க",
-      }[currentLang] || "Submit";
+    const cancelText = {
+      en: "Cancel",
+      si: "අවලංගු කරන්න",
+      ta: "ரத்து செய்ய",
+    }[currentLang] || "Cancel";
 
-    const cancelText =
-      {
-        en: "Cancel",
-        si: "අවලංගු කරන්න",
-        ta: "ரத்து செய்ய",
-      }[currentLang] || "Cancel";
-
-    toast(confirmMessage, "fa-solid fa-upload", {
+    toast(t("confirmSubmit"), "fa-solid fa-upload", {
       confirm: true,
       confirmText: confirmText,
       cancelText: cancelText,
@@ -279,26 +282,14 @@
           })
           .then(() => {
             localStorage.setItem("attendanceMarked", "true");
-            const successMessage =
-              {
-                en: "Attendance submitted",
-                si: "පැමිණීම ඇතුල් කරන ලදී",
-                ta: "வருகை சமர்ப்பிக்கப்பட்டது",
-              }[currentLang] || "Attendance submitted";
-            toast(successMessage, "fa-solid fa-check-circle");
+            toast(t("success"), "fa-solid fa-check-circle");
             setTimeout(function () {
               window.location.href = "layout.html?role=teacher&page=attendance";
             }, 2000);
           })
           .catch((err) => {
             console.error(err);
-            const errorMessage =
-              {
-                en: "Error saving attendance. Please try again.",
-                si: "පැමිණීම සුරකින විට දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න.",
-                ta: "வருகையை சேமிப்பதில் பிழை. மீண்டும் முயற்சிக்கவும்.",
-              }[currentLang] || "Error saving attendance. Please try again.";
-            toast(errorMessage, "fa-solid fa-circle-exclamation");
+            toast(t("saveError"), "fa-solid fa-circle-exclamation");
           });
       },
       onCancel: function () {

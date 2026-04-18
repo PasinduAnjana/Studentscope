@@ -181,6 +181,20 @@
       },
       "behavior": {
         "addRecord": "Add Behavior Record"
+      },
+      "attendance": {
+        "sessionExpired": "Your session has expired. Please log in again.",
+        "notTeacher": "Only teachers can mark attendance. Please log in as a teacher.",
+        "noClass": "No class is assigned to your account. Contact the administrator.",
+        "noStudents": "No students found for your class.",
+        "loadError": "An error occurred while loading data.",
+        "confirmSubmit": "Are you sure you want to submit attendance?",
+        "success": "Attendance submitted",
+        "saveError": "Error saving attendance. Please try again.",
+        "present": "Present",
+        "absent": "Absent",
+        "submit": "Submit",
+        "cancel": "Cancel"
       }
     }
   },
