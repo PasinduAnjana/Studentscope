@@ -188,13 +188,13 @@
 <section id="exams-list-section" class="section">
   <h2 class="heading">
     <i class="fas fa-file-signature"></i>
-    <span>Government Exams Management</span>
+    <span data="exams.title">Government Exams Management</span>
   </h2>
   <div class="card">
     <div class="flex-between mb-2">
-      <h1 class="title">Exams</h1>
+      <h1 class="title" data="exams.exams">Exams</h1>
       <button class="btn btn-primary" onclick="openAddExamModal()">
-        <i class="fas fa-plus"></i> Add Exam
+        <i class="fas fa-plus"></i> <span data="exams.addExam">Add Exam</span>
       </button>
     </div>
 
@@ -202,7 +202,7 @@
       <div slot="filters">
         <div class="input-group">
           <select id="year-filter" onchange="fetchExams()">
-            <option value="">All Years</option>
+            <option value="" data="exams.yearFilter">All Years</option>
           </select>
         </div>
       </div>
@@ -213,26 +213,26 @@
 <section id="exam-details-section" class="section hidden">
   <div class="toolbar">
     <button class="btn btn-secondary" onclick="showExamsList()">
-      <i class="fas fa-arrow-left"></i> Back to Exams
+      <i class="fas fa-arrow-left"></i> <span data="exams.backToExams">Back to Exams</span>
     </button>
     <div style="display: flex; gap: 10px; align-items: center;">
       <div class="input-group" style="margin-bottom: 0;">
         <select id="exam-subject-select" onchange="loadMarksForSubject()">
-          <option value="">Select Subject to Enter Marks</option>
+          <option value="" data="exams.selectSubject">Select Subject to Enter Marks</option>
         </select>
       </div>
       <input type="file" id="csv-import-input" accept=".csv" style="display: none;" onchange="handleCSVImport(event)">
       <button class="btn btn-primary" onclick="openAssignStudentsModal()">
-        <i class="fas fa-user-plus"></i> Assign Students
+        <i class="fas fa-user-plus"></i> <span data="exams.assignStudents">Assign Students</span>
       </button>
       <button class="btn btn-success" onclick="saveMarks()">
-        <i class="fas fa-save"></i> Save Marks
+        <i class="fas fa-save"></i> <span data="exams.saveMarks">Save Marks</span>
       </button>
     </div>
   </div>
 
   <div class="card">
-    <h1 class="title" id="exam-title-display">Exam Details</h1>
+    <h1 class="title" id="exam-title-display" data="exams.examDetails">Exam Details</h1>
     <p id="exam-subtitle-display" class="text-muted mb-2"></p>
 
     <data-table id="exam-students-table"></data-table>
@@ -243,98 +243,98 @@
 <section id="marks-entry-section" class="section hidden">
   <div class="toolbar">
     <button class="btn btn-secondary" onclick="showMarksExamsList()">
-      <i class="fas fa-arrow-left"></i> Back to Exams
+      <i class="fas fa-arrow-left"></i> <span data="exams.backToExams">Back to Exams</span>
     </button>
     <button class="btn btn-success" onclick="saveAllMarks()">
-      <i class="fas fa-save"></i> Save All Marks
+      <i class="fas fa-save"></i> <span data="exams.saveAllMarks">Save All Marks</span>
     </button>
   </div>
 
   <div class="card">
-    <h1 class="title" id="marks-exam-title">Exam Marks</h1>
+    <h1 class="title" id="marks-exam-title" data="exams.examMarks">Exam Marks</h1>
     <p id="marks-exam-subtitle" class="text-muted mb-2"></p>
 
     <div id="marks-table-container">
-      <p style="text-align: center; padding: 40px; color: var(--color-subtext);">Loading...</p>
+      <p style="text-align: center; padding: 40px; color: var(--color-subtext);" data="exams.loading">Loading...</p>
     </div>
   </div>
 </section>
 
 <!-- Import Index Modal -->
-<modal-dialog id="import-index-modal" title="Import Index Numbers">
+<modal-dialog id="import-index-modal" data-title="exams.importTitle" title="Import Index Numbers">
   <div style="margin-bottom: 16px;">
-    <p style="margin-bottom: 12px; color: var(--color-subtext);">Upload a CSV file containing student admission
+    <p style="margin-bottom: 12px; color: var(--color-subtext);" data="exams.importDesc">Upload a CSV file containing student admission
       numbers and their exam index numbers.</p>
     <div
       style="background: var(--color-bg); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; border: 1px solid var(--color-border);">
       <p style="font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; color: var(--color-text);"><i
-          class="fas fa-info-circle" style="color: var(--color-primary); margin-right: 6px;"></i>Expected CSV Format</p>
+          class="fas fa-info-circle" style="color: var(--color-primary); margin-right: 6px;"></i><span data="exams.expectedFormat">Expected CSV Format</span></p>
       <code
         style="display: block; background: var(--color-card); padding: 10px 12px; border-radius: 6px; font-size: 0.85rem; line-height: 1.6; white-space: pre; color: var(--color-text); border: 1px solid var(--color-border);">admission_no,index_number
 S1432,AL-001
 S1458,AL-002</code>
     </div>
     <button class="btn btn-secondary" onclick="downloadSampleCSV()" style="width: 100%; margin-bottom: 12px;">
-      <i class="fas fa-download"></i> Download Sample CSV
+      <i class="fas fa-download"></i> <span data="exams.downloadSample">Download Sample CSV</span>
     </button>
   </div>
   <div style="display: flex; justify-content: flex-end; gap: 10px;">
-    <button class="btn btn-secondary" onclick="document.getElementById('import-index-modal').close()">Cancel</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('import-index-modal').close()" data="exams.cancel">Cancel</button>
     <button class="btn btn-primary"
       onclick="document.getElementById('import-index-modal').close(); document.getElementById('csv-import-input').click();">
-      <i class="fas fa-file-upload"></i> Choose CSV File
+      <i class="fas fa-file-upload"></i> <span data="exams.chooseCSV">Choose CSV File</span>
     </button>
   </div>
 </modal-dialog>
 
 <!-- Add Exam Modal -->
-<modal-dialog id="add-exam-modal" title="Add Government Exam">
+<modal-dialog id="add-exam-modal" data-title="exams.addExam" title="Add Government Exam">
   <div class="input-group">
-    <label>Exam Type <span class="required">*</span></label>
+    <label data="exams.titleLabel">Exam Type <span class="required">*</span></label>
     <select id="exam-type-select" onchange="updateTargetGrade()" required>
-      <option value="">Select Exam Type</option>
-      <option value="Grade 5 Scholarship">Grade 5 Scholarship</option>
-      <option value="GCE O/L">GCE O/L</option>
-      <option value="GCE A/L">GCE A/L</option>
+      <option value="" data="exams.selectExamType">Select Exam Type</option>
+      <option value="Grade 5 Scholarship" data="exams.grade5">Grade 5 Scholarship</option>
+      <option value="GCE O/L" data="exams.olevel">GCE O/L</option>
+      <option value="GCE A/L" data="exams.alevel">GCE A/L</option>
     </select>
   </div>
   <div class="input-group">
-    <label>Year <span class="required">*</span></label>
+    <label data="exams.yearLabel">Year <span class="required">*</span></label>
     <input type="number" id="exam-year" required />
   </div>
   <div class="input-group">
-    <label>Target Grade</label>
+    <label data="exams.targetGradeLabel">Target Grade</label>
     <input type="text" id="exam-target-grade-display" disabled />
     <input type="hidden" id="exam-target-grade" />
   </div>
 
   <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-    <button class="btn btn-secondary" onclick="document.getElementById('add-exam-modal').close()">Cancel</button>
-    <button class="btn btn-primary" onclick="createExam()">Create Exam</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('add-exam-modal').close()" data="exams.cancel">Cancel</button>
+    <button class="btn btn-primary" onclick="createExam()" data="exams.createExam">Create Exam</button>
   </div>
 </modal-dialog>
 
 <!-- Assign Students Modal -->
-<modal-dialog id="assign-students-modal" title="Assign Students">
+<modal-dialog id="assign-students-modal" data-title="exams.assignTitle" title="Assign Students">
   <div class="input-group">
-    <label>Filter by Class</label>
+    <label data="exams.filterByClass">Filter by Class</label>
     <select id="assign-class-filter" onchange="fetchStudentsForAssignment()">
-      <option value="">Select Class</option>
+      <option value="" data="exams.selectClass">Select Class</option>
     </select>
   </div>
 
   <div class="student-selection-list" id="student-selection-container">
-    <p class="text-center text-muted">Select a class to view students</p>
+    <p class="text-center text-muted" data="exams.selectClassToView">Select a class to view students</p>
   </div>
 
   <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
     <div>
-      <span id="selected-count">0 students selected</span>
+      <span id="selected-count" data="exams.studentsSelected">0 students selected</span>
     </div>
     <div style="display: flex; gap: 10px;">
       <button class="btn btn-secondary"
-        onclick="document.getElementById('assign-students-modal').close()">Cancel</button>
-      <button class="btn btn-primary" onclick="confirmAssignment()">Assign Selected</button>
+        onclick="document.getElementById('assign-students-modal').close()" data="exams.cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAssignment()" data="exams.confirmAssign">Assign Selected</button>
     </div>
   </div>
 </modal-dialog>
@@ -351,6 +351,11 @@ S1458,AL-002</code>
   initExams();
   populateYears();
   fetchSubjects();
+
+  // Language change handler
+  window.addEventListener("languageChanged", () => {
+    fetchExams();
+  });
 
   function fetchSubjects() {
     // Assuming api.request works or we add api.clerk.subjects.getAll()
@@ -390,35 +395,35 @@ S1458,AL-002</code>
         allExams = data;
         document.getElementById("exams-table").setData(data);
       })
-      .catch(err => toast("Failed to load exams", "fa-solid fa-circle-exclamation"));
+      .catch(err => toast(t("exams.errors.loadFailed"), "fa-solid fa-circle-exclamation"));
 
     // Init Table
     const table = document.getElementById("exams-table");
     table.setColumns([
-      { key: "name", header: "Exam Name", searchable: true },
-      { key: "year", header: "Year" },
-      { key: "type", header: "Type" },
+      { key: "name", header: t("exams.tableHeaders.name"), searchable: true },
+      { key: "year", header: t("exams.tableHeaders.year") },
+      { key: "type", header: t("exams.tableHeaders.type") },
       {
         key: "target_grade",
-        header: "Target Grade",
-        render: (row) => row.target_grade ? `Grade ${row.target_grade}` : "All"
+        header: t("exams.tableHeaders.targetGrade"),
+        render: (row) => row.target_grade ? t("exams.gradeDisplay", {grade: row.target_grade}) : t("exams.allGrades")
       },
       {
         key: "actions",
-        header: "Actions",
+        header: t("exams.tableHeaders.actions"),
         render: (row) => {
           const container = document.createElement("div");
           container.className = "action-buttons";
 
           const manageBtn = document.createElement("button");
           manageBtn.className = "btn btn-sm btn-info";
-          manageBtn.innerHTML = '<i class="fas fa-eye"></i> Manage';
+          manageBtn.innerHTML = '<i class="fas fa-eye"></i> ' + t("exams.manage");
           manageBtn.onclick = () => showExamDetails(row);
           container.appendChild(manageBtn);
 
           const marksBtn = document.createElement("button");
           marksBtn.className = "btn btn-sm btn-success";
-          marksBtn.innerHTML = '<i class="fas fa-pen"></i> Enter Marks';
+          marksBtn.innerHTML = '<i class="fas fa-pen"></i> ' + t("exams.enterMarks");
           marksBtn.onclick = () => showMarksEntry(row);
           container.appendChild(marksBtn);
 
