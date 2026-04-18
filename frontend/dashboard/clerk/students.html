@@ -24,16 +24,16 @@
 <section class="section">
   <h2 class="heading">
     <i class="fas fa-users"></i>
-    <span>Student Management</span>
+    <span data="clerk.students.title">Student Management</span>
   </h2>
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <div class="icon-title">
         <i class="fas fa-users icon"></i>
-        <p class="tile-label">Students</p>
+        <p class="tile-label" data="clerk.students.students">Students</p>
       </div>
       <button id="add-student-btn" class="btn btn-primary" onclick="openAddStudentModal()">
-        <i class="fas fa-user-plus"></i> Add Student
+        <i class="fas fa-user-plus"></i> <span data="clerk.students.addStudent">Add Student</span>
       </button>
     </div>
     <!-- Search Bar and Class Dropdown -->
@@ -41,7 +41,7 @@
       <div slot="filters">
         <div class="input-group">
           <select id="class-filter">
-            <option value="">All Classes</option>
+            <option value="" data="clerk.students.allClasses">All Classes</option>
           </select>
         </div>
       </div>
@@ -50,64 +50,64 @@
 </section>
 
 <!-- Add/Edit Student Modal -->
-<modal-dialog id="student-modal" title="Add Student">
+<modal-dialog id="student-modal" data-title="clerk.students.addStudent" title="Add Student">
   <div class="student-form-grid">
     <div class="input-group">
-      <label for="student-full-name">Full Name: <span class="required"
+      <label for="student-full-name" data="clerk.students.fullName">Full Name: <span class="required"
           style="color: #e74c3c; font-weight: bold;">*</span></label>
       <input type="text" id="student-full-name" placeholder="Enter full name" required minlength="2" maxlength="100"
         pattern="[a-zA-Z\s\-']+" title="Name can only contain letters, spaces, hyphens, and apostrophes" />
     </div>
     <div class="input-group">
-      <label for="student-username">Index Number (Username): <span class="required"
+      <label for="student-username" data="clerk.students.username">Index Number (Username): <span class="required"
           style="color: #e74c3c; font-weight: bold;">*</span></label>
       <input type="text" id="student-username" placeholder="Enter index number" required minlength="3" maxlength="20"
         pattern="[a-zA-Z0-9_]+" title="Index number can only contain letters, numbers, and underscores" />
     </div>
     <div class="input-group">
-      <label for="student-birthday">Birthday: <span class="required"
+      <label for="student-birthday" data="clerk.students.birthday">Birthday: <span class="required"
           style="color: #e74c3c; font-weight: bold;">*</span></label>
       <input type="date" id="student-birthday" required />
     </div>
     <div class="input-group">
-      <label for="student-gender">Gender: <span class="required"
+      <label for="student-gender" data="clerk.students.gender">Gender: <span class="required"
           style="color: #e74c3c; font-weight: bold;">*</span></label>
       <select id="student-gender" required>
-        <option value="">Select Gender</option>
-        <option value="M">Male</option>
-        <option value="F">Female</option>
+        <option value="" data="clerk.students.selectGender">Select Gender</option>
+        <option value="M" data="clerk.students.male">Male</option>
+        <option value="F" data="clerk.students.female">Female</option>
       </select>
     </div>
     <div class="input-group">
-      <label for="student-address">Address: <span class="required"
+      <label for="student-address" data="clerk.students.address">Address: <span class="required"
           style="color: #e74c3c; font-weight: bold;">*</span></label>
       <input type="text" id="student-address" placeholder="Enter address" required minlength="10" maxlength="200" />
     </div>
     <div class="input-group">
-      <label for="student-class">Class: <span class="required"
+      <label for="student-class" data="clerk.students.class">Class: <span class="required"
           style="color: #e74c3c; font-weight: bold;">*</span></label>
       <select id="student-class" required>
-        <option value="">Select Class</option>
+        <option value="" data="clerk.students.selectClass">Select Class</option>
       </select>
     </div>
     <div class="input-group">
-      <label for="student-nationality">Nationality:</label>
+      <label for="student-nationality" data="clerk.students.nationality">Nationality:</label>
       <input type="text" id="student-nationality" placeholder="Enter nationality" maxlength="50" />
     </div>
     <div class="input-group">
-      <label for="parent-name">Parent Name:</label>
+      <label for="parent-name" data="clerk.students.parentName">Parent Name:</label>
       <input type="text" id="parent-name" placeholder="Enter parent name" minlength="2" maxlength="100"
         pattern="[a-zA-Z\s\-']*" title="Name can only contain letters, spaces, hyphens, and apostrophes" />
     </div>
     <div class="input-group" style="grid-column: span 2;">
-      <label for="parent-address">Parent Address:</label>
+      <label for="parent-address" data="clerk.students.parentAddress">Parent Address:</label>
       <input type="text" id="parent-address" placeholder="Enter parent address" minlength="10" maxlength="200" />
     </div>
   </div>
 
   <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-    <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
-    <button id="modal-save" class="btn btn-primary">Save</button>
+    <button id="modal-cancel" class="btn btn-secondary" data="clerk.students.cancel">Cancel</button>
+    <button id="modal-save" class="btn btn-primary" data="clerk.students.save">Save</button>
   </div>
 </modal-dialog>
 
@@ -137,11 +137,11 @@
   function initTable() {
     const table = document.getElementById("students-table");
     table.setColumns([
-      { key: "full_name", header: "Name", searchable: true },
-      { key: "username", header: "Index Number", searchable: true },
+      { key: "full_name", header: t("clerk.students.name"), searchable: true },
+      { key: "username", header: t("clerk.students.indexNumber"), searchable: true },
       {
         key: "class_id",
-        header: "Class",
+        header: t("clerk.students.class"),
         render: (row) => {
           const cls = allClasses.find((c) => c.id == row.class_id);
           return cls ? `${cls.grade} - ${cls.class_name}` : "";
@@ -149,26 +149,26 @@
       },
       {
         key: "birthday",
-        header: "Birthday",
+        header: t("clerk.students.birthday"),
         render: (row) => row.birthday ? new Date(row.birthday).toLocaleDateString() : ""
       },
-      { key: "gender", header: "Gender" },
+      { key: "gender", header: t("clerk.students.gender") },
       {
         key: "parent",
-        header: "Parent",
+        header: t("clerk.students.parent"),
         render: (row) => row.parent ? row.parent.name : ""
       },
       {
         key: "actions",
-        header: "Actions",
+        header: t("clerk.students.actions"),
         render: (row) => {
           const div = document.createElement("div");
           div.className = "action-buttons";
           div.innerHTML = `
-                    <button class="btn-icon btn-edit" onclick="editStudent(${row.id})" title="Edit">
+                    <button class="btn-icon btn-edit" onclick="editStudent(${row.id})" title="${t("clerk.students.edit")}">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-icon btn-delete" onclick="deleteStudent(${row.id})" title="Delete">
+                    <button class="btn-icon btn-delete" onclick="deleteStudent(${row.id})" title="${t("clerk.students.delete")}">
                       <i class="fas fa-trash"></i>
                     </button>
                 `;
@@ -188,7 +188,7 @@
       });
     }
 
-    table.setEmptyState("No students found", "fas fa-users-slash");
+    table.setEmptyState(t("clerk.students.noStudents"), "fas fa-users-slash");
   }
 
   function fetchStudents() {
@@ -204,8 +204,8 @@
       .catch((err) => {
         console.error(err);
         document.getElementById("students-table").setData([]);
-        document.getElementById("students-table").setEmptyState("Error loading students", "fas fa-exclamation-triangle");
-        toast("Error loading students", "fa-solid fa-circle-exclamation");
+        document.getElementById("students-table").setEmptyState(t("clerk.students.error.loadFailed"), "fas fa-exclamation-triangle");
+        toast(t("clerk.students.error.loadFailed"), "fa-solid fa-circle-exclamation");
       });
   }
 
@@ -224,7 +224,7 @@
       })
       .catch((err) => {
         console.error(err);
-        toast("Error loading classes", "fa-solid fa-circle-exclamation");
+        toast(t("clerk.students.error.loadFailed"), "fa-solid fa-circle-exclamation");
       });
   }
 
@@ -238,7 +238,7 @@
       searchableClassFilter.destroy();
       searchableClassFilter = null;
     }
-    select.innerHTML = '<option value="">All Classes</option>';
+    select.innerHTML = `<option value="">${t("clerk.students.allClasses")}</option>`;
     allClasses.forEach((cls) => {
       const option = document.createElement("option");
       option.value = cls.id;
@@ -272,7 +272,7 @@
       searchableClassSelect.destroy();
       searchableClassSelect = null;
     }
-    select.innerHTML = '<option value="">Select Class</option>';
+    select.innerHTML = `<option value="">${t("clerk.students.selectClass")}</option>`;
     allClasses.forEach((cls) => {
       const option = document.createElement("option");
       option.value = cls.id;
@@ -300,10 +300,10 @@
       searchableGenderSelect.destroy();
       searchableGenderSelect = null;
     }
-    select.innerHTML = '<option value="">Select Gender</option>';
+    select.innerHTML = `<option value="">${t("clerk.students.selectGender")}</option>`;
     const genderOptions = [
-      { value: "M", text: "Male" },
-      { value: "F", text: "Female" }
+      { value: "M", text: t("clerk.students.male") },
+      { value: "F", text: t("clerk.students.female") }
     ];
     genderOptions.forEach((option) => {
       const opt = document.createElement("option");
@@ -337,7 +337,7 @@
     function openAddModal() {
       editingStudent = null;
       if (modal) {
-        modal.setTitle("Add Student");
+        modal.setTitle(t("clerk.students.addStudent"));
         clearModal();
         modal.open();
       }
@@ -484,29 +484,29 @@
 
     // Full Name validation
     if (!data.full_name) {
-      validationErrors.push("Full name is required");
+      validationErrors.push(t("clerk.students.validation.fullNameRequired"));
     } else if (data.full_name.length < 2) {
-      validationErrors.push("Full name must be at least 2 characters long");
+      validationErrors.push(t("clerk.students.validation.fullNameMinLength"));
     } else if (data.full_name.length > 100) {
-      validationErrors.push("Full name must be less than 100 characters");
+      validationErrors.push(t("clerk.students.validation.fullNameMaxLength"));
     } else if (!/^[a-zA-Z\s\-']+$/.test(data.full_name)) {
-      validationErrors.push("Full name can only contain letters, spaces, hyphens, and apostrophes");
+      validationErrors.push(t("clerk.students.validation.fullNameInvalid"));
     }
 
     // Username (Index Number) validation
     if (!data.username) {
-      validationErrors.push("Index number (username) is required");
+      validationErrors.push(t("clerk.students.validation.usernameRequired"));
     } else if (data.username.length < 3) {
-      validationErrors.push("Index number must be at least 3 characters long");
+      validationErrors.push(t("clerk.students.validation.usernameMinLength"));
     } else if (data.username.length > 20) {
-      validationErrors.push("Index number must be less than 20 characters");
+      validationErrors.push(t("clerk.students.validation.usernameMaxLength"));
     } else if (!/^[a-zA-Z0-9_]+$/.test(data.username)) {
-      validationErrors.push("Index number can only contain letters, numbers, and underscores");
+      validationErrors.push(t("clerk.students.validation.usernameInvalid"));
     }
 
     // Birthday validation
     if (!data.birthday) {
-      validationErrors.push("Birthday is required");
+      validationErrors.push(t("clerk.students.validation.birthdayRequired"));
     } else {
       const birthDate = new Date(data.birthday);
       const today = new Date();
@@ -514,60 +514,60 @@
       const maxAge = 25; // Maximum age 25 years
 
       if (birthDate > today) {
-        validationErrors.push("Birthday cannot be in the future");
+        validationErrors.push(t("clerk.students.validation.birthdayFuture"));
       } else {
         const age = today.getFullYear() - birthDate.getFullYear();
         if (age < minAge) {
-          validationErrors.push(`Student must be at least ${minAge} years old`);
+          validationErrors.push(t("clerk.students.validation.birthdayMinAge"));
         } else if (age > maxAge) {
-          validationErrors.push(`Please verify the birthday - student appears to be over ${maxAge} years old`);
+          validationErrors.push(t("clerk.students.validation.birthdayMaxAge"));
         }
       }
     }
 
     // Gender validation
     if (!data.gender) {
-      validationErrors.push("Gender is required");
+      validationErrors.push(t("clerk.students.validation.genderRequired"));
     } else if (!['M', 'F'].includes(data.gender)) {
-      validationErrors.push("Please select a valid gender");
+      validationErrors.push(t("clerk.students.validation.genderInvalid"));
     }
 
     // Address validation
     if (!data.address) {
-      validationErrors.push("Address is required");
+      validationErrors.push(t("clerk.students.validation.addressRequired"));
     } else if (data.address.length < 10) {
-      validationErrors.push("Address must be at least 10 characters long");
+      validationErrors.push(t("clerk.students.validation.addressMinLength"));
     } else if (data.address.length > 200) {
-      validationErrors.push("Address must be less than 200 characters");
+      validationErrors.push(t("clerk.students.validation.addressMaxLength"));
     }
 
     // Class validation
     if (!data.class_id) {
-      validationErrors.push("Class selection is required");
+      validationErrors.push(t("clerk.students.validation.classRequired"));
     }
 
     // Nationality validation (optional but if provided, validate)
     if (data.nationality && data.nationality.length > 50) {
-      validationErrors.push("Nationality must be less than 50 characters");
+      validationErrors.push(t("clerk.students.validation.nationalityMaxLength"));
     }
 
     // Parent Name validation (optional but if provided, validate)
     if (data.parent_name) {
       if (data.parent_name.length < 2) {
-        validationErrors.push("Parent name must be at least 2 characters long");
+        validationErrors.push(t("clerk.students.validation.parentNameMinLength"));
       } else if (data.parent_name.length > 100) {
-        validationErrors.push("Parent name must be less than 100 characters");
+        validationErrors.push(t("clerk.students.validation.parentNameMaxLength"));
       } else if (!/^[a-zA-Z\s\-']+$/.test(data.parent_name)) {
-        validationErrors.push("Parent name can only contain letters, spaces, hyphens, and apostrophes");
+        validationErrors.push(t("clerk.students.validation.parentNameInvalid"));
       }
     }
 
     // Parent Address validation (optional but if provided, validate)
     if (data.parent_address) {
       if (data.parent_address.length < 10) {
-        validationErrors.push("Parent address must be at least 10 characters long");
+        validationErrors.push(t("clerk.students.validation.parentAddressMinLength"));
       } else if (data.parent_address.length > 200) {
-        validationErrors.push("Parent address must be less than 200 characters");
+        validationErrors.push(t("clerk.students.validation.parentAddressMaxLength"));
       }
     }
 
@@ -575,7 +575,7 @@
     if (!editingStudent && data.username) {
       const existingStudent = allStudents.find(s => s.username.toLowerCase() === data.username.toLowerCase());
       if (existingStudent) {
-        validationErrors.push("This index number is already in use by another student");
+        validationErrors.push(t("clerk.students.validation.usernameDuplicate"));
       }
     }
 
@@ -585,7 +585,7 @@
         s.username.toLowerCase() === data.username.toLowerCase() && s.id !== editingStudent.id
       );
       if (existingStudent) {
-        validationErrors.push("This index number is already in use by another student");
+        validationErrors.push(t("clerk.students.validation.usernameDuplicate"));
       }
     }
 
@@ -607,12 +607,12 @@
         .then((res) => {
           if (!res.ok) throw new Error("Failed to save student");
           document.getElementById("student-modal").close(); // Using component method
-          toast("Student saved successfully", "fa-solid fa-check-circle");
+          toast(t("clerk.students.success.saved"), "fa-solid fa-check-circle");
           fetchStudents();
         })
         .catch((err) => {
           console.error(err);
-          toast("Error saving student", "fa-solid fa-circle-exclamation");
+          toast(t("clerk.students.error.saveFailed"), "fa-solid fa-circle-exclamation");
         });
     };
 
@@ -626,7 +626,7 @@
   function editStudent(id) {
     const student = allStudents.find((s) => s.id == id);
     if (!student) {
-      toast("Student not found", "fa-solid fa-circle-exclamation");
+      toast(t("clerk.students.error.notFound"), "fa-solid fa-circle-exclamation");
       return;
     }
     editingStudent = student;
@@ -657,30 +657,30 @@
 
     const modal = document.getElementById("student-modal");
     if (modal) {
-      modal.setTitle("Edit Student");
+      modal.setTitle(t("clerk.students.edit"));
       modal.open();
     }
   }
 
   function deleteStudent(id) {
     toast(
-      "Are you sure you want to delete this student?",
+      t("clerk.students.confirm.delete"),
       "fa-solid fa-trash",
       {
         confirm: true,
-        confirmText: "Delete",
-        cancelText: "Cancel",
+        confirmText: t("clerk.students.confirm.deleteConfirm"),
+        cancelText: t("clerk.students.confirm.deleteCancel"),
         onConfirm: () => {
           window.requirePinPrompt(() => {
             api.clerk.students.delete(id)
               .then((res) => {
                 if (!res.ok) throw new Error("Failed to delete student");
-                toast("Student deleted successfully", "fa-solid fa-check-circle");
+                toast(t("clerk.students.success.deleted"), "fa-solid fa-check-circle");
                 fetchStudents();
               })
               .catch((err) => {
                 console.error(err);
-                toast("Error deleting student", "fa-solid fa-circle-exclamation");
+                toast(t("clerk.students.error.deleteFailed"), "fa-solid fa-circle-exclamation");
               });
           });
         },
@@ -694,4 +694,9 @@
   fetchStudents();
 
   setupAddButton();
+
+  // Apply translations after initialization
+  if (typeof applyTranslations === "function") {
+    applyTranslations();
+  }
 </script>
