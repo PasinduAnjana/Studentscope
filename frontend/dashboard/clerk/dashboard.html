@@ -1,9 +1,8 @@
 <div class="card-grid">
   <div class="card greeting-tile" style="grid-column: 1 / -1;">
     <div class="greeting-content">
-      <h2 class="greeting-heading" data="clerk.greeting">Welcome, Clerk</h2>
-      <p class="greeting-subtext" data="clerk.greeting_2">
-        Manage school records efficiently.
+      <h2 class="greeting-heading" data="clerk.greeting"></h2>
+      <p class="greeting-subtext" data="clerk.dashboard.manageRecords">
       </p>
     </div>
     <img src="/assets/images/clerk-clipart.svg" alt="Illustration" class="greeting-img" />
@@ -11,7 +10,7 @@
   <div class="card dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-graduation-cap icon"></i>
-      <p class="tile-label" data-en="Total Students" data-si="මුළු සිසුන්" data-ta="மொத்த மாணவர்கள்">Total Students</p>
+      <p class="tile-label" data="clerk.dashboard.totalStudents"></p>
     </div>
     <div>
       <p class="tile-value" id="total-students-tile">0</p>
@@ -21,7 +20,7 @@
   <div class="card dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-chalkboard-user icon"></i>
-      <p class="tile-label" data-en="Total Teachers" data-si="මුළු ගුරුවරුන්" data-ta="மொத்த ஆசிரியர்கள்">Total Teachers</p>
+      <p class="tile-label" data="clerk.dashboard.totalTeachers"></p>
     </div>
     <div>
       <p class="tile-value" id="teachers-count-tile">0</p>
@@ -31,7 +30,7 @@
   <div class="card dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-layer-group icon"></i>
-      <p class="tile-label" data-en="Total Classes" data-si="මුළු පන්ති" data-ta="மொத்த வகுப்புகள்">Total Classes</p>
+      <p class="tile-label" data="clerk.dashboard.totalClasses"></p>
     </div>
     <div>
       <p class="tile-value" id="total-classes-tile">0</p>
@@ -42,7 +41,7 @@
   <div class="card dashboard-tile h-2" id="dashboard-attendance-card">
     <div class="icon-title">
       <i class="fas fa-clipboard-check icon"></i>
-      <p class="tile-label" data-en="Today's Attendance" data-si="අද පැමිණීම්" data-ta="இன்றைய வருகை">Today's Attendance
+      <p class="tile-label" data="clerk.dashboard.todaysAttendance">
       </p>
     </div>
     <div id="dashboard-attendance-content">
@@ -54,15 +53,15 @@
   <div class="card dashboard-tile">
     <div class="icon-title">
       <i class="fas fa-exclamation-triangle icon"></i>
-      <p class="tile-label" data-en="Unmarked Classes" data-si="සලකුණු නොකළ පන්ති" data-ta="குறிக்கப்படாத வகுப்புகள்">
-        Unmarked Classes</p>
+      <p class="tile-label" data="clerk.dashboard.unmarkedClasses">
+      </p>
     </div>
     <div>
       <p class="tile-value" id="unmarked-classes-count">0</p>
       <button class="btn" style="margin-top: 10px; font-size: 0.85rem;" onclick="showUnmarkedClassesModal()"
         id="view-unmarked-btn">
         <i class="fas fa-eye"></i>
-        <span data-en="View List" data-si="ලැයිස්තුව බලන්න" data-ta="பட்டியலைக் காண்க">View List</span>
+        <span data="clerk.dashboard.viewList"></span>
       </button>
     </div>
   </div>
@@ -70,12 +69,12 @@
   <div class="card dashboard-tile flex-column h-2">
     <div class="icon-title">
       <i class="fas fa-bullhorn icon"></i>
-      <p class="tile-label" data-en="Recent Announcements" data-si="අවසාන නිවේදන" data-ta="சமீபத்திய அறிவிப்புகள்">
-        Recent Announcements</p>
+      <p class="tile-label" data="clerk.dashboard.recentAnnouncements">
+      </p>
     </div>
     <div>
       <ul class="tile-list" id="dashboard-announcements-list">
-        <li class="text-sm">Loading...</li>
+        <li class="text-sm" data="common.loading">Loading...</li>
       </ul>
     </div>
   </div>
@@ -84,11 +83,11 @@
   <div class="card dashboard-tile flex-column h-2">
     <div class="icon-title">
       <i class="fas fa-triangle-exclamation icon"></i>
-      <p class="tile-label" data-en="Alerts" data-si="ඇඟවීම්" data-ta="எச்சரிக்கைகள்">Alerts</p>
+      <p class="tile-label" data="clerk.dashboard.alerts"></p>
     </div>
     <div>
       <ul class="tile-list" id="dashboard-alerts-list">
-        <li class="text-sm">Loading...</li>
+        <li class="text-sm" data="common.loading">Loading...</li>
       </ul>
     </div>
   </div>
@@ -97,24 +96,24 @@
   <div class="card dashboard-tile flex-column">
     <div class="icon-title">
       <i class="fas fa-key icon"></i>
-      <p class="tile-label" data-en="Password Resets" data-si="මුරපදය ප්‍රතිසර්ථන" data-ta="கடவுச்சொல் மீட்டமைப்புகள்">
-        Password Resets</p>
+      <p class="tile-label" data="clerk.dashboard.passwordResets">
+      </p>
     </div>
     <div>
       <ul class="tile-list" id="dashboard-resets-list">
-        <li class="text-sm">Loading...</li>
+        <li class="text-sm" data="common.loading">Loading...</li>
       </ul>
     </div>
   </div>
 </div>
 
 <!-- Unmarked Classes Modal -->
-<modal-dialog id="unmarked-classes-modal" title="Classes Without Attendance Today">
+<modal-dialog id="unmarked-classes-modal" data="clerk.dashboard.unmarkedClasses">
   <div id="unmarked-classes-container"></div>
 </modal-dialog>
 
 <!-- Alert Details Modal -->
-<modal-dialog id="alert-details-modal" title="Alert Details">
+<modal-dialog id="alert-details-modal" data="clerk.dashboard.alertDetails">
   <div id="alert-details-container"></div>
 </modal-dialog>
 
@@ -133,13 +132,7 @@
       resetsList.innerHTML = "";
 
       if (resets.length === 0) {
-        const noResetLi = document.createElement("li");
-        noResetLi.className = "text-sm";
-        noResetLi.setAttribute("data-en", "No pending requests");
-        noResetLi.setAttribute("data-si", "පිටුවිලි ඉල්ලීම් නැත");
-        noResetLi.setAttribute("data-ta", "நிலுவையில் உள்ள கோரிக்கைகள் இல்லை");
-        noResetLi.textContent = "No pending requests";
-        resetsList.appendChild(noResetLi);
+        resetsList.innerHTML = `<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="${t("clerk.dashboard.noPendingRequests")}" icon="fas fa-check-circle"></empty-state-message></li>`;
         return;
       }
 
@@ -151,16 +144,16 @@
             <p class="subject-name" style="margin: 0; font-weight: 500;">${reset.username}</p>
             <p class="text-sm" style="margin: 4px 0 0 0; color: #666;">${reset.role}</p>
           </div>
-          <div style="display: flex; gap: 8px;">
-              <button onclick="approveReset(${reset.id})" class="btn btn-primary" >Approve</button>
-              <button onclick="rejectReset(${reset.id})" class="btn btn-secondary" >Reject</button>
-          </div>
+<div style="display: flex; gap: 8px;">
+              <button onclick="approveReset(${reset.id})" class="btn btn-primary" data="clerk.dashboard.approve"></button>
+              <button onclick="rejectReset(${reset.id})" class="btn btn-secondary" data="clerk.dashboard.reject"></button>
+            </div>
         `;
         resetsList.appendChild(li);
       });
 
-      if (typeof applyDirectLanguageAttributes === "function") {
-        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+      if (typeof applyTranslations === "function") {
+        applyTranslations();
       }
     } catch (err) {
       console.error("Error loading pending resets:", err);
@@ -173,14 +166,14 @@
       const response = await api.clerk.passwordResets.approve(resetId);
 
       if (response.ok) {
-        showToast("Password reset approved", "fa-solid fa-check");
+        showToast(t("clerk.dashboard.passwordApproved"), "fa-solid fa-check");
         loadPendingResets();
       } else {
-        showToast("Failed to approve reset", "fa-solid fa-circle-exclamation");
+        showToast(t("clerk.dashboard.failedApprove"), "fa-solid fa-circle-exclamation");
       }
     } catch (error) {
       console.error("Error approving reset:", error);
-      showToast("Error approving reset", "fa-solid fa-circle-exclamation");
+      showToast(t("clerk.dashboard.errorApprove"), "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -190,14 +183,14 @@
       const response = await api.clerk.passwordResets.reject(resetId);
 
       if (response.ok) {
-        showToast("Password reset rejected", "fa-solid fa-check");
+        showToast(t("clerk.dashboard.passwordRejected"), "fa-solid fa-check");
         loadPendingResets();
       } else {
-        showToast("Failed to reject reset", "fa-solid fa-circle-exclamation");
+        showToast(t("clerk.dashboard.failedReject"), "fa-solid fa-circle-exclamation");
       }
     } catch (error) {
       console.error("Error rejecting reset:", error);
-      showToast("Error rejecting reset", "fa-solid fa-circle-exclamation");
+      showToast(t("clerk.dashboard.errorReject"), "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -223,13 +216,7 @@
       announcementsList.innerHTML = "";
 
       if (announcements.length === 0) {
-        const noAnnounceLi = document.createElement("li");
-        noAnnounceLi.className = "text-sm";
-        noAnnounceLi.setAttribute("data-en", "No announcements yet");
-        noAnnounceLi.setAttribute("data-si", "තවම නිවේදන නැත");
-        noAnnounceLi.setAttribute("data-ta", "இன்னும் அறிவிப்புகள் இல்லை");
-        noAnnounceLi.textContent = "No announcements yet";
-        announcementsList.appendChild(noAnnounceLi);
+        announcementsList.innerHTML = `<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="${t("clerk.dashboard.noAnnouncements")}" icon="fas fa-bullhorn"></empty-state-message></li>`;
         return;
       }
 
@@ -247,8 +234,8 @@
         announcementsList.appendChild(li);
       });
 
-      if (typeof applyDirectLanguageAttributes === "function") {
-        applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+      if (typeof applyTranslations === "function") {
+        applyTranslations();
       }
     } catch (err) {
       console.error("Error loading announcements:", err);
@@ -327,9 +314,9 @@
 
         const currentLang = localStorage.getItem("lang") || "en";
         const labels = [
-          { en: "Present", si: "පැමිණි", ta: "வருகை" },
-          { en: "Absent", si: "නොපැමිණි", ta: "இல்லை" },
-          { en: "Not Marked", si: "සලකුණු නැත", ta: "குறிக்கப்படவில்லை" },
+          t("clerk.dashboard.present"),
+          t("clerk.dashboard.absent"),
+          t("clerk.dashboard.notMarked"),
         ];
 
         const percentage = totalStudents > 0 ? Math.round((presentCount / totalStudents) * 100) : 0;
@@ -337,7 +324,7 @@
         new Chart(document.getElementById("clerkAttendanceChart"), {
           type: "doughnut",
           data: {
-            labels: labels.map(l => l[currentLang] || l.en),
+            labels: labels,
             datasets: [{
               data: [presentCount, absentCount, notMarked],
               backgroundColor: [primaryColor, primaryColor + "40", primaryColor + "18"],
@@ -352,7 +339,7 @@
               legend: { display: false },
               title: {
                 display: true,
-                text: `${labels[0][currentLang] || "Present"}: ${presentCount} | ${labels[1][currentLang] || "Absent"}: ${absentCount} | ${labels[2][currentLang] || "Not Marked"}: ${notMarked}`,
+                text: `${labels[0]}: ${presentCount} | ${labels[1]}: ${absentCount} | ${labels[2]}: ${notMarked}`,
                 font: { size: 12 },
                 position: "bottom",
               },
@@ -367,7 +354,7 @@
       }, 100);
     } catch (err) {
       console.error("Error loading attendance summary:", err);
-      container.innerHTML = `<p class="text-sm" style="color: #666;">Error loading attendance data</p>`;
+      container.innerHTML = `<p class="text-sm" style="color: #666;" data="clerk.dashboard.errorLoadingData"></p>`;
     }
   }
 
@@ -402,8 +389,8 @@
           <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--color-success); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
             <i class="fas fa-check" style="font-size: 28px; color: var(--color-white);"></i>
           </div>
-          <h3 style="margin-bottom: 6px; font-size: 1.1rem; color: var(--color-text);">All Clear!</h3>
-          <p style="color: var(--color-subtext); font-size: 0.9rem;">Every class has marked attendance today.</p>
+          <h3 style="margin-bottom: 6px; font-size: 1.1rem; color: var(--color-text);" data="clerk.dashboard.allClear"></h3>
+          <p style="color: var(--color-subtext); font-size: 0.9rem;" data="clerk.dashboard.everyClassMarked"></p>
         </div>
       `;
     } else {
@@ -422,7 +409,7 @@
       summaryBar.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; background: var(--color-error-light); margin-bottom: 16px;';
       summaryBar.innerHTML = `
         <i class="fas fa-exclamation-circle" style="color: var(--color-error); font-size: 18px;"></i>
-        <span style="font-size: 0.9rem; font-weight: 500; color: var(--color-text);">${unmarkedClassesData.length} class${unmarkedClassesData.length > 1 ? 'es' : ''} haven't marked attendance yet</span>
+        <span style="font-size: 0.9rem; font-weight: 500; color: var(--color-text);">${t("clerk.dashboard.classesPending", { count: unmarkedClassesData.length })}</span>
       `;
       container.appendChild(summaryBar);
 
@@ -451,8 +438,8 @@
               <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--color-primary-light); display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
                 <span style="font-weight: 700; font-size: 16px; color: var(--color-primary);">${grade}</span>
               </div>
-              <span style="font-weight: 600; font-size: 0.95rem; color: var(--color-text);">${cls.section ? 'Section ' + cls.section : cls.name}</span>
-              <span style="font-size: 0.75rem; color: var(--color-subtext); margin-top: 2px;"><i class="fas fa-clock" style="margin-right: 3px;"></i>Pending</span>
+              <span style="font-weight: 600; font-size: 0.95rem; color: var(--color-text);">${cls.section ? t("clerk.dashboard.section") + ' ' + cls.section : cls.name}</span>
+              <span style="font-size: 0.75rem; color: var(--color-subtext); margin-top: 2px;"><i class="fas fa-clock" style="margin-right: 3px;"></i><span data="clerk.dashboard.pending"></span></span>
             `;
             grid.appendChild(card);
           });
@@ -491,11 +478,7 @@
       alertsList.innerHTML = "";
 
       if (alerts.length === 0) {
-        const noAlertLi = document.createElement("li");
-        noAlertLi.className = "text-sm";
-        noAlertLi.style.cssText = "padding: 12px; color: var(--color-subtext); display: flex; align-items: center; gap: 8px;";
-        noAlertLi.innerHTML = `<i class="fas fa-circle-check" style="color: var(--color-primary);"></i> No alerts — everything looks good!`;
-        alertsList.appendChild(noAlertLi);
+        alertsList.innerHTML = `<li style="display: flex; justify-content: center; align-items: center; padding: 40px 0; list-style: none;"><empty-state-message message="${t("clerk.dashboard.noAlerts")}" icon="fas fa-check-circle"></empty-state-message></li>`;
         return;
       }
 
