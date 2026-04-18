@@ -108,12 +108,12 @@
 </div>
 
 <!-- Unmarked Classes Modal -->
-<modal-dialog id="unmarked-classes-modal" data="clerk.dashboard.unmarkedClasses">
+<modal-dialog id="unmarked-classes-modal" data-title="clerk.dashboard.unmarkedClasses">
   <div id="unmarked-classes-container"></div>
 </modal-dialog>
 
 <!-- Alert Details Modal -->
-<modal-dialog id="alert-details-modal" data="clerk.dashboard.alertDetails">
+<modal-dialog id="alert-details-modal" data-title="clerk.dashboard.alertDetails">
   <div id="alert-details-container"></div>
 </modal-dialog>
 
@@ -380,7 +380,16 @@
 
   function showUnmarkedClassesModal() {
     const modal = document.getElementById("unmarked-classes-modal");
-    const container = document.getElementById("unmarked-classes-container");
+    if (!modal) {
+      console.error("Modal not found");
+      return;
+    }
+    modal.open();
+    const container = modal.querySelector("#unmarked-classes-container");
+    if (!container) {
+      console.error("Container not found");
+      return;
+    }
     container.innerHTML = "";
 
     if (unmarkedClassesData.length === 0) {
@@ -506,15 +515,24 @@
 
   async function showAlertDetails(alert) {
     const modal = document.getElementById("alert-details-modal");
-    const container = document.getElementById("alert-details-container");
-    const currentLang = localStorage.getItem("lang") || "en";
+    if (!modal) {
+      console.error("Modal not found");
+      return;
+    }
 
-    // Set modal title
-    modal.setAttribute("title", alert.message[currentLang] || alert.message.en);
+    const currentLang = localStorage.getItem("lang") || "en";
+    const titleText = alert.message[currentLang] || alert.message.en;
+    modal.setAttribute("title", titleText);
+
+    modal.open();
+    const container = modal.querySelector("#alert-details-container");
+    if (!container) {
+      console.error("Container not found");
+      return;
+    }
 
     container.innerHTML = "";
     Loader.show(container);
-    modal.open();
 
     try {
       const response = await api.clerk.alerts.getDetails(alert.key);
