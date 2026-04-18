@@ -60,7 +60,9 @@
     "certificates": "சான்றிதழ்கள்",
     "certificateApproval": "சான்றிதழ் ஒப்புதல்",
     "events": "நிகழ்வுகள்",
-    "settings": "அமைப்புகள்"
+    "settings": "அமைப்புகள்",
+    "achievements": "சாதனைகள்",
+    "exams": "தேர்வுகள்"
   },
   "profile": {
     "quickStats": "விரைவு புள்ளியியல்",

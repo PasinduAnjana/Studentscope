@@ -30,12 +30,12 @@
     "icon": "fas fa-bullhorn"
   },
   {
-    "label": "Achievements",
+    "label": "sidebar.achievements",
     "page": "achievements",
     "icon": "fas fa-trophy"
   },
   {
-    "label": "Exams",
+    "label": "sidebar.exams",
     "page": "exams",
     "icon": "fas fa-file-signature"
   },

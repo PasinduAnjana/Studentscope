@@ -64,7 +64,9 @@
     "certificates": "Certificates",
     "certificateApproval": "Certificate Approval",
     "events": "Events",
-    "settings": "Settings"
+    "settings": "Settings",
+    "achievements": "Achievements",
+    "exams": "Exams"
   },
   "profile": {
     "quickStats": "Quick Stats",
@@ -676,7 +678,8 @@
       "rank": "Rank",
       "termTest": "Term Test",
       "noMarks": "No marks available for this term",
-      "loading": "Loading term tests..."
+      "loading": "Loading term tests...",
+      "errorLoading": "Error loading marks"
     },
     "attendancePage": {
       "title": "My Attendance",
@@ -688,7 +691,8 @@
       "summary": "Attendance Summary",
       "totalDays": "Total Days",
       "daysPresent": "Days Present",
-      "daysAbsent": "Days Absent"
+      "daysAbsent": "Days Absent",
+      "errorLoading": "Error loading attendance"
     },
     "profilePage": {
       "title": "My Profile",

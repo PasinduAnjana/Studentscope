@@ -125,24 +125,29 @@
           : "Today's Timetable";
       }
 
-      timetable.forEach((entry) => {
-        const slotInfo = timeSlots.find((s) => s.slot === entry.slot);
-        if (!slotInfo) return;
+      if (timetable.length === 0) {
+        timetableList.innerHTML = `<empty-state-message message="${t("student.noTimetable")}" icon="fas fa-calendar-alt"></empty-state-message>`;
+      } else {
+        timetable.forEach((entry) => {
+          const slotInfo = timeSlots.find((s) => s.slot === entry.slot);
+          if (!slotInfo) return;
 
-        const li = document.createElement("li");
-        const rootStyles = getComputedStyle(document.documentElement);
-        const primaryColor = rootStyles
-          .getPropertyValue("--color-primary")
-          .trim();
-        li.innerHTML = `
-          <span class="slot-time" style="color: ${primaryColor};">${slotInfo.start}</span>
-          <span class="subject-name">${entry.subject}</span>
-        `;
+          const li = document.createElement("li");
+          const rootStyles = getComputedStyle(document.documentElement);
+          const primaryColor = rootStyles
+            .getPropertyValue("--color-primary")
+            .trim();
+          li.innerHTML = `
+            <span class="slot-time" style="color: ${primaryColor};">${slotInfo.start}</span>
+            <span class="subject-name">${entry.subject}</span>
+          `;
 
-        timetableList.appendChild(li);
-      });
+          timetableList.appendChild(li);
+        });
+      }
     } catch (err) {
       console.error("Error loading timetable:", err);
+      timetableList.innerHTML = `<empty-state-message message="${t("student.noTimetable")}" icon="fas fa-exclamation-triangle"></empty-state-message>`;
     }
   }
 
@@ -158,10 +163,7 @@
       );
 
       if (!data || data.totalDays === 0) {
-        container.innerHTML = `
-          <p class="tile-value">No attendance data</p>
-          <p class="tile-subtext">Attendance will appear here</p>
-        `;
+        container.innerHTML = `<empty-state-message message="${t("student.noAttendance")}" icon="fas fa-calendar-check"></empty-state-message>`;
         return;
       }
 
@@ -238,7 +240,7 @@
       const container = document.getElementById(
         "attendance-percentage-content"
       );
-      container.innerHTML = `<p class="text-error">Error loading attendance</p>`;
+      container.innerHTML = `<empty-state-message message="${t("student.attendancePage.errorLoading")}" icon="fas fa-exclamation-triangle"></empty-state-message>`;
     }
   }
 
@@ -252,10 +254,7 @@
       const container = document.getElementById("average-marks-content");
 
       if (!data || data.average === null) {
-        container.innerHTML = `
-          <p class="tile-value">No marks yet</p>
-          <p class="tile-subtext">Marks will appear here</p>
-        `;
+        container.innerHTML = `<empty-state-message message="${t("student.noMarks")}" icon="fas fa-chart-line"></empty-state-message>`;
         return;
       }
 
@@ -271,7 +270,7 @@
     } catch (err) {
       console.error("Error loading average marks:", err);
       const container = document.getElementById("average-marks-content");
-      container.innerHTML = `<p class="text-error">Error loading marks</p>`;
+      container.innerHTML = `<empty-state-message message="${t("student.marksPage.errorLoading")}" icon="fas fa-exclamation-triangle"></empty-state-message>`;
     }
   }
 
@@ -296,7 +295,7 @@
     } catch (err) {
       console.error("Error loading present days:", err);
       const container = document.getElementById("present-days-content");
-      container.innerHTML = `<p class="text-error">Error loading data</p>`;
+      container.innerHTML = `<empty-state-message message="${t("student.attendancePage.errorLoading")}" icon="fas fa-exclamation-triangle"></empty-state-message>`;
     }
   }
 
@@ -310,10 +309,7 @@
       const container = document.getElementById("achievements-content");
 
       if (!achievements || achievements.length === 0) {
-        container.innerHTML = `
-          <p class="tile-value">No achievements yet</p>
-          <p class="tile-subtext">Keep up the good work!</p>
-        `;
+        container.innerHTML = `<empty-state-message message="${t("student.achievementsPage.noAchievements")}" icon="fas fa-trophy"></empty-state-message>`;
         return;
       }
 
@@ -337,7 +333,7 @@
     } catch (err) {
       console.error("Error loading achievements:", err);
       const container = document.getElementById("achievements-content");
-      container.innerHTML = `<p class="text-error">Error loading achievements</p>`;
+      container.innerHTML = `<empty-state-message message="${t("student.achievementsPage.errorLoading")}" icon="fas fa-exclamation-triangle"></empty-state-message>`;
     }
   }
 
@@ -351,8 +347,7 @@
       const announcementsList = document.getElementById("announcements-list");
 
       if (!announcements || announcements.length === 0) {
-        announcementsList.innerHTML =
-          '<li class="text-sm">No announcements</li>';
+        announcementsList.innerHTML = `<empty-state-message message="${t("student.announcementsPage.noAnnouncements")}" icon="fas fa-bullhorn"></empty-state-message>`;
         return;
       }
 
@@ -383,8 +378,7 @@
     } catch (err) {
       console.error("Error loading announcements:", err);
       const announcementsList = document.getElementById("announcements-list");
-      announcementsList.innerHTML =
-        '<li class="text-sm">Error loading announcements</li>';
+      announcementsList.innerHTML = `<empty-state-message message="${t("student.announcementsPage.errorLoading")}" icon="fas fa-exclamation-triangle"></empty-state-message>`;
     }
   }
 
