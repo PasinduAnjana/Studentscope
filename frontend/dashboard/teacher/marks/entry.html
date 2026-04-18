@@ -171,6 +171,11 @@
     table.innerHTML = "";
     table.appendChild(headerRow);
 
+    // Apply language to table headers
+    if (typeof applyDirectLanguageAttributes === "function") {
+      applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");
+    }
+
     // Create student rows
     classStudents.forEach((student) => {
       const row = document.createElement("tr");
@@ -497,5 +502,14 @@
 
   // Attach event listeners
   document.getElementById("submitBtn").addEventListener("click", submitMarks);
+
+  // Update on language change
+  window.addEventListener("languageChanged", () => {
+    if (students.length > 0) {
+      renderTable(students, tableSubjects);
+    } else {
+      loadData();
+    }
+  });
 
 </script>
