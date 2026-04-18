@@ -554,6 +554,45 @@
       }
     }
   },
+  "achievements": {
+    "title": "சாதனை மேலாண்மை",
+    "achievements": "சாதனைகள்",
+    "addAchievement": "சாதனையைச் சேர்க்க",
+    "editAchievement": "சாதனையைத் திருத்த",
+    "titleLabel": "தலைப்பு",
+    "descriptionLabel": "விவரம்",
+    "categoryLabel": "வகை",
+    "dateLabel": "தேதி",
+    "studentLabel": "மாணவர்",
+    "selectStudent": "மாணவரைத் தேர்ந்தெடுக்கவும்...",
+    "placeholderTitle": "எ.கா. கணித போட்டியில் வென்றவர்",
+    "placeholderDescription": "சாதனை பற்றி விவரங்கள்...",
+    "filter": {
+      "allCategories": "அனைத்து வகைகள்",
+      "academic": "கல்வி",
+      "sports": "விளையாட்டு",
+      "arts": "கலை",
+      "other": "மற்றவை",
+      "byDate": "தேதியால் வடிக்க"
+    },
+    "cancel": "ரத்து செய்",
+    "save": "சேமிக்க",
+    "noAchievementsFound": "சாதனைகள் இல்லை",
+    "errorLoading": "சாதனைகளை ஏற்றுவதில் பிழை",
+    "emptyStudent": "தெரியாத மாணவர்",
+    "noStudentId": "இல்லை",
+    "validation": {
+      "allFields": "அனைத்து தேவையான புலங்களை நிரப்பவும்"
+    },
+    "toast": {
+      "created": "வெற்றிகரமாக உருவாக்கப்பட்டது",
+      "updated": "வெற்றிகரமாகத் திருத்தப்பட்டது",
+      "deleted": "வெற்றிகரமாக நீக்கப்பட்டது",
+      "errorSave": "சேமிப்பதில் பிழை",
+      "errorDelete": "நீக்குவதில் பிழை"
+    },
+    "confirmDelete": "இந்த சாதனையை நீக்க விரும்புகிறீர்களா?"
+  },
   "buttons": {
     "save": "சேமிக்க",
     "cancel": "ரத்து செய்ய",

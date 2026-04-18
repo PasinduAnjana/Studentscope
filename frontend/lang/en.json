@@ -545,6 +545,45 @@
       }
     }
   },
+  "achievements": {
+    "title": "Achievement Management",
+    "achievements": "Achievements",
+    "addAchievement": "Add Achievement",
+    "editAchievement": "Edit Achievement",
+    "titleLabel": "Title",
+    "descriptionLabel": "Description",
+    "categoryLabel": "Category",
+    "dateLabel": "Date",
+    "studentLabel": "Student",
+    "selectStudent": "Select Student...",
+    "placeholderTitle": "e.g. Mathematics Competition Winner",
+    "placeholderDescription": "Details about the achievement...",
+    "filter": {
+      "allCategories": "All Categories",
+      "academic": "Academic",
+      "sports": "Sports",
+      "arts": "Arts",
+      "other": "Other",
+      "byDate": "Filter by Date"
+    },
+    "cancel": "Cancel",
+    "save": "Save",
+    "noAchievementsFound": "No achievements found",
+    "errorLoading": "Error loading achievements",
+    "emptyStudent": "Unknown Student",
+    "noStudentId": "No ID",
+    "validation": {
+      "allFields": "Please fill all required fields"
+    },
+    "toast": {
+      "created": "Created Successfully",
+      "updated": "Updated Successfully",
+      "deleted": "Deleted Successfully",
+      "errorSave": "Error saving",
+      "errorDelete": "Error deleting"
+    },
+    "confirmDelete": "Are you sure you want to delete this achievement?"
+  },
   "student": {
     "greeting": "Welcome to StudentScope!",
     "greeting_2": "You are logged in as a Student",

@@ -547,8 +547,47 @@
       }
     }
   },
+  "achievements": {
+    "title": "ජයග්‍රහණ කළමනාකරණය",
+    "achievements": "ජයග්‍රහණ",
+    "addAchievement": "ජයග්‍රහණයක් එකතු කරන්න",
+    "editAchievement": "ජයග්‍රහණයක් සංස්කරණය කරන්න",
+    "titleLabel": "මාතෘකාව",
+    "descriptionLabel": "විස්තරය",
+    "categoryLabel": "ප්‍රවර්ගය",
+    "dateLabel": "දිනය",
+    "studentLabel": "ශිෂ්‍යයා",
+    "selectStudent": "ශිෂ්‍යයෙක් තෝරන්න...",
+    "placeholderTitle": "උදාහරණයක් ලෙස ගණිත තරගයේ ජයග්‍රහණය",
+    "placeholderDescription": "ජයග්‍රහණය පිළිබඳ විස්තර...",
+    "filter": {
+      "allCategories": "සියලු ප්‍රවර්ග",
+      "academic": "අධ්‍යයික අත්දැකීම්",
+      "sports": "ක්‍රීඩා",
+      "arts": "කලා ක්‍රීඩා",
+      "other": "වෙනත්",
+      "byDate": "දිනයෙන් පෙරහරට"
+    },
+    "cancel": "අවලංගු කරන්න",
+    "save": "සුරකින්න",
+    "noAchievementsFound": "ජයග්‍රහණ හමු නොවීය",
+    "errorLoading": "ජයග්‍රහණ පූරණය කිරීමේ දෝෂයකි",
+    "emptyStudent": "නොදන්නා ශිෂ්‍යයා",
+    "noStudentId": "අංකයක් නැත",
+    "validation": {
+      "allFields": "සියලු අවශ්‍ය ක්ෂේත්‍ර පුරවන්න"
+    },
+    "toast": {
+      "created": "සාර්ථකව නිර්මාණය කරන ලදි",
+      "updated": "සාර්ථකව යාවත් කරන ලදි",
+      "deleted": "සාර්ථකව මකන ලදි",
+      "errorSave": "සුරකීමේ දෝෂයකි",
+      "errorDelete": "මකන කිරීමේ දෝෂයකි"
+    },
+    "confirmDelete": "ඔබට තහවුරුද මෙම ජයග්‍රහණය මකන්න ද?"
+  },
   "student": {
-    "greeting": "StudentScope වෙත සාදරයෙන් පිළිගනිමු!",
+    "greeting": "StudentScope වෙත සාදරයෙන�� පිළිගනිමු!",
     "greeting_2": "ඔබ ශිෂ්‍යයෙකු වශයෙන් ලොග් වී ඇත",
     "timetable": "අද කාලසටහන",
     "attendance": "පැමිණීම",

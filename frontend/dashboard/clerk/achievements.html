@@ -4,80 +4,79 @@
 
   <h2 class="heading">
     <i class="fas fa-trophy"></i>
-    <span>Achievement Management</span>
+    <span data="achievements.title">Achievement Management</span>
   </h2>
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <div class="icon-title">
         <i class="fas fa-trophy icon"></i>
-        <p class="tile-label">Achievements</p>
+        <p class="tile-label" data="achievements.achievements">Achievements</p>
       </div>
       <button class="btn btn-primary" onclick="openModal()">
-        <i class="fas fa-plus"></i> Add Achievement
+        <i class="fas fa-plus"></i> <span data="achievements.addAchievement">Add Achievement</span>
       </button>
     </div>
     <data-table id="achievements-table">
         <div slot="filters" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
             <div class="input-group" style="min-width: 150px; margin-bottom: 0;">
                 <select id="categoryFilter">
-                    <option value="">All Categories</option>
-                    <option value="academic">Academic</option>
-                    <option value="sports">Sports</option>
-                    <option value="arts">Arts</option>
+                    <option value="" data="achievements.filter.allCategories">All Categories</option>
+                    <option value="academic" data="achievements.filter.academic">Academic</option>
+                    <option value="sports" data="achievements.filter.sports">Sports</option>
+                    <option value="arts" data="achievements.filter.arts">Arts</option>
                 </select>
             </div>
 
             <div class="input-group" style="min-width: 150px; margin-bottom: 0;">
-                 <input type="date" id="dateFilter" placeholder="Filter by Date" style="margin-bottom: 0;">
+                 <input type="date" id="dateFilter" data-placeholder="achievements.filter.byDate" placeholder="Filter by Date" style="margin-bottom: 0;">
             </div>
         </div>
     </data-table>
   </div>
 
   <!-- Modal using shared styles (from announcements.css) -->
-  <modal-dialog id="achievementModal" title="Add Achievement">
+  <modal-dialog id="achievementModal" data-title="achievements.addAchievement" title="Add Achievement">
       <div style="display: flex; flex-direction: column; gap: 15px;">
         <form id="achievementForm" onsubmit="handleSave(event)">
           <input type="hidden" id="achievementId" />
           
           <div class="form-group">
-            <label for="studentSelect">Student</label>
+            <label for="studentSelect" data="achievements.studentLabel">Student</label>
             <select id="studentSelect" required style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text);">
-              <option value="">Select Student...</option>
+              <option value="" data="achievements.selectStudent">Select Student...</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="titleInput">Title</label>
-            <input type="text" id="titleInput" required placeholder="e.g. Mathematics Competition Winner" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text);" />
+            <label for="titleInput" data="achievements.titleLabel">Title</label>
+            <input type="text" id="titleInput" required data-placeholder="achievements.placeholderTitle" placeholder="e.g. Mathematics Competition Winner" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text);" />
           </div>
 
           <div class="form-group">
-            <label for="descInput">Description</label>
-            <textarea id="descInput" rows="3" required placeholder="Details about the achievement..." style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text);"></textarea>
+            <label for="descInput" data="achievements.descriptionLabel">Description</label>
+            <textarea id="descInput" rows="3" required data-placeholder="achievements.placeholderDescription"placeholder="Details about the achievement..." style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text);"></textarea>
           </div>
 
           <div class="form-group">
-            <label>Category</label>
-            <!-- Custom Web Component -->
+            <label data="achievements.categoryLabel">Category</label>
             <toggle-select id="categoryToggle" onclick="syncCategory()">
-                <toggle-option value="academic" icon="fas fa-microscope">Academic</toggle-option>
-                <toggle-option value="sports" icon="fas fa-trophy">Sports</toggle-option>
-                <toggle-option value="arts" icon="fas fa-palette">Arts</toggle-option>
-                <toggle-option value="other" icon="fas fa-star">Other</toggle-option>
+                <toggle-option value="academic" icon="fas fa-microscope" data="achievements.filter.academic">Academic</toggle-option>
+                <toggle-option value="sports" icon="fas fa-trophy" data="achievements.filter.sports">Sports</toggle-option>
+                <toggle-option value="arts" icon="fas fa-palette" data="achievements.filter.arts">Arts</toggle-option>
+                <toggle-option value="other" icon="fas fa-star" data="achievements.filter.other">Other</toggle-option>
             </toggle-select>
             <input type="hidden" id="categorySelect" required />
           </div>
 
           <div class="form-group">
-            <label for="dateInput">Date</label>
+            <label for="dateInput" data="achievements.dateLabel">Date</label>
             <input type="date" id="dateInput" required style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-bg); color: var(--color-text);" />
           </div>
         </form>
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="document.getElementById('achievementForm').dispatchEvent(new Event('submit'))">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal()" data="achievements.cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('achievementForm').dispatchEvent(new Event('submit'))" data="achievements.save">Save</button>
       </div>
   </modal-dialog>
 
@@ -104,60 +103,61 @@
           students = await res.json();
           const select = document.getElementById("studentSelect");
           if(select) {
-              select.innerHTML = '<option value="">Select Student...</option>';
+              select.innerHTML = `<option value="">${t("achievements.selectStudent")}</option>`;
               students.forEach(s => {
                 const option = document.createElement("option");
                 option.value = s.user_id;
-                option.textContent = `${s.full_name} (${s.username || 'No ID'})`;
+                option.textContent = `${s.full_name} (${s.username || t("achievements.noStudentId")})`;
                 select.appendChild(option);
               });
           }
         }
       } catch (err) {
         console.error("Failed to load students", err);
-        toast("Failed to load students", "fa-solid fa-circle-exclamation");
+        toast(t("common.error"), "fa-solid fa-circle-exclamation");
       }
     }
 
   function initTable() {
     const table = document.getElementById("achievements-table");
     table.setColumns([
-        { key: "student_name", header: "Student", searchable: true, render: (row) => row.student_name || 'Unknown Student' },
+        { key: "student_name", header: t("achievements.studentLabel"), searchable: true, render: (row) => row.student_name || t("achievements.emptyStudent") },
         { 
             key: "title", 
-            header: "Title / Description", 
+            header: t("achievements.titleLabel") + " / " + t("achievements.descriptionLabel"), 
             searchable: true,
             render: (row) => `<div>${row.title}</div><div class="text-sm">${row.description}</div>`
         },
         { 
             key: "category", 
-            header: "Category", 
+            header: t("achievements.categoryLabel"), 
             render: (row) => {
                 const icon = getCategoryIcon(row.category);
-                return `<span><i class="fas ${icon}"></i> ${row.category}</span>`;
+                const label = t("achievements.filter." + row.category) || row.category;
+                return `<span><i class="fas ${icon}"></i> ${label}</span>`;
             }
         },
         { 
             key: "achieved_at", 
-            header: "Date", 
+            header: t("achievements.dateLabel"), 
             render: (row) => new Date(row.achieved_at).toLocaleDateString()
         },
         {
             key: "actions",
-            header: "Actions",
+            header: t("common.actions"),
             render: (row) => {
                 const div = document.createElement("div");
                 div.className = "action-buttons flex-center";
                 
                 const btnEdit = document.createElement("button");
                 btnEdit.className = "btn-icon btn-edit";
-                btnEdit.title = "Edit";
+                btnEdit.title = t("common.edit");
                 btnEdit.innerHTML = '<i class="fas fa-edit"></i>';
                 btnEdit.onclick = () => openEditModal(row);
 
                 const btnDelete = document.createElement("button");
                 btnDelete.className = "btn-icon btn-delete";
-                btnDelete.title = "Delete";
+                btnDelete.title = t("common.delete");
                 btnDelete.innerHTML = '<i class="fas fa-trash"></i>';
                 btnDelete.onclick = () => handleDelete(row.id);
                 
@@ -167,7 +167,7 @@
             }
         }
     ]);
-    table.setEmptyState("No achievements found", "fas fa-trophy");
+    table.setEmptyState(t("achievements.noAchievementsFound"), "fas fa-trophy");
 
     // Filters
     // const studentFilter = document.getElementById("studentFilter");
@@ -217,7 +217,7 @@
       } catch (err) {
         console.error(err);
         document.getElementById("achievements-table").setData([]);
-        document.getElementById("achievements-table").setEmptyState("Error loading achievements", "fas fa-exclamation-triangle");
+        document.getElementById("achievements-table").setEmptyState(t("achievements.errorLoading"), "fas fa-exclamation-triangle");
       }
     }
 
@@ -234,12 +234,11 @@
       isEditing = false;
       const modal = document.getElementById("achievementModal");
       if(modal) {
-        modal.setTitle("Add Achievement");
+        modal.setTitle(t("achievements.addAchievement"));
         document.getElementById("achievementForm").reset();
         document.getElementById("achievementId").value = "";
         document.getElementById("dateInput").valueAsDate = new Date();
         
-        // Reset Web Component
         const toggle = document.querySelector('toggle-select');
         if(toggle) toggle.value = ""; 
         document.getElementById('categorySelect').value = "";
@@ -252,7 +251,7 @@
       isEditing = true;
       const modal = document.getElementById("achievementModal");
       if(modal) {
-          modal.setTitle("Edit Achievement");
+          modal.setTitle(t("achievements.editAchievement"));
           document.getElementById("achievementId").value = item.id;
           document.getElementById("studentSelect").value = item.student_id; 
           document.getElementById("titleInput").value = item.title;
@@ -260,7 +259,6 @@
           document.getElementById("categorySelect").value = item.category;
           document.getElementById("dateInput").value = item.achieved_at.split('T')[0];
           
-          // Set Web Component value
           const toggle = document.querySelector('toggle-select');
           if(toggle) toggle.value = item.category;
           
@@ -286,7 +284,7 @@
       };
 
       if (!data.student_id || !data.title || !data.category || !data.achieved_at) {
-         toast("Please fill all required fields", "fa-solid fa-circle-exclamation");
+         toast(t("achievements.validation.allFields"), "fa-solid fa-circle-exclamation");
          return;
       }
 
@@ -299,34 +297,35 @@
         }
 
         if (res.ok) {
-          toast(isEditing ? "Updated Successfully" : "Created Successfully", "fa-solid fa-check-circle");
+          toast(isEditing ? t("achievements.toast.updated") : t("achievements.toast.created"), "fa-solid fa-check-circle");
           closeModal();
           loadAchievements();
         } else {
-          toast("Failed to save", "fa-solid fa-circle-exclamation");
+          toast(t("achievements.toast.errorSave"), "fa-solid fa-circle-exclamation");
         }
       } catch (err) {
         console.error(err);
-        toast("Error saving", "fa-solid fa-circle-exclamation");
+        toast(t("achievements.toast.errorSave"), "fa-solid fa-circle-exclamation");
       }
     }
 
     async function handleDelete(id) {
-       toast("Are you sure you want to delete this achievement?", "fa-solid fa-trash", {
+       toast(t("achievements.confirmDelete"), "fa-solid fa-trash", {
          confirm: true,
-         confirmText: "Delete",
+         confirmText: t("common.delete"),
+         cancelText: t("common.cancel"),
          onConfirm: async () => {
              try {
                 const res = await api.clerk.achievements.delete(id);
                 if (res.ok) {
                   loadAchievements();
-                  toast("Deleted Successfully", "fa-solid fa-check-circle");
+                  toast(t("achievements.toast.deleted"), "fa-solid fa-check-circle");
                 } else {
-                  toast("Failed to delete", "fa-solid fa-circle-exclamation");
+                  toast(t("achievements.toast.errorDelete"), "fa-solid fa-circle-exclamation");
                 }
             } catch (err) {
                 console.error(err);
-                toast("Error deleting", "fa-solid fa-circle-exclamation");
+                toast(t("achievements.toast.errorDelete"), "fa-solid fa-circle-exclamation");
             }
          }
        });
@@ -334,5 +333,10 @@
 
     // Initialize
     init();
+
+    // Language change handler
+    window.addEventListener("languageChanged", () => {
+      loadAchievements();
+    });
   </script>
 </section>
