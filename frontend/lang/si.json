@@ -650,7 +650,91 @@
     "attendance_percentage": "පැමිණීමේ ප්‍රතිශතය",
     "average_marks": "සාමාන්‍ය ලකුණු",
     "present_days": "පැමිණි දින",
-    "achievements": "ජයග්‍රහණ"
+    "achievements": "ජයග්‍රහණ",
+    "achievementsPage": {
+      "title": "ජයග්‍රහණ",
+      "noAchievements": "තවම ජයග්‍රහණ නැත. වැඩ කරගෙන යන්න!",
+      "errorLoading": "ජයග්‍රහණ පූරණය කිරීමට අසමත් විය"
+    },
+    "profile": "මගේ පැතිකරය",
+    "certificates": "මගේ සහතිප්‍රදායන්",
+    "events": "උත්සව",
+    "noTimetable": "කාලසටහන් නැත",
+    "noAttendance": "පැමිණීම් වාර්තා නැත",
+    "noMarks": "ලකුණු නැත",
+    "loading": "පූරණය කිරීම...",
+    "marksPage": {
+      "title": "මගේ ලකුණු",
+      "selectTerm": "වාර පරීක්ෂණය තෝරන්න",
+      "classRank": "පන්ති ශ්‍රේණිය",
+      "subjectRank": "විෂය ශ්‍රේණිය",
+      "avgMarks": "සාමාන්‍ය ලකුණු",
+      "subject": "විෂය",
+      "marks": "ලකුණු",
+      "classAverage": "පන්ති සාමාන්‍යය",
+      "rank": "ශ්‍රේණිය",
+      "termTest": "වාර පරීක්ෂණය",
+      "noMarks": "මෙම වාරය සඳහා ලකුණු නැත",
+      "loading": "පරීක්ෂණ පූරණය කිරීම..."
+    },
+    "attendancePage": {
+      "title": "මගේ පැමිණීම",
+      "present": "පැමිණි",
+      "absent": "නොපැමිණි",
+      "percentage": "පැමිණීමේ ප්‍රතිශතය",
+      "date": "දිනය",
+      "status": "สถานะ",
+      "summary": "පැමිණීම් සරැධිය",
+      "totalDays": "මුළු දින",
+      "daysPresent": "පැමිණි දින",
+      "daysAbsent": "නොපැමිණි දින"
+    },
+    "profilePage": {
+      "title": "මගේ පැතිකරය",
+      "personalDetails": "පෞයාප්‍රවායන විස්තර",
+      "fullName": "සම්පූර්ණ නම",
+      "username": "පරිශීලක නම",
+      "birthday": "උපන් දිනය",
+      "gender": "ස්ත්‍රී පුරුෂ භාවය",
+      "address": "ලිපිනය",
+      "phone": "දුරකථන",
+      "class": "පන්තිය",
+      "parentName": "මව්පියගේ නම",
+      "parentPhone": "මව්පියගේ දුරකථන",
+      "noData": "පැතිකර දත්ත නැත"
+    },
+    "certificatesPage": {
+      "title": "මගේ සහතිප්‍රදායන්",
+      "request": "සහතිපයක් ඉල්ලන්න",
+      "type": "සහතිප වර්ගය",
+      "purpose": "අරමුන",
+      "requestedOn": "ඉල්ලා ඇති දිනය",
+      "status": "තත්ත්‍වය",
+      "pending": "බලා පොරොත්තු",
+      "approved": "අනුමත කර ඇත",
+      "rejected": "ප්‍රතික්ෂ කර ඇත",
+      "noCertificates": "ඉල්ලා ඇති සහතිප නැත",
+      "requestSuccess": "සහතිප ඉල්ලීම සාර්ථකව යවා ඇත"
+    },
+    "eventsPage": {
+      "title": "උත්සව",
+      "noEvents": "ඉදිරි උත්සව නැත",
+      "date": "දිනය",
+      "event": "උත්සවය",
+      "description": "විස්තරය"
+    },
+    "announcementsPage": {
+      "title": "නිවේදන",
+      "noAnnouncements": "නිවේදන නැත",
+      "from": "සිට",
+      "date": "දිනය",
+      "allStudents": "සියලු ශිෂ්‍යයින්",
+      "class": "පන්තිය",
+      "assigned": "පවරා ඇත",
+      "showMore": "තව බලන්න",
+      "showLess": "අවම කරන්න",
+      "errorLoading": "නිවේදන පූරණය කිරීමේ දෝෂයකි"
+    }
   },
 
   "buttons": {

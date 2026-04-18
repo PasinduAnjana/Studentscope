@@ -25,11 +25,7 @@
     <div class="card h-2">
       <div class="icon-title">
         <i class="fas fa-inbox icon"></i>
-        <p class="tile-label"
-          data-en="My Announcements"
-          data-si="මගේ ප්‍රකාශයන්"
-          data-ta="என் அறிவிப்புகள்"
-        >My Announcements</p>
+        <p class="tile-label" data="student.announcementsPage.title">My Announcements</p>
       </div>
       <div class="announcements-container" id="announcements-container">
         <!-- Announcements will be loaded here dynamically -->
@@ -45,15 +41,7 @@
     const container = document.querySelector(`#${containerId}`);
     container.innerHTML = "";
     if (!announcements.length) {
-      const lang = localStorage.getItem("lang") || "en";
-      const msgs = {
-        en: "No announcements found",
-        si: "ප්‍රකාශයන් හමු නොවිණි",
-        ta: "அறிவிப்புகள் கிடைக்கவில்லை",
-      };
-      container.innerHTML = `<div class="no-announcements text-center">${
-        msgs[lang] || "No announcements found"
-      }</div>`;
+      container.innerHTML = `<div class="no-announcements text-center">${t("student.announcementsPage.noAnnouncements")}</div>`;
       return;
     }
 
@@ -65,80 +53,44 @@
         announcement.created_at
       ).toLocaleDateString();
 
-      // Format audience display
       let audienceDisplay = "";
-      const lang = localStorage.getItem("lang") || "en";
       const labels = {
-        all: {
-          en: "All Students",
-          si: "සියලු ශිෂ්‍යයින්",
-          ta: "அனைத்து மாணவர்கள்",
-        },
-        students: { en: "Class", si: "පන්තිය", ta: "வகுப்பு" },
+        all: t("student.announcementsPage.allStudents"),
+        students: t("student.announcementsPage.class") + " " + (announcement.class_name || t("student.announcementsPage.assigned")),
       };
 
       switch (announcement.audience_type) {
         case "all":
-          audienceDisplay = labels.all[lang] || "All Students";
+          audienceDisplay = labels.all;
           break;
         case "students":
-          audienceDisplay = `${labels.students[lang] || "Class"} ${
-            announcement.class_name || "Assigned"
-          }`;
+          audienceDisplay = labels.students;
           break;
       }
-
-      const postedLabel = {
-        en: "Posted:",
-        si: "පළ කරන ලද:",
-        ta: "வெளியிடப்பட்ட:",
-      };
-      const byLabel = { en: "By", si: "විසින්", ta: "மூலம்" };
-      const audienceLabel = {
-        en: "Audience:",
-        si: "ප්‍රේක්ෂකයින්:",
-        ta: "பார்வையாளர்கள்:",
-      };
 
       card.innerHTML = `
         <div class="announcement-title">
           <span>${announcement.title}</span>
         </div>
         <div class="announcement-description-container">
-          <div class="announcement-description collapsed" id="desc-${containerId}-${
-        announcement.id
-      }">${announcement.description}</div>
-          <button class="expand-btn" id="expand-${containerId}-${
-        announcement.id
-      }" style="display: none;" onclick="toggleDescription('${containerId}', ${
-        announcement.id
-      })">
-            <span data-en="Show more" data-si="තවත් දෙස" data-ta="மேலும் காட்டு">Show more</span>
+          <div class="announcement-description collapsed" id="desc-${containerId}-${announcement.id}">${announcement.description}</div>
+          <button class="expand-btn" id="expand-${containerId}-${announcement.id}" style="display: none;" onclick="toggleDescription('${containerId}', ${announcement.id})">
+            <span>${t("student.announcementsPage.showMore")}</span>
             <i class="fas fa-chevron-down"></i>
           </button>
         </div>
         <div class="announcement-meta flex-between">
           <span class="text-sm"><i class="fas fa-users" style="margin-right:4px;"></i>${audienceDisplay}</span>
-          <span class="text-sm"><i class="fas fa-calendar" style="margin-right:4px;"></i>${createdDate}${
-        announcement.posted_by_name
-          ? ` <i class="fas fa-user" style="margin-right:4px;"></i>${announcement.posted_by_name}`
-          : ""
-      }</span>
+          <span class="text-sm"><i class="fas fa-calendar" style="margin-right:4px;"></i>${createdDate}${announcement.posted_by_name ? ` <i class="fas fa-user" style="margin-right:4px;"></i>${announcement.posted_by_name}` : ""}</span>
         </div>
       `;
 
       container.appendChild(card);
 
-      // Check if description needs expand button
       setTimeout(() => {
-        const descElement = card.querySelector(
-          `#desc-${containerId}-${announcement.id}`
-        );
-        const expandBtn = card.querySelector(
-          `#expand-${containerId}-${announcement.id}`
-        );
+        const descElement = card.querySelector(`#desc-${containerId}-${announcement.id}`);
+        const expandBtn = card.querySelector(`#expand-${containerId}-${announcement.id}`);
 
-        // Check if text is truncated
         if (descElement.scrollHeight > descElement.clientHeight) {
           expandBtn.style.display = "inline-flex";
         }
@@ -162,15 +114,7 @@
       .catch((err) => {
         console.error("Error fetching announcements:", err);
         const container = document.querySelector("#announcements-container");
-        const lang = localStorage.getItem("lang") || "en";
-        const msgs = {
-          en: "Error loading announcements",
-          si: "ප්‍රකාශයන් පූරණය කිරීමේ දෝෂ",
-          ta: "அறிவிப்புகளை பதிவிறக்க பிழை",
-        };
-        container.innerHTML = `<div class="no-announcements text-center">${
-          msgs[lang] || "Error loading announcements"
-        }</div>`;
+        container.innerHTML = `<div class="no-announcements text-center">${t("student.announcementsPage.errorLoading")}</div>`;
       });
   }
 
@@ -178,23 +122,24 @@
     const descElement = document.getElementById(`desc-${containerId}-${id}`);
     const expandBtn = document.getElementById(`expand-${containerId}-${id}`);
     const btnText = expandBtn.querySelector("span");
-    const btnIcon = expandBtn.querySelector("i");
 
     if (descElement.classList.contains("collapsed")) {
-      // Expand
       descElement.classList.remove("collapsed");
       descElement.classList.add("expanded");
-      btnText.textContent = "Show less";
+      btnText.textContent = t("student.announcementsPage.showLess");
       expandBtn.classList.add("expanded");
     } else {
-      // Collapse
       descElement.classList.remove("expanded");
       descElement.classList.add("collapsed");
-      btnText.textContent = "Show more";
+      btnText.textContent = t("student.announcementsPage.showMore");
       expandBtn.classList.remove("expanded");
     }
   }
 
   // Initialize
   fetchAnnouncements();
+
+  window.addEventListener("languageChanged", () => {
+    fetchAnnouncements();
+  });
 </script>

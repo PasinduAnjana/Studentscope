@@ -205,7 +205,91 @@
     "attendance_percentage": "வருகை சதவீதம்",
     "average_marks": "சராசரி மதிப்பெண்கள்",
     "present_days": "வருகை நாட்கள்",
-    "achievements": "சாதனைகள்"
+    "achievements": "சாதனைகள்",
+    "achievementsPage": {
+      "title": "சாதனைகள்",
+      "noAchievements": "இன்னும் சாதனைகள் இல்லை. மேலே பணியாற்!",
+      "errorLoading": "சாதனைகளை ஏற்ற முடியவில்லை"
+    },
+    "profile": "என் சுயவிவரம்",
+    "certificates": "என் சான்றிதழ்கள்",
+    "events": "நிகழ்வுகள்",
+    "noTimetable": "நேர அட்டவணை இல்லை",
+    "noAttendance": "வருகை பதிவுகள் இல்லை",
+    "noMarks": "மதிப்பெண்கள் இல்லை",
+    "loading": "மேலே பதிவு செய்கிறோம்...",
+    "marksPage": {
+      "title": "என் மதிப்பெண்கள்",
+      "selectTerm": "பருவ தேர்வைத் தேர்வு செய்யுங்கள்",
+      "classRank": "வகுப்பு தரம்",
+      "subjectRank": "பாடம் தரம்",
+      "avgMarks": "சராசரி மதிப்பெண்கள்",
+      "subject": "பாடம்",
+      "marks": "மதிப்பெண்கள்",
+      "classAverage": "வகுப்பு சராசரி",
+      "rank": "தரம்",
+      "termTest": "பருவ தேர்வு",
+      "noMarks": "இந்த பருவத்திற்கு மதிப்பெண்கள் இல்லை",
+      "loading": "பருவ தேர்வுகளை ஏற்கிறோம்..."
+    },
+    "attendancePage": {
+      "title": "என் வருகை",
+      "present": "வந்துள்ளார்",
+      "absent": "வரவில்லை",
+      "percentage": "வருகை %",
+      "date": "தேதி",
+      "status": "நிலை",
+      "summary": "வருகை ஒட்டுப் போலி",
+      "totalDays": "மொத்த நாட்கள்",
+      "daysPresent": "வந்த நாட்கள்",
+      "daysAbsent": "வராத நாட்கள்"
+    },
+    "profilePage": {
+      "title": "என் சுயவிவரம்",
+      "personalDetails": "தனிப்பட்ட விவரங்கள்",
+      "fullName": "முழு பெயர்",
+      "username": "பயனர் பெயர்",
+      "birthday": "பிறந்த தேதி",
+      "gender": "பாலினம்",
+      "address": "முகவரி",
+      "phone": "தொலைபேசி",
+      "class": "வகுப்பு",
+      "parentName": "பெறுமார் பெயர்",
+      "parentPhone": "பெறுமார் தொலைபேசி",
+      "noData": "சுயவிவரம் இல்லை"
+    },
+    "certificatesPage": {
+      "title": "என் சான்றிதழ்கள்",
+      "request": "சான்றிதழ் கோருக",
+      "type": "சான்றிதழ் வகை",
+      "purpose": "நோக்கம்",
+      "requestedOn": "கோரிய தேதி",
+      "status": "நிலை",
+      "pending": "நிலுவைத்து",
+      "approved": "அனுமதித்த",
+      "rejected": "மறுத்த",
+      "noCertificates": "கோரிய சான்றிதழ் இல்லை",
+      "requestSuccess": "சான்றிதழ் கோரல் வெற்றிகரமாக அனுப்பப்பட்டது"
+    },
+    "eventsPage": {
+      "title": "நிகழ்வுகள்",
+      "noEvents": "எதிரூட்ட நிகழ்வுகள் இல்லை",
+      "date": "தேதி",
+      "event": "நிகழ்வு",
+      "description": "விவரம்"
+    },
+    "announcementsPage": {
+      "title": "அறிவிப்புகள்",
+      "noAnnouncements": "அறிவிப்புகள் இல்லை",
+      "from": "அனுப்பவர்",
+      "date": "தேதி",
+      "allStudents": "அனைத்து மாணவர்கள்",
+      "class": "வகுப்பு",
+      "assigned": "ஒதுக்கப்பட்ட",
+      "showMore": "மேலும்",
+      "showLess": "குறைவாக",
+      "errorLoading": "அறிவிப்புகளை ஏற்றுவதில் பிழை"
+    }
   },
   "clerk": {
     "greeting": "StudentScope-க்கு வரவேற்கிறோம்!",

@@ -28,7 +28,10 @@
     "notFound": "Item not found",
     "actions": "Actions",
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "outOf": "Out of {count}",
+    "subjects": "{count} subjects",
+    "totalMarks": "Total Marks"
   },
   "login": {
     "title": "Login to StudentScope",
@@ -648,7 +651,91 @@
     "attendance_percentage": "Attendance Percentage",
     "average_marks": "Average Marks",
     "present_days": "Present Days",
-    "achievements": "Achievements"
+    "achievements": "Achievements",
+    "achievementsPage": {
+      "title": "Achievements",
+      "noAchievements": "No achievements yet. Keep working hard!",
+      "errorLoading": "Failed to load achievements"
+    },
+    "profile": "My Profile",
+    "certificates": "My Certificates",
+    "events": "Events",
+    "noTimetable": "No timetable available",
+    "noAttendance": "No attendance records",
+    "noMarks": "No marks available",
+    "loading": "Loading...",
+    "marksPage": {
+      "title": "My Marks",
+      "selectTerm": "Select Term Test",
+      "classRank": "Class Rank",
+      "subjectRank": "Subject Rank",
+      "avgMarks": "Average Marks",
+      "subject": "Subject",
+      "marks": "Marks",
+      "classAverage": "Class Average",
+      "rank": "Rank",
+      "termTest": "Term Test",
+      "noMarks": "No marks available for this term",
+      "loading": "Loading term tests..."
+    },
+    "attendancePage": {
+      "title": "My Attendance",
+      "present": "Present",
+      "absent": "Absent",
+      "percentage": "Attendance %",
+      "date": "Date",
+      "status": "Status",
+      "summary": "Attendance Summary",
+      "totalDays": "Total Days",
+      "daysPresent": "Days Present",
+      "daysAbsent": "Days Absent"
+    },
+    "profilePage": {
+      "title": "My Profile",
+      "personalDetails": "Personal Details",
+      "fullName": "Full Name",
+      "username": "Username",
+      "birthday": "Birthday",
+      "gender": "Gender",
+      "address": "Address",
+      "phone": "Phone",
+      "class": "Class",
+      "parentName": "Parent Name",
+      "parentPhone": "Parent Phone",
+      "noData": "No profile data available"
+    },
+    "certificatesPage": {
+      "title": "My Certificates",
+      "request": "Request Certificate",
+      "type": "Certificate Type",
+      "purpose": "Purpose",
+      "requestedOn": "Requested On",
+      "status": "Status",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "noCertificates": "No certificates requested",
+      "requestSuccess": "Certificate request submitted successfully"
+    },
+    "eventsPage": {
+      "title": "Events",
+      "noEvents": "No upcoming events",
+      "date": "Date",
+      "event": "Event",
+      "description": "Description"
+    },
+    "announcementsPage": {
+      "title": "Announcements",
+      "noAnnouncements": "No announcements",
+      "from": "From",
+      "date": "Date",
+      "allStudents": "All Students",
+      "class": "Class",
+      "assigned": "Assigned",
+      "showMore": "Show more",
+      "showLess": "Show less",
+      "errorLoading": "Error loading announcements"
+    }
   },
 
   "buttons": {

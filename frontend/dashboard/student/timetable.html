@@ -4,33 +4,28 @@
 </h2>
 
 <div class="timetable" id="timetable">
-  <!-- Header row -->
   <div class="timetable-row header-row" id="timetable-header-row">
-    <div class="timetable-cell header-cell">Time</div>
-    <div class="timetable-cell header-cell">Monday</div>
-    <div class="timetable-cell header-cell">Tuesday</div>
-    <div class="timetable-cell header-cell">Wednesday</div>
-    <div class="timetable-cell header-cell">Thursday</div>
-    <div class="timetable-cell header-cell">Friday</div>
+    <div class="timetable-cell header-cell" data="clerk.timetable.days.time">Time</div>
+    <div class="timetable-cell header-cell" data="clerk.timetable.days.monday">Monday</div>
+    <div class="timetable-cell header-cell" data="clerk.timetable.days.tuesday">Tuesday</div>
+    <div class="timetable-cell header-cell" data="clerk.timetable.days.wednesday">Wednesday</div>
+    <div class="timetable-cell header-cell" data="clerk.timetable.days.thursday">Thursday</div>
+    <div class="timetable-cell header-cell" data="clerk.timetable.days.friday">Friday</div>
   </div>
 </div>
 
 <script>
   async function loadTimetable() {
-    // Fetch time slots and student's weekly timetable from backend
     const [timeData, timetableData] = await Promise.all([
       fetch("../../data/time.json").then((res) => res.json()),
       api.student.timetable.getWeek().then((res) => res.json()),
     ]);
 
-    // Build a lookup: { day_of_week: { period_number: entry } }
     const timetableLookup = {};
     if (!Array.isArray(timetableData)) {
       const timetableContainer = document.getElementById("timetable");
       timetableContainer.innerHTML +=
-        '<div class="error">Unable to load timetable: ' +
-        (timetableData.error || "Unknown error") +
-        "</div>";
+        '<div class="error">' + t("clerk.timetable.error.loadFailed") + '</div>';
       return;
     }
     timetableData.forEach((entry) => {
@@ -42,16 +37,15 @@
     const timetableContainer = document.getElementById("timetable");
     timetableContainer.innerHTML = "";
 
-    // Render header row dynamically to ensure it always appears
     const headerRow = document.createElement("div");
     headerRow.classList.add("timetable-row", "header-row");
     const headers = [
-      "Time",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
+      t("clerk.timetable.days.time"),
+      t("clerk.timetable.days.monday"),
+      t("clerk.timetable.days.tuesday"),
+      t("clerk.timetable.days.wednesday"),
+      t("clerk.timetable.days.thursday"),
+      t("clerk.timetable.days.friday"),
     ];
     headers.forEach((day) => {
       const cell = document.createElement("div");
@@ -65,18 +59,15 @@
       const row = document.createElement("div");
       row.classList.add("timetable-row");
 
-      // Time cell
       const timeCell = document.createElement("div");
       timeCell.classList.add("timetable-cell", "time-cell");
       timeCell.textContent = `${slot.start}`;
       row.appendChild(timeCell);
 
-      // Monday to Friday
       for (let day = 1; day <= 5; day++) {
         const cell = document.createElement("div");
         cell.classList.add("timetable-cell");
 
-        // Use backend data if available
         const entry = timetableLookup[day] && timetableLookup[day][slot.slot];
 
         const card = document.createElement("div");
@@ -89,7 +80,6 @@
 
           card.appendChild(subjectDiv);
         } else {
-          // Empty slot placeholder
           const emptyDiv = document.createElement("div");
           emptyDiv.classList.add("empty-slot");
           emptyDiv.textContent = "-";
@@ -102,7 +92,6 @@
 
       timetableContainer.appendChild(row);
 
-      // Insert Interval row after 4th period
       if (slot.slot === 4) {
         const breakRow = document.createElement("div");
         breakRow.classList.add("timetable-row", "interval-row");
@@ -110,10 +99,8 @@
         const breakCell = document.createElement("h3");
         breakCell.classList.add("timetable-cell", "interval-cell");
         breakCell.style.color = "var(--color-primary)";
-        breakCell.textContent = "INTERVAL";
-        breakCell.colSpan = 6; // Full width (time + 5 days)
-
-        // Span across all columns
+        breakCell.textContent = t("clerk.timetable.break.interval");
+        breakCell.colSpan = 6;
         breakCell.style.gridColumn = "1 / span 6";
 
         breakRow.appendChild(breakCell);
@@ -123,4 +110,8 @@
   }
 
   loadTimetable();
+
+  window.addEventListener("languageChanged", () => {
+    loadTimetable();
+  });
 </script>

@@ -1,25 +1,14 @@
 <h2 class="heading">
   <i class="fas fa-chart-line"></i>
-  <span 
-    data-en="My Marks"
-    data-si="මගේ ලකුණු"
-    data-ta="என் மதிப்பெண்கள்"
-  >My Marks</span>
+  <span data="student.marksPage.title">My Marks</span>
 </h2>
 
 <div class="card-grid">
   <!-- Select Term Test Card -->
   <div class="card w-1 h-1 dashboard-tile" id="selectTermCard">
-    <div class="icon-title">
+<div class="icon-title">
       <i class="fas fa-calendar-alt icon"></i>
-      <p
-        class="tile-label"
-        data-en="Select Term Test"
-        data-si="වාර පරීක්ෂණය තෝරන්න"
-        data-ta="பருவ தேர்வை தேர்ந்தெடுக்கவும்"
-      >
-        Select Term Test
-      </p>
+      <p class="tile-label" data="student.marksPage.selectTerm">Select Term Test</p>
     </div>
     <div class="stats-content" style="justify-content: center;">
       <div class="input-group" style="width: 100%;">
@@ -34,14 +23,7 @@
   <div class="card w-1 h-1 dashboard-tile" id="classRankCard">
     <div class="icon-title">
       <i class="fas fa-trophy icon"></i>
-      <p
-        class="tile-label"
-        data-en="Class Rank"
-        data-si="පන්තිය "
-        data-ta="வகுப்பு தரம்"
-      >
-        Class Rank
-      </p>
+      <p class="tile-label" data="student.marksPage.classRank">Class Rank</p>
     </div>
     <div class="stats-content">
       <div class="stat-item">
@@ -49,14 +31,7 @@
           <i class="fas fa-hashtag"></i>
         </div>
         <span class="stat-number" id="classRank">Loading...</span>
-        <span
-          class="stat-label"
-          id="totalStudentsLabel"
-          data-en="Out of -"
-          data-si="- න්"
-          data-ta="- இல் அதிகமாக"
-          >Out of -</span
-        >
+        <span class="stat-label" id="totalStudentsLabel" data="common.outOf">Out of -</span>
       </div>
     </div>
   </div>
@@ -65,26 +40,12 @@
   <div class="card w-1 h-1 dashboard-tile" id="averageMarksCard">
     <div class="icon-title">
       <i class="fas fa-chart-line icon"></i>
-      <p
-        class="tile-label"
-        data-en="Average Marks"
-        data-si="සාමාන්‍ය ලකුණු"
-        data-ta="சராசரி மதிப்பெண்கள்"
-      >
-        Average Marks
-      </p>
+      <p class="tile-label" data="student.marksPage.avgMarks">Average Marks</p>
     </div>
     <div class="stats-content">
       <div class="stat-item">
         <span class="stat-number" id="averageMarks">Loading...</span>
-        <span
-          class="stat-label"
-          id="subjectCountLabel"
-          data-en="- subjects"
-          data-si="විෂයයන්"
-          data-ta="பாடங்கள்"
-          >- subjects</span
-        >
+        <span class="stat-label" id="subjectCountLabel" data="common.subjects">- subjects</span>
       </div>
     </div>
   </div>
@@ -93,26 +54,12 @@
   <div class="card w-1 h-1 dashboard-tile" id="totalMarksCard">
     <div class="icon-title">
       <i class="fas fa-calculator icon"></i>
-      <p
-        class="tile-label"
-        data-en="Total Marks"
-        data-si="මුළු ලකුණු"
-        data-ta="மொத்த மதிப்பெண்கள்"
-      >
-        Total Marks
-      </p>
+      <p class="tile-label" data="common.totalMarks">Total Marks</p>
     </div>
     <div class="stats-content">
       <div class="stat-item">
         <span class="stat-number" id="totalMarks">Loading...</span>
-        <span
-          class="stat-label"
-          id="maxMarksLabel"
-          data-en="Out of -"
-          data-si="- න්"
-          data-ta="- இல்"
-          >Out of -</span
-        >
+        <span class="stat-label" id="maxMarksLabel" data="common.outOf">Out of -</span>
       </div>
     </div>
   </div>
@@ -121,14 +68,7 @@
   <div class="card w-2 h-2 dashboard-tile" id="termTestMarksCard">
     <div class="icon-title">
       <i class="fas fa-chart-bar icon"></i>
-      <p
-        class="tile-label"
-        data-en="Term Test Marks"
-        data-si="වාර පරීක්ෂණ ලකුණු"
-        data-ta="பருவ தேர்வு மதிப்பெண்கள்"
-      >
-        Term Test Marks
-      </p>
+      <p class="tile-label" data="student.marksPage.termTest">Term Test Marks</p>
     </div>
     <div id="termTestChartContainer" style="width: 100%; flex: 1; min-height: 200px;">
       <canvas id="termTestMarksChart"></canvas>
