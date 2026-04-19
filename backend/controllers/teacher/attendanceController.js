@@ -1,4 +1,5 @@
 const teacherService = require("../../services/teacherService");
+const auditService = require("../../services/auditService");
 
 exports.saveAttendance = async (req, res) => {
   try {
@@ -56,6 +57,18 @@ exports.saveAttendance = async (req, res) => {
           date,
           normalized
         );
+
+        try {
+          if (user.userId) {
+            await auditService.logAction(user.userId, "update", "attendance", null, null, {
+              class_id: user.class_id,
+              date: date,
+              count: normalized.length
+            });
+          }
+        } catch (auditErr) {
+          console.error("Audit log failed:", auditErr);
+        }
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify(result));

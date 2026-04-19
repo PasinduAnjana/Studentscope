@@ -32,7 +32,7 @@
         <i class="fas fa-users icon"></i>
         <p class="tile-label" data="clerk.students.students">Students</p>
       </div>
-      <button id="add-student-btn" class="btn btn-primary" onclick="openAddStudentModal()">
+      <button id="add-student-btn" class="btn btn-primary">
         <i class="fas fa-user-plus"></i> <span data="clerk.students.addStudent">Add Student</span>
       </button>
     </div>
@@ -165,10 +165,10 @@
           const div = document.createElement("div");
           div.className = "action-buttons";
           div.innerHTML = `
-                    <button class="btn-icon btn-edit" onclick="editStudent(${row.id})" title="${t("clerk.students.edit")}">
+                    <button class="btn-icon btn-edit" onclick="editStudent(${row.user_id})" title="${t("clerk.students.edit")}">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-icon btn-delete" onclick="deleteStudent(${row.id})" title="${t("clerk.students.delete")}">
+                    <button class="btn-icon btn-delete" onclick="deleteStudent(${row.user_id})" title="${t("clerk.students.delete")}">
                       <i class="fas fa-trash"></i>
                     </button>
                 `;
@@ -385,7 +385,7 @@
         const username = this.value.trim();
         if (username.length >= 3) {
           const existingStudent = editingStudent
-            ? allStudents.find(s => s.username.toLowerCase() === username.toLowerCase() && s.id !== editingStudent.id)
+            ? allStudents.find(s => s.username.toLowerCase() === username.toLowerCase() && s.user_id !== editingStudent.user_id)
             : allStudents.find(s => s.username.toLowerCase() === username.toLowerCase());
 
           if (existingStudent) {
@@ -582,7 +582,7 @@
     // Check for duplicate username when editing (exclude current student)
     if (editingStudent && data.username) {
       const existingStudent = allStudents.find(s =>
-        s.username.toLowerCase() === data.username.toLowerCase() && s.id !== editingStudent.id
+        s.username.toLowerCase() === data.username.toLowerCase() && s.user_id !== editingStudent.user_id
       );
       if (existingStudent) {
         validationErrors.push(t("clerk.students.validation.usernameDuplicate"));
@@ -600,7 +600,7 @@
 
     const actionFunc = () => {
       const action = editingStudent
-        ? api.clerk.students.update(editingStudent.id, data)
+        ? api.clerk.students.update(editingStudent.user_id, data)
         : api.clerk.students.create(data);
 
       action
@@ -620,7 +620,7 @@
   }
 
   function editStudent(id) {
-    const student = allStudents.find((s) => s.id == id);
+    const student = allStudents.find((s) => s.user_id == id);
     if (!student) {
       toast(t("clerk.students.error.notFound"), "fa-solid fa-circle-exclamation");
       return;

@@ -1,0 +1,215 @@
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-history"></i>
+    <span data="admin.auditLogs.title">Audit Logs</span>
+  </h2>
+
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+      <div class="icon-title">
+        <i class="fas fa-list icon"></i>
+        <p class="tile-label" data="admin.auditLogs.logs">Logs</p>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+      <div style="width: 140px;">
+        <select id="action-filter" class="dropdown-select">
+          <option value="" data="admin.auditLogs.allActions">All Actions</option>
+          <option value="create" data="admin.auditLogs.create">Create</option>
+          <option value="update" data="admin.auditLogs.update">Update</option>
+          <option value="delete" data="admin.auditLogs.delete">Delete</option>
+        </select>
+      </div>
+      <div style="width: 160px;">
+        <select id="target-type-filter" class="dropdown-select">
+          <option value="" data="admin.auditLogs.allTypes">All Types</option>
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+          <option value="clerk">Clerk</option>
+          <option value="class">Class</option>
+          <option value="announcement">Announcement</option>
+          <option value="event">Event</option>
+          <option value="achievement">Achievement</option>
+          <option value="exam">Exam</option>
+          <option value="marks">Marks</option>
+          <option value="behavior">Behavior</option>
+          <option value="attendance">Attendance</option>
+        </select>
+      </div>
+      <div style="width: 140px;">
+        <input type="date" id="start-date" class="input" data-placeholder="admin.auditLogs.startDate">
+      </div>
+      <div style="width: 140px;">
+        <input type="date" id="end-date" class="input" data-placeholder="admin.auditLogs.endDate">
+      </div>
+    </div>
+
+    <data-table id="auditTable"></data-table>
+  </div>
+</section>
+
+<modal-dialog id="audit-details-modal" title="Audit Log Details">
+  <div id="audit-details-content"></div>
+</modal-dialog>
+
+<script>
+  let auditLogs = [];
+
+  function initTable() {
+    const table = document.getElementById("auditTable");
+    table.setColumns([
+      { key: "created_at", header: t("admin.auditLogs.date"), searchable: false },
+      { key: "username", header: t("admin.auditLogs.user"), searchable: true },
+      { 
+        key: "action", 
+        header: t("admin.auditLogs.action"), 
+        searchable: false,
+        render: (row) => {
+          if (row.action === "create") return '<span class="badge badge-success">Create</span>';
+          if (row.action === "update") return '<span class="badge badge-warning">Update</span>';
+          if (row.action === "delete") return '<span class="badge badge-danger">Delete</span>';
+          return '<span class="badge">' + row.action + '</span>';
+        }
+      },
+      { key: "target_type", header: t("admin.auditLogs.targetType"), searchable: true },
+      { key: "target_id", header: t("admin.auditLogs.targetId"), searchable: false },
+      { 
+        key: "view", 
+        header: "Details", 
+        searchable: false,
+        render: (row) => `<button class="btn btn-small btn-primary" onclick="showAuditDetails(${row.id})">View</button>`
+      }
+    ]);
+    table.setEmptyState(t("common.noData"), "fas fa-history");
+
+    if (typeof makeSearchableDropdown === "function") {
+      makeSearchableDropdown("action-filter", () => fetchAuditLogs());
+      makeSearchableDropdown("target-type-filter", () => fetchAuditLogs());
+    }
+  }
+
+  async function fetchAuditLogs() {
+    try {
+      const params = new URLSearchParams();
+      const action = document.getElementById("action-filter")?.value;
+      const targetType = document.getElementById("target-type-filter")?.value;
+      const startDate = document.getElementById("start-date")?.value;
+      const endDate = document.getElementById("end-date")?.value;
+
+      if (action) params.append("action", action);
+      if (targetType) params.append("target_type", targetType);
+      if (startDate) params.append("start_date", startDate);
+      if (endDate) params.append("end_date", endDate);
+      params.append("limit", 100);
+
+      const res = await api.request(`/admin/audit-logs?${params}`);
+      if (!res.ok) throw new Error("Failed to fetch");
+      auditLogs = await res.json();
+      formatAuditLogs();
+      const table = document.getElementById("auditTable");
+      if (table && table.setData) {
+        table.setData(auditLogs);
+      }
+    } catch (err) {
+      console.error("Error fetching audit logs:", err);
+      const table = document.getElementById("auditTable");
+      if (table && table.setData) {
+        table.setData([]);
+        table.setEmptyState(t("admin.auditLogs.error.loadFailed") || "Failed to load", "fas fa-exclamation-triangle");
+      }
+    }
+  }
+
+  function formatAuditLogs() {
+    auditLogs = auditLogs.map(log => {
+      if (log.created_at) {
+        const date = new Date(log.created_at);
+        log.created_at = date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      }
+      if (log.old_values && typeof log.old_values === "string") {
+        try { log.old_values = JSON.parse(log.old_values); } catch (e) {}
+      }
+      if (log.new_values && typeof log.new_values === "string") {
+        try { log.new_values = JSON.parse(log.new_values); } catch (e) {}
+      }
+      return log;
+    });
+  }
+
+  function showAuditDetails(logId) {
+    const log = auditLogs.find(l => l.id == logId);
+    if (!log) return;
+    
+    const content = formatAuditDetails(log);
+    document.getElementById("audit-details-content").innerHTML = content;
+    const modal = document.getElementById("audit-details-modal");
+    if (modal && modal.open) modal.open();
+  }
+
+  function formatAuditDetails(log) {
+    let html = `
+      <div style="margin-bottom: 16px;">
+        <div><strong>User:</strong> ${log.username || '-'}</div>
+        <div><strong>Action:</strong> ${log.action}</div>
+        <div><strong>Target:</strong> ${log.target_type} (ID: ${log.target_id || '-'})</div>
+        <div><strong>Date:</strong> ${log.created_at}</div>
+      </div>
+    `;
+    
+    if (log.action === "create" && log.new_values) {
+      html += `<h4>New Values</h4>`;
+      html += formatValuesTable(log.new_values);
+    } else if (log.action === "delete" && log.old_values) {
+      html += `<h4>Deleted Values</h4>`;
+      html += formatValuesTable(log.old_values);
+    } else if (log.action === "update") {
+      html += `<h4>Changes</h4>`;
+      html += formatChangesTable(log.old_values, log.new_values);
+    }
+    
+    return html;
+  }
+
+  function formatValuesTable(values) {
+    if (!values || typeof values !== 'object') return '<p>No data</p>';
+    
+    let html = '<table style="width: 100%; border-collapse: collapse;">';
+    html += '<tr style="background: var(--color-background);"><th style="padding: 8px; text-align: left;">Field</th><th style="padding: 8px; text-align: left;">Value</th></tr>';
+    
+    for (const [key, value] of Object.entries(values)) {
+      html += `<tr><td style="padding: 8px; border-bottom: 1px solid var(--color-border);">${key}</td>`;
+      html += `<td style="padding: 8px; border-bottom: 1px solid var(--color-border);">${value || '-'}</td></tr>`;
+    }
+    
+    html += '</table>';
+    return html;
+  }
+
+  function formatChangesTable(oldValues, newValues) {
+    if (!oldValues && !newValues) return '<p>No changes</p>';
+    
+    let html = '<table style="width: 100%; border-collapse: collapse;">';
+    html += '<tr style="background: var(--color-background);"><th style="padding: 8px; text-align: left;">Field</th><th style="padding: 8px; text-align: left;">Old Value</th><th style="padding: 8px; text-align: left;">New Value</th></tr>';
+    
+    const allKeys = new Set([...Object.keys(oldValues || {}), ...Object.keys(newValues || {})]);
+    
+    for (const key of allKeys) {
+      const oldVal = oldValues?.[key];
+      const newVal = newValues?.[key];
+      const changed = oldVal !== newVal;
+      
+      html += `<tr style="${changed ? 'background: rgba(255, 193, 7, 0.1);' : ''}">`;
+      html += `<td style="padding: 8px; border-bottom: 1px solid var(--color-border);">${key}</td>`;
+      html += `<td style="padding: 8px; border-bottom: 1px solid var(--color-border); color: var(--color-danger);">${oldVal || '-'}</td>`;
+      html += `<td style="padding: 8px; border-bottom: 1px solid var(--color-border); color: var(--color-success);">${newVal || '-'}</td>`;
+      html += '</tr>';
+    }
+    
+    html += '</table>';
+    return html;
+  }
+
+  initTable();
+  fetchAuditLogs();
+</script>

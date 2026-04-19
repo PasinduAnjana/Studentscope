@@ -31,7 +31,8 @@
     "save": "Save",
     "outOf": "Out of {count}",
     "subjects": "{count} subjects",
-    "totalMarks": "Total Marks"
+    "totalMarks": "Total Marks",
+    "refresh": "Refresh"
   },
   "login": {
     "title": "Login to StudentScope",
@@ -66,7 +67,8 @@
     "events": "Events",
     "settings": "Settings",
     "achievements": "Achievements",
-    "exams": "Exams"
+    "exams": "Exams",
+    "auditLogs": "Audit Logs"
   },
   "profile": {
     "quickStats": "Quick Stats",
@@ -1081,6 +1083,26 @@
       "saveDetails": "Save Details",
       "saveSuccess": "School details saved successfully!",
       "saveError": "Failed to save details"
+    },
+    "auditLogs": {
+      "title": "Audit Logs",
+      "logs": "Logs",
+      "date": "Date",
+      "user": "User",
+      "action": "Action",
+      "targetType": "Target Type",
+      "targetId": "ID",
+      "details": "Details",
+      "allActions": "All Actions",
+      "create": "Create",
+      "update": "Update",
+      "delete": "Delete",
+      "allTypes": "All Types",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "error": {
+        "loadFailed": "Failed to load audit logs"
+      }
     }
   }
 }

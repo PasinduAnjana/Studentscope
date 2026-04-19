@@ -752,6 +752,15 @@ exports.updateClerk = async (
   return { id: clerkId, full_name, nic, username: nic };
 };
 
+exports.getClerkById = async (clerkId) => {
+  const result = await pool.query(
+    `SELECT td.clerk_id as id, td.full_name, td.nic, td.address, td.phone_number
+     FROM clerk_details td WHERE td.clerk_id = $1`,
+    [clerkId]
+  );
+  return result.rows[0];
+};
+
 exports.deleteClerk = async (clerkId) => {
   await pool.query("DELETE FROM sessions WHERE user_id = $1", [clerkId]);
   await pool.query("DELETE FROM clerk_details WHERE clerk_id = $1", [clerkId]);

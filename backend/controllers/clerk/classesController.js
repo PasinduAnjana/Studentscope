@@ -1,4 +1,5 @@
 const clerkService = require("../../services/clerkService");
+const auditService = require("../../services/auditService");
 
 exports.getClasses = async (req, res) => {
   try {
@@ -71,6 +72,16 @@ exports.assignTeacher = async (req, res) => {
 
         await clerkService.assignTeacherToClass(grade, class_name, teacher_id, class_id);
 
+        try {
+          if (req.user && req.user.userId) {
+            await auditService.logAction(req.user.userId, "update", "class", class_id || null, null, {
+              grade, class_name, teacher_id
+            });
+          }
+        } catch (auditErr) {
+          console.error("Audit log failed:", auditErr);
+        }
+
         const successJson = JSON.stringify({
           message: "Teacher assigned successfully",
         });
@@ -117,6 +128,14 @@ exports.deleteClass = async (req, res) => {
 
     // Delete the class
     await clerkService.deleteClass(classId);
+
+    try {
+      if (req.user && req.user.userId) {
+        await auditService.logAction(req.user.userId, "delete", "class", classId, null, null);
+      }
+    } catch (auditErr) {
+      console.error("Audit log failed:", auditErr);
+    }
 
     const successJson = JSON.stringify({
       message: "Class deleted successfully",

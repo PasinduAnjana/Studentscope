@@ -1,4 +1,5 @@
 const clerkService = require("../../services/clerkService");
+const auditService = require("../../services/auditService");
 
 // Get all students
 exports.getAllStudents = async (req, res) => {
@@ -77,6 +78,14 @@ exports.createStudent = async (req, res) => {
           parent_address,
         });
 
+        if (req.user && req.user.userId) {
+          await auditService.logAction(req.user.userId, "create", "student", newStudent.id, null, {
+            full_name,
+            username,
+            class_id
+          });
+        }
+
         res.writeHead(201, { "Content-Type": "application/json" });
         res.end(
           JSON.stringify({
@@ -108,8 +117,32 @@ exports.updateStudent = async (req, res) => {
 
     req.on("end", async () => {
       try {
+        const oldStudent = await clerkService.getStudentById(id);
+        if (!oldStudent) {
+          res.writeHead(404, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ error: "Student not found" }));
+        }
+
+        const oldValues = {
+          full_name: oldStudent.full_name,
+          username: oldStudent.username,
+          class_id: oldStudent.class_id,
+          address: oldStudent.address,
+          birthday: oldStudent.birthday
+        };
+
         const data = JSON.parse(body);
         const updatedStudent = await clerkService.updateStudent(id, data);
+
+        if (req.user && req.user.userId) {
+          await auditService.logAction(req.user.userId, "update", "student", id, oldValues, {
+            full_name: data.full_name || oldValues.full_name,
+            username: data.username || oldValues.username,
+            class_id: data.class_id || oldValues.class_id,
+            address: data.address || oldValues.address
+          });
+        }
+
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(
           JSON.stringify({
@@ -138,6 +171,15 @@ exports.updateStudent = async (req, res) => {
 exports.deleteStudent = async (req, res) => {
   try {
     const id = req.url.split("/").pop();
+    const oldStudent = await clerkService.getStudentById(id);
+
+    if (oldStudent && req.user && req.user.userId) {
+      await auditService.logAction(req.user.userId, "delete", "student", id, {
+        full_name: oldStudent.full_name,
+        username: oldStudent.username
+      }, null);
+    }
+
     await clerkService.deleteStudent(id);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ message: "Student deleted successfully" }));

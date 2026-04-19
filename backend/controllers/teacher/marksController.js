@@ -1,4 +1,5 @@
 const teacherService = require("../../services/teacherService");
+const auditService = require("../../services/auditService");
 
 exports.getMarksData = async (req, res) => {
   try {
@@ -41,7 +42,21 @@ exports.saveMarks = async (req, res) => {
   req.on("end", async () => {
     try {
       const marksData = JSON.parse(body);
+      const examId = marksData.examId;
+      const subjectId = marksData.subjectId;
       const result = await teacherService.saveMarks(marksData);
+
+      try {
+        if (req.user?.userId) {
+          await auditService.logAction(req.user.userId, "update", "marks", examId, null, {
+            subject_id: subjectId,
+            count: marksData.marks?.length
+          });
+        }
+      } catch (auditErr) {
+        console.error("Audit log failed:", auditErr);
+      }
+
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(result));
     } catch (err) {

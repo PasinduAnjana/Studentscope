@@ -1,4 +1,5 @@
 const clerkService = require("../../services/clerkService");
+const auditService = require("../../services/auditService");
 
 exports.getAllAnnouncements = async (req, res) => {
   try {
@@ -118,6 +119,17 @@ exports.createAnnouncement = async (req, res) => {
           clerk_ids: clerk_ids || [],
           clerk_id: userId,
         });
+
+        try {
+          if (userId) {
+            await auditService.logAction(userId, "create", "announcement", announcement.id, null, {
+              title,
+              audience_type
+            });
+          }
+        } catch (auditErr) {
+          console.error("Audit log failed:", auditErr);
+        }
 
         res.writeHead(201, { "Content-Type": "application/json" });
         res.end(JSON.stringify(announcement));
@@ -266,6 +278,14 @@ exports.deleteAnnouncement = async (req, res) => {
       announcementId,
       userId
     );
+
+    try {
+      if (userId) {
+        await auditService.logAction(userId, "delete", "announcement", announcementId, null, null);
+      }
+    } catch (auditErr) {
+      console.error("Audit log failed:", auditErr);
+    }
 
     if (!success) {
       res.writeHead(404, { "Content-Type": "application/json" });

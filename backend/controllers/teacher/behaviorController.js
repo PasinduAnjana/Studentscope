@@ -1,5 +1,6 @@
 const teacherService = require("../../services/teacherService");
 const adminService = require("../../services/adminService");
+const auditService = require("../../services/auditService");
 
 exports.getRecords = async (req, res) => {
   try {
@@ -37,6 +38,20 @@ exports.createRecord = async (req, res) => {
         description,
         req.user.userId
       );
+
+      try {
+        if (req.user?.userId) {
+          await auditService.logAction(req.user.userId, "create", "behavior", record.id, null, {
+            student_id,
+            type,
+            severity,
+            description
+          });
+        }
+      } catch (auditErr) {
+        console.error("Audit log failed:", auditErr);
+      }
+
       res.writeHead(201, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ success: true, id: record.id, date: record.date }));
     } catch (err) {
@@ -70,6 +85,15 @@ exports.deleteRecord = async (req, res) => {
     }
 
     const success = await adminService.deleteBehaviorRecord(recordId);
+
+    try {
+      if (req.user?.userId) {
+        await auditService.logAction(req.user.userId, "delete", "behavior", recordId, null, null);
+      }
+    } catch (auditErr) {
+      console.error("Audit log failed:", auditErr);
+    }
+
     if (success) {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ success: true }));
