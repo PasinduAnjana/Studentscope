@@ -93,6 +93,15 @@ class ModalDialog extends HTMLElement {
     if (closeBtn) {
       closeBtn.addEventListener("click", this.handleCloseClick);
     }
+    
+    // Listen for language changes to update title if data-title is set
+    window.addEventListener("languageChanged", () => {
+      const dataTitle = this.getAttribute("data-title");
+      if (dataTitle && window.currentTranslations && this.titleElement) {
+        const val = getNestedValue(window.currentTranslations, dataTitle);
+        if (val) this.titleElement.textContent = val;
+      }
+    });
   }
 
   disconnectedCallback() {

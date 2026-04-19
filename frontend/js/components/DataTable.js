@@ -81,7 +81,7 @@ class DataTable extends HTMLElement {
         this.innerHTML = `
             <div class="flex mb-2 filter-controls" style="gap: 16px; align-items: baseline; flex-wrap: wrap;">
                 <div class="search-group" style="max-width: 350px;">
-                    <input type="text" class="search-input" placeholder="Search..." id="${this._id('dt-search')}">
+                    <input type="text" class="search-input" placeholder="Search..." data-placeholder="dataTable.search" id="${this._id('dt-search')}">
                     <span class="search-icon"><i class="fas fa-search"></i></span>
                 </div>
                 
@@ -101,36 +101,36 @@ class DataTable extends HTMLElement {
                         </select>
                     </div>
                      <button id="${this._id('dt-export-btn')}" class="btn btn-secondary" style="padding: 8px 12px; height: 100%;">
-                        <i class="fas fa-download"></i> Export
+                        <i class="fas fa-download"></i> <span data="dataTable.export">Export</span>
                     </button>
                 </div>
             </div>
 
             <!-- Export Modal using ModalDialog component -->
-            <modal-dialog id="${this._id('dt-export-modal')}" title="Export Data">
+            <modal-dialog id="${this._id('dt-export-modal')}" title="Export Data" data-title="dataTable.exportData">
                 <div style="display: flex; flex-direction: column; gap: 16px;">
                     <div>
-                        <p style="margin: 0 0 8px 0; font-weight: 600; font-size: 14px; color: var(--color-text);">Select Columns:</p>
+                        <p style="margin: 0 0 8px 0; font-weight: 600; font-size: 14px; color: var(--color-text);" data="dataTable.selectColumns">Select Columns:</p>
                         <div id="${this._id('dt-export-columns')}" class="dt-export-columns" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
                             <!-- Checkboxes injected here -->
                         </div>
                     </div>
 
                     <div>
-                        <p style="margin: 0 0 8px 0; font-weight: 600; font-size: 14px; color: var(--color-text);">Format:</p>
+                        <p style="margin: 0 0 8px 0; font-weight: 600; font-size: 14px; color: var(--color-text);" data="dataTable.format">Format:</p>
                         <div style="display: flex; gap: 16px;">
                             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
                                 <input type="radio" name="${this._id('export-format')}" value="csv" checked> CSV
                             </label>
                             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                                <input type="radio" name="${this._id('export-format')}" value="pdf"> PDF (Print)
+                                <input type="radio" name="${this._id('export-format')}" value="pdf"> <span data="dataTable.pdfPrint">PDF (Print)</span>
                             </label>
                         </div>
                     </div>
 
                     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
-                        <button id="${this._id('dt-export-cancel')}" class="btn btn-secondary">Cancel</button>
-                        <button id="${this._id('dt-export-confirm')}" class="btn btn-primary">Download</button>
+                        <button id="${this._id('dt-export-cancel')}" class="btn btn-secondary" data="dataTable.cancel">Cancel</button>
+                        <button id="${this._id('dt-export-confirm')}" class="btn btn-primary" data="dataTable.download">Download</button>
                     </div>
                 </div>
             </modal-dialog>
@@ -325,7 +325,7 @@ class DataTable extends HTMLElement {
         const activeBtns = Array.from(container.querySelectorAll('.toggle-btn.active'));
 
         if (activeBtns.length === 0) {
-            alert("Please select at least one column.");
+            alert(window.currentTranslations ? t('dataTable.pleaseSelectColumn') : "Please select at least one column.");
             return;
         }
 
@@ -388,7 +388,7 @@ class DataTable extends HTMLElement {
         // Vanilla "PDF" = Print View
         let printWindow = window.open('', '', 'height=600,width=800');
         if (!printWindow) {
-            alert("Please allow popups to export options.");
+            alert(window.currentTranslations ? t('dataTable.allowPopups') : "Please allow popups to export options.");
             return;
         }
 
@@ -410,10 +410,13 @@ class DataTable extends HTMLElement {
             return `<tr>${cells}</tr>`;
         }).join('');
 
+        const exportDataTitle = window.currentTranslations ? t('dataTable.exportData') : 'Export Data';
+        const exportedDataTitle = window.currentTranslations ? t('dataTable.exportedData') : 'Exported Data';
+
         printWindow.document.write(`
             <html>
             <head>
-                <title>Export Data</title>
+                <title>${exportDataTitle}</title>
                 <style>
                     body { font-family: sans-serif; padding: 20px; }
                     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -423,7 +426,7 @@ class DataTable extends HTMLElement {
                 </style>
             </head>
             <body>
-                <h1>Exported Data</h1>
+                <h1>${exportedDataTitle}</h1>
                 <table>
                     <thead><tr>${headers}</tr></thead>
                     <tbody>${rows}</tbody>
@@ -529,7 +532,7 @@ class DataTable extends HTMLElement {
 
         const startItem = this.filteredData.length > 0 ? (this.currentPage - 1) * this.pageSize + 1 : 0;
         const endItem = Math.min(this.currentPage * this.pageSize, this.filteredData.length);
-        info.textContent = `Showing ${startItem}-${endItem} of ${this.filteredData.length}`;
+        info.textContent = `${window.currentTranslations ? t('dataTable.showing') : 'Showing'} ${startItem}-${endItem} ${window.currentTranslations ? t('dataTable.of') : 'of'} ${this.filteredData.length}`;
 
         pagesContainer.innerHTML = '';
 
@@ -559,7 +562,7 @@ class DataTable extends HTMLElement {
         // Update mobile page display
         const mobilePage = this.querySelector(`#${this._id('dt-mobile-page')}`);
         if (mobilePage) {
-            mobilePage.textContent = `Page ${this.currentPage} of ${totalPages}`;
+            mobilePage.textContent = `${window.currentTranslations ? t('dataTable.page') : 'Page'} ${this.currentPage} ${window.currentTranslations ? t('dataTable.of') : 'of'} ${totalPages}`;
         }
     }
 

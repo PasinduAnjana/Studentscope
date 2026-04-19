@@ -1114,5 +1114,21 @@
         "loadFailed": "Failed to load audit logs"
       }
     }
-  }
+  },
+  "dataTable": {
+      "search": "Search...",
+      "export": "Export",
+      "exportData": "Export Data",
+      "selectColumns": "Select Columns:",
+      "format": "Format:",
+      "download": "Download",
+      "pdfPrint": "PDF (Print)",
+      "cancel": "Cancel",
+      "showing": "Showing",
+      "of": "of",
+      "page": "Page",
+      "pleaseSelectColumn": "Please select at least one column.",
+      "allowPopups": "Please allow popups to export options.",
+      "exportedData": "Exported Data"
+    }
 }
