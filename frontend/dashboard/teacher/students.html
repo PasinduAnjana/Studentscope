@@ -105,23 +105,23 @@
   function initTable() {
     const table = document.getElementById("students-table");
     table.setColumns([
-      { key: "full_name", header: "Name", searchable: true },
-      { key: "index_number", header: "Index No", searchable: true },
-      { key: "class_name", header: "Grade" },
+      { key: "full_name", header: t("clerk.students.name"), searchable: true },
+      { key: "index_number", header: t("clerk.students.indexNumber"), searchable: true },
+      { key: "class_name", header: t("common.grade") },
       {
         key: "birthday",
-        header: "Birthday",
+        header: t("clerk.students.birthday"),
         render: (row) =>
           row.birthday ? new Date(row.birthday).toLocaleDateString() : "",
       },
-      { key: "gender", header: "Gender" },
-      { key: "nationality", header: "Nationality" },
-      { key: "parent_name", header: "Parent Name", searchable: true },
-      { key: "address", header: "Address" },
-      { key: "parent_address", header: "Parent Address" },
+      { key: "gender", header: t("clerk.students.gender") },
+      { key: "nationality", header: t("clerk.students.nationality") },
+      { key: "parent_name", header: t("clerk.students.parentName"), searchable: true },
+      { key: "address", header: t("clerk.students.address") },
+      { key: "parent_address", header: t("clerk.students.parentAddress") },
     ]);
     table.setEmptyState(
-      "No students found in this class",
+      t("clerk.students.noStudents"),
       "fas fa-user-graduate",
     );
 
@@ -161,10 +161,10 @@
     } catch (err) {
       console.error(err);
       table.setEmptyState(
-        "Error loading students",
+        t("clerk.students.loadingError"),
         "fas fa-exclamation-triangle",
       );
-      toast("Error loading students", "fa-solid fa-circle-exclamation");
+      toast(t("clerk.students.loadingError"), "fa-solid fa-circle-exclamation");
     }
   }
 
@@ -213,7 +213,7 @@
       }
     } catch (err) {
       console.error("Error fetching classes:", err);
-      toast("Error loading classes", "fa-solid fa-circle-exclamation");
+      toast(t("teacher.classSubjects.failedLoadData").replace("{error}", ""), "fa-solid fa-circle-exclamation");
     }
   }
 
