@@ -396,11 +396,7 @@
         });
     };
 
-    if (editingTeacher) {
-      window.requirePinPrompt(actionFunc);
-    } else {
-      actionFunc();
-    }
+    window.requirePinPrompt(actionFunc);
   }
 
   function editTeacher(id) {

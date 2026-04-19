@@ -616,11 +616,7 @@
         });
     };
 
-    if (editingStudent) {
-      window.requirePinPrompt(actionFunc);
-    } else {
-      actionFunc();
-    }
+    window.requirePinPrompt(actionFunc);
   }
 
   function editStudent(id) {
