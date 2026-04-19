@@ -74,18 +74,29 @@
       <p class="tile-label" data="sidebar.students"></p>
     </div>
     <data-table id="students-table">
-        <div slot="filters" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <div class="input-group" style="width: auto; min-width: 200px; margin-bottom: 0;">
-                <select id="class-select" class="dropdown-select">
-                    <option value="" data-en="Select Class" data-si="පන්තිය තෝරන්න" data-ta="வகுப்பைத் தேர்ந்தெடுக்கவும்">Select Class</option>
-                </select>
-            </div>
-
+      <div
+        slot="filters"
+        style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap"
+      >
+        <div
+          class="input-group"
+          style="width: auto; min-width: 200px; margin-bottom: 0"
+        >
+          <select id="class-select" class="dropdown-select">
+            <option
+              value=""
+              data-en="Select Class"
+              data-si="පන්තිය තෝරන්න"
+              data-ta="வகுப்பைத் தேர்ந்தெடுக்கவும்"
+            >
+              Select Class
+            </option>
+          </select>
         </div>
+      </div>
     </data-table>
   </div>
 </section>
-
 
 <script>
   let allStudents = [];
@@ -94,54 +105,65 @@
   function initTable() {
     const table = document.getElementById("students-table");
     table.setColumns([
-        { key: "full_name", header: "Name", searchable: true },
-        { key: "index_number", header: "Index No", searchable: true },
-        { key: "class_name", header: "Grade" },
-        { 
-            key: "birthday", 
-            header: "Birthday",
-            render: (row) => row.birthday ? new Date(row.birthday).toLocaleDateString() : ""
-        },
-        { key: "gender", header: "Gender" },
-        { key: "nationality", header: "Nationality" },
-        { key: "parent_name", header: "Parent Name", searchable: true },
-        { key: "address", header: "Address" },
-        { key: "parent_address", header: "Parent Address" }
+      { key: "full_name", header: "Name", searchable: true },
+      { key: "index_number", header: "Index No", searchable: true },
+      { key: "class_name", header: "Grade" },
+      {
+        key: "birthday",
+        header: "Birthday",
+        render: (row) =>
+          row.birthday ? new Date(row.birthday).toLocaleDateString() : "",
+      },
+      { key: "gender", header: "Gender" },
+      { key: "nationality", header: "Nationality" },
+      { key: "parent_name", header: "Parent Name", searchable: true },
+      { key: "address", header: "Address" },
+      { key: "parent_address", header: "Parent Address" },
     ]);
-    table.setEmptyState("No students found in this class", "fas fa-user-graduate");
+    table.setEmptyState(
+      "No students found in this class",
+      "fas fa-user-graduate",
+    );
 
     // Add filters
     const classSelect = document.getElementById("class-select");
 
-
     // Class filter event listener moved to fetchClasses to handle dynamic loading
-
-
-
   }
 
   async function fetchStudents(classId) {
     if (!classId) return;
     const table = document.getElementById("students-table");
-    
-    // Show empty state while loading could be handled by component if it had loading state, 
+
+    // Show empty state while loading could be handled by component if it had loading state,
     // or we just clear data.
-    table.setData([]); 
+    table.setData([]);
 
     try {
       // Use API module
       const res = await api.teacher.students.getByClass(classId); // Using existing teacher endpoint or generic? teacher.students.getByClass matches previous logic: /api/teacher/students/class/:id
       if (!res.ok) throw new Error("Failed to fetch students");
       allStudents = await res.json();
-      
+
       // Enrich data with class_name if needed, though they are all same class
-      const className = document.getElementById("class-select").options[document.getElementById("class-select").selectedIndex]?.text || "";
-      const enriched = allStudents.map(s => ({...s, class_name: className}));
+      const className =
+        document.getElementById("class-select").options[
+          document.getElementById("class-select").selectedIndex
+        ]?.text || "";
+      const enriched = allStudents.map((s) => ({
+        ...s,
+        class_name: className,
+        parent_name: s.parent && s.parent.name ? s.parent.name : "-",
+        parent_address: s.parent && s.parent.address ? s.parent.address : "-",
+      }));
 
       table.setData(enriched);
     } catch (err) {
       console.error(err);
-      table.setEmptyState("Error loading students", "fas fa-exclamation-triangle");
+      table.setEmptyState(
+        "Error loading students",
+        "fas fa-exclamation-triangle",
+      );
       toast("Error loading students", "fa-solid fa-circle-exclamation");
     }
   }
@@ -153,13 +175,13 @@
       let classes = await res.json();
       const classSelect = document.getElementById("class-select");
       classSelect.innerHTML = `<option value="" data-en="Select Class" data-si="පන්තිය තෝරන්න" data-ta="வகுப்பைத் தேர்ந்தெடுக்கவும்">Select Class</option>`;
-      
+
       // If restricted to a specific class, filter the list
       if (selectedClassId) {
-          classes = classes.filter(cls => String(cls.id) === selectedClassId);
+        classes = classes.filter((cls) => String(cls.id) === selectedClassId);
       }
 
-      classes.forEach(cls => {
+      classes.forEach((cls) => {
         const option = document.createElement("option");
         option.value = cls.id;
         option.textContent = `${cls.name} (Grade ${cls.grade})`;
@@ -177,17 +199,17 @@
       // Initialize searchable dropdown for class-select after options are loaded and value is set
       // Only make it searchable/interactive if not disabled
       if (!selectedClassId) {
-          if (typeof makeSearchableDropdown === "function") {
-              makeSearchableDropdown("class-select", (val) => {
-                   // When dropdown changes, fetch new students
-                   fetchStudents(val);
-              });
-          } else {
-              // Fallback event listener
-              classSelect.addEventListener("change", () => {
-                   fetchStudents(classSelect.value);
-              });
-          }
+        if (typeof makeSearchableDropdown === "function") {
+          makeSearchableDropdown("class-select", (val) => {
+            // When dropdown changes, fetch new students
+            fetchStudents(val);
+          });
+        } else {
+          // Fallback event listener
+          classSelect.addEventListener("change", () => {
+            fetchStudents(classSelect.value);
+          });
+        }
       }
     } catch (err) {
       console.error("Error fetching classes:", err);
@@ -196,7 +218,8 @@
   }
 
   // Initialize
-  api.auth.me()
+  api.auth
+    .me()
     .then((res) => res.json())
     .then((user) => {
       if (user && user.is_class_teacher && user.class_id) {
@@ -212,5 +235,4 @@
       initTable();
       fetchClasses();
     });
-
 </script>
