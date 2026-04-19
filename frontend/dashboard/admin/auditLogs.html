@@ -10,14 +10,11 @@
         <i class="fas fa-list icon"></i>
         <p class="tile-label" data="admin.auditLogs.logs">Logs</p>
       </div>
-      <button class="btn btn-secondary" onclick="fetchAuditLogs()">
-        <i class="fas fa-sync-alt"></i> <span data="common.refresh">Refresh</span>
-      </button>
     </div>
 
     <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
       <div style="width: 140px;">
-        <select id="action-filter" class="dropdown-select" onchange="fetchAuditLogs()">
+        <select id="action-filter" class="dropdown-select">
           <option value="" data="admin.auditLogs.allActions">All Actions</option>
           <option value="create" data="admin.auditLogs.create">Create</option>
           <option value="update" data="admin.auditLogs.update">Update</option>
@@ -25,7 +22,7 @@
         </select>
       </div>
       <div style="width: 160px;">
-        <select id="target-type-filter" class="dropdown-select" onchange="fetchAuditLogs()">
+        <select id="target-type-filter" class="dropdown-select">
           <option value="" data="admin.auditLogs.allTypes">All Types</option>
           <option value="student">Student</option>
           <option value="teacher">Teacher</option>
@@ -41,16 +38,20 @@
         </select>
       </div>
       <div style="width: 140px;">
-        <input type="date" id="start-date" class="input" onchange="fetchAuditLogs()" data-placeholder="admin.auditLogs.startDate">
+        <input type="date" id="start-date" class="input" data-placeholder="admin.auditLogs.startDate">
       </div>
       <div style="width: 140px;">
-        <input type="date" id="end-date" class="input" onchange="fetchAuditLogs()" data-placeholder="admin.auditLogs.endDate">
+        <input type="date" id="end-date" class="input" data-placeholder="admin.auditLogs.endDate">
       </div>
     </div>
 
     <data-table id="auditTable"></data-table>
   </div>
 </section>
+
+<modal-dialog id="audit-details-modal" title="Audit Log Details">
+  <div id="audit-details-content"></div>
+</modal-dialog>
 
 <script>
   let auditLogs = [];
@@ -74,23 +75,18 @@
       { key: "target_type", header: t("admin.auditLogs.targetType"), searchable: true },
       { key: "target_id", header: t("admin.auditLogs.targetId"), searchable: false },
       { 
-        key: "details", 
-        header: t("admin.auditLogs.details"), 
+        key: "view", 
+        header: "Details", 
         searchable: false,
-        render: (row) => {
-          if (!row.old_values && !row.new_values) return "-";
-          let html = "";
-          if (row.old_values) {
-            html += '<div class="text-danger" style="font-size:11px">- ' + JSON.stringify(row.old_values) + "</div>";
-          }
-          if (row.new_values) {
-            html += '<div class="text-success" style="font-size:11px">+ ' + JSON.stringify(row.new_values) + "</div>";
-          }
-          return html;
-        }
+        render: (row) => `<button class="btn btn-small btn-primary" onclick="showAuditDetails(${row.id})">View</button>`
       }
     ]);
     table.setEmptyState(t("common.noData"), "fas fa-history");
+
+    if (typeof makeSearchableDropdown === "function") {
+      makeSearchableDropdown("action-filter", () => fetchAuditLogs());
+      makeSearchableDropdown("target-type-filter", () => fetchAuditLogs());
+    }
   }
 
   async function fetchAuditLogs() {
@@ -139,6 +135,79 @@
       }
       return log;
     });
+  }
+
+  function showAuditDetails(logId) {
+    const log = auditLogs.find(l => l.id == logId);
+    if (!log) return;
+    
+    const content = formatAuditDetails(log);
+    document.getElementById("audit-details-content").innerHTML = content;
+    const modal = document.getElementById("audit-details-modal");
+    if (modal && modal.open) modal.open();
+  }
+
+  function formatAuditDetails(log) {
+    let html = `
+      <div style="margin-bottom: 16px;">
+        <div><strong>User:</strong> ${log.username || '-'}</div>
+        <div><strong>Action:</strong> ${log.action}</div>
+        <div><strong>Target:</strong> ${log.target_type} (ID: ${log.target_id || '-'})</div>
+        <div><strong>Date:</strong> ${log.created_at}</div>
+      </div>
+    `;
+    
+    if (log.action === "create" && log.new_values) {
+      html += `<h4>New Values</h4>`;
+      html += formatValuesTable(log.new_values);
+    } else if (log.action === "delete" && log.old_values) {
+      html += `<h4>Deleted Values</h4>`;
+      html += formatValuesTable(log.old_values);
+    } else if (log.action === "update") {
+      html += `<h4>Changes</h4>`;
+      html += formatChangesTable(log.old_values, log.new_values);
+    }
+    
+    return html;
+  }
+
+  function formatValuesTable(values) {
+    if (!values || typeof values !== 'object') return '<p>No data</p>';
+    
+    let html = '<table style="width: 100%; border-collapse: collapse;">';
+    html += '<tr style="background: var(--color-background);"><th style="padding: 8px; text-align: left;">Field</th><th style="padding: 8px; text-align: left;">Value</th></tr>';
+    
+    for (const [key, value] of Object.entries(values)) {
+      html += `<tr><td style="padding: 8px; border-bottom: 1px solid var(--color-border);">${key}</td>`;
+      html += `<td style="padding: 8px; border-bottom: 1px solid var(--color-border);">${value || '-'}</td></tr>`;
+    }
+    
+    html += '</table>';
+    return html;
+  }
+
+  function formatChangesTable(oldValues, newValues) {
+    if (!oldValues && !newValues) return '<p>No changes</p>';
+    
+    let html = '<table style="width: 100%; border-collapse: collapse;">';
+    html += '<tr style="background: var(--color-background);"><th style="padding: 8px; text-align: left;">Field</th><th style="padding: 8px; text-align: left;">Old Value</th><th style="padding: 8px; text-align: left;">New Value</th></tr>';
+    
+    const allKeys = new Set([...Object.keys(oldValues || {}), ...Object.keys(newValues || {})]);
+    
+    for (const key of allKeys) {
+      const oldVal = oldValues?.[key];
+      const newVal = newValues?.[key];
+      const changed = oldVal !== newVal;
+      
+      html += `<tr style="${changed ? 'background: rgba(255, 193, 7, 0.1);' : ''}">`;
+      html += `<td style="padding: 8px; border-bottom: 1px solid var(--color-border);">${key}</td>`;
+      html += `<td style="padding: 8px; border-bottom: 1px solid var(--color-border); color: var(--color-danger);">${oldVal || '-'}</td>`;
+      html += `<td style="padding: 8px; border-bottom: 1px solid var(--color-border); color: var(--color-success);">${newVal || '-'}</td>`;
+      html += '</tr>';
+    }
+    
+    html += '</table>';
+    return html;
   }
 
   initTable();
