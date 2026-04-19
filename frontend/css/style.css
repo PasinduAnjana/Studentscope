@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&family=Noto+Sans+Tamil:wght@300;400;500;600;700&display=swap");
 @import url("inputs.css");
 @import url("tables.css");
 @import url("loader.css");
@@ -53,8 +53,7 @@
 }
 
 body {
-  font-family: "Inter", sans-serif;
-  /* font-family: "Libertinus", serif; */
+  font-family: "Inter", "Noto Sans Sinhala", "Noto Sans Tamil", sans-serif;
   background-color: var(--color-bg);
   color: var(--color-text);
   line-height: 1.6;
