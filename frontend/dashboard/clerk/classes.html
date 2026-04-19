@@ -277,6 +277,7 @@
     window.requirePinPrompt(async () => {
       try {
         const payload = {
+          class_id: currentClassData.id,
           grade: currentClassData.grade,
           teacher_id: selectedTeacherId,
         };
@@ -328,8 +329,8 @@
         window.requirePinPrompt(async () => {
           try {
             const payload = {
+              class_id: currentClassData.id,
               grade: currentClassData.grade,
-              class_name: currentClassData.class_name,
               teacher_id: null
             };
 

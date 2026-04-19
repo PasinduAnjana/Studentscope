@@ -54,11 +54,12 @@ exports.assignTeacher = async (req, res) => {
     req.on("data", (chunk) => (body += chunk));
     req.on("end", async () => {
       try {
-        const { grade, class_name, teacher_id } = JSON.parse(body);
+        const { grade, class_name, teacher_id, class_id } = JSON.parse(body);
 
-        if (!class_name) {
+        // Validate: either class_id (existing) or class_name (new) must be provided
+        if (!class_id && !class_name) {
           const errorJson = JSON.stringify({
-            error: "Class name is required",
+            error: "Class ID or class name is required",
           });
           res.writeHead(400, {
             "Content-Type": "application/json",
@@ -68,7 +69,7 @@ exports.assignTeacher = async (req, res) => {
           return;
         }
 
-        await clerkService.assignTeacherToClass(grade, class_name, teacher_id);
+        await clerkService.assignTeacherToClass(grade, class_name, teacher_id, class_id);
 
         const successJson = JSON.stringify({
           message: "Teacher assigned successfully",

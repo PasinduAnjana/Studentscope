@@ -487,17 +487,31 @@ exports.createClass = async (grade, className) => {
 };
 
 exports.assignClassTeacher = async function(classId, teacherId) {
-  // Update the teacher's class_id and is_class_teacher flag
+  // Remove old teacher assignments for this class
   await pool.query(
-    "UPDATE users SET class_id = $1, is_class_teacher = TRUE WHERE id = $2",
-    [classId, teacherId]
+    "DELETE FROM class_teachers WHERE class_id = $1",
+    [classId]
   );
 
-  // Add to class_teachers table
+  // Clear previous class teacher flag and class_id from any teachers
   await pool.query(
-    "INSERT INTO class_teachers (class_id, teacher_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
-    [classId, teacherId]
+    "UPDATE users SET is_class_teacher = FALSE WHERE class_id = $1",
+    [classId]
   );
+
+  if (teacherId) {
+    // Update the new teacher's class_id and is_class_teacher flag
+    await pool.query(
+      "UPDATE users SET class_id = $1, is_class_teacher = TRUE WHERE id = $2",
+      [classId, teacherId]
+    );
+
+    // Add to class_teachers table
+    await pool.query(
+      "INSERT INTO class_teachers (class_id, teacher_id) VALUES ($1, $2)",
+      [classId, teacherId]
+    );
+  }
 };
 
 exports.deleteAnnouncement = async (announcementId, clerkId) => {
@@ -620,23 +634,26 @@ exports.getAnnouncementsForClerk = async (clerkId) => {
   }
 };
 
-exports.assignTeacherToClass = async function(grade, className, teacherId) {
-  // Find the class by grade and name
-  let classResult = await pool.query(
-    "SELECT id FROM classes WHERE grade = $1 AND name = $2",
-    [grade, className]
-  );
+exports.assignTeacherToClass = async function(grade, className, teacherId, classId) {
+  // If classId provided, use it directly (existing class)
+  let targetClassId = classId;
+  if (!targetClassId) {
+    // Find the class by grade and name
+    let classResult = await pool.query(
+      "SELECT id FROM classes WHERE grade = $1 AND name = $2",
+      [grade, className]
+    );
 
-  let classId;
-  if (classResult.rows.length === 0) {
-    // Class doesn't exist, create it
-    classId = await exports.createClass(grade, className);
-  } else {
-    classId = classResult.rows[0].id;
+    if (classResult.rows.length === 0) {
+      // Class doesn't exist, create it
+      targetClassId = await exports.createClass(grade, className);
+    } else {
+      targetClassId = classResult.rows[0].id;
+    }
   }
 
-  await exports.assignClassTeacher(classId, teacherId);
-  return classId;
+  await exports.assignClassTeacher(targetClassId, teacherId);
+  return targetClassId;
 }
 
 exports.deleteClass = async function(classId) {
@@ -1440,12 +1457,12 @@ exports.getAllStudents = async () => {
 
 exports.getAllClasses = async () => {
   const result = await pool.query(`
-    SELECT c.id, c.grade, c.name as class_name, ct.teacher_id as class_teacher_id,
+    SELECT DISTINCT ON (c.id, c.name) c.id, c.grade, c.name as class_name, ct.teacher_id as teacher_id,
       td.full_name as teacher_name
     FROM classes c
     LEFT JOIN class_teachers ct ON c.id = ct.class_id
     LEFT JOIN teacher_details td ON ct.teacher_id = td.teacher_id
-    ORDER BY c.grade, c.name
+    ORDER BY c.id, c.name, ct.id DESC
   `);
   return result.rows;
 };
