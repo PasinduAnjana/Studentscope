@@ -893,6 +893,26 @@ exports.addBehaviorRecord = async (
   return result.rows[0];
 };
 
+exports.updateBehaviorRecord = async (
+  recordId,
+  studentId,
+  classId,
+  type,
+  severity,
+  description
+) => {
+  const result = await pool.query(
+    `
+    UPDATE behavior_records 
+    SET student_id = $1, class_id = $2, type = $3, severity = $4, description = $5 
+    WHERE id = $6
+    RETURNING id
+  `,
+    [studentId, classId, type, severity || null, description, recordId]
+  );
+  return result.rowCount > 0;
+};
+
 exports.deleteBehaviorRecord = async (recordId) => {
   const result = await pool.query(
     `DELETE FROM behavior_records WHERE id = $1 RETURNING id`,

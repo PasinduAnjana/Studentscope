@@ -338,6 +338,16 @@ module.exports = (req, res) => {
     );
   }
 
+  // PUT update behavior record
+  if (
+    req.method === "PUT" &&
+    req.url.startsWith("/api/teacher/behavior/records")
+  ) {
+    return protect("teacher")(req, res, () =>
+      behaviorController.updateRecord(req, res)
+    );
+  }
+
   // DELETE behavior record (with ownership check)
   if (
     req.method === "DELETE" &&

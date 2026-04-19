@@ -172,6 +172,7 @@
   let classStudents = [];
   let myBehaviorRecords = [];
   let teacherUserId = null;
+  let editingRecordId = null;
 
   // Language variable
   let currentLanguage = localStorage.getItem("lang") || "en";
@@ -321,14 +322,19 @@
         reported_by_id: getTeacherId(),
       };
 
-      const response = await api.teacher.behavior.addRecord(payload);
+      let response;
+      if (editingRecordId) {
+        response = await api.teacher.behavior.updateRecord(editingRecordId, payload);
+      } else {
+        response = await api.teacher.behavior.addRecord(payload);
+      }
 
       if (!response.ok) throw new Error("Failed to submit record");
 
       const messages = {
-        en: "Behavior record submitted successfully",
-        si: "හැසිරීම් වාර්තා සාර්ථකව ඉදිරිපත් කරන ලදී",
-        ta: "நடத்தை பதிவு வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது",
+        en: editingRecordId ? "Behavior record updated successfully" : "Behavior record submitted successfully",
+        si: editingRecordId ? "හැසිරීම් වාර්තා සාර්ථකව යාවත්කාලීන කරන ලදී" : "හැසිරීම් වාර්තා සාර්ථකව ඉදිරිපත් කරන ලදී",
+        ta: editingRecordId ? "நடத்தை பதிவு வெற்றிகரமாக புதுப்பிக்கப்பட்டது" : "நடத்தை பதிவு வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது",
       };
       showToast(
         messages[currentLanguage] || messages.en,
@@ -381,7 +387,10 @@ function initTable() {
             render: (row) => {
                  // Inline onclick needs to pass ID carefully
                  return `
-                    <button class="btn-icon btn-delete" onclick="deleteRecord(${row.id})" title="Delete">
+                    <button class="btn-icon btn-edit" onclick="editRecord('${row.id}')" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon btn-delete" onclick="deleteRecord('${row.id}')" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
                  `;
@@ -401,7 +410,7 @@ function initTable() {
             { key: "type", header: headers.type, render: (row) => `<span class="badge badge-${row.type === 'Good' || row.type === 'Reward' ? 'green' : 'red'}">${row.type}</span>` },
             { key: "severity", header: headers.severity, render: (row) => row.severity || '-' },
             { key: "description", header: headers.description, searchable: true },
-            { key: "actions", header: headers.actions, render: (row) => `<button class="btn-icon btn-delete" onclick="deleteRecord(${row.id})" title="Delete"><i class="fas fa-trash"></i></button>` }
+            { key: "actions", header: headers.actions, render: (row) => `<button class="btn-icon btn-edit" onclick="editRecord('${row.id}')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteRecord('${row.id}')" title="Delete"><i class="fas fa-trash"></i></button>` }
         ]);
         return;
     }
@@ -501,6 +510,7 @@ function initTable() {
 
   // Reset form
   function resetBehaviorForm() {
+    editingRecordId = null;
     document.getElementById("student-select").value = "";
     document.getElementById("behavior-type").value = "";
     document.getElementById("behavior-severity").value = "";
@@ -521,6 +531,54 @@ function initTable() {
         }
     });
 
+  }
+
+  // Edit behavior record
+  window.editRecord = function editRecord(recordId) {
+    const record = myBehaviorRecords.find(r => r.id == recordId);
+    if (!record) {
+      console.error(`Record with ID ${recordId} not found in myBehaviorRecords.`);
+      return;
+    }
+
+    editingRecordId = recordId;
+
+    document.getElementById("student-select").value = record.student_id;
+    document.getElementById("behavior-type").value = record.type;
+    document.getElementById("behavior-severity").value = record.severity || "";
+    document.getElementById("behavior-description").value = record.description;
+
+    const dropdowns = document.querySelectorAll(".dropdown-select");
+    dropdowns.forEach((select) => {
+        const container = select.closest('.custom-select-container');
+        if(container) {
+             const selectedDiv = container.querySelector('.select-selected');
+             if(selectedDiv) {
+                 const selectedOption = Array.from(select.options).find(opt => opt.value == select.value);
+                 if (selectedOption) {
+                     selectedDiv.textContent = selectedOption.textContent;
+                 }
+             }
+        }
+    });
+
+    const modal = document.getElementById("add-behavior-modal");
+    if (modal.titleElement) {
+        modal.titleElement.setAttribute("data-en", "Edit Behavior Record");
+        modal.titleElement.setAttribute("data-si", "හැසිරීම් වාර්තා සංස්කරණය");
+        modal.titleElement.setAttribute("data-ta", "நடத்தை பதிவை திருத்து");
+    }
+    
+    document.getElementById("add-behavior-confirm").setAttribute("data-en", "Update Record");
+    document.getElementById("add-behavior-confirm").setAttribute("data-si", "වාර්තාව යාවත්කාලීන කරන්න");
+    document.getElementById("add-behavior-confirm").setAttribute("data-ta", "பதிவை புதுப்பிக்கவும்");
+    document.getElementById("add-behavior-confirm").textContent = currentLanguage === "si" ? "වාර්තාව යාවත්කාලීන කරන්න" : currentLanguage === "ta" ? "பதிவை புதுப்பிக்கவும்" : "Update Record";
+
+    if (typeof applyDirectLanguageAttributes === "function") {
+        applyDirectLanguageAttributes(currentLanguage);
+    }
+    
+    modal.open();
   }
 
   // Show toast notification
@@ -556,12 +614,19 @@ function initTable() {
 
       if (addBtn) {
           addBtn.addEventListener("click", () => {
+              resetBehaviorForm();
               // Translations for title
               if (modal.titleElement) {
                   modal.titleElement.setAttribute("data-en", "Add Behavior Record");
                   modal.titleElement.setAttribute("data-si", "හැසිරීම් වාර්තා එක් කරන්න");
                   modal.titleElement.setAttribute("data-ta", "நடத்தை பதிவைச் சேர்க்கவும்");
               }
+              const confirmBtn = document.getElementById("add-behavior-confirm");
+              confirmBtn.setAttribute("data-en", "Submit Record");
+              confirmBtn.setAttribute("data-si", "වාර්තා ඉදිරිපත් කරන්න");
+              confirmBtn.setAttribute("data-ta", "பதிவை சமர்ப்பிக்கவும்");
+              confirmBtn.textContent = currentLanguage === "si" ? "වාර්තා ඉදිරිපත් කරන්න" : currentLanguage === "ta" ? "பதிவை சமர்ப்பிக்கவும்" : "Submit Record";
+
                // Apply language if function exists
               if (typeof applyDirectLanguageAttributes === "function") {
                   applyDirectLanguageAttributes(localStorage.getItem("lang") || "en");

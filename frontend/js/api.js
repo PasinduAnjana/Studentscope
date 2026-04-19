@@ -105,6 +105,8 @@ const api = {
       getRecords: () => api.request("/teacher/behavior/records"),
       addRecord: (data) =>
         api.request("/teacher/behavior/records", "POST", data),
+      updateRecord: (id, data) =>
+        api.request(`/teacher/behavior/records?id=${id}`, "PUT", data),
       deleteRecord: (id) =>
         api.request(`/teacher/behavior/records?id=${id}`, "DELETE"),
     },

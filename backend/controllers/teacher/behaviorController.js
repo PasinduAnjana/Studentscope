@@ -107,3 +107,74 @@ exports.deleteRecord = async (req, res) => {
     res.end(JSON.stringify({ error: "Failed to delete behavior record" }));
   }
 };
+
+exports.updateRecord = async (req, res) => {
+  let body = "";
+  req.on("data", (chunk) => (body += chunk));
+  req.on("end", async () => {
+    try {
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const recordId = url.searchParams.get("id");
+
+      if (!recordId) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Record ID required" }));
+        return;
+      }
+
+      const records = await teacherService.getTeacherBehaviorRecords(
+        req.user.userId
+      );
+      const existingRecord = records.find((r) => r.id == recordId);
+
+      if (!existingRecord) {
+        res.writeHead(403, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "You can only edit your own records" }));
+        return;
+      }
+
+      const data = JSON.parse(body);
+      const { student_id, class_id, type, severity, description } = data;
+
+      if (!student_id || !class_id || !type || !description) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Missing required fields" }));
+        return;
+      }
+
+      const success = await adminService.updateBehaviorRecord(
+        recordId,
+        student_id,
+        class_id,
+        type,
+        severity,
+        description
+      );
+
+      try {
+        if (req.user?.userId) {
+          await auditService.logAction(req.user.userId, "update", "behavior", recordId, existingRecord, {
+            student_id,
+            type,
+            severity,
+            description
+          });
+        }
+      } catch (auditErr) {
+        console.error("Audit log failed:", auditErr);
+      }
+
+      if (success) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true }));
+      } else {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Record not found" }));
+      }
+    } catch (err) {
+      console.error("Database error:", err);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Failed to update behavior record" }));
+    }
+  });
+};
