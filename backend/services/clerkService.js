@@ -1423,14 +1423,19 @@ exports.getAllStudents = async () => {
     SELECT 
       u.id as user_id, u.username, u.class_id,
       s.full_name, s.birthday, s.address, s.gender, s.nationality,
-      c.grade, c.name as class_name
+      c.grade, c.name as class_name,
+      p.name as parent_name, p.address as parent_address
     FROM users u
     JOIN students s ON u.id = s.user_id
     LEFT JOIN classes c ON u.class_id = c.id
+    LEFT JOIN parents p ON s.parent_id = p.id
     WHERE u.role_id = (SELECT id FROM roles WHERE name = 'student')
     ORDER BY c.grade, c.name, s.full_name
   `);
-  return result.rows;
+  return result.rows.map(row => ({
+    ...row,
+    parent: row.parent_name ? { name: row.parent_name, address: row.parent_address } : null
+  }));
 };
 
 exports.getAllClasses = async () => {
