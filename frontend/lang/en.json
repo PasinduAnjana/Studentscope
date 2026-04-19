@@ -1100,6 +1100,16 @@
       "allTypes": "All Types",
       "startDate": "Start Date",
       "endDate": "End Date",
+      "modalTitle": "Audit Log Details",
+      "view": "View",
+      "newValues": "New Values",
+      "deletedValues": "Deleted Values",
+      "changes": "Changes",
+      "field": "Field",
+      "value": "Value",
+      "oldValue": "Old Value",
+      "newValue": "New Value",
+      "noChanges": "No changes",
       "error": {
         "loadFailed": "Failed to load audit logs"
       }

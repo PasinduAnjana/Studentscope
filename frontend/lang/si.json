@@ -1098,6 +1098,16 @@
       "allTypes": "සියලුම වර්ග",
       "startDate": "ආරම්භක දිනය",
       "endDate": "අවසාන දිනය",
+      "modalTitle": "විගණන ලොග් විස්තර",
+      "view": "දර්ශනය",
+      "newValues": "නව අගයන්",
+      "deletedValues": "මකා දැමූ අගයන්",
+      "changes": "වෙනස්කම්",
+      "field": "ක්ෂේත්‍රය",
+      "value": "අගය",
+      "oldValue": "පැරණි අගය",
+      "newValue": "නව අගය",
+      "noChanges": "වෙනස්කම් නොමැත",
       "error": {
         "loadFailed": "විගණන ලොග් පූරණය කිරීම අසාර්ථක විය"
       }

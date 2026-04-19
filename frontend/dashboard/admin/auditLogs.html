@@ -49,7 +49,7 @@
   </div>
 </section>
 
-<modal-dialog id="audit-details-modal" title="Audit Log Details">
+<modal-dialog id="audit-details-modal" data-title="admin.auditLogs.modalTitle" title="Audit Log Details">
   <div id="audit-details-content"></div>
 </modal-dialog>
 
@@ -76,9 +76,9 @@
       { key: "target_id", header: t("admin.auditLogs.targetId"), searchable: false },
       { 
         key: "view", 
-        header: "Details", 
+        header: t("admin.auditLogs.details"), 
         searchable: false,
-        render: (row) => `<button class="btn btn-small btn-primary" onclick="showAuditDetails(${row.id})">View</button>`
+        render: (row) => `<button class="btn btn-small btn-primary" onclick="showAuditDetails(${row.id})">${t("admin.auditLogs.view")}</button>`
       }
     ]);
     table.setEmptyState(t("common.noData"), "fas fa-history");
@@ -150,21 +150,21 @@
   function formatAuditDetails(log) {
     let html = `
       <div style="margin-bottom: 16px;">
-        <div><strong>User:</strong> ${log.username || '-'}</div>
-        <div><strong>Action:</strong> ${log.action}</div>
-        <div><strong>Target:</strong> ${log.target_type} (ID: ${log.target_id || '-'})</div>
-        <div><strong>Date:</strong> ${log.created_at}</div>
+        <div><strong>${t("admin.auditLogs.user")}:</strong> ${log.username || '-'}</div>
+        <div><strong>${t("admin.auditLogs.action")}:</strong> ${t("admin.auditLogs." + log.action) || log.action}</div>
+        <div><strong>${t("admin.auditLogs.targetType")}:</strong> ${log.target_type} (ID: ${log.target_id || '-'})</div>
+        <div><strong>${t("admin.auditLogs.date")}:</strong> ${log.created_at}</div>
       </div>
     `;
     
     if (log.action === "create" && log.new_values) {
-      html += `<h4>New Values</h4>`;
+      html += `<h4>${t("admin.auditLogs.newValues")}</h4>`;
       html += formatValuesTable(log.new_values);
     } else if (log.action === "delete" && log.old_values) {
-      html += `<h4>Deleted Values</h4>`;
+      html += `<h4>${t("admin.auditLogs.deletedValues")}</h4>`;
       html += formatValuesTable(log.old_values);
     } else if (log.action === "update") {
-      html += `<h4>Changes</h4>`;
+      html += `<h4>${t("admin.auditLogs.changes")}</h4>`;
       html += formatChangesTable(log.old_values, log.new_values);
     }
     
@@ -172,10 +172,10 @@
   }
 
   function formatValuesTable(values) {
-    if (!values || typeof values !== 'object') return '<p>No data</p>';
+    if (!values || typeof values !== 'object') return `<p>${t("common.noData")}</p>`;
     
     let html = '<table style="width: 100%; border-collapse: collapse;">';
-    html += '<tr style="background: var(--color-background);"><th style="padding: 8px; text-align: left;">Field</th><th style="padding: 8px; text-align: left;">Value</th></tr>';
+    html += `<tr style="background: var(--color-background);"><th style="padding: 8px; text-align: left;">${t("admin.auditLogs.field")}</th><th style="padding: 8px; text-align: left;">${t("admin.auditLogs.value")}</th></tr>`;
     
     for (const [key, value] of Object.entries(values)) {
       html += `<tr><td style="padding: 8px; border-bottom: 1px solid var(--color-border);">${key}</td>`;
@@ -187,10 +187,10 @@
   }
 
   function formatChangesTable(oldValues, newValues) {
-    if (!oldValues && !newValues) return '<p>No changes</p>';
+    if (!oldValues && !newValues) return `<p>${t("admin.auditLogs.noChanges")}</p>`;
     
     let html = '<table style="width: 100%; border-collapse: collapse;">';
-    html += '<tr style="background: var(--color-background);"><th style="padding: 8px; text-align: left;">Field</th><th style="padding: 8px; text-align: left;">Old Value</th><th style="padding: 8px; text-align: left;">New Value</th></tr>';
+    html += `<tr style="background: var(--color-background);"><th style="padding: 8px; text-align: left;">${t("admin.auditLogs.field")}</th><th style="padding: 8px; text-align: left;">${t("admin.auditLogs.oldValue")}</th><th style="padding: 8px; text-align: left;">${t("admin.auditLogs.newValue")}</th></tr>`;
     
     const allKeys = new Set([...Object.keys(oldValues || {}), ...Object.keys(newValues || {})]);
     
