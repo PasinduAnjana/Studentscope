@@ -1,4 +1,5 @@
 const clerkService = require("../../services/clerkService");
+const auditService = require("../../services/auditService");
 
 exports.getTeachers = async (req, res) => {
   try {
@@ -81,6 +82,15 @@ exports.createTeacher = async (req, res) => {
 
         const teacher = await clerkService.createTeacher(teacherData);
 
+        if (req.user && req.user.userId) {
+          await auditService.logAction(req.user.userId, "create", "teacher", teacher.teacher_id, null, {
+            full_name: teacherData.full_name,
+            nic: teacherData.nic
+          });
+        } else {
+          console.log("[AUDIT DEBUG] req.user is missing!");
+        }
+
         const json = JSON.stringify(teacher);
 
         res.writeHead(201, {
@@ -134,14 +144,8 @@ exports.updateTeacher = async (req, res) => {
     req.on("data", (chunk) => (body += chunk));
     req.on("end", async () => {
       try {
-        const teacherData = JSON.parse(body);
-
-        const teacher = await clerkService.updateTeacher(
-          teacherId,
-          teacherData
-        );
-
-        if (!teacher) {
+        const oldTeacher = await clerkService.getTeacherById(teacherId);
+        if (!oldTeacher) {
           const errorJson = JSON.stringify({ error: "Teacher not found" });
           res.writeHead(404, {
             "Content-Type": "application/json",
@@ -149,6 +153,25 @@ exports.updateTeacher = async (req, res) => {
           });
           res.end(errorJson);
           return;
+        }
+
+        const oldValues = {
+          full_name: oldTeacher.full_name,
+          nic: oldTeacher.nic
+        };
+
+        const teacherData = JSON.parse(body);
+
+        const teacher = await clerkService.updateTeacher(
+          teacherId,
+          teacherData
+        );
+
+        if (req.user && req.user.userId) {
+          await auditService.logAction(req.user.userId, "update", "teacher", teacherId, oldValues, {
+            full_name: teacherData.full_name || oldValues.full_name,
+            nic: teacherData.nic || oldValues.nic
+          });
         }
 
         const json = JSON.stringify(teacher);
@@ -198,6 +221,15 @@ exports.deleteTeacher = async (req, res) => {
       });
       res.end(errorJson);
       return;
+    }
+
+    const oldTeacher = await clerkService.getTeacherById(teacherId);
+
+    if (oldTeacher && req.user && req.user.userId) {
+      await auditService.logAction(req.user.userId, "delete", "teacher", teacherId, {
+        full_name: oldTeacher.full_name,
+        nic: oldTeacher.nic
+      }, null);
     }
 
     const success = await clerkService.deleteTeacher(teacherId);

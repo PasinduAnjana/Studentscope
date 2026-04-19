@@ -354,6 +354,31 @@ END $$;
         updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
       );
     `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS audit_logs (
+        id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        user_id BIGINT REFERENCES users(id),
+        action TEXT NOT NULL,
+        target_type TEXT NOT NULL,
+        target_id BIGINT,
+        old_values JSONB,
+        new_values JSONB,
+        created_at TIMESTAMPTZ DEFAULT now()
+      );
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_target ON audit_logs(target_type, target_id);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at);
+    `);
   } catch (err) {
     console.error("❌ Error initializing database:", err);
   } finally {

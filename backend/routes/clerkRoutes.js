@@ -13,6 +13,7 @@ const examsController = require("../controllers/clerk/examsController");
 const attendanceController = require("../controllers/clerk/attendanceController");
 const alertsController = require("../controllers/clerk/alertsController");
 const pinController = require("../controllers/clerk/pinController");
+const auditLogsController = require("../controllers/clerk/auditLogsController");
 
 module.exports = (req, res) => {
   // PIN Routes
@@ -359,7 +360,11 @@ module.exports = (req, res) => {
     );
   }
 
-
+  if (req.method === "GET" && req.url.startsWith("/api/clerk/audit-logs")) {
+    return protect("clerk")(req, res, () =>
+      auditLogsController.getAuditLogs(req, res)
+    );
+  }
 
   res.writeHead(404, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Not Found" }));

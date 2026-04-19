@@ -4,6 +4,7 @@ const behaviorController = require("../controllers/admin/behaviorController");
 const alertsController = require("../controllers/admin/alertsController");
 const announcementsController = require("../controllers/clerk/announcementsController");
 const profileController = require("../controllers/admin/profileController");
+const auditLogsController = require("../controllers/clerk/auditLogsController");
 const { protect } = require("../middleware/authMiddleware");
 
 module.exports = (req, res) => {
@@ -467,6 +468,12 @@ module.exports = (req, res) => {
   if (req.method === "PUT" && (req.url === "/api/admin/school-details" || req.url.startsWith("/api/admin/school-details?"))) {
     return protect("admin")(req, res, () =>
       profileController.updateSchoolDetails(req, res)
+    );
+  }
+
+  if (req.method === "GET" && req.url.startsWith("/api/admin/audit-logs")) {
+    return protect("admin")(req, res, () =>
+      auditLogsController.getAuditLogs(req, res)
     );
   }
 
