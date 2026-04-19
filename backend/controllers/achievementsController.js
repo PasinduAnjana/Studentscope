@@ -1,4 +1,5 @@
 const AchievementsService = require("../services/achievementsService");
+const auditService = require("../services/auditService");
 
 // Helper to read request body
 const getBody = (req) => {
@@ -43,6 +44,19 @@ const AchievementsController = {
       }
 
       const achievement = await AchievementsService.create(data);
+
+      try {
+        if (req.user?.userId) {
+          await auditService.logAction(req.user.userId, "create", "achievement", achievement.id, null, {
+            student_id: data.student_id,
+            title: data.title,
+            category: data.category
+          });
+        }
+      } catch (auditErr) {
+        console.error("Audit log failed:", auditErr);
+      }
+
       res.writeHead(201, { "Content-Type": "application/json" });
       res.end(JSON.stringify(achievement));
     } catch (err) {
@@ -55,7 +69,23 @@ const AchievementsController = {
   update: async (req, res, id) => {
     try {
       const data = await getBody(req);
+      const oldAchievement = await AchievementsService.getById(id);
       const updated = await AchievementsService.update(id, data);
+
+      try {
+        if (req.user?.userId) {
+          await auditService.logAction(req.user.userId, "update", "achievement", id, {
+            title: oldAchievement?.title,
+            category: oldAchievement?.category
+          }, {
+            title: data.title,
+            category: data.category
+          });
+        }
+      } catch (auditErr) {
+        console.error("Audit log failed:", auditErr);
+      }
+
       if (!updated) {
         res.writeHead(404, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Achievement not found" }));
@@ -72,7 +102,20 @@ const AchievementsController = {
 
   delete: async (req, res, id) => {
     try {
+      const oldAchievement = await AchievementsService.getById(id);
       await AchievementsService.delete(id);
+
+      try {
+        if (req.user?.userId) {
+          await auditService.logAction(req.user.userId, "delete", "achievement", id, {
+            title: oldAchievement?.title,
+            category: oldAchievement?.category
+          }, null);
+        }
+      } catch (auditErr) {
+        console.error("Audit log failed:", auditErr);
+      }
+
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ message: "Achievement deleted" }));
     } catch (err) {

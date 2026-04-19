@@ -1,4 +1,5 @@
 const clerkService = require("../../services/clerkService");
+const auditService = require("../../services/auditService");
 
 // Get all exams
 exports.getExams = async (req, res) => {
@@ -28,6 +29,18 @@ exports.createExam = async (req, res) => {
                     return res.end(JSON.stringify({ error: "Name and Year are required" }));
                 }
                 const exam = await clerkService.createExam(data);
+
+                try {
+                  if (req.user?.userId) {
+                    await auditService.logAction(req.user.userId, "create", "exam", exam.id, null, {
+                      name: data.name,
+                      year: data.year
+                    });
+                  }
+                } catch (auditErr) {
+                  console.error("Audit log failed:", auditErr);
+                }
+
                 res.writeHead(201, { "Content-Type": "application/json" });
                 res.end(JSON.stringify(exam));
             } catch (err) {

@@ -1,4 +1,5 @@
 const adminService = require("../../services/adminService");
+const auditService = require("../../services/auditService");
 
 exports.getDashboard = async (req, res) => {
   try {
@@ -271,6 +272,18 @@ exports.createClerk = async (req, res) => {
     req.on("end", async () => {
       const data = JSON.parse(body);
       const clerk = await adminService.createClerk(data);
+
+      try {
+        if (req.user?.userId) {
+          await auditService.logAction(req.user.userId, "create", "clerk", clerk.id, null, {
+            full_name: data.full_name,
+            nic: data.nic
+          });
+        }
+      } catch (auditErr) {
+        console.error("Audit log failed:", auditErr);
+      }
+
       res.writeHead(201, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ message: "Clerk created successfully", data: clerk }));
     });
@@ -296,8 +309,24 @@ exports.updateClerk = async (req, res) => {
     let body = "";
     req.on("data", (chunk) => (body += chunk));
     req.on("end", async () => {
+      const oldClerk = await adminService.getClerkById(parseInt(clerkId));
       const data = JSON.parse(body);
       await adminService.updateClerk(parseInt(clerkId), data);
+
+      try {
+        if (req.user?.userId) {
+          await auditService.logAction(req.user.userId, "update", "clerk", parseInt(clerkId), {
+            full_name: oldClerk?.full_name,
+            nic: oldClerk?.nic
+          }, {
+            full_name: data.full_name,
+            phone_number: data.phone_number
+          });
+        }
+      } catch (auditErr) {
+        console.error("Audit log failed:", auditErr);
+      }
+
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ message: "Clerk updated successfully" }));
     });
@@ -320,7 +349,20 @@ exports.deleteClerk = async (req, res) => {
       return res.end(JSON.stringify({ error: "Clerk ID required" }));
     }
 
+    const oldClerk = await adminService.getClerkById(parseInt(clerkId));
     const deleted = await adminService.deleteClerk(parseInt(clerkId));
+
+    try {
+      if (req.user?.userId) {
+        await auditService.logAction(req.user.userId, "delete", "clerk", parseInt(clerkId), {
+          full_name: oldClerk?.full_name,
+          nic: oldClerk?.nic
+        }, null);
+      }
+    } catch (auditErr) {
+      console.error("Audit log failed:", auditErr);
+    }
+
     if (!deleted) {
       res.writeHead(404, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Clerk not found" }));

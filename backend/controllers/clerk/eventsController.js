@@ -1,4 +1,5 @@
 const clerkService = require("../../services/clerkService");
+const auditService = require("../../services/auditService");
 
 exports.getEvents = async (req, res) => {
   try {
@@ -21,6 +22,18 @@ exports.createEvent = async (req, res) => {
     try {
       const data = JSON.parse(body);
       const newEvent = await clerkService.createEvent(data, req.user.userId);
+
+      try {
+        if (req.user?.userId) {
+          await auditService.logAction(req.user.userId, "create", "event", newEvent.id, null, {
+            title: data.title,
+            date: data.date
+          });
+        }
+      } catch (auditErr) {
+        console.error("Audit log failed:", auditErr);
+      }
+
       res.writeHead(201, { "Content-Type": "application/json" });
       res.end(JSON.stringify(newEvent));
     } catch (err) {
@@ -42,6 +55,15 @@ exports.deleteEvent = async (req, res) => {
 
   try {
     const deleted = await clerkService.deleteEvent(eventId, req.user.userId);
+
+    try {
+      if (req.user?.userId) {
+        await auditService.logAction(req.user.userId, "delete", "event", eventId, null, null);
+      }
+    } catch (auditErr) {
+      console.error("Audit log failed:", auditErr);
+    }
+
     if (!deleted) {
       res.writeHead(404, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Event not found or unauthorized" }));
