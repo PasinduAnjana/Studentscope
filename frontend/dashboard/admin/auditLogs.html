@@ -1,0 +1,146 @@
+<section class="section">
+  <h2 class="heading">
+    <i class="fas fa-history"></i>
+    <span data="admin.auditLogs.title">Audit Logs</span>
+  </h2>
+
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+      <div class="icon-title">
+        <i class="fas fa-list icon"></i>
+        <p class="tile-label" data="admin.auditLogs.logs">Logs</p>
+      </div>
+      <button class="btn btn-secondary" onclick="fetchAuditLogs()">
+        <i class="fas fa-sync-alt"></i> <span data="common.refresh">Refresh</span>
+      </button>
+    </div>
+
+    <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+      <div style="width: 140px;">
+        <select id="action-filter" class="dropdown-select" onchange="fetchAuditLogs()">
+          <option value="" data="admin.auditLogs.allActions">All Actions</option>
+          <option value="create" data="admin.auditLogs.create">Create</option>
+          <option value="update" data="admin.auditLogs.update">Update</option>
+          <option value="delete" data="admin.auditLogs.delete">Delete</option>
+        </select>
+      </div>
+      <div style="width: 160px;">
+        <select id="target-type-filter" class="dropdown-select" onchange="fetchAuditLogs()">
+          <option value="" data="admin.auditLogs.allTypes">All Types</option>
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+          <option value="clerk">Clerk</option>
+          <option value="class">Class</option>
+          <option value="announcement">Announcement</option>
+          <option value="event">Event</option>
+          <option value="achievement">Achievement</option>
+          <option value="exam">Exam</option>
+          <option value="marks">Marks</option>
+          <option value="behavior">Behavior</option>
+          <option value="attendance">Attendance</option>
+        </select>
+      </div>
+      <div style="width: 140px;">
+        <input type="date" id="start-date" class="input" onchange="fetchAuditLogs()" data-placeholder="admin.auditLogs.startDate">
+      </div>
+      <div style="width: 140px;">
+        <input type="date" id="end-date" class="input" onchange="fetchAuditLogs()" data-placeholder="admin.auditLogs.endDate">
+      </div>
+    </div>
+
+    <data-table id="auditTable"></data-table>
+  </div>
+</section>
+
+<script>
+  let auditLogs = [];
+
+  function initTable() {
+    const table = document.getElementById("auditTable");
+    table.setColumns([
+      { key: "created_at", header: t("admin.auditLogs.date"), searchable: false },
+      { key: "username", header: t("admin.auditLogs.user"), searchable: true },
+      { 
+        key: "action", 
+        header: t("admin.auditLogs.action"), 
+        searchable: false,
+        render: (row) => {
+          if (row.action === "create") return '<span class="badge badge-success">Create</span>';
+          if (row.action === "update") return '<span class="badge badge-warning">Update</span>';
+          if (row.action === "delete") return '<span class="badge badge-danger">Delete</span>';
+          return '<span class="badge">' + row.action + '</span>';
+        }
+      },
+      { key: "target_type", header: t("admin.auditLogs.targetType"), searchable: true },
+      { key: "target_id", header: t("admin.auditLogs.targetId"), searchable: false },
+      { 
+        key: "details", 
+        header: t("admin.auditLogs.details"), 
+        searchable: false,
+        render: (row) => {
+          if (!row.old_values && !row.new_values) return "-";
+          let html = "";
+          if (row.old_values) {
+            html += '<div class="text-danger" style="font-size:11px">- ' + JSON.stringify(row.old_values) + "</div>";
+          }
+          if (row.new_values) {
+            html += '<div class="text-success" style="font-size:11px">+ ' + JSON.stringify(row.new_values) + "</div>";
+          }
+          return html;
+        }
+      }
+    ]);
+    table.setEmptyState(t("common.noData"), "fas fa-history");
+  }
+
+  async function fetchAuditLogs() {
+    try {
+      const params = new URLSearchParams();
+      const action = document.getElementById("action-filter")?.value;
+      const targetType = document.getElementById("target-type-filter")?.value;
+      const startDate = document.getElementById("start-date")?.value;
+      const endDate = document.getElementById("end-date")?.value;
+
+      if (action) params.append("action", action);
+      if (targetType) params.append("target_type", targetType);
+      if (startDate) params.append("start_date", startDate);
+      if (endDate) params.append("end_date", endDate);
+      params.append("limit", 100);
+
+      const res = await api.request(`/admin/audit-logs?${params}`);
+      if (!res.ok) throw new Error("Failed to fetch");
+      auditLogs = await res.json();
+      formatAuditLogs();
+      const table = document.getElementById("auditTable");
+      if (table && table.setData) {
+        table.setData(auditLogs);
+      }
+    } catch (err) {
+      console.error("Error fetching audit logs:", err);
+      const table = document.getElementById("auditTable");
+      if (table && table.setData) {
+        table.setData([]);
+        table.setEmptyState(t("admin.auditLogs.error.loadFailed") || "Failed to load", "fas fa-exclamation-triangle");
+      }
+    }
+  }
+
+  function formatAuditLogs() {
+    auditLogs = auditLogs.map(log => {
+      if (log.created_at) {
+        const date = new Date(log.created_at);
+        log.created_at = date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      }
+      if (log.old_values && typeof log.old_values === "string") {
+        try { log.old_values = JSON.parse(log.old_values); } catch (e) {}
+      }
+      if (log.new_values && typeof log.new_values === "string") {
+        try { log.new_values = JSON.parse(log.new_values); } catch (e) {}
+      }
+      return log;
+    });
+  }
+
+  initTable();
+  fetchAuditLogs();
+</script>

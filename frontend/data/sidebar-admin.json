@@ -35,6 +35,11 @@
     "icon": "fas fa-certificate"
   },
   {
+    "label": "sidebar.auditLogs",
+    "page": "auditLogs",
+    "icon": "fas fa-history"
+  },
+  {
     "label": "sidebar.announcements",
     "page": "announcements",
     "icon": "fas fa-bullhorn"

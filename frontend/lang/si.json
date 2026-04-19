@@ -63,7 +63,8 @@
     "events": "සිදුවීම්",
     "settings": "සැකසුම්",
     "achievements": "සම්මුති",
-    "exams": "ප්‍රශ්න"
+    "exams": "ප්‍රශ්න",
+    "auditLogs": "අතීරකය ලොග්"
   },
   "profile": {
     "quickStats": "ඉක්මන් සංඛ්‍යාලේඛන",
@@ -1078,6 +1079,26 @@
       "saveDetails": "විස්තර සුරකින්න",
       "saveSuccess": "පාසල් විස්තර සාර්ථකව සුරකින ලදි!",
       "saveError": "විස්තර සුරකිමට අසමත් විය"
+    },
+    "auditLogs": {
+      "title": "අතීරකය ලොග්",
+      "logs": "ලොග්",
+      "date": "දිනය",
+      "user": "පරිශීලය",
+      "action": "ක්‍රියාව",
+      "targetType": "සලකුණු වර්ගය",
+      "targetId": "අංකය",
+      "details": "විස්තර",
+      "allActions": "සියලු ක්‍රියා",
+      "create": "සාදන ලද",
+      "update": "යාවත් කරන ලද",
+      "delete": "මකා දැමීම",
+      "allTypes": "සියලු වර්ග",
+      "startDate": "ආරම්භ දිනය",
+      "endDate": "අවසාන දිනය",
+      "error": {
+        "loadFailed": "අතීරකය ලොග් පූරණය කිරීමට අසමත් විය"
+      }
     }
   }
 }
