@@ -1538,9 +1538,11 @@ exports.getCertificateById = async (certId) => {
   const result = await pool.query(`
     SELECT
       cert.id,
+      cert.student_id,
       cert.type,
       cert.reason,
       cert.status,
+      cert.selected_achievements,
       cert.created_at,
       cert.updated_at,
       u.username as index_number,
@@ -1566,12 +1568,24 @@ exports.getCertificateById = async (certId) => {
   // Get achievements for character certificate
   let achievements = [];
   if (cert.type === "character") {
-    const achResult = await pool.query(`
-      SELECT title, description, category, achieved_at
-      FROM achievements
-      WHERE student_id = $1
-      ORDER BY achieved_at DESC
-    `, [cert.student_id]);
+    let achResult;
+    if (cert.selected_achievements && cert.selected_achievements.length > 0) {
+      // New behavior: fetch only selected achievements by ID
+      achResult = await pool.query(`
+        SELECT id, title, description, category, achieved_at
+        FROM achievements
+        WHERE student_id = $1 AND id = ANY($2)
+        ORDER BY achieved_at DESC
+      `, [cert.student_id, cert.selected_achievements]);
+    } else {
+      // Backwards compatible: fetch all achievements if none selected (old certificates)
+      achResult = await pool.query(`
+        SELECT id, title, description, category, achieved_at
+        FROM achievements
+        WHERE student_id = $1
+        ORDER BY achieved_at DESC
+      `, [cert.student_id]);
+    }
     achievements = achResult.rows;
   }
 

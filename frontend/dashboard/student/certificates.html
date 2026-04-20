@@ -24,6 +24,11 @@
           <label class="input-label" data-en="Reason for Request" data-si="ඉල්ලන කාරණය" data-ta="கோர்க்க முகவாய்">Reason for Request</label>
           <textarea id="reason" class="input-field" rows="3" placeholder="Why do you need this certificate?" required></textarea>
         </div>
+        <div id="achievementsSection" class="input-group" style="display: none;">
+          <label class="input-label" data-en="Select Achievements to Include" data-si="ඇතුළත් කිරීමට සාර්ථකත්වයන් තෝරන්න" data-ta="சாதனைகளைத் தேர்ந்தெடுக்கவும்">Select Achievements to Include</label>
+          <div id="achievementsList" style="max-height: 150px; overflow-y: auto; padding: 8px; background: var(--color-bg); border-radius: 4px; border: 1px solid var(--color-border);"></div>
+          <small class="text-sm text-muted" data-en="Uncheck achievements you don't want to include" data-si="ඇතුළත් කිරීමට අවශ්‍ය නැති සාර්ථකත්වයන් ඉවත් කරන්න" data-ta="இணைக்க விரும்பாத சாதனைகளைத் தேர்த்துரाग்க்கவும்">Uncheck achievements you don't want to include</small>
+        </div>
         <div style="display: flex; gap: 8px; margin-top: 8px;">
           <button type="submit" class="btn btn-primary" style="flex: 1;">
             <i class="fas fa-paper-plane"></i>
@@ -140,12 +145,41 @@
   </style>
 
   <script>
+    let studentAchievements = [];
+
     function showToast(message, icon) {
       if (typeof toast === "function") {
         toast(message, icon);
       } else {
         alert(message);
       }
+    }
+
+    async function loadStudentAchievements() {
+      studentAchievements = await getStudentAchievements();
+      renderAchievementsCheckboxes();
+    }
+
+    function renderAchievementsCheckboxes() {
+      const container = document.getElementById("achievementsList");
+      if (!container) return;
+
+      if (studentAchievements.length === 0) {
+        container.innerHTML = `<p class="text-sm text-muted" data-en="No achievements found" data-si="සාර්ථකත්වයන් නැත" data-ta="சாதனைகள் இல்லை">No achievements found</p>`;
+        return;
+      }
+
+      container.innerHTML = studentAchievements.map(a => `
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <input type="checkbox" id="achievement-${a.id}" value="${a.id}" checked style="flex-shrink: 0;">
+          <label for="achievement-${a.id}" style="cursor: pointer; flex: 1;">${a.title} <span class="text-muted">(${new Date(a.achieved_at).getFullYear()})</span></label>
+        </div>
+      `).join("");
+    }
+
+    function getSelectedAchievements() {
+      const checkboxes = document.querySelectorAll("#achievementsList input[type=checkbox]:checked");
+      return Array.from(checkboxes).map(cb => parseInt(cb.value));
     }
 
     async function loadCertificateRequests() {
@@ -212,7 +246,16 @@
       const school = await getSchoolDetails();
       const studentRes = await api.student.profile.get();
       const studentData = studentRes.ok ? await studentRes.json() : {};
-      const achievements = type === "character" ? await getStudentAchievements() : [];
+
+      let achievements = [];
+      if (type === "character") {
+        if (document.getElementById("achievementsSection").style.display !== "none") {
+          const selectedIds = getSelectedAchievements();
+          achievements = studentAchievements.filter(a => selectedIds.includes(parseInt(a.id)));
+        } else {
+          achievements = studentAchievements;
+        }
+      }
 
       const schoolName = school.school_name || "ST. MARY'S HIGH SCHOOL";
       const schoolAddress = school.address || "123 Education Street, Academic City";
@@ -273,7 +316,13 @@
     }
 
     function handleTypeChange() {
-      // Just update internally when type changes, user can click preview to see
+      const type = document.getElementById("certificateType").value;
+      const achievementsSection = document.getElementById("achievementsSection");
+      if (type === "character") {
+        achievementsSection.style.display = "block";
+      } else {
+        achievementsSection.style.display = "none";
+      }
     }
 
     async function deleteRequest(id) {
@@ -294,8 +343,13 @@
       const type = document.getElementById("certificateType").value;
       const reason = document.getElementById("reason").value;
 
+      let selectedAchievements = null;
+      if (type === "character") {
+        selectedAchievements = getSelectedAchievements();
+      }
+
       try {
-        const res = await api.student.certificates.create({ type, reason });
+        const res = await api.student.certificates.create({ type, reason, selectedAchievements });
         if (!res.ok) throw new Error("Failed to submit");
 
         showToast("Certificate request submitted!", "fa-solid fa-check");
@@ -312,6 +366,8 @@
 
     // Initialize on page load
     loadCertificateRequests();
+    loadStudentAchievements();
+    handleTypeChange();
     if (typeof makeSearchableDropdown === "function") {
       makeSearchableDropdown("certificateType", function(value) {
         handleTypeChange();

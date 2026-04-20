@@ -425,14 +425,14 @@ exports.getCertificates = async (studentId) => {
   return result.rows;
 };
 
-exports.createCertificate = async (studentId, { type, reason }) => {
+exports.createCertificate = async (studentId, { type, reason, selectedAchievements }) => {
   const result = await pool.query(
     `
-    INSERT INTO certificates (student_id, type, reason)
-    VALUES ($1, $2, $3)
-    RETURNING id, type, reason, status, created_at
+    INSERT INTO certificates (student_id, type, reason, selected_achievements)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id, type, reason, status, selected_achievements, created_at
     `,
-    [studentId, type, reason]
+    [studentId, type, reason, selectedAchievements || null]
   );
   return result.rows[0];
 };

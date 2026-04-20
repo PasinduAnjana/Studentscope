@@ -336,6 +336,7 @@ END $$;
         type TEXT NOT NULL CHECK (type IN ('character', 'leaving', 'enrollment')),
         reason TEXT,
         status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+        selected_achievements BIGINT[],
         created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
       );
