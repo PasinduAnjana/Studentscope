@@ -388,6 +388,7 @@ const api = {
     certificates: {
       getAll: () => api.request("/student/certificates"),
       create: (data) => api.request("/student/certificates", "POST", data),
+      update: (id, data) => api.request(`/student/certificates/${id}`, "PUT", data),
       delete: (id) => api.request(`/student/certificates?id=${id}`, "DELETE"),
     },
   },

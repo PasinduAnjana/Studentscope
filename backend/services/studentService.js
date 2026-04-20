@@ -444,3 +444,15 @@ exports.deleteCertificate = async (studentId, certId) => {
   );
   return result.rows.length > 0;
 };
+
+exports.updateCertificate = async (studentId, certId, data) => {
+  const { type, reason, selectedAchievements } = data;
+  const result = await pool.query(
+    `UPDATE certificates
+     SET type = $1, reason = $2, selected_achievements = $3, updated_at = NOW()
+     WHERE id = $4 AND student_id = $5 AND status = 'pending' AND created_at >= NOW() - INTERVAL '24 hours'
+     RETURNING id, type, reason, selected_achievements, status, created_at, updated_at`,
+    [type, reason, selectedAchievements || null, certId, studentId]
+  );
+  return result.rows[0];
+};

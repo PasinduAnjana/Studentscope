@@ -382,7 +382,7 @@ exports.deleteCertificate = async (req, res) => {
     }
 
     const url = new URL(req.url, `http://${req.headers.host}`);
-    const certId = url.searchParams.get("id");
+    const certId = url.searchParams.get("id") || req.url.split("/").pop();
 
     if (!certId) {
       res.writeHead(400, { "Content-Type": "application/json" });
@@ -397,5 +397,53 @@ exports.deleteCertificate = async (req, res) => {
     console.error("Database error:", err);
     res.writeHead(500, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Failed to delete certificate" }));
+  }
+};
+
+exports.updateCertificate = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Unauthorized" }));
+      return;
+    }
+
+    const certId = req.url.split("/").pop();
+    if (!certId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Certificate ID is required" }));
+      return;
+    }
+
+    let body = "";
+    req.on("data", chunk => (body += chunk));
+    req.on("end", async () => {
+      const data = JSON.parse(body);
+      const { type, reason, selectedAchievements } = data;
+
+      if (!type || !reason) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Type and reason are required" }));
+      }
+
+      try {
+        const result = await studentService.updateCertificate(userId, parseInt(certId), { type, reason, selectedAchievements });
+        if (!result) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ error: "Cannot edit this certificate request. Either it doesn't exist, is no longer pending, or is more than 24 hours old." }));
+        }
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(result));
+      } catch (dbErr) {
+        console.error("Database error:", dbErr);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Failed to update certificate" }));
+      }
+    });
+  } catch (err) {
+    console.error("Database error:", err);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Failed to process request" }));
   }
 };

@@ -114,6 +114,12 @@ module.exports = (req, res) => {
     );
   }
 
+  if (req.method === "PUT" && req.url.startsWith("/api/student/certificates/")) {
+    return protect("student")(req, res, () =>
+      studentController.updateCertificate(req, res)
+    );
+  }
+
   res.writeHead(404, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Not Found" }));
 };
