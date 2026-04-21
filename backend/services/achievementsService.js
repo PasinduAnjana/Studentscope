@@ -37,6 +37,14 @@ exports.getByStudent = async (studentId) => {
   return result.rows;
 };
 
+exports.getById = async (id) => {
+  const result = await pool.query(
+    "SELECT * FROM achievements WHERE id = $1",
+    [id]
+  );
+  return result.rows[0];
+};
+
 exports.update = async (id, data) => {
   const { title, description, category, achieved_at } = data;
   const result = await pool.query(
