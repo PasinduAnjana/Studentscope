@@ -171,6 +171,7 @@
 <script>
   let classStudents = [];
   let myBehaviorRecords = [];
+  let studentDropdownInstance = null;
   let teacherUserId = null;
   let editingRecordId = null;
 
@@ -243,6 +244,14 @@
 
       // Store for later use
       classStudents = allStudents;
+
+      if (typeof makeSearchableDropdown === "function") {
+        if (studentDropdownInstance) {
+          studentDropdownInstance.destroy();
+        }
+        // Need to pass a callback to update value correctly, though makeSearchableDropdown does this internally
+        studentDropdownInstance = makeSearchableDropdown("student-select");
+      }
     } catch (err) {
       console.error("Error loading students:", err);
       showToast("Error loading students", "fa-solid fa-circle-exclamation");
@@ -520,14 +529,22 @@ function initTable() {
     // Assuming standard implementation:
     const dropdowns = document.querySelectorAll(".dropdown-select");
      dropdowns.forEach((select) => {
-        // Reset displayed text for custom dropdowns
+        // Reset displayed text for custom dropdowns (old style)
         const container = select.closest('.custom-select-container');
         if(container) {
              const selectedDiv = container.querySelector('.select-selected');
              if(selectedDiv) {
-                 // Use the text from the first option (Choose a student/Select Type)
                  selectedDiv.textContent = select.options[0].textContent; 
              }
+        }
+        
+        // Reset searchable dropdowns (new style)
+        const searchableWrapper = select.previousElementSibling;
+        if (searchableWrapper && searchableWrapper.classList.contains('searchable-select')) {
+            const textSpan = searchableWrapper.querySelector('.dropdown-display span');
+            if (textSpan && select.options.length > 0) {
+                textSpan.textContent = select.options[0].textContent;
+            }
         }
     });
 
@@ -559,6 +576,18 @@ function initTable() {
                      selectedDiv.textContent = selectedOption.textContent;
                  }
              }
+        }
+        
+        // Update searchable dropdowns
+        const searchableWrapper = select.previousElementSibling;
+        if (searchableWrapper && searchableWrapper.classList.contains('searchable-select')) {
+            const textSpan = searchableWrapper.querySelector('.dropdown-display span');
+            if (textSpan) {
+                const selectedOption = Array.from(select.options).find(opt => opt.value == select.value);
+                if (selectedOption) {
+                    textSpan.textContent = selectedOption.textContent;
+                }
+            }
         }
     });
 
