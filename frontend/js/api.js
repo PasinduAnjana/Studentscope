@@ -91,6 +91,7 @@ const api = {
       getAll: () => api.request("/teacher/announcements"),
       getReceived: () => api.request("/teacher/announcements/received"),
       create: (data) => api.request("/teacher/announcements", "POST", data),
+      update: (id, data) => api.request(`/teacher/announcements/${id}`, "PUT", data),
       delete: (id) => api.request(`/teacher/announcements/${id}`, "DELETE"),
     },
     marks: {
@@ -169,6 +170,7 @@ const api = {
     announcements: {
       getAll: () => api.request("/clerk/announcements"),
       create: (data) => api.request("/clerk/announcements", "POST", data),
+      update: (id, data) => api.request(`/clerk/announcements/${id}`, "PUT", data),
       delete: (id) => api.request(`/clerk/announcements/${id}`, "DELETE"),
     },
     profile: {
