@@ -39,6 +39,13 @@ module.exports = (req, res) => {
     );
   }
 
+  // Upload route
+  if (req.method === "POST" && req.url === "/api/teacher/profile/upload") {
+    return protect("teacher")(req, res, () =>
+      profileController.uploadFile(req, res)
+    );
+  }
+
   // Teacher classes route
   if (req.method === "GET" && req.url === "/api/teacher/profile/classes") {
     return protect("teacher")(req, res, () =>

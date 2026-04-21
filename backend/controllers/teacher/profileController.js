@@ -1,4 +1,6 @@
 const teacherService = require("../../services/teacherService");
+const fs = require("fs");
+const path = require("path");
 
 exports.getProfile = async (req, res) => {
   try {
@@ -174,5 +176,51 @@ exports.rejectPasswordReset = async (req, res) => {
     console.error("Error rejecting password reset:", err);
     res.writeHead(500, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Failed to reject password reset" }));
+  }
+};
+
+exports.uploadFile = async (req, res) => {
+  try {
+    let body = "";
+    req.on("data", chunk => { body += chunk.toString(); });
+    req.on("end", () => {
+      try {
+        const { fileData } = JSON.parse(body);
+        if (!fileData) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ error: "No file data" }));
+        }
+        
+        const matches = fileData.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (!matches || matches.length !== 3) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ error: "Invalid base64 data" }));
+        }
+
+        const buffer = Buffer.from(matches[2], "base64");
+        let ext = "";
+        if (matches[1].includes("image/")) {
+          ext = matches[1].split("/")[1];
+          if (ext === 'jpeg') ext = 'jpg';
+        }
+        const finalName = ext ? `upload_${Date.now()}.${ext}` : `upload_${Date.now()}.bin`;
+
+        const uploadDir = path.join(__dirname, "../../../frontend/assets/uploads");
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        fs.writeFileSync(path.join(uploadDir, finalName), buffer);
+        
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ url: `/assets/uploads/${finalName}` }));
+      } catch (e) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Failed to parse or save" }));
+      }
+    });
+  } catch (err) {
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Server error" }));
   }
 };
