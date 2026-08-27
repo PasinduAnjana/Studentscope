@@ -250,6 +250,3 @@ Contributions, issues, and feature requests are welcome!
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-<div align="center">
-<sub>Built with ❤️ for better school administration.</sub>
-</div>
